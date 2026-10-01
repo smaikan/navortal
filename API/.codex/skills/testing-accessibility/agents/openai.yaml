@@ -1,0 +1,4 @@
+interface:
+  display_name: "Testing & Accessibility"
+  short_description: "ADHD akışları, JWT ve erişilebilirlik testleri"
+  default_prompt: "Use $testing-accessibility to test ADHD planning, JWT login, focus flows, responsive behavior, and accessibility."

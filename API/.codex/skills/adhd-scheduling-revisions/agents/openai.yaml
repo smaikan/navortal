@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADHD Planlama ve Revizyon"
+  short_description: "Motor, plan blokları ve güvenli geri alma"
+  default_prompt: "Bu projede $adhd-scheduling-revisions becerisini kullanarak ilgili backend işini uygula ve doğrula."

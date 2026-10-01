@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADHD API ve JWT"
+  short_description: "API sözleşmeleri ve süresiz JWT akışları"
+  default_prompt: "Bu projede $adhd-api-contracts-jwt becerisini kullanarak ilgili backend işini uygula ve doğrula."

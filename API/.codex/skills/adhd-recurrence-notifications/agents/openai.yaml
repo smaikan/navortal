@@ -1,0 +1,4 @@
+interface:
+  display_name: "ADHD Tekrar ve Bildirim"
+  short_description: "Kalıcı işler, tekrarlar ve Web Push akışı"
+  default_prompt: "Bu projede $adhd-recurrence-notifications becerisini kullanarak ilgili backend işini uygula ve doğrula."
