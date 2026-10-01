@@ -1,0 +1,763 @@
+﻿// Bu dosyayı EF Core oluşturdu.
+using System;
+using Adhd.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+
+#nullable disable
+
+namespace Adhd.Infrastructure.Persistence.Migrations
+{
+    [DbContext(typeof(PlannerDbContext))]
+    [Migration("20261015134824_AddTaskClassification")]
+    partial class AddTaskClassification
+    {
+        // Açıklama üst sınıftaki tanımda.
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.13")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name", "Id");
+
+                    b.ToTable("task_categories", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_task_categories_name", "length(btrim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_task_categories_version", "\"Version\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskPool", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name", "Id");
+
+                    b.ToTable("task_pools", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_task_pools_name", "length(btrim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_task_pools_version", "\"Version\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskProject", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name", "Id");
+
+                    b.ToTable("task_projects", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_task_projects_name", "length(btrim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_task_projects_version", "\"Version\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Name", "Id");
+
+                    b.ToTable("task_tags", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_task_tags_name", "length(btrim(\"Name\")) > 0");
+
+                            t.HasCheckConstraint("CK_task_tags_version", "\"Version\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskDependency", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PredecessorTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SuccessorTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "SuccessorTaskId");
+
+                    b.HasIndex("UserId", "PredecessorTaskId", "SuccessorTaskId")
+                        .IsUnique();
+
+                    b.ToTable("task_dependencies", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_dependency_self", "\"PredecessorTaskId\" <> \"SuccessorTaskId\"");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("EffectiveAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "TaskId", "EffectiveAt");
+
+                    b.HasIndex("UserId", "TaskId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("task_events", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_task_events_sequence", "\"Sequence\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("CanSplit")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CompletionOrigin")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DeadlineAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<long?>("DirectEstimatedSeconds")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("DirectWorkCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasDirectWork")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("ParentTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("PoolId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("RequiredForParent")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("SortOrder")
+                        .HasPrecision(28, 8)
+                        .HasColumnType("numeric(28,8)");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<long?>("TargetBudgetSeconds")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "CategoryId");
+
+                    b.HasIndex("UserId", "PoolId");
+
+                    b.HasIndex("UserId", "ProjectId");
+
+                    b.HasIndex("UserId", "CreatedAt", "Id");
+
+                    b.HasIndex("UserId", "ParentTaskId", "SortOrder", "Id");
+
+                    b.ToTable("tasks", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_tasks_budget", "\"TargetBudgetSeconds\" IS NULL OR \"TargetBudgetSeconds\" >= 0");
+
+                            t.HasCheckConstraint("CK_tasks_completion", "(\"State\" = 'Completed' AND \"CompletedAt\" IS NOT NULL AND \"CompletionOrigin\" IS NOT NULL) OR (\"State\" <> 'Completed' AND \"CompletedAt\" IS NULL AND \"CompletionOrigin\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_tasks_direct", "\"HasDirectWork\" OR \"DirectEstimatedSeconds\" IS NULL");
+
+                            t.HasCheckConstraint("CK_tasks_direct_completion", "NOT \"DirectWorkCompleted\" OR \"HasDirectWork\"");
+
+                            t.HasCheckConstraint("CK_tasks_estimate", "\"DirectEstimatedSeconds\" IS NULL OR \"DirectEstimatedSeconds\" >= 0");
+
+                            t.HasCheckConstraint("CK_tasks_parent", "\"ParentTaskId\" IS NULL OR \"ParentTaskId\" <> \"Id\"");
+
+                            t.HasCheckConstraint("CK_tasks_title", "length(btrim(\"Title\")) > 0");
+
+                            t.HasCheckConstraint("CK_tasks_version", "\"Version\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskOrderingPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AfterTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BeforeTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "AfterTaskId");
+
+                    b.HasIndex("UserId", "BeforeTaskId", "AfterTaskId")
+                        .IsUnique();
+
+                    b.ToTable("task_ordering_preferences", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ordering_self", "\"BeforeTaskId\" <> \"AfterTaskId\"");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskTagLink", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "TaskId", "TagId");
+
+                    b.HasIndex("UserId", "TagId", "TaskId");
+
+                    b.ToTable("task_tag_links", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.AppUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .IsUnique();
+
+                    b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.ExternalLogin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Provider", "Subject")
+                        .IsUnique();
+
+                    b.ToTable("external_logins", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.PasswordResetRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("password_reset_requests", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.UserPlanningState", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("PlanningVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("user_planning_states", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Infrastructure.Persistence.DatabaseMetadata", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("app_metadata", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Key = "schema",
+                            Value = "1"
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Infrastructure.Preferences.UserPreferencesRecord", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("user_preferences", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_preferences_object", "jsonb_typeof(\"Payload\") = 'object'");
+
+                            t.HasCheckConstraint("CK_preferences_version", "\"Version\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskCategory", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskPool", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskProject", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Collections.TaskTag", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskDependency", b =>
+                {
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "PredecessorTaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "SuccessorTaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskEvent", b =>
+                {
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "TaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskItem", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Collections.TaskCategory", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "CategoryId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "ParentTaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Adhd.Domain.Collections.TaskPool", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "PoolId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Adhd.Domain.Collections.TaskProject", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "ProjectId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskOrderingPreference", b =>
+                {
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "AfterTaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "BeforeTaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.TaskTagLink", b =>
+                {
+                    b.HasOne("Adhd.Domain.Collections.TaskTag", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "TagId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "TaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.ExternalLogin", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.PasswordResetRequest", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.UserPlanningState", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithOne()
+                        .HasForeignKey("Adhd.Domain.Users.UserPlanningState", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Infrastructure.Preferences.UserPreferencesRecord", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithOne()
+                        .HasForeignKey("Adhd.Infrastructure.Preferences.UserPreferencesRecord", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
