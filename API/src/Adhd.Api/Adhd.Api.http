@@ -1,0 +1,6 @@
+@Adhd_Api_HostAddress = http://localhost:5080
+
+GET {{Adhd_Api_HostAddress}}/health/live
+
+###
+GET {{Adhd_Api_HostAddress}}/health/ready
