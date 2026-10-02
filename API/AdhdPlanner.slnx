@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Adhd.Api/Adhd.Api.csproj" />
+    <Project Path="src/Adhd.Application/Adhd.Application.csproj" />
+    <Project Path="src/Adhd.Domain/Adhd.Domain.csproj" />
+    <Project Path="src/Adhd.Infrastructure/Adhd.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Adhd.IntegrationTests/Adhd.IntegrationTests.csproj" />
+    <Project Path="tests/Adhd.UnitTests/Adhd.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Adhd.ApiDocs/Adhd.ApiDocs.csproj" />
+    <Project Path="tools/Adhd.Benchmarks/Adhd.Benchmarks.csproj" />
+  </Folder>
+</Solution>
