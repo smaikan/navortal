@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:18.6
+    environment:
+      POSTGRES_DB: adhd
+      POSTGRES_USER: adhd
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - planner-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adhd -d adhd"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+  migrate:
+    build:
+      context: .
+      target: build
+    entrypoint: ["dotnet", "ef", "database", "update", "--project", "src/Adhd.Infrastructure", "--startup-project", "src/Adhd.Api", "--configuration", "Release", "--no-build"]
+    environment:
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
+      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    depends_on:
+      db: {condition: service_healthy}
+  api:
+    build: .
+    environment:
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    ports: ["127.0.0.1:5080:8080"]
+    depends_on:
+      db: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+volumes:
+  planner-data:
