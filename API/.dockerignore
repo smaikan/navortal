@@ -1,0 +1,17 @@
+.local
+.git
+**/bin
+**/obj
+**/TestResults
+artifacts
+.env*
+**/.env*
+!.env.example
+tests/
+tools/
+docs/
+scripts/
+deploy/
+.codex/
+AGENTS.md
+Uygulama Adımları.md
