@@ -12,8 +12,15 @@ using Quartz;
 
 namespace Adhd.IntegrationTests;
 
-public sealed class PlannerFactory(string connection, Action<IServiceCollection>? configure = null, bool runJobs = false) : WebApplicationFactory<Program>
+public sealed class PlannerFactory : WebApplicationFactory<Program>
 {
+    private readonly string connection; private readonly Action<IServiceCollection>? configure; private readonly bool runJobs;
+    public PlannerFactory(string connection, Action<IServiceCollection>? configure = null, bool runJobs = false)
+    {
+        this.connection = connection; this.configure = configure; this.runJobs = runJobs;
+        // API testleri Bearer ile girer. Cookie testi kendi cookie kabını açar
+        ClientOptions.HandleCookies = false;
+    }
     public static string SigningKey { get; } = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     public MutableClock Clock { get; } = new();
     protected override void ConfigureWebHost(IWebHostBuilder builder)

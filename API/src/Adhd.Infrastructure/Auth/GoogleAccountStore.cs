@@ -15,6 +15,7 @@ public sealed class GoogleAccountStore(PlannerDbContext db) : IGoogleAccountStor
     {
         db.Users.Add(user);
         db.PlanningStates.Add(new UserPlanningState { UserId = user.Id, UpdatedAt = user.CreatedAt });
+        db.NoteCategories.Add(Adhd.Domain.Support.NoteCategory.DefaultWarning(user.Id, user.CreatedAt));
         db.ExternalLogins.Add(new ExternalLogin { Id = Guid.CreateVersion7(), UserId = user.Id, Subject = subject });
         return await Save(ct);
     }

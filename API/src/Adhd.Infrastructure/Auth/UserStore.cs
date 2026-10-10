@@ -14,6 +14,7 @@ public sealed class UserStore(PlannerDbContext db) : IUserStore
     {
         db.Users.Add(user);
         db.PlanningStates.Add(new UserPlanningState { UserId = user.Id, UpdatedAt = user.CreatedAt });
+        db.NoteCategories.Add(Adhd.Domain.Support.NoteCategory.DefaultWarning(user.Id, user.CreatedAt));
         try { await db.SaveChangesAsync(ct); return true; }
         catch (DbUpdateException e) when (e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation, ConstraintName: "IX_users_NormalizedEmail" })
         { db.ChangeTracker.Clear(); return false; }

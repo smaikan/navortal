@@ -21,6 +21,8 @@ public static class AuthRegistration
         services.AddScoped<IUserStore, UserStore>();
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddScoped<IAccessTokenIssuer, JwtTokenIssuer>();
+        services.AddMemoryCache();
+        services.AddScoped<IAuthSessionStore, AuthSessionStore>();
         services.AddScoped<AuthService>();
         services.Configure<GoogleSettings>(config.GetSection("Google"));
         services.AddScoped<IGoogleTokenVerifier, GoogleTokenVerifier>();
@@ -50,35 +52,62 @@ public static class AuthRegistration
                 };
                 options.Events = new JwtBearerEvents
                 {
+                    // Bu sürümde önce HttpOnly oturum cookie'sine bakıyoruz. Cookie yoksa Bearer başlığını kullan.
+                    // Test ve tarayıcı dışı istemciler Bearer kullanabilir. Hub da sorgudan token okumaz.
                     OnMessageReceived = context =>
                     {
-                        if (context.Request.Path == Adhd.Api.Realtime.PlannerHub.Path &&
-                            (context.HttpContext.WebSockets.IsWebSocketRequest || context.Request.Headers.Accept.Any(x => x?.Contains("text/event-stream", StringComparison.OrdinalIgnoreCase) == true)))
-                            context.Token = context.Request.Query["access_token"];
+                        // Bearer başlığı varsa onu kullan. Yoksa oturum cookie'sine bak.
+                        if (context.Request.Headers.Authorization.Any(x => x?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true)) return Task.CompletedTask;
+                        var cookie = SessionCookie.Read(context.HttpContext);
+                        if (cookie is not null) { context.Token = cookie; context.HttpContext.Items[SessionCookie.FromCookieItem] = true; }
                         return Task.CompletedTask;
                     },
                     OnTokenValidated = async context =>
                     {
+                        var services = context.HttpContext.RequestServices; var ct = context.HttpContext.RequestAborted;
                         var sub = context.Principal?.FindFirst("sub")?.Value;
-                        if (!Guid.TryParse(sub, out var id) || await context.HttpContext.RequestServices.GetRequiredService<IUserStore>()
-                            .FindByIdAsync(id, context.HttpContext.RequestAborted) is null) context.Fail("User is unavailable.");
+                        if (!Guid.TryParse(sub, out var id) || await services.GetRequiredService<IUserStore>().FindByIdAsync(id, ct) is null) { context.Fail("User is unavailable."); return; }
+                        var sid = context.Principal?.FindFirst("sid")?.Value;
+                        if (sid is null)
+                        {
+                            // Oturumu olmayan eski tokenı sadece bir kez cookie oturumuna taşımak için kabul et.
+                            if (context.Request.Path != "/api/auth/session/adopt" || context.HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem)) context.Fail("Session is required.");
+                            return;
+                        }
+                        if (!Guid.TryParse(sid, out var session) || !await services.GetRequiredService<AuthService>().ValidateAsync(id, session, ct)) context.Fail("Session is revoked.");
                     },
                     OnChallenge = async context =>
                     {
                         context.HandleResponse();
+                        // Cookie geçersiz veya iptal edilmişse sil ki tarayıcı tekrar göndermesin.
+                        if (context.HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem)) SessionCookie.Delete(context.HttpContext);
                         await Results.Problem(statusCode: 401, title: "Giriş yapmanız gerekiyor.", extensions: new Dictionary<string, object?>
                         { ["code"] = "unauthorized", ["traceId"] = context.HttpContext.TraceIdentifier }).ExecuteAsync(context.HttpContext);
                     }
                 };
             });
         services.AddAuthorization();
+        // Adres başına sınır 5 dakikada 30 giriş isteği. Bunu sadece kendi test sunucumuz artırabilir
+        services.AddOptions<AuthRateLimitSettings>().Bind(config.GetSection("AuthRateLimit"))
+            .Validate(x => x.PermitLimit is >= 1 and <= 100_000 && x.WindowSeconds is >= 1 and <= 86_400, "AuthRateLimit values are out of range.")
+            .ValidateOnStart();
         services.AddRateLimiter(o =>
         {
             o.RejectionStatusCode = 429;
-            o.AddPolicy("auth", context => RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(5), QueueLimit = 0 }));
+            o.AddPolicy("auth", context =>
+            {
+                var limit = context.RequestServices.GetRequiredService<IOptions<AuthRateLimitSettings>>().Value;
+                return RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions { PermitLimit = limit.PermitLimit, Window = TimeSpan.FromSeconds(limit.WindowSeconds), QueueLimit = 0 });
+            });
         });
         return services;
+    }
+
+    public sealed class AuthRateLimitSettings
+    {
+        public int PermitLimit { get; set; } = 30;
+        public int WindowSeconds { get; set; } = 300;
     }
 
     public static IServiceCollection AddPlannerOpenApi(this IServiceCollection services)

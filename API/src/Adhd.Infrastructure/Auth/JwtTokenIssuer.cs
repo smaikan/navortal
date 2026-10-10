@@ -17,11 +17,11 @@ public sealed class JwtSettings
 
 public sealed class JwtTokenIssuer(IOptions<JwtSettings> settings, TimeProvider clock) : IAccessTokenIssuer
 {
-    public string Issue(AppUser user)
+    public string Issue(AppUser user, Guid sessionId)
     {
         var config = settings.Value;
         var token = new JwtSecurityToken(config.Issuer, config.Audience,
-            [new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            [new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), new Claim(JwtRegisteredClaimNames.Sid, sessionId.ToString()),
              new Claim(JwtRegisteredClaimNames.Iat, clock.GetUtcNow().ToUnixTimeSeconds().ToString(System.Globalization.CultureInfo.InvariantCulture), ClaimValueTypes.Integer64)],
             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.SigningKey)), SecurityAlgorithms.HmacSha256));
         return new JwtSecurityTokenHandler { SetDefaultTimesOnTokenCreation = false }.WriteToken(token);

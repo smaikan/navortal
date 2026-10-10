@@ -15,5 +15,9 @@ public sealed class UserPlanningState
 {
     public Guid UserId { get; set; }
     public long PlanningVersion { get; set; }
+    public long NotesVersion { get; set; }
+    public long SpecialDaysVersion { get; set; }
+    public Adhd.Domain.Support.NoteViewMode NotesAllViewMode { get; set; }
+    public Adhd.Domain.Support.NoteViewMode NotesTaskViewMode { get; set; } = Adhd.Domain.Support.NoteViewMode.List;
     public DateTimeOffset UpdatedAt { get; set; }
 }

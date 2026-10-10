@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using Adhd.Api.Auth;
 using Adhd.Application.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,31 +9,84 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace Adhd.Api.Controllers;
 
 [ApiController, Route("api/auth")]
-public sealed class AuthController(AuthService auth, IUserStore users, GoogleAuthService google) : ControllerBase
+public sealed class AuthController(AuthService auth, IUserStore users, GoogleAuthService google, TimeProvider clock) : ControllerBase
 {
     [HttpPost("register"), EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(AuthResponse), 201)]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request, CancellationToken ct)
     {
-        var response = await auth.RegisterAsync(request.Email, request.Password, request.DisplayName, ct);
-        return Created("/api/auth/me", response);
+        var signIn = await auth.RegisterAsync(request.Email, request.Password, request.DisplayName, Family(), ct);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return Created("/api/auth/me", signIn.Response);
     }
     [HttpPost("login"), EnableRateLimiting("auth")]
-    public Task<AuthResponse> Login(LoginRequest request, CancellationToken ct) => auth.LoginAsync(request.Email, request.Password, ct);
+    public async Task<AuthResponse> Login(LoginRequest request, CancellationToken ct)
+    {
+        var signIn = await auth.LoginAsync(request.Email, request.Password, Family(), ct);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return signIn.Response;
+    }
     [Authorize, HttpGet("me")]
-    public async Task<UserSummary> Me(CancellationToken ct) => AuthService.Summary((await users.FindByIdAsync(Guid.Parse(User.FindFirst("sub")!.Value), ct))!);
+    public async Task<UserSummary> Me(CancellationToken ct)
+    {
+        var user = (await users.FindByIdAsync(UserId, ct))!;
+        // Cookie bir günden eskiyse aynı oturum için yenile. Kullanan kişi girişte kalsın
+        if (HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem) && SessionId is { } sid
+            && long.TryParse(User.FindFirst(JwtRegisteredClaimNames.Iat)?.Value, out var iat)
+            && clock.GetUtcNow() - DateTimeOffset.FromUnixTimeSeconds(iat) >= SessionCookie.RefreshAfter
+            && await auth.RefreshAsync(user.Id, sid, ct) is { } token)
+            SessionCookie.Write(HttpContext, token);
+        return AuthService.Summary(user);
+    }
+    // Bu oturumu sunucuda kapat ve tarayıcının cookie'sini temizle.
     [Authorize, HttpPost("logout")]
     [ProducesResponseType(204)]
-    public IActionResult Logout() => NoContent();
+    public async Task<IActionResult> Logout(CancellationToken ct)
+    {
+        if (SessionId is { } sid) await auth.LogoutAsync(UserId, sid, ct);
+        SessionCookie.Delete(HttpContext);
+        return NoContent();
+    }
+    // Bu hesapta mevcut giriş dahil bütün oturumları kapat. Push abonelikleri kalır.
+    [Authorize, HttpPost("logout-all")]
+    [ProducesResponseType(204)]
+    public async Task<IActionResult> LogoutAll(CancellationToken ct)
+    {
+        await auth.LogoutAllAsync(UserId, ct);
+        SessionCookie.Delete(HttpContext);
+        return NoContent();
+    }
+    // Bearer ile gelen sid'siz eski tarayıcı tokenını bir kez cookie oturumuna taşı.
+    [Authorize, HttpPost("session/adopt"), EnableRateLimiting("auth")]
+    [ProducesResponseType(typeof(UserSummary), 200)]
+    public async Task<ActionResult<UserSummary>> Adopt(CancellationToken ct)
+    {
+        var header = Request.Headers.Authorization.ToString();
+        if (SessionId is not null || !header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+            || !long.TryParse(User.FindFirst(JwtRegisteredClaimNames.Iat)?.Value, out var iat))
+            return Problem(statusCode: 400, title: "Bu giriş zaten bir oturum.", extensions: new Dictionary<string, object?> { ["code"] = "session_not_legacy" });
+        var signIn = await auth.AdoptAsync(UserId, header["Bearer ".Length..].Trim(), DateTimeOffset.FromUnixTimeSeconds(iat), Family(), ct);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return signIn.Response.User;
+    }
     [HttpPost("google"), EnableRateLimiting("auth")]
-    public Task<AuthResponse> Google(GoogleRequest request, CancellationToken ct) => google.LoginAsync(request.IdToken, ct);
+    public async Task<AuthResponse> Google(GoogleRequest request, CancellationToken ct)
+    {
+        var signIn = await google.LoginAsync(request.IdToken, Family(), ct);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return signIn.Response;
+    }
     [Authorize, HttpPost("google/link"), EnableRateLimiting("auth")]
     [ProducesResponseType(204)]
     public async Task<IActionResult> LinkGoogle(GoogleRequest request, CancellationToken ct)
     {
-        await google.LinkAsync(Guid.Parse(User.FindFirst("sub")!.Value), request.IdToken, ct);
+        await google.LinkAsync(UserId, request.IdToken, ct);
         return NoContent();
     }
+
+    private Guid UserId => Guid.Parse(User.FindFirst("sub")!.Value);
+    private Guid? SessionId => Guid.TryParse(User.FindFirst(JwtRegisteredClaimNames.Sid)?.Value, out var sid) ? sid : null;
+    private string Family() => SessionCookie.BrowserFamily(Request.Headers.UserAgent.ToString());
 }
 
 public sealed class RegisterRequest

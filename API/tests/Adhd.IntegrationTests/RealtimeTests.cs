@@ -42,11 +42,16 @@ public sealed class RealtimeTests
     {
         await using var s = await JobScenario.Create(); var c = s.App.Server.CreateWebSocketClient();
         await Assert.ThrowsAnyAsync<Exception>(() => c.ConnectAsync(new Uri("ws://localhost/api/hubs/planner?access_token=invalid"), default));
+        // Sorguda geçerli token bile olsa kullanma. Sorgudan giriş yapılmıyor.
+        var s2 = await TaskScenario.User(s.App); var valid = s2.Client.DefaultRequestHeaders.Authorization!.Parameter!;
+        await Assert.ThrowsAnyAsync<Exception>(() => c.ConnectAsync(new Uri($"ws://localhost/api/hubs/planner?access_token={Uri.EscapeDataString(valid)}"), default));
         await Assert.ThrowsAnyAsync<Exception>(() => c.ConnectAsync(new Uri("ws://localhost/api/hubs/planner"), default));
     }
     private static async Task<WebSocket> Connect(PlannerFactory app, string token)
     {
-        var socket = await app.Server.CreateWebSocketClient().ConnectAsync(new Uri($"ws://localhost/api/hubs/planner?access_token={Uri.EscapeDataString(token)}"), default);
+        // Tarayıcı hub'a HttpOnly cookie ile girer. Tokenı URL'ye koyma
+        var client = app.Server.CreateWebSocketClient(); client.ConfigureRequest = r => r.Headers.Cookie = $"adhd_session={token}";
+        var socket = await client.ConnectAsync(new Uri("ws://localhost/api/hubs/planner"), default);
         await Send(socket, new { protocol = "json", version = 1 }); var handshake = await Receive(socket); Assert.Equal("{}", handshake.GetRawText()); return socket;
     }
     private static Task Send(WebSocket socket, object value) => socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value) + '\u001e'), WebSocketMessageType.Text, true, default);

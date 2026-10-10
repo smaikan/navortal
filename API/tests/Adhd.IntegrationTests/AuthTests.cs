@@ -19,7 +19,8 @@ public sealed class AuthTests(DatabaseFixture fixture) : IClassFixture<DatabaseF
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new { email, password = Password, displayName = "Test Reader" });
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.False(response.Headers.Contains("Set-Cookie"));
+        // Kayıt HttpOnly cookie kurar. Tarayıcı dışı istemci için gövdede token durur
+        Assert.Contains("httponly", Assert.Single(response.Headers.GetValues("Set-Cookie")), StringComparison.OrdinalIgnoreCase);
         return (await response.Content.ReadFromJsonAsync<AuthResponse>())!;
     }
 
@@ -109,14 +110,15 @@ public sealed class AuthTests(DatabaseFixture fixture) : IClassFixture<DatabaseF
     }
 
     [Fact]
-    public async Task LogoutIsStatelessAndDoesNotRevokeACopyOfTheToken()
+    public async Task LogoutRevokesTheSessionIncludingACopyOfTheToken()
     {
+        // Çıkış artık sunucudaki oturumu da kapatıyor
         await using var app = new PlannerFactory(fixture.ConnectionString);
         var client = app.CreateClient();
         var auth = await Register(client, Email());
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
         Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsync("/api/auth/logout", null)).StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/auth/me")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/auth/me")).StatusCode);
         client.DefaultRequestHeaders.Authorization = null;
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/auth/me")).StatusCode);
     }
