@@ -10,7 +10,7 @@ public sealed partial class SupportStore
 {
     public async Task<SupportDayView> DayAsync(Guid userId, DateOnly date, SupportDayChange? change, CancellationToken ct)
     {
-        Date(date); if (change is not null && (change.Version < 0 || change.AvailableEnergy.HasValue && !Enum.IsDefined(change.AvailableEnergy.Value) || change.CriticalTaskIds is null || change.CriticalTaskIds.Length > 3 || change.CriticalTaskIds.Distinct().Count() != change.CriticalTaskIds.Length)) throw Invalid("support_day_invalid", "En çok3 benzersiz kritik iş ve geçerli enerji seçin.");
+        Date(date); if (change is not null && (change.Version < 0 || change.AvailableEnergy.HasValue && !Enum.IsDefined(change.AvailableEnergy.Value) || change.CriticalTaskIds is null || change.CriticalTaskIds.Length > 3 || change.CriticalTaskIds.Distinct().Count() != change.CriticalTaskIds.Length)) throw Invalid("support_day_invalid", "En çok3 benzersiz kritik iş ve geçerli efor seçin.");
         await using var tx = await db.Database.BeginTransactionAsync(change is null ? System.Data.IsolationLevel.RepeatableRead : System.Data.IsolationLevel.ReadCommitted, ct);
         var state = change is null ? await db.PlanningStates.AsNoTracking().SingleAsync(x => x.UserId == userId, ct) : await Lock(userId, ct);
         var prefs = await preferences.ReadAsync(userId, ct); var day = await db.SupportDays.SingleOrDefaultAsync(x => x.UserId == userId && x.LocalDate == date, ct);
@@ -33,9 +33,9 @@ public sealed partial class SupportStore
     }
     public async Task<TaskView> EnergyAsync(Guid userId, Guid taskId, long version, EnergyLevel? energy, CancellationToken ct)
     {
-        if (energy.HasValue && !Enum.IsDefined(energy.Value)) throw Invalid("energy_invalid", "Enerji Low/Medium/High veya boş olmalı.");
+        if (energy.HasValue && !Enum.IsDefined(energy.Value)) throw Invalid("energy_invalid", "Efor Low/Medium/High veya boş olmalı.");
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct); var task = await Task(userId, taskId, ct); Check(task.Version, version);
-        if (task.ArchivedAt.HasValue) throw Conflict("task_archived", "Arşivdeki işin enerji tercihi değiştirilemez.");
+        if (task.ArchivedAt.HasValue) throw Conflict("task_archived", "Arşivdeki işin efor tercihi değiştirilemez.");
         var before = TaskStore.View(task); task.EnergyDemand = energy; task.Version++; task.UpdatedAt = clock.GetUtcNow(); TaskHistory.Append(db, task, "EnergyChanged", before);
         state.PlanningVersion++; state.UpdatedAt = task.UpdatedAt; await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return TaskStore.View(task);
     }

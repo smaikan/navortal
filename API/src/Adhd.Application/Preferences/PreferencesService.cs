@@ -10,7 +10,7 @@ public interface IPreferencesStore
     Task<PreferencesSnapshot> ReadAsync(Guid userId, CancellationToken ct);
     Task<PreferencesSnapshot> WriteAsync(Guid userId, long expectedVersion, PlanningPreferences values, CancellationToken ct);
 }
-public sealed class PreferencesService(IPreferencesStore store)
+public sealed class PreferencesService(IPreferencesStore store, Adhd.Application.Planning.IWorkingDayCalendar calendar)
 {
     public Task<PreferencesSnapshot> ReadAsync(Guid userId, CancellationToken ct) => store.ReadAsync(userId, ct);
     public Task<PreferencesSnapshot> WriteAsync(Guid userId, long expectedVersion, PlanningPreferences values, CancellationToken ct)
@@ -24,6 +24,8 @@ public sealed class PreferencesService(IPreferencesStore store)
         if (date.Year is < 2 or > 9998)
             throw new UseCaseException(ErrorKind.Validation, "date_out_of_range", "Tarih desteklenen aralık dışında.");
         var p = (await store.ReadAsync(userId, ct)).Values;
-        return new(date, p.TimeZoneId, WorkingCalendar.LocalIntervals(p, date), WorkingCalendar.UtcIntervals(p, date));
+        // Özel gün çalışma dışıysa günü boş say. Kullanıcının o tarihe verdiği ayar öncelikli.
+        var utc = await calendar.UtcIntervalsAsync(userId, p, date, ct);
+        return new(date, p.TimeZoneId, utc.Length == 0 ? [] : WorkingCalendar.LocalIntervals(p, date), utc);
     }
 }

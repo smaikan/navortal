@@ -18,7 +18,11 @@ public sealed record PlanningPreferences
     public bool SupportEnabled { get; init; } = true;
     public WeeklyWindow[] Weekly { get; init; } = [];
     public DateOverride[] Exceptions { get; init; } = [];
+    // Hesabın isteğe bağlı destekleri. Eski kayıtları varsayılanlarla oku.
+    public UiSupports UiSupports { get; init; } = new();
 }
+// Bu tercihler yalnız ekranda görüneni değiştirir. Plan, çalışma ve tahmin etkilenmez.
+public sealed record UiSupports(bool CalmView = false, bool DayBar = true, bool CalibrationHints = true, bool Nudges = true, bool ResumeCard = true, bool OpenTodayAsOneThing = false);
 public sealed record UtcWindow(DateTimeOffset StartsAt, DateTimeOffset EndsAt);
 
 public static class WorkingCalendar
@@ -34,6 +38,7 @@ public static class WorkingCalendar
         if (p.ParentCompletionPolicy is not ("Ask" or "CompleteSubtree" or "ParentOnly")) return "Üst görev tamamlama tercihi geçersiz.";
         if (p.MinimumSplitSeconds is < 1 or > 86400 || p.TransitionSeconds is < 0 or > 86400) return "Parça ve tampon süreleri geçersiz.";
         if (p.Weekly is null || p.Exceptions is null || p.Weekly.Length > 70 || p.Exceptions.Length > 366) return "Çalışma takvimi sınırları geçersiz.";
+        if (p.UiSupports is null) return "Destek tercihleri eksik.";
         if (p.Weekly.Any(x => x is null || x.DayOfWeek is < 0 or > 6)) return "Hafta günü geçersiz.";
         if (p.Weekly.GroupBy(x => x.DayOfWeek).Any(g => !ValidRanges(g.Select(x => new MinuteRange(x.StartMinute, x.EndMinute))))) return "Haftalık aralıklar geçersiz veya çakışıyor.";
         if (p.Exceptions.Any(x => x is null || x.Intervals is null || x.Intervals.Length > 24 || !ValidRanges(x.Intervals))
