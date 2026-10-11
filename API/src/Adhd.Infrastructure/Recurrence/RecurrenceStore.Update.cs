@@ -27,7 +27,8 @@ public sealed partial class RecurrenceStore
             var work = await db.WorkSessions.Where(x => x.UserId == userId && x.TaskId.HasValue && ids.Contains(x.TaskId.Value)).Select(x => x.TaskId!.Value).Distinct().ToArrayAsync(ct);
             var planned = await db.TaskSchedules.Where(x => x.UserId == userId && x.TaskId.HasValue && ids.Contains(x.TaskId.Value) && x.State == ScheduleState.Planned).Select(x => x.TaskId!.Value).Distinct().ToArrayAsync(ct);
             var parents = await db.Tasks.Where(x => x.UserId == userId && x.ParentTaskId.HasValue && ids.Contains(x.ParentTaskId.Value)).Select(x => x.ParentTaskId!.Value).Distinct().ToArrayAsync(ct);
-            var blocked = work.Concat(planned).Concat(parents).ToHashSet();
+            var dayPlanned = await db.DayItems.Where(x => x.UserId == userId && ids.Contains(x.TaskId)).Select(x=>x.TaskId).Distinct().ToArrayAsync(ct);
+            var blocked = work.Concat(planned).Concat(dayPlanned).Concat(parents).ToHashSet();
             foreach (var row in rows.Where(x => x.TaskId.HasValue))
             {
                 var task = tasks[row.TaskId!.Value];

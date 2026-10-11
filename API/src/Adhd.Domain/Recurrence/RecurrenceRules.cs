@@ -6,14 +6,14 @@ public enum GapPolicy { Reject, Skip, ShiftForward }
 public enum OverlapPolicy { Reject, Earlier, Later }
 public sealed record RecurrenceRule(DateOnly StartDate, string TimeZoneId = "Europe/Istanbul", RecurrenceFrequency Frequency = RecurrenceFrequency.Daily,
     int Interval = 1, int[]? WeekDays = null, int? MonthDay = null, MonthEndPolicy? MonthEnd = null, DateOnly? UntilDate = null,
-    TimeOnly? DueTime = null, GapPolicy Gap = GapPolicy.Reject, OverlapPolicy Overlap = OverlapPolicy.Reject);
+    TimeOnly? DueTime = null, GapPolicy Gap = GapPolicy.Reject, OverlapPolicy Overlap = OverlapPolicy.Reject, TimeOnly? StartTime = null, bool AutoAddToPlan = false);
 public sealed record RecurrenceCandidate(DateOnly LocalDate, string TimeZoneId, TimeOnly? DueTime, DateTimeOffset? DueAt, bool Adjusted, bool Skipped, string? Reason);
 public static class RecurrenceRules
 {
     public static bool Valid(RecurrenceRule r)
     {
         if (r.StartDate.Year is < 2 or > 9998 || r.UntilDate < r.StartDate || r.UntilDate?.Year > 9998 || !Enum.IsDefined(r.Frequency) || !Enum.IsDefined(r.Gap) || !Enum.IsDefined(r.Overlap)
-            || r.MonthEnd.HasValue && !Enum.IsDefined(r.MonthEnd.Value) || r.DueTime?.Ticks % TimeSpan.TicksPerMinute > 0 || string.IsNullOrWhiteSpace(r.TimeZoneId) || r.TimeZoneId.Length > 100
+            || r.MonthEnd.HasValue && !Enum.IsDefined(r.MonthEnd.Value) || (r.DueTime?.Ticks % TimeSpan.TicksPerMinute > 0 || r.StartTime?.Ticks % TimeSpan.TicksPerMinute > 0) || string.IsNullOrWhiteSpace(r.TimeZoneId) || r.TimeZoneId.Length > 100
             || r.TimeZoneId != "UTC" && !TimeZoneInfo.TryConvertIanaIdToWindowsId(r.TimeZoneId, out _) || !TimeZoneInfo.TryFindSystemTimeZoneById(r.TimeZoneId, out _)) return false;
         var days = r.WeekDays ?? [];
         return r.Frequency switch

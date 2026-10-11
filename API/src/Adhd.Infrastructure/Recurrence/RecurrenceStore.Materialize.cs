@@ -29,7 +29,8 @@ public sealed partial class RecurrenceStore
             Apply(task, fields, candidate.DueAt); occurrence.TaskId = task.Id; occurrence.SyncedTaskVersion = task.Version; db.Tasks.Add(task);
             TaskHistory.Append(db, task, "CreatedFromRecurrence", null, new { templateId = id, occurrenceId = occurrence.Id, definitionId = definition.Id, localDate = date, candidate.TimeZoneId, candidate.DueTime, candidate.Adjusted }); made++;
         }
-        if (made > 0) { state.PlanningVersion++; state.UpdatedAt = now; }
+        var planned = await AddAutomaticPlans(userId, existing.ToArray(), definitions, state.PlanningVersion, now, ct);
+        if (made > 0 || planned > 0) { state.PlanningVersion++; state.UpdatedAt = now; }
         var result = await Result(userId, template, await Head(userId, id, ct), existing.ToArray(), [], [], state.PlanningVersion, "recurrence-materialize", key, payload, ct); await tx.CommitAsync(ct); return result;
     }
     private async Task<RecurrenceDefinition[]> Definitions(Guid userId, Guid id, DateOnly from, DateOnly to, CancellationToken ct)

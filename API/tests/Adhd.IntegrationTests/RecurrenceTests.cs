@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Adhd.Application.Focus;
 using Adhd.Application.Recurrence;
+using Adhd.Application.Tasks;
 using Adhd.Application.Work;
 using Adhd.Domain.Focus;
 using Adhd.Domain.Recurrence;
@@ -26,6 +27,46 @@ public sealed class RecurrenceTests(DatabaseFixture fixture) : IClassFixture<Dat
         return (await Ok<RecurrenceEffect>(await Send(s, HttpMethod.Post, "/api/recurrence-templates", new RecurrenceCreate(rule ?? new(Today), new(title, EstimatedSeconds: seconds))), HttpStatusCode.Created)).Template;
     }
     private static Task<HttpResponseMessage> Generate(TaskScenario s, RecurrenceTemplateView t, DateOnly? from = null, DateOnly? to = null, string? key = null) => Send(s, HttpMethod.Post, $"/api/recurrence-templates/{t.Id}/materialize", new MaterializeRecurrence(t.Version, from ?? Today, to ?? Today.AddDays(2)), key);
+    [Fact]
+    public async Task TaskListExcludesRoutineOriginsBeforeCountAndPagingWithoutChangingDefaultReads()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning;
+        var s = await TaskScenario.User(app); var other = await TaskScenario.User(app);
+        var first = await s.Root("Ortak A"); var t = await Create(s, title: "Ortak rutin");
+        var made = await Ok<RecurrenceEffect>(await Generate(s, t)); var last = await s.Root("Ortak Z");
+        var all = await Ok<TaskPage>(await s.Client.GetAsync("/api/tasks?search=Ortak")); Assert.Equal(5, all.Total);
+        var page = await Ok<TaskPage>(await s.Client.GetAsync("/api/tasks?excludeRecurring=true&search=Ortak&orderBy=Title&limit=1"));
+        Assert.Equal(2, page.Total); Assert.Equal(first.Id, Assert.Single(page.Items).Id);
+        page = await Ok<TaskPage>(await s.Client.GetAsync("/api/tasks?excludeRecurring=true&search=Ortak&orderBy=Title&limit=1&offset=1"));
+        Assert.Equal(2, page.Total); Assert.Equal(last.Id, Assert.Single(page.Items).Id);
+        var tree = await Ok<TreePage>(await s.Client.GetAsync("/api/tasks/children?excludeRecurring=true&limit=1"));
+        Assert.Equal(first.Id, Assert.Single(tree.Items).Id); Assert.True(tree.HasMore);
+        tree = await Ok<TreePage>(await s.Client.GetAsync("/api/tasks/children?excludeRecurring=true&limit=1&offset=1"));
+        Assert.Equal(last.Id, Assert.Single(tree.Items).Id); Assert.False(tree.HasMore);
+        Assert.Equal(5, (await Ok<TreePage>(await s.Client.GetAsync("/api/tasks/children"))).Items.Length);
+        Assert.Empty((await Ok<TaskPage>(await other.Client.GetAsync("/api/tasks?excludeRecurring=true"))).Items);
+        foreach (var o in made.Occurrences) Assert.Equal(o.TaskId, (await s.Get(o.TaskId!.Value)).Id);
+        Assert.Equal(3, (await Ok<OccurrencePage>(await s.Client.GetAsync($"/api/recurrence-templates/{t.Id}/occurrences?fromDate=2026-10-15&toDate=2026-10-17"))).Total);
+    }
+    [Fact]
+    public async Task RoutineExclusionAppliesToNestedAndCompletedTasksAndDisabledTemplates()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning;
+        var s = await TaskScenario.User(app); var parent = await s.Root(); var child = await s.Child(parent.Id);
+        var t = await Create(s); var made = await Ok<RecurrenceEffect>(await Generate(s, t, Today, Today));
+        var routine = await s.Get(made.Occurrences[0].TaskId!.Value);
+        await Ok<TaskView>(await s.Client.PostAsJsonAsync($"/api/tasks/{routine.Id}/move", new { version = routine.Version, parentTaskId = parent.Id, parentVersion = (await s.Get(parent.Id)).Version }));
+        var nested = await Ok<TreePage>(await s.Client.GetAsync($"/api/tasks/children?parentId={parent.Id}&excludeRecurring=true"));
+        Assert.Equal(child.Id, Assert.Single(nested.Items).Id);
+        Assert.Equal(2, (await Ok<TreePage>(await s.Client.GetAsync($"/api/tasks/children?parentId={parent.Id}"))).Items.Length);
+        await s.State(routine.Id, TaskAction.Complete); await s.State(child.Id, TaskAction.Complete);
+        await Ok<RecurrenceEffect>(await Send(s, HttpMethod.Put, $"/api/recurrence-templates/{t.Id}/enabled", new { version = t.Version, enabled = false }));
+        var completed = await Ok<TaskPage>(await s.Client.GetAsync("/api/tasks?excludeRecurring=true&state=Completed"));
+        Assert.DoesNotContain(completed.Items, x => x.Id == routine.Id); Assert.Contains(completed.Items, x => x.Id == child.Id);
+        nested = await Ok<TreePage>(await s.Client.GetAsync($"/api/tasks/children?parentId={parent.Id}&completed=true&excludeRecurring=true"));
+        Assert.Equal(child.Id, Assert.Single(nested.Items).Id);
+        Assert.Equal(TaskState.Completed, (await s.Get(routine.Id)).State);
+    }
     private static Task<HttpResponseMessage> Update(TaskScenario s, RecurrenceTemplateView t, DateOnly from, RecurrenceRule rule, string title, bool refresh = false, DateOnly? through = null, string? key = null) => Send(s, HttpMethod.Put, $"/api/recurrence-templates/{t.Id}", new RecurrenceUpdate(t.Version, from, rule, new(title, EstimatedSeconds: 1800), refresh, through), key);
     [Fact]
     public async Task RepeatedAndParallelOverlappingWindowsCreateExactlyOneTaskPerLocalOccurrence()
