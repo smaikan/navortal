@@ -86,7 +86,7 @@ public sealed partial class SchedulingCoordinator
                 if (block.TaskId is { } taskId)
                 {
                     var task = await db.Tasks.SingleAsync(x => x.UserId == userId && x.Id == taskId, ct);
-                    metadata = Serialize(new PlanningTaskSnapshot(await work.Snapshot(task, state.PlanningVersion, ct), task.State, task.HasDirectWork, task.DirectWorkCompleted, task.RequiredForParent, task.DirectEstimatedSeconds, task.TargetBudgetSeconds));
+                    metadata = Serialize(new PlanningTaskSnapshot(await work.Snapshot(task, state.PlanningVersion, ct), task.State, task.HasDirectWork, task.DirectWorkCompleted, task.RequiredForParent, task.DirectEstimatedSeconds, task.TargetBudgetSeconds, task.Priority, task.EnergyDemand));
                 }
                 var added = new TaskSchedule { Id = Guid.CreateVersion7(), UserId = userId, DailyPlanId = plan.Id, TaskId = block.TaskId, Kind = block.Kind,
                     StartsAt = block.StartsAt, EndsAt = block.EndsAt, IsFixed = block.IsFixed, IsLocked = block.IsLocked, IsAutomatic = block.IsAutomatic, TaskSnapshot = metadata };

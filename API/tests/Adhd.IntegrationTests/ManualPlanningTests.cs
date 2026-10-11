@@ -146,12 +146,21 @@ public sealed class ManualPlanningTests(DatabaseFixture fixture) : IClassFixture
         }
         finally { await db.Database.ExecuteSqlRawAsync("DROP TRIGGER reject_plan_test ON plan_revision_items; DROP FUNCTION reject_plan_test();"); }
     }
-    [Fact]
-    public async Task DifferentConcurrentCreatesHaveOneWinnerAndCrossPlanCurrentPointerFailsInDatabase()
+    [Theory]
+    [InlineData(2)]
+    [InlineData(4)]
+    [InlineData(8)]
+    public async Task DifferentConcurrentCreatesHaveOneWinnerAndCrossPlanCurrentPointerFailsInDatabase(int contenders)
     {
-        await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app); var task = await s.Root(); var day = await Day(s);
-        var race = await Task.WhenAll(Enumerable.Range(0, 2).Select(i => Send(s, HttpMethod.Post, "/api/schedules", new { localDate = day.LocalDate, taskId = task.Id, kind = "Work", startsAt = Morning.AddHours(i), endsAt = Morning.AddHours(i + 1), expectedPlanningVersion = day.PlanningVersion })));
-        Assert.Single(race, x => x.StatusCode == HttpStatusCode.Created); Assert.Single(race, x => x.StatusCode == HttpStatusCode.Conflict);
+        var probe = new PlanningRaceFailureProbe();
+        await using var app = new PlannerFactory(fixture.ConnectionString, services => services.Insert(0,
+            Microsoft.Extensions.DependencyInjection.ServiceDescriptor.Singleton<Microsoft.AspNetCore.Diagnostics.IExceptionHandler>(probe)));
+        app.Clock.Now = Morning; var s = await TaskScenario.User(app); var task = await s.Root(); var day = await Day(s);
+        var race = await Task.WhenAll(Enumerable.Range(0, contenders).Select(i => Send(s, HttpMethod.Post, "/api/schedules", new { localDate = day.LocalDate, taskId = task.Id, kind = "Work", startsAt = Morning.AddHours(i), endsAt = Morning.AddHours(i + 1), expectedPlanningVersion = day.PlanningVersion })));
+        Assert.True(race.Count(x => x.StatusCode == HttpStatusCode.Created) == 1 && race.Count(x => x.StatusCode == HttpStatusCode.Conflict) == contenders - 1,
+            $"Expected one create and {contenders - 1} conflicts; statuses: {string.Join(',', race.Select(x => (int)x.StatusCode))}; exception types/SQL states only: {string.Join(';', probe.Failures)}");
+        foreach (var rejected in race.Where(x => x.StatusCode == HttpStatusCode.Conflict))
+            Assert.Equal("planning_version_conflict", System.Text.Json.JsonDocument.Parse(await rejected.Content.ReadAsStringAsync()).RootElement.GetProperty("code").GetString());
         await Create(s, task.Id, Morning.AddDays(1), Morning.AddDays(1).AddHours(1));
         await using var db = fixture.CreateContext(); var plans = await db.DailyPlans.Where(x => x.UserId == s.UserId).OrderBy(x => x.LocalDate).ToArrayAsync();
         plans[0].CurrentRevisionId = plans[1].CurrentRevisionId; var cross = await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync()); Assert.Equal(PostgresErrorCodes.ForeignKeyViolation, ((PostgresException)cross.InnerException!).SqlState);

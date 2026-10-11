@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Planning;
 
-public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore preferences, WorkStore work, TimeProvider clock) : IPlanningStore
+public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore preferences, WorkStore work, TimeProvider clock, DayGlanceStore glance) : IPlanningStore
 {
     public async Task<PlanMutationResult> CreateAsync(Guid userId, CreateSchedule command, string key, CancellationToken ct)
     {
@@ -32,10 +32,10 @@ public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore
             task = await db.Tasks.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == command.TaskId, ct) ?? throw Missing("task_not_found", "Görev bulunamadı.");
             if (!task.HasDirectWork || task.DirectWorkCompleted || task.ArchivedAt is not null || task.State is not (TaskState.Pending or TaskState.InProgress or TaskState.Paused))
                 throw Conflict("task_not_plannable", "Yalnız açık doğrudan işi planlayabilirsiniz.");
-            metadata = JsonSerializer.Serialize(new PlanningTaskSnapshot(await work.Snapshot(task, state.PlanningVersion, ct), task.State, task.HasDirectWork, task.DirectWorkCompleted, task.RequiredForParent, task.DirectEstimatedSeconds, task.TargetBudgetSeconds), RevisionWriter.Json);
+            metadata = JsonSerializer.Serialize(new PlanningTaskSnapshot(await work.Snapshot(task, state.PlanningVersion, ct), task.State, task.HasDirectWork, task.DirectWorkCompleted, task.RequiredForParent, task.DirectEstimatedSeconds, task.TargetBudgetSeconds, task.Priority, task.EnergyDemand), RevisionWriter.Json);
         }
         else if (command.TaskId.HasValue) throw Invalid("schedule_kind_invalid", "Mola ve tampon görev taşıyamaz.");
-        if (command.DayItemId is { } dayItemId) await TimeDayItem(userId, dayItemId, command, ct);
+        var timedItem = command.DayItemId is { } dayItemId ? await TimeDayItem(userId, dayItemId, command, ct) : null;
         var deltas = new List<PlanDelta>(); var warnings = new List<PlanningWarning>(); var group = parts.Length > 1 ? Guid.CreateVersion7() : (Guid?)null; Guid? origin = null;
         foreach (var part in parts)
         {
@@ -44,6 +44,7 @@ public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore
                 StartsAt = part.StartsAt, EndsAt = part.EndsAt, IsFixed = command.IsFixed, IsLocked = command.IsLocked, SplitGroupId = group, OriginScheduleId = origin, TaskSnapshot = metadata };
             warnings.AddRange(await Conflicts(userId, block, command.AllowConflicts, ct)); db.TaskSchedules.Add(block); deltas.Add(new(block, null, group is null ? "Added" : "SplitAdded")); origin ??= block.Id;
         }
+        if (timedItem is not null) timedItem.ScheduleId = origin;
         var now = clock.GetUtcNow(); var changeSet = Guid.CreateVersion7();
         var revisions = await RevisionWriter.Write(db, userId, deltas, now, "Manual", command.Reason!, changeSet, command.AllowConflicts, ct);
         warnings.AddRange(await QuantityWarnings(userId, command.TaskId, now, ct));
@@ -82,7 +83,10 @@ public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore
     }
     private async Task<DailyPlan> Plan(Guid userId, DateOnly date, string? zone, CancellationToken ct)
     {
-        ValidateDate(date); var plan = await db.DailyPlans.SingleOrDefaultAsync(x => x.UserId == userId && x.LocalDate == date, ct);
+        ValidateDate(date);
+        // Aynı gün kayıt öncesi iki kez istenebilir. Bellekte eklenmiş plan varsa onu kullan.
+        var plan = db.DailyPlans.Local.FirstOrDefault(x => x.UserId == userId && x.LocalDate == date)
+            ?? await db.DailyPlans.SingleOrDefaultAsync(x => x.UserId == userId && x.LocalDate == date, ct);
         if (plan is not null) { if (zone is not null && plan.TimeZoneId != zone) throw Conflict("plan_zone_conflict", "Günlerin kayıtlı zaman dilimleri farklı; ayrı planlayın."); return plan; }
         plan = new() { Id = Guid.CreateVersion7(), UserId = userId, LocalDate = date, TimeZoneId = zone ?? (await preferences.ReadAsync(userId, ct)).Values.TimeZoneId }; db.DailyPlans.Add(plan); return plan;
     }

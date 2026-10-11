@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.IntegrationTests;
 
-// Saatsiz öğeler kapasite, motor ve revizyon dışında. Öğeyi bitirmek göreve dokunmaz.
+// Saatsiz öğeler kapasiteye ve motora girmez. Öğeyi bitirmek görevi bitirmez, değişiklik geçmişte durur.
 public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private static readonly DateTimeOffset Morning = new(2026, 10, 15, 6, 0, 0, TimeSpan.Zero);
@@ -44,10 +44,11 @@ public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<Da
         Assert.Equal(HttpStatusCode.Conflict, (await Act(s, await TaskScenario.Read<DayItemView>(removed), "complete")).StatusCode);
         // Öğe kaldırılınca yeri boşalır ve aynı görev yeniden eklenebilir.
         await Added(s, step.Id);
+        // Gün öğesi değişince geçmişe yaz ve plan sürümünü artır. Yukarıda altı değişiklik var
         var after = await ManualPlanningTests.Day(s);
-        Assert.Equal(before.PlanningVersion, after.PlanningVersion); Assert.Equal(before.Version, after.Version); Assert.Null(after.Id);
+        Assert.Equal(before.PlanningVersion + 6, after.PlanningVersion); Assert.NotNull(after.Id);
         await using var db = fixture.CreateContext();
-        Assert.False(await db.TaskSchedules.AnyAsync(x => x.UserId == s.UserId)); Assert.False(await db.PlanRevisions.AnyAsync(x => x.UserId == s.UserId));
+        Assert.False(await db.TaskSchedules.AnyAsync(x => x.UserId == s.UserId)); Assert.Equal(6, await db.PlanRevisions.CountAsync(x => x.UserId == s.UserId && x.Trigger == "DayItem"));
         Assert.True(await db.Outbox.AnyAsync(x => x.UserId == s.UserId && x.Kind == "DayItemChanged" && x.SourceId == first.Id));
     }
 

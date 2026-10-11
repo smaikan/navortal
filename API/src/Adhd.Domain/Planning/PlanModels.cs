@@ -55,19 +55,31 @@ public sealed class PlanRevisionItem
     public Guid ScheduleId { get; set; }
     public string Snapshot { get; set; } = "{}";
 }
+// Plan değişikliği ya saatli ScheduleId ya da saatsiz DayItemId için yapılır.
 public sealed class PlanRevisionChange
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public Guid RevisionId { get; set; }
-    public Guid ScheduleId { get; set; }
+    public Guid? ScheduleId { get; set; }
+    public Guid? DayItemId { get; set; }
     public string Type { get; set; } = "";
     public string? Before { get; set; }
     public string? After { get; set; }
     public bool ConflictsAccepted { get; set; }
 }
-// Saatsiz iş kapasiteye, çakışmaya, motora, revizyona veya
-// hatırlatmaya girmez. Saat verilirse normal bloğa döner.
+// Revizyonun saatsiz öğeleri. Saatli bloklar PlanRevisionItem içinde kalır.
+public sealed class PlanRevisionDayItem
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public Guid RevisionId { get; set; }
+    public Guid DayItemId { get; set; }
+    public string Snapshot { get; set; } = "{}";
+}
+// Saatsiz iş kapasite, çakışma, motor veya hatırlatmaya
+// girmez. Saat verilirse normal bloğa döner. Değişikliği
+// sürümle geçmişe yaz ve geri alınabilir tut.
 public enum DayItemState { Planned, Removed, Scheduled }
 public sealed class DayItem
 {
@@ -81,4 +93,10 @@ public sealed class DayItem
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public long Version { get; set; } = 1;
+    // Saat verilince açılan blok. Geçmişte aynı öğeyi bulmak için bu kimlik tutulur.
+    public Guid? ScheduleId { get; set; }
+    public DateTimeOffset? StartsAt { get; set; }
+    public DateTimeOffset? EndsAt { get; set; }
+    public bool IsUrgent { get; set; }
+    public string? TimingIssue { get; set; }
 }

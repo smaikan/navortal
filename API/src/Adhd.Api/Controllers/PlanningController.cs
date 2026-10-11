@@ -7,10 +7,18 @@ using Microsoft.AspNetCore.Mvc;
 namespace Adhd.Api.Controllers;
 
 [ApiController, Authorize, Route("api/schedules")]
-public sealed class PlanningController(PlanningService service) : ControllerBase
+public sealed class PlanningController(PlanningService service, DayGlanceService glance, IDayOverviewStore overview, IDaySignalsStore signals) : ControllerBase
 {
     private Guid UserId => Guid.Parse(User.FindFirst("sub")!.Value);
     [HttpGet("/api/daily-plans/{date}")] public Task<DailyPlanView> Day(DateOnly date, CancellationToken ct) => service.DayAsync(UserId, date, ct);
+    // Gün çubuğunda çalışma ve plan kalanı, bilinmeyen tahminler, öğe sayıları, gerçek süre ve görev ipuçları var.
+    [HttpGet("/api/daily-plans/{date}/glance")] public Task<DayGlanceView> Glance(DateOnly date, CancellationToken ct) => glance.ReadAsync(UserId, date, ct);
+    [HttpGet("/api/daily-plans/{date}/overview")]
+    public Task<DayOverviewView> Overview(DateOnly date, [FromQuery] DayOverviewQuery query, CancellationToken ct)
+        => overview.OverviewAsync(UserId, date, query.ScheduleOffset, query.ScheduleLimit, query.ItemOffset, query.ItemLimit, ct);
+    [HttpGet("/api/daily-plans/{date}/signals")]
+    public Task<DaySignalsView> Signals(DateOnly date, [FromQuery] bool observeFocus = false, CancellationToken ct = default)
+        => signals.SignalsAsync(UserId, date, observeFocus, ct);
     [HttpPost("{id:guid}/move")]
     public async Task<PlanMutation> Move(Guid id, MoveScheduleRequest request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct)
     {
@@ -98,4 +106,12 @@ public class RemoveScheduleRequest
     [Required, Range(0, long.MaxValue)] public long? ExpectedPlanningVersion { get; set; }
     public bool AllowProtectedChange { get; set; }
     [StringLength(2000)] public string? Reason { get; set; }
+}
+
+public sealed class DayOverviewQuery
+{
+    [Range(0, 100000)] public int ScheduleOffset { get; set; }
+    [Range(1, 100)] public int ScheduleLimit { get; set; } = 100;
+    [Range(0, 100000)] public int ItemOffset { get; set; }
+    [Range(1, 100)] public int ItemLimit { get; set; } = 100;
 }

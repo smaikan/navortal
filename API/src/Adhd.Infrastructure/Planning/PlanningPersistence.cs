@@ -44,11 +44,12 @@ internal static class PlanningPersistence
                 t.HasCheckConstraint("CK_day_item_version", "\"Version\" > 0");
                 t.HasCheckConstraint("CK_day_item_state", "\"State\" IN ('Planned','Removed','Scheduled')");
                 t.HasCheckConstraint("CK_day_item_sort", "\"SortOrder\" >= 0");
+                t.HasCheckConstraint("CK_day_item_time", "\"EndsAt\" IS NULL OR (\"StartsAt\" IS NOT NULL AND \"StartsAt\" < \"EndsAt\")");
             });
             b.HasKey(x => x.Id); b.HasAlternateKey(x => new { x.UserId, x.Id });
             b.HasIndex(x => new { x.UserId, x.LocalDate, x.SortOrder });
             b.HasIndex(x => new { x.UserId, x.LocalDate, x.TaskId }).IsUnique().HasFilter("\"State\" = 'Planned'");
-            b.Property(x => x.State).HasConversion<string>().HasMaxLength(20); b.Property(x => x.Version).IsConcurrencyToken();
+            b.Property(x => x.State).HasConversion<string>().HasMaxLength(20); b.Property(x => x.Version).IsConcurrencyToken(); b.Property(x => x.TimingIssue).HasMaxLength(60);
             b.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<TaskItem>().WithMany().HasForeignKey(x => new { x.UserId, x.TaskId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         });
@@ -69,13 +70,22 @@ internal static class PlanningPersistence
             b.HasOne<PlanRevision>().WithMany().HasForeignKey(x => new { x.UserId, x.RevisionId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<TaskSchedule>().WithMany().HasForeignKey(x => new { x.UserId, x.ScheduleId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         });
+        model.Entity<PlanRevisionDayItem>(b =>
+        {
+            b.ToTable("plan_revision_day_items"); b.HasKey(x => x.Id);
+            b.HasIndex(x => new { x.UserId, x.RevisionId, x.DayItemId }).IsUnique(); b.Property(x => x.Snapshot).HasColumnType("jsonb");
+            b.HasOne<PlanRevision>().WithMany().HasForeignKey(x => new { x.UserId, x.RevisionId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<DayItem>().WithMany().HasForeignKey(x => new { x.UserId, x.DayItemId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+        });
         model.Entity<PlanRevisionChange>(b =>
         {
-            b.ToTable("plan_revision_changes"); b.HasKey(x => x.Id); b.Property(x => x.Type).HasMaxLength(30);
+            b.ToTable("plan_revision_changes", t => t.HasCheckConstraint("CK_revision_change_target", "(\"ScheduleId\" IS NULL) <> (\"DayItemId\" IS NULL)"));
+            b.HasKey(x => x.Id); b.Property(x => x.Type).HasMaxLength(30);
             b.Property(x => x.Before).HasColumnType("jsonb"); b.Property(x => x.After).HasColumnType("jsonb");
             b.HasIndex(x => new { x.UserId, x.RevisionId, x.Id });
             b.HasOne<PlanRevision>().WithMany().HasForeignKey(x => new { x.UserId, x.RevisionId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<TaskSchedule>().WithMany().HasForeignKey(x => new { x.UserId, x.ScheduleId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+            b.HasOne<DayItem>().WithMany().HasForeignKey(x => new { x.UserId, x.DayItemId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         });
         model.Entity<WorkSession>(b =>
         {

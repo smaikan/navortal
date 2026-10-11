@@ -46,7 +46,9 @@ public sealed partial class PlanningStore
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct); _ = await RevisionAsync(userId, id, ct);
         var query = db.PlanRevisionChanges.AsNoTracking().Where(x => x.UserId == userId && x.RevisionId == id); var total = await query.CountAsync(ct);
         var rows = await query.OrderBy(x => x.Id).Skip(offset).Take(limit).ToArrayAsync(ct);
-        return new(rows.Select(x => new RevisionChangeView(x.Id, x.ScheduleId, x.Type, x.Before is null ? null : JsonSerializer.Deserialize<ScheduleView>(x.Before, RevisionWriter.Json),
-            x.After is null ? null : JsonSerializer.Deserialize<ScheduleView>(x.After, RevisionWriter.Json), x.ConflictsAccepted)).ToArray(), offset, limit, total);
+        T? Read<T>(string? json) where T : class => json is null ? null : JsonSerializer.Deserialize<T>(json, RevisionWriter.Json);
+        return new(rows.Select(x => x.DayItemId is null
+            ? new RevisionChangeView(x.Id, x.ScheduleId, x.Type, Read<ScheduleView>(x.Before), Read<ScheduleView>(x.After), x.ConflictsAccepted)
+            : new RevisionChangeView(x.Id, null, x.Type, null, null, false, x.DayItemId, Read<DayItemSnapshot>(x.Before), Read<DayItemSnapshot>(x.After))).ToArray(), offset, limit, total);
     }
 }

@@ -88,7 +88,10 @@ internal sealed class SchedulingSnapshotBuilder(PlannerDbContext db, IPreference
             }
             else existing.Add(new(null, taskId, ScheduleKind.Work, segmentStart > dayStart ? segmentStart : dayStart, expectedEnd, IsActive: true, IsAutomatic: true));
         }
-        var windows = WorkingCalendar.UtcIntervals(prefs.Values with { TimeZoneId = zone }, request.Date).Select(x => new SchedulingWindow(x.StartsAt, x.EndsAt)).ToImmutableArray();
+        // Çalışma dışı özel gün kapasiteyi boşaltır. Tarih ayarı öncelikli, mevcut bloklar yerinde kalır.
+        var nonWorking = !prefs.Values.Exceptions.Any(x => x.Date == request.Date) && await Adhd.Infrastructure.SpecialDays.SpecialDayStore.IsNonWorkingAsync(db, userId, request.Date, ct);
+        var windows = nonWorking ? ImmutableArray<SchedulingWindow>.Empty
+            : WorkingCalendar.UtcIntervals(prefs.Values with { TimeZoneId = zone }, request.Date).Select(x => new SchedulingWindow(x.StartsAt, x.EndsAt)).ToImmutableArray();
         var busy = outside.Where(x => x.StartsAt < dayEnd && x.EndsAt > dayStart).Select(x => new SchedulingWindow(x.StartsAt > dayStart ? x.StartsAt : dayStart, x.EndsAt < dayEnd ? x.EndsAt : dayEnd)).ToImmutableArray();
         var snapshot = new SchedulingSnapshot(request.Date, zone, now, version, tasks.ToImmutableArray(), dependencies.ToImmutableArray(), ordering.ToImmutableArray(), windows,
             existing.ToImmutableArray(), new(prefs.Values.MinimumSplitSeconds, prefs.Values.TransitionSeconds), busy,

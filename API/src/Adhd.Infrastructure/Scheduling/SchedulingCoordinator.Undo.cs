@@ -17,7 +17,8 @@ public sealed partial class SchedulingCoordinator
         var input = await new SchedulingSnapshotBuilder(db, preferences, clock).Build(userId, new(day.LocalDate, [], request.ExpectedPlanningVersion), ct, allowEmpty: true);
         _ = await UndoSource(userId, request.ChangeSetId, ct);
         var changes = await db.PlanRevisionChanges.AsNoTracking().Where(x => x.UserId == userId && x.RevisionId == revision.Id).OrderBy(x => x.ScheduleId).ToArrayAsync(ct);
-        var ids = changes.Select(x => x.ScheduleId).ToArray();
+        if (changes.Any(x => x.ScheduleId is null)) throw Conflict("undo_use_day_items", "Saatsiz plan değişikliğini gün öğesi geri almasıyla geri alın.");
+        var ids = changes.Select(x => x.ScheduleId!.Value).ToArray();
         var removed = await db.TaskSchedules.AsNoTracking().Where(x => x.UserId == userId && x.State == ScheduleState.Removed && ids.Contains(x.Id)).ToArrayAsync(ct);
         var undo = changes.Select(x => new UndoDelta(x.Before is null ? null : UndoView(Deserialize<ScheduleView>(x.Before)), UndoView(Deserialize<ScheduleView>(x.After!)))).ToArray();
         input = input with { CurrentSchedules = input.CurrentSchedules.Concat(removed.Select(RevisionWriter.View)).OrderBy(x => x.Id).ToArray(), Undo = new(request.ChangeSetId, undo, request.AllowProtectedChange) };

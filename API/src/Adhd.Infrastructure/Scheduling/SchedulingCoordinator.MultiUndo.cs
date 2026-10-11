@@ -23,7 +23,8 @@ public sealed partial class SchedulingCoordinator
             var now = clock.GetUtcNow(); var builder = new SchedulingSnapshotBuilder(db, preferences, clock); var days = new List<SchedulingInput>();
             foreach (var plan in plans) days.Add(await builder.Build(userId, new(plan.LocalDate, [], request.ExpectedPlanningVersion), ct, allowEmpty: true, useExistingTransaction: true, capturedNow: now));
             var revisionIds = revisions.Select(x => x.Id).ToArray(); var changes = await db.PlanRevisionChanges.AsNoTracking().Where(x => x.UserId == userId && revisionIds.Contains(x.RevisionId)).OrderBy(x => x.ScheduleId).ToArrayAsync(ct);
-            var changedIds = changes.Select(x => x.ScheduleId).Distinct().ToArray();
+            if (changes.Any(x => x.ScheduleId is null)) throw Conflict("undo_use_day_items", "Saatsiz plan değişikliğini gün öğesi geri almasıyla geri alın.");
+            var changedIds = changes.Select(x => x.ScheduleId!.Value).Distinct().ToArray();
             var physical = await db.TaskSchedules.AsNoTracking().Where(x => x.UserId == userId && (planIds.Contains(x.DailyPlanId) && x.State == ScheduleState.Planned || changedIds.Contains(x.Id))).OrderBy(x => x.Id).ToArrayAsync(ct);
             var outside = await db.TaskSchedules.AsNoTracking().Where(x => x.UserId == userId && !planIds.Contains(x.DailyPlanId) && x.State == ScheduleState.Planned && x.EndsAt > now).OrderBy(x => x.Id)
                 .Select(x => new SchedulingBlock(x.Id, x.TaskId, x.Kind, x.StartsAt, x.EndsAt, x.IsFixed, x.IsLocked, false, false, x.IsAutomatic)).ToArrayAsync(ct);
@@ -46,7 +47,7 @@ public sealed partial class SchedulingCoordinator
                 days[index] = day with { CurrentSchedules = rows.OrderBy(x => x.Id).ToArray(), Snapshot = day.Snapshot with { Tasks = tasks, ExternalBusyWindows = busy, ExternalWorkBlocks = other.Where(x => x.Kind == ScheduleKind.Work).ToImmutableArray() },
                     Undo = new(request.ChangeSetId, local.Select(x => new UndoDelta(x.Before is null ? null : UndoView(Deserialize<ScheduleView>(x.Before)), UndoView(Deserialize<ScheduleView>(x.After!)))).ToArray(), request.AllowProtectedChange) };
             }
-            var moves = changes.Where(x => x.Type == "MovedOut" && x.Before is not null).Select(x => new CrossDayUndoMove(x.ScheduleId, Deserialize<ScheduleView>(x.Before!).DailyPlanId)).ToArray();
+            var moves = changes.Where(x => x.Type == "MovedOut" && x.Before is not null).Select(x => new CrossDayUndoMove(x.ScheduleId!.Value, Deserialize<ScheduleView>(x.Before!).DailyPlanId)).ToArray();
             input = new(days.ToArray(), [], outside, physical.Select(RevisionWriter.View).ToArray(), request.ChangeSetId, moves); await tx.CommitAsync(ct);
         }
         var output = GenerateDistribution(input); var id = Guid.CreateVersion7(); var created = input.Days[0].Snapshot.ServerNow; var view = DistributionView(id, input, output, created, created.AddMinutes(2));

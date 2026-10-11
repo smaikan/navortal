@@ -91,7 +91,7 @@ public sealed partial class SchedulingCoordinator
                         if (!metadata.TryGetValue(taskId, out taskSnapshot))
                         {
                             var task = await db.Tasks.SingleAsync(x => x.UserId == userId && x.Id == taskId, ct);
-                            taskSnapshot = Serialize(new PlanningTaskSnapshot(await work.Snapshot(task, state.PlanningVersion, ct), task.State, task.HasDirectWork, task.DirectWorkCompleted, task.RequiredForParent, task.DirectEstimatedSeconds, task.TargetBudgetSeconds)); metadata.Add(taskId, taskSnapshot);
+                            taskSnapshot = Serialize(new PlanningTaskSnapshot(await work.Snapshot(task, state.PlanningVersion, ct), task.State, task.HasDirectWork, task.DirectWorkCompleted, task.RequiredForParent, task.DirectEstimatedSeconds, task.TargetBudgetSeconds, task.Priority, task.EnergyDemand)); metadata.Add(taskId, taskSnapshot);
                         }
                     }
                     var added = new TaskSchedule { Id = Guid.CreateVersion7(), UserId = userId, DailyPlanId = plan.Id, TaskId = block.TaskId, Kind = block.Kind, StartsAt = block.StartsAt, EndsAt = block.EndsAt,
