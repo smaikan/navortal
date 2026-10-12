@@ -24,14 +24,18 @@ public sealed partial class CalendarStore
         CalendarDateWindow[] windows;
         try { windows = CalendarTime.Windows(from, to, zones); } catch (TimeZoneNotFoundException) { throw new UseCaseException(ErrorKind.Conflict, "historical_zone_unavailable", "Tarihsel saat dilimi bu ortamda bulunamıyor."); }
         var planRows = await db.Database.SqlQuery<PlanCalendarRollup>($"""
-            SELECT p."Id" AS "PlanId", COALESCE(c.work,0)::numeric AS "Work",COALESCE(c.break,0)::numeric AS "Break",COALESCE(c.buffer,0)::numeric AS "Buffer",COALESCE(c.blocks,0)::int AS "Blocks",COALESCE(b.work,0)::numeric AS "Baseline"
+            SELECT p."Id" AS "PlanId", (COALESCE(c.work,0)+COALESCE(e.work,0))::numeric AS "Work",COALESCE(c.break,0)::numeric AS "Break",COALESCE(c.buffer,0)::numeric AS "Buffer",(COALESCE(c.blocks,0)+COALESCE(e.blocks,0))::int AS "Blocks",(COALESCE(b.work,0)+COALESCE(u.work,0))::numeric AS "Baseline"
             FROM daily_plans p
             LEFT JOIN LATERAL (SELECT SUM(EXTRACT(EPOCH FROM (s."EndsAt"-s."StartsAt"))) FILTER(WHERE s."Kind"='Work') AS work,
                 SUM(EXTRACT(EPOCH FROM (s."EndsAt"-s."StartsAt"))) FILTER(WHERE s."Kind"='Break') AS break,
                 SUM(EXTRACT(EPOCH FROM (s."EndsAt"-s."StartsAt"))) FILTER(WHERE s."Kind"='Buffer') AS buffer,COUNT(*) AS blocks
                 FROM task_schedules s WHERE s."UserId"=p."UserId" AND s."DailyPlanId"=p."Id" AND s."State"='Planned') c ON true
+            LEFT JOIN LATERAL (SELECT SUM(EXTRACT(EPOCH FROM (d."EndsAt"-d."StartsAt"))) AS work, COUNT(*) AS blocks
+                FROM day_items d WHERE d."UserId"=p."UserId" AND d."LocalDate"=p."LocalDate" AND d."State"='Planned' AND d."EndsAt" IS NOT NULL) e ON true
             LEFT JOIN LATERAL (SELECT SUM(EXTRACT(EPOCH FROM ((i."Snapshot"->>'endsAt')::timestamptz-(i."Snapshot"->>'startsAt')::timestamptz))) AS work
                 FROM plan_revision_items i WHERE i."UserId"=p."UserId" AND i."RevisionId"=p."BaselineRevisionId" AND i."Snapshot"->>'kind'='Work') b ON true
+            LEFT JOIN LATERAL (SELECT SUM(EXTRACT(EPOCH FROM ((i."Snapshot"->>'endsAt')::timestamptz-(i."Snapshot"->>'startsAt')::timestamptz))) AS work
+                FROM plan_revision_day_items i WHERE i."UserId"=p."UserId" AND i."RevisionId"=p."BaselineRevisionId" AND i."Snapshot"->>'state'='Planned' AND i."Snapshot"->>'endsAt' IS NOT NULL) u ON true
             WHERE p."UserId"={userId} AND p."LocalDate">={from} AND p."LocalDate"<={to}
             """).ToArrayAsync(ct);
         var actual = await db.Database.SqlQueryRaw<ActualCalendarRollup>(WindowsSql + """

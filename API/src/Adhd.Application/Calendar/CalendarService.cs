@@ -23,14 +23,19 @@ public enum CalendarItemKind { Timed, Untimed }
 public sealed record CalendarItem(CalendarItemKind Kind, Guid Id, DateOnly LocalDate, Guid TaskId, string Title, Guid? ParentTaskId, string? ParentTitle,
     Guid RootTaskId, string RootTitle, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, DateTimeOffset? CompletedAt, TaskState TaskState);
 public sealed record CalendarItemPage(DateOnly FromDate, DateOnly ToDate, CalendarItem[] Items, int Offset, int Limit, int Total);
+public sealed record CalendarRootPreview(Guid RootTaskId, string RootTitle, int ItemCount, int CompletedItemCount, bool Done);
+public sealed record CalendarOverviewDay(DateOnly LocalDate, string TimeZoneId, int ItemCount, int CompletedItemCount, int RootGroupCount, CalendarRootPreview[] Roots);
+public sealed record CalendarOverviewView(DateOnly FromDate, DateOnly ToDate, DateTimeOffset ServerNow, long PlanningVersion, CalendarOverviewDay[] Days);
 public interface ICalendarStore
 {
+    Task<CalendarOverviewView> OverviewAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct);
     Task<CalendarItemPage> ItemsAsync(Guid userId, DateOnly from, DateOnly to, int offset, int limit, CancellationToken ct);
     Task<CalendarRangeView> RangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct);
     Task<CalendarDayView> DayAsync(Guid userId, DateOnly date, CalendarDayQuery query, CancellationToken ct);
 }
 public sealed class CalendarService(ICalendarStore store)
 {
+    public Task<CalendarOverviewView> OverviewAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct) => store.OverviewAsync(userId, from, to, ct);
     public Task<CalendarRangeView> RangeAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct) => store.RangeAsync(userId, from, to, ct);
     public Task<CalendarDayView> DayAsync(Guid userId, DateOnly date, CalendarDayQuery query, CancellationToken ct) => store.DayAsync(userId, date, query, ct);
     public Task<CalendarItemPage> ItemsAsync(Guid userId, DateOnly from, DateOnly to, int offset, int limit, CancellationToken ct) => store.ItemsAsync(userId, from, to, offset, limit, ct);

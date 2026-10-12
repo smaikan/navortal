@@ -1,3 +1,4 @@
+using Adhd.Application.Auth;
 using System.Net;
 using System.Net.Http.Json;
 using Adhd.Application.Preferences;
@@ -99,13 +100,19 @@ public sealed class WorkSessionTests(DatabaseFixture fixture) : IClassFixture<Da
     [Fact]
     public async Task LogoutClientCloseAndHostRestartContinueSameServerRecord()
     {
-        Guid sessionId; string token; TaskScenario s;
+        // Çıkış oturumu kapatır. Yeniden girince aynı çalışma hâlâ sürer.
+        Guid sessionId; string token; TaskScenario s; string email;
         await using (var app = new PlannerFactory(fixture.ConnectionString))
         {
-            app.Clock.Now = Morning; s = await TaskScenario.User(app); var task = await s.Root(); var work = await Started(s, task.Id); sessionId = work.Id; token = s.Client.DefaultRequestHeaders.Authorization!.Parameter!;
-            Assert.Equal(HttpStatusCode.NoContent, (await s.Client.PostAsync("/api/auth/logout", null)).StatusCode); s.Client.Dispose();
+            app.Clock.Now = Morning; email = $"{Guid.NewGuid():N}@example.test"; var c0 = app.CreateClient();
+            var auth = await TaskScenario.Read<AuthResponse>(await c0.PostAsJsonAsync("/api/auth/register", new { email, password = "123456" }));
+            c0.DefaultRequestHeaders.Authorization = new("Bearer", auth.AccessToken); s = new(c0, auth.User.Id);
+            var task = await s.Root(); var work = await Started(s, task.Id); sessionId = work.Id;
+            Assert.Equal(HttpStatusCode.NoContent, (await s.Client.PostAsync("/api/auth/logout", null)).StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, (await s.Client.GetAsync("/api/work-sessions/current")).StatusCode); s.Client.Dispose();
         }
-        await using var restarted = new PlannerFactory(fixture.ConnectionString); restarted.Clock.Now = Morning.AddHours(8); using var c = restarted.CreateClient(); c.DefaultRequestHeaders.Authorization = new("Bearer", token);
+        await using var restarted = new PlannerFactory(fixture.ConnectionString); restarted.Clock.Now = Morning.AddHours(8); using var c = restarted.CreateClient();
+        token = (await TaskScenario.Read<AuthResponse>(await c.PostAsJsonAsync("/api/auth/login", new { email, password = "123456" }))).AccessToken; c.DefaultRequestHeaders.Authorization = new("Bearer", token);
         var current = await TaskScenario.Read<CurrentWork>(await c.GetAsync("/api/work-sessions/current")); Assert.Equal(sessionId, current.ActiveSession!.Id); Assert.Equal(8 * 3600m, current.ActiveSession.ActiveSeconds);
     }
     [Fact]

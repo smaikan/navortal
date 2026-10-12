@@ -26,13 +26,14 @@ public sealed partial class WorkStore
     public async Task<WorkPage> ListAsync(Guid userId, int offset, int limit, WorkState? state, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct);
+        var readState = await db.PlanningStates.AsNoTracking().SingleAsync(x => x.UserId == userId, ct);
         var query = db.WorkSessions.AsNoTracking().Where(x => x.UserId == userId && (state == null || x.State == state));
         var total = await query.CountAsync(ct);
         var sessions = await query.OrderByDescending(x => x.StartedAt).ThenBy(x => x.Id).Skip(offset).Take(limit).ToArrayAsync(ct);
         var ids = sessions.Select(x => x.Id).ToArray();
         var segments = await db.WorkSegments.AsNoTracking().Where(x => x.UserId == userId && ids.Contains(x.SessionId)).ToArrayAsync(ct);
         var grouped = segments.ToLookup(x => x.SessionId); var now = clock.GetUtcNow();
-        return new(sessions.Select(s => View(s, Measured(grouped[s.Id], now), now)).ToArray(), offset, limit, total);
+        return new(sessions.Select(s => View(s, Measured(grouped[s.Id], now), now)).ToArray(), offset, limit, total, new(new(readState.PlanningVersion, readState.NotesVersion, readState.SpecialDaysVersion), now));
     }
     public async Task<SegmentPage> SegmentsAsync(Guid userId, Guid id, int offset, int limit, CancellationToken ct)
     {
@@ -59,16 +60,6 @@ public sealed partial class WorkStore
                               join session in db.WorkSessions.AsNoTracking() on new { segment.UserId, Id = segment.SessionId } equals new { session.UserId, session.Id }
                               where session.UserId == userId && session.TaskId.HasValue && ids.Contains(session.TaskId.Value) && !segment.IsVoided
                               select new { TaskId = session.TaskId!.Value, Segment = segment }).ToArrayAsync(ct);
-        var now = clock.GetUtcNow(); var grouped = segments.ToLookup(x => x.TaskId, x => x.Segment);
-        decimal total = 0, direct = 0, remaining = 0, overtime = 0; var unknown = 0; var unknownRemaining = 0;
-        foreach (var task in tasks)
-        {
-            var actual = Measured(grouped[task.Id], now); total += actual; if (task.Id == taskId) direct = actual;
-            if (!task.HasDirectWork) continue;
-            if (task.DirectEstimatedSeconds is { } estimate) overtime += Math.Max(0, actual - estimate); else unknown++;
-            if (task.ArchivedAt is not null || task.DirectWorkCompleted || task.State is not (TaskState.Pending or TaskState.InProgress or TaskState.Paused)) continue;
-            if (task.DirectEstimatedSeconds is { } known) remaining += Math.Max(0, known - actual); else unknownRemaining++;
-        }
-        return new(taskId, direct, total, remaining, unknownRemaining, unknownRemaining == 0 ? remaining : null, overtime, unknown, now);
+        return Adhd.Infrastructure.Tasks.TaskTimeProjection.Calculate(taskId,tasks,segments.Select(x=>(x.TaskId,x.Segment)),clock.GetUtcNow());
     }
 }

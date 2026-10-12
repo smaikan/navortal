@@ -11,7 +11,7 @@ public sealed record FocusView(Guid Id, Guid WorkSessionId, Guid? TaskId, Guid? 
     DateTimeOffset? BreakStartedAt, DateTimeOffset? BreakEndedAt, DateTimeOffset? EndedAt, DateTimeOffset? TargetReachedAt, DateTimeOffset? TargetObservedAt,
     Guid? TargetEventId, decimal ActiveSeconds, decimal RemainingSeconds, decimal OvertimeSeconds, bool EffectiveTargetReached,
     int BreakTargetSeconds, decimal BreakElapsedSeconds, decimal BreakRemainingSeconds, long Version, long WorkSessionVersion, DateTimeOffset ServerNow);
-public sealed record FocusCurrent(FocusView? Session, DateTimeOffset ServerNow);
+public sealed record FocusCurrent(FocusView? Session, DateTimeOffset ServerNow, Adhd.Application.Sync.ReadCoverage? Coverage = null);
 public sealed record FocusPage(FocusView[] Items, int Offset, int Limit, int Total);
 public sealed record FocusOutcome(FocusView Values, bool Replayed);
 public interface IFocusStore

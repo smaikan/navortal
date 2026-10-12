@@ -26,10 +26,14 @@ public sealed partial class WorkStore
     public async Task<FocusCurrent> CurrentFocusAsync(Guid userId, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct); var now = clock.GetUtcNow();
+        var result = await ObserveCurrentFocus(userId, state, now, ct); await tx.CommitAsync(ct); return result;
+    }
+    private async Task<FocusCurrent> ObserveCurrentFocus(Guid userId, Adhd.Domain.Users.UserPlanningState state, DateTimeOffset now, CancellationToken ct)
+    {
         var focus = await db.FocusSessions.SingleOrDefaultAsync(x => x.UserId == userId && x.State != FocusState.Finished && x.State != FocusState.Interrupted, ct);
-        if (focus is null) return new(null, now);
+        if (focus is null) return new(null, now, new(new(state.PlanningVersion, state.NotesVersion, state.SpecialDaysVersion), now));
         var work = await Find(userId, focus.WorkSessionId, ct); var segments = await FocusSegments(work.Id, userId, ct); await ObserveFocus(focus, work, segments, state, now, ct);
-        var view = FocusViewOf(focus, work, segments, now); await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return new(view, now);
+        var view = FocusViewOf(focus, work, segments, now); await db.SaveChangesAsync(ct); return new(view, now, new(new(state.PlanningVersion, state.NotesVersion, state.SpecialDaysVersion), now));
     }
     public async Task<FocusView> GetFocusAsync(Guid userId, Guid id, CancellationToken ct)
     {

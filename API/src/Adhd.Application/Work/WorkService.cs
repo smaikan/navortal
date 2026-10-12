@@ -11,7 +11,7 @@ public sealed record TaskAtStart(int SchemaVersion, Guid TaskId, long TaskVersio
 public sealed record WorkView(Guid Id, Guid? TaskId, WorkState State, WorkSource Source,
     DateTimeOffset StartedAt, DateTimeOffset? EndedAt, string TimeZoneId, TaskAtStart? TaskAtStart,
     long Version, decimal ActiveSeconds, DateTimeOffset ServerNow, DateTimeOffset RecordedAt, Guid? StartedScheduleId = null, Guid? StartedRevisionItemId = null);
-public sealed record WorkPage(WorkView[] Items, int Offset, int Limit, int Total);
+public sealed record WorkPage(WorkView[] Items, int Offset, int Limit, int Total, Adhd.Application.Sync.ReadCoverage? Coverage = null);
 public sealed record SegmentView(Guid Id, DateTimeOffset StartedAt, DateTimeOffset? EndedAt, bool IsVoided, long Version);
 public sealed record SegmentPage(SegmentView[] Items, int Offset, int Limit, int Total);
 public sealed record CurrentWork(WorkView? ActiveSession, DateTimeOffset ServerNow, long PlanningVersion);
