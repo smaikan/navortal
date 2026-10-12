@@ -23,7 +23,11 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
     public async Task<TaskView> GetAsync(Guid userId, Guid id, CancellationToken ct) => View(await Find(userId, id, ct));
     public async Task<TaskPage> ListAsync(Guid userId, TaskQuery query, CancellationToken ct)
     {
+        await using var tx = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, ct);
+        var readState = await db.PlanningStates.AsNoTracking().SingleAsync(x => x.UserId == userId, ct);
         var tasks = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null && (query.IncludeArchived || x.ArchivedAt == null));
+        if (query.ExcludeRecurring)
+            tasks = tasks.Where(x => !db.RecurrenceOccurrences.Any(o => o.UserId == userId && o.TaskId == x.Id));
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
             // LIKE kullanırken yüzde, alt çizgi ve ters eğik çizgiyi joker olarak değil düz metin olarak ara.
@@ -37,6 +41,8 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
         if (query.PoolId.HasValue) tasks = tasks.Where(x => x.PoolId == query.PoolId);
         if (query.CategoryId.HasValue) tasks = tasks.Where(x => x.CategoryId == query.CategoryId);
         if (query.AssignedOn is { } day) tasks = tasks.Where(x => x.PlannedFrom <= day && x.PlannedTo >= day);
+        // Efor filtresi görevin kendi eforuna bakar. Eforu boş olanlar gelmez
+        if (query.EnergyDemand is { } energy) tasks = tasks.Where(x => x.EnergyDemand == energy);
         if (query.TagId.HasValue) tasks = tasks.Where(x => db.TaskTagLinks.Any(tag => tag.UserId == userId && tag.TaskId == x.Id && tag.TagId == query.TagId));
         if (query.IsPlanned is { } isPlanned)
         {
@@ -56,7 +62,7 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
             _ => tasks.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.Id)
         };
         var rows = await ordered.Skip(query.Offset).Take(query.Limit).ToArrayAsync(ct);
-        return new(rows.Select(View).ToArray(), query.Offset, query.Limit, total);
+        return new(rows.Select(View).ToArray(), query.Offset, query.Limit, total, new(new(readState.PlanningVersion, readState.NotesVersion, readState.SpecialDaysVersion), clock.GetUtcNow()));
     }
     public async Task<TaskView> UpdateAsync(Guid userId, Guid id, long version, TaskFields? fields, bool archive, CancellationToken ct)
     {

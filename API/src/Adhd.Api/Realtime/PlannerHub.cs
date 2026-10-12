@@ -21,7 +21,7 @@ public sealed class PlannerRealtimePublisher(IHubContext<PlannerHub> hub) : IRea
 {
     public async Task PublishAsync(OutboxClaim claim, CancellationToken ct)
     {
-        if (claim.Kind is not ("TaskChanged" or "PlanChanged" or "DayItemChanged" or "WorkChanged" or "FocusChanged" or "PreferencesChanged" or "RecurrenceChanged" or "NotificationReady" or "NotificationPreferencesChanged")) return;
+        if (claim.Kind is not ("TaskChanged" or "MatrixChanged" or "PlanChanged" or "DayItemChanged" or "WorkChanged" or "FocusChanged" or "PreferencesChanged" or "RecurrenceChanged" or "NotificationReady" or "NotificationPreferencesChanged" or "SpecialDayChanged" or "NotesChanged")) return;
         // Onay kaybolursa aynı olay tekrar gelebilir. İstemci sabit kimlikten ayıklar
         await hub.Clients.Group(PlannerHub.Group(claim.UserId)).SendAsync("changed",
             new PlannerChange(claim.Id, claim.Kind, claim.SourceId, claim.SourceVersion), ct);

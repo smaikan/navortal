@@ -75,10 +75,12 @@ public sealed class TaskTreeStore(PlannerDbContext db, TimeProvider clock) : ITa
         LifecycleAccess.Reconcile(db, nodes, new[] { oldParentId, move.ParentTaskId }.OfType<Guid>(), clock.GetUtcNow());
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return TaskStore.View(task);
     }
-    public async Task<TreePage> ChildrenAsync(Guid userId, Guid? parentId, int offset, int limit, bool includeArchived, CancellationToken ct, bool? completed = null)
+    public async Task<TreePage> ChildrenAsync(Guid userId, Guid? parentId, int offset, int limit, bool includeArchived, CancellationToken ct, bool? completed = null, bool excludeRecurring = false)
     {
         if (parentId is { } id) _ = await Find(userId, id, ct);
         var query = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.ParentTaskId == parentId && x.DeletedAt == null && (includeArchived || x.ArchivedAt == null));
+        if (excludeRecurring)
+            query = query.Where(x => !db.RecurrenceOccurrences.Any(o => o.UserId == userId && o.TaskId == x.Id));
         if (completed is { } done) query = query.Where(x => (x.State == TaskState.Completed) == done);
         var ordered = completed == true ? query.OrderByDescending(x => x.CompletedAt).ThenBy(x => x.Id) : query.OrderBy(x => x.SortOrder).ThenBy(x => x.Id);
         var rows = await ordered.Skip(offset).Take(limit + 1).ToArrayAsync(ct);

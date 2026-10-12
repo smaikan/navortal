@@ -9,10 +9,10 @@ public sealed record TaskView(Guid Id, string Title, string? Description, TaskSt
     Guid? ParentTaskId, decimal SortOrder, bool HasDirectWork, long? TargetBudgetSeconds,
     bool DirectWorkCompleted, bool RequiredForParent, CompletionOrigin? CompletionOrigin, DateTimeOffset? CompletedAt,
     Guid? ProjectId, Guid? PoolId, Guid? CategoryId, Adhd.Domain.Support.EnergyLevel? EnergyDemand = null, bool AutoCompleteFromChildren = true, DateOnly? PlannedFrom = null, DateOnly? PlannedTo = null);
-public sealed record TaskPage(TaskView[] Items, int Offset, int Limit, int Total);
+public sealed record TaskPage(TaskView[] Items, int Offset, int Limit, int Total, Adhd.Application.Sync.ReadCoverage? Coverage = null);
 public sealed record TaskQuery(int Offset = 0, int Limit = 50, string? Search = null, bool IncludeArchived = false, TaskPriority? Priority = null,
     Guid? ProjectId = null, Guid? PoolId = null, Guid? CategoryId = null, Guid? TagId = null, string OrderBy = "CreatedDesc",
-    TaskState? State = null, bool IncludeCompleted = true, bool? IsPlanned = null, DateTimeOffset? From = null, DateTimeOffset? To = null, DateOnly? AssignedOn = null);
+    TaskState? State = null, bool IncludeCompleted = true, bool? IsPlanned = null, DateTimeOffset? From = null, DateTimeOffset? To = null, DateOnly? AssignedOn = null, Adhd.Domain.Support.EnergyLevel? EnergyDemand = null, bool ExcludeRecurring = false);
 public interface ITaskStore
 {
     Task<TaskView> CreateAsync(Guid userId, TaskFields fields, CancellationToken ct);
