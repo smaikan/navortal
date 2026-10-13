@@ -35,7 +35,7 @@ public sealed partial class SupportStore
         var all = await db.Tasks.AsNoTracking().Where(x => x.UserId == userId).ToArrayAsync(ct); var deps = await db.TaskDependencies.AsNoTracking().Where(x => x.UserId == userId).ToArrayAsync(ct);
         var open = subtree.Where(SupportRules.Open).ToArray(); var suggested = open.OrderByDescending(x => x.Id == lastWork?.TaskId)
             .ThenBy(x => x.DirectEstimatedSeconds ?? long.MaxValue).ThenBy(x => x.SortOrder).ThenBy(x => x.Id).FirstOrDefault(x => TaskGraphRules.CanStart(x, all, deps).CanStart);
-        return new(taskId, version, lastWork, lastNote is null ? null : View(lastNote), nextNote is null ? null : View(nextNote), completion is null ? null : new(completion.TaskId, completion.EffectiveAt, completion.Sequence), suggested is null ? null : TaskStore.View(suggested), open.Length, now);
+        return new(taskId, version, lastWork, lastNote is null ? null : await ViewAsync(userId, lastNote, ct), nextNote is null ? null : await ViewAsync(userId, nextNote, ct), completion is null ? null : new(completion.TaskId, completion.EffectiveAt, completion.Sequence), suggested is null ? null : TaskStore.View(suggested), open.Length, now);
     }
     public async Task<DayEndCandidates> CandidatesAsync(Guid userId, DateOnly date, int offset, int limit, CancellationToken ct)
     {

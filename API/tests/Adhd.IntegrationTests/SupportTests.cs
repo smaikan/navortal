@@ -36,7 +36,9 @@ public sealed class SupportTests(DatabaseFixture fixture) : IClassFixture<Databa
         Assert.Equal(HttpStatusCode.NotFound, (await Send(other, HttpMethod.Put, $"/api/notes/{note.Id}", new { version = note.Version, text = "yabancı" })).StatusCode);
         var edited = await Ok<NoteView>(await Send(s, HttpMethod.Put, $"/api/notes/{note.Id}", new { version = note.Version, text = "Güncel bağlam", dueAt = Morning.AddDays(1) })); Assert.Equal(note.Version + 1, edited.Version);
         Assert.Equal(HttpStatusCode.Conflict, (await Send(s, HttpMethod.Put, $"/api/notes/{note.Id}", new { version = note.Version, text = "Eski sekme" })).StatusCode);
-        var daily = await Ok<NoteView>(await Send(s, HttpMethod.Post, "/api/notes", new NoteFields(NoteKind.Daily, "Bugün iyi gidenler", LocalDate: new(2026, 10, 15))), HttpStatusCode.Created);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Send(s, HttpMethod.Post, "/api/notes", new NoteFields(NoteKind.Daily, "Bugün iyi gidenler", LocalDate: new(2026, 10, 15)))).StatusCode);
+        var daily = new UserNote { Id = Guid.CreateVersion7(), UserId = s.UserId, Kind = NoteKind.Daily, Text = "Bugün iyi gidenler", LocalDate = new(2026, 10, 15), TimeZoneId = "Europe/Istanbul", CreatedAt = Morning, UpdatedAt = Morning };
+        await using (var seed = fixture.CreateContext()) { seed.Notes.Add(daily); await seed.SaveChangesAsync(); }
         var p = await TaskScenario.Read<PreferencesSnapshot>(await s.Client.GetAsync("/api/preferences")); await s.Client.PutAsJsonAsync("/api/preferences", new { version = p.Version, values = p.Values with { TimeZoneId = "UTC" } });
         var list = await Ok<NotePage>(await s.Client.GetAsync("/api/notes?date=2026-10-15&limit=1")); Assert.Equal(daily.Id, Assert.Single(list.Items).Id); Assert.Equal("Europe/Istanbul", list.Items[0].TimeZoneId);
         await Ok<NoteView>(await Send(s, HttpMethod.Post, $"/api/notes/{edited.Id}/delete", new { version = edited.Version })); Assert.Empty((await Ok<NotePage>(await s.Client.GetAsync($"/api/notes?taskId={task.Id}"))).Items);

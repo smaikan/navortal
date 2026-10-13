@@ -19,9 +19,10 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
 {
     public async Task<NoteView> CreateNoteAsync(Guid userId, NoteFields fields, CancellationToken ct)
     {
-        var text = Text(fields.Text); if (!Enum.IsDefined(fields.Kind) || (fields.Kind == NoteKind.Daily) != fields.LocalDate.HasValue) throw Invalid("note_invalid", "Not türü, görev ve yerel gün bağlamını kontrol edin.");
-        if (fields.LocalDate.HasValue) Date(fields.LocalDate.Value);
-        await using var tx = await db.Database.BeginTransactionAsync(ct); _ = await Lock(userId, ct);
+        var text = Text(fields.Text); if (fields.Kind == NoteKind.Daily) throw Invalid("note_kind_retired", "Günlük not artık oluşturulmuyor; genel not kullanın.");
+        if (!Enum.IsDefined(fields.Kind) || fields.LocalDate.HasValue) throw Invalid("note_invalid", "Not türü, görev ve yerel gün bağlamını kontrol edin.");
+        var title = Shape(fields.Kind, fields.Display, fields.Title, fields.CategoryId);
+        await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct);
         var taskId = fields.TaskId; if (taskId.HasValue) _ = await Task(userId, taskId.Value, ct);
         if (fields.WorkSessionId.HasValue)
         {
@@ -30,22 +31,52 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
             taskId ??= work.TaskId;
         }
         if (fields.Kind is NoteKind.Task or NoteKind.NextStep && taskId is null) throw Invalid("note_task_required", "Bu not türü gerçek bir görev bağlamı gerektirir.");
+        if (fields.CategoryId.HasValue) await ActiveCategory(userId, fields.CategoryId.Value, ct);
         var now = clock.GetUtcNow(); var row = new UserNote { Id = Guid.CreateVersion7(), UserId = userId, TaskId = taskId, WorkSessionId = fields.WorkSessionId, Kind = fields.Kind,
-            Text = text, LocalDate = fields.LocalDate, DueAt = Utc(fields.DueAt), TimeZoneId = (await preferences.ReadAsync(userId, ct)).Values.TimeZoneId, CreatedAt = now, UpdatedAt = now };
-        db.Notes.Add(row); await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return View(row);
+            Text = text, Title = title, CategoryId = fields.CategoryId, Display = fields.Display, DueAt = Utc(fields.DueAt), TimeZoneId = (await preferences.ReadAsync(userId, ct)).Values.TimeZoneId, CreatedAt = now, UpdatedAt = now };
+        db.Notes.Add(row); state.NotesVersion++; await db.SaveChangesAsync(ct); var view = await ViewAsync(userId, row, ct); await tx.CommitAsync(ct); return view;
     }
-    public async Task<NoteView> ChangeNoteAsync(Guid userId, Guid id, long version, string? text, DateTimeOffset? dueAt, bool remove, CancellationToken ct)
+    public async Task<NoteView> EditNoteAsync(Guid userId, Guid id, NoteEdit edit, CancellationToken ct)
     {
-        await using var tx = await db.Database.BeginTransactionAsync(ct); _ = await Lock(userId, ct); var note = await Note(userId, id, ct); Check(note.Version, version);
-        if (remove) note.DeletedAt = clock.GetUtcNow(); else { note.Text = Text(text); note.DueAt = Utc(dueAt); }
-        note.Version++; note.UpdatedAt = clock.GetUtcNow(); await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return View(note);
+        var text = Text(edit.Text);
+        await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct); var note = await Note(userId, id, ct); Check(note.Version, edit.Version);
+        if (edit.Display is { } display)
+        {
+            var title = Shape(note.Kind, display, edit.Title, edit.CategoryId);
+            if (edit.CategoryId.HasValue && edit.CategoryId != note.CategoryId) await ActiveCategory(userId, edit.CategoryId.Value, ct);
+            note.Display = display; note.Title = title; note.CategoryId = edit.CategoryId;
+        }
+        note.Text = text; note.DueAt = Utc(edit.DueAt); note.Version++; note.UpdatedAt = clock.GetUtcNow(); state.NotesVersion++;
+        await db.SaveChangesAsync(ct); var view = await ViewAsync(userId, note, ct); await tx.CommitAsync(ct); return view;
     }
-    public async Task<NotePage> NotesAsync(Guid userId, Guid? taskId, NoteKind? kind, DateOnly? date, int offset, int limit, CancellationToken ct)
+    public async Task<NoteView> RemoveNoteAsync(Guid userId, Guid id, long version, bool restore, CancellationToken ct)
     {
-        Page(offset, limit); if (kind.HasValue && !Enum.IsDefined(kind.Value)) throw Invalid("note_kind_invalid", "Not türü geçersiz."); if (date.HasValue) Date(date.Value);
-        await using var tx = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, ct); if (taskId.HasValue) _ = await Task(userId, taskId.Value, ct);
-        var q = db.Notes.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null && (!taskId.HasValue || x.TaskId == taskId) && (!kind.HasValue || x.Kind == kind) && (!date.HasValue || x.LocalDate == date));
-        var total = await q.CountAsync(ct); var rows = await q.OrderByDescending(x => x.UpdatedAt).ThenByDescending(x => x.Id).Skip(offset).Take(limit).ToArrayAsync(ct); return new(rows.Select(View).ToArray(), offset, limit, total);
+        await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct);
+        var note = restore ? await db.Notes.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == id, ct) ?? throw Missing("note_not_found") : await Note(userId, id, ct);
+        Check(note.Version, version);
+        if (restore && note.DeletedAt is null) throw Conflict("note_not_deleted", "Not silinmemiş; güncel listeyi alın.");
+        note.DeletedAt = restore ? null : clock.GetUtcNow(); note.Version++; note.UpdatedAt = clock.GetUtcNow(); state.NotesVersion++;
+        await db.SaveChangesAsync(ct); var view = await ViewAsync(userId, note, ct); await tx.CommitAsync(ct); return view;
+    }
+    public async Task<NotePage> NotesAsync(Guid userId, NoteQuery query, CancellationToken ct)
+    {
+        Page(query.Offset, query.Limit); if (query.Kind.HasValue && !Enum.IsDefined(query.Kind.Value)) throw Invalid("note_kind_invalid", "Not türü geçersiz."); if (query.Date.HasValue) Date(query.Date.Value);
+        var term = query.Search?.Trim() ?? ""; if (term.Length > 200) throw Invalid("note_search_invalid", "Arama en çok 200 karakter olmalı.");
+        await using var tx = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, ct); if (query.TaskId.HasValue) _ = await Task(userId, query.TaskId.Value, ct);
+        if (query.CategoryId.HasValue && !await db.NoteCategories.AnyAsync(x => x.UserId == userId && x.Id == query.CategoryId, ct)) throw Missing("note_category_not_found");
+        var q = db.Notes.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null && (!query.TaskId.HasValue || x.TaskId == query.TaskId) && (!query.Date.HasValue || x.LocalDate == query.Date)
+            && (query.Kind.HasValue ? x.Kind == query.Kind : x.Kind != NoteKind.NextStep) && (!query.CategoryId.HasValue || x.CategoryId == query.CategoryId) && (!query.TaskLinked || x.TaskId != null));
+        if (query.ExcludePinned) q = q.Where(x => x.CategoryId == null || !db.NoteCategories.Any(c => c.UserId == userId && c.Id == x.CategoryId && c.PinInAll && c.RemovedAt == null));
+        if (term != "") q = q.Where(x => EF.Functions.Collate(x.Text, "adhd_search").ToLower().Contains(EF.Functions.Collate(term, "adhd_search").ToLower())
+            || (x.Title != null && EF.Functions.Collate(x.Title, "adhd_search").ToLower().Contains(EF.Functions.Collate(term, "adhd_search").ToLower())));
+        var joined = from n in q
+                     join t in db.Tasks.AsNoTracking().Where(x => x.UserId == userId) on n.TaskId equals (Guid?)t.Id into tasks
+                     from t in tasks.DefaultIfEmpty()
+                     select new { Note = n, TaskTitle = t == null ? null : t.Title };
+        var total = await joined.CountAsync(ct);
+        var ordered = query.TaskLinked ? joined.OrderBy(x => x.TaskTitle).ThenBy(x => x.Note.TaskId).ThenByDescending(x => x.Note.UpdatedAt).ThenByDescending(x => x.Note.Id)
+            : joined.OrderByDescending(x => x.Note.UpdatedAt).ThenByDescending(x => x.Note.Id);
+        var rows = await ordered.Skip(query.Offset).Take(query.Limit).ToArrayAsync(ct); return new(rows.Select(x => View(x.Note, x.TaskTitle)).ToArray(), query.Offset, query.Limit, total);
     }
     public async Task<ConvertedNote> ConvertAsync(Guid userId, Guid id, NoteConversion command, string key, CancellationToken ct)
     {
@@ -71,13 +102,25 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
             var now = clock.GetUtcNow(); var task = new TaskItem { Id = Guid.CreateVersion7(), UserId = userId, Title = command.Title, Description = note.Text, DeadlineAt = deadline, PoolId = command.PoolId, CreatedAt = now, UpdatedAt = now,
                 SortOrder = (await db.Tasks.Where(x => x.UserId == userId && x.ParentTaskId == null && x.ArchivedAt == null).Select(x => (decimal?)x.SortOrder).MaxAsync(ct) ?? 0) + 1024 };
             db.Tasks.Add(task); TaskHistory.Append(db, task, "CreatedFromNote", null, new { noteId = note.Id }); note.ConvertedTaskId = task.Id; note.ConversionHash = conversionHash; note.Version++; note.UpdatedAt = now;
-            state.PlanningVersion++; state.UpdatedAt = now; result = new(note.Id, task.Id, note.Version, state.PlanningVersion, false);
+            state.PlanningVersion++; state.NotesVersion++; state.UpdatedAt = now; result = new(note.Id, task.Id, note.Version, state.PlanningVersion, false);
         }
         db.IdempotencyRecords.Add(new() { UserId = userId, Scope = "note-convert", Key = key, RequestHash = hash, CreatedAt = clock.GetUtcNow(), Response = JsonSerializer.Serialize(result, RevisionWriter.Json) });
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return result;
     }
     private static string Hash(object value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value, RevisionWriter.Json))));
-    private static NoteView View(UserNote n) => new(n.Id, n.Kind, n.Text, n.TaskId, n.WorkSessionId, n.LocalDate, n.TimeZoneId, n.DueAt, n.CreatedAt, n.UpdatedAt, n.DeletedAt, n.ConvertedTaskId, n.Version);
+    private static NoteView View(UserNote n, string? taskTitle) => new(n.Id, n.Kind, n.Text, n.TaskId, n.WorkSessionId, n.LocalDate, n.TimeZoneId, n.DueAt, n.CreatedAt, n.UpdatedAt, n.DeletedAt, n.ConvertedTaskId, n.Version,
+        n.Title, n.CategoryId, n.Display, taskTitle);
+    private async Task<NoteView> ViewAsync(Guid userId, UserNote n, CancellationToken ct) =>
+        View(n, n.TaskId is { } taskId ? await db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.Id == taskId).Select(x => x.Title).SingleOrDefaultAsync(ct) : null);
+    // Kısa not başlıksız. Ayrıntılı ve açılır notta başlık gerekli. NextStep sade ve kategorisiz kalır.
+    private static string? Shape(NoteKind kind, NoteDisplay display, string? title, Guid? categoryId)
+    {
+        if (!Enum.IsDefined(display)) throw Invalid("note_display_invalid", "Not gösterimi geçersiz.");
+        if (kind == NoteKind.NextStep && (display != NoteDisplay.Short || categoryId.HasValue)) throw Invalid("note_next_step_shape", "Sonraki adım notu kısa ve kategorisiz olmalı.");
+        if (display == NoteDisplay.Short)
+            return string.IsNullOrWhiteSpace(title) ? null : throw Invalid("note_title_invalid", "Kısa notta başlık olmaz; ayrıntılı notu seçin.");
+        return !string.IsNullOrWhiteSpace(title) && title.Trim().Length <= 200 ? title.Trim() : throw Invalid("note_title_invalid", "Ayrıntılı not başlığı 1–200 karakter olmalı.");
+    }
     private async Task<UserNote> Note(Guid userId, Guid id, CancellationToken ct) => await db.Notes.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == id && x.DeletedAt == null, ct) ?? throw Missing("note_not_found");
     private async Task<TaskItem> Task(Guid userId, Guid id, CancellationToken ct) => await db.Tasks.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == id, ct) ?? throw Missing("task_not_found");
     private Task<UserPlanningState> Lock(Guid userId, CancellationToken ct) => db.PlanningStates.FromSqlInterpolated($"SELECT * FROM user_planning_states WHERE \"UserId\"={userId} FOR UPDATE").SingleAsync(ct);
