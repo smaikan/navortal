@@ -19,7 +19,8 @@ public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore pref
         if (n is null || n.SnoozeCount != claim.SourceVersion || n.State is NotificationIntentState.Obsolete or NotificationIntentState.Suppressed or NotificationIntentState.Expired) return true;
         if (n.State == NotificationIntentState.Ready) return false;
         var settings = await Settings(claim.UserId, ct);
-        if (!await NotificationSources.Valid(db, n, now, ct)) n.State = NotificationIntentState.Obsolete;
+        var validSource = await NotificationSources.Valid(db, n, now, ct);
+        if (!validSource) n.State = NotificationIntentState.Obsolete;
         else if (!NotificationPolicy.Allows(settings, n.Kind)) n.State = NotificationIntentState.Suppressed;
         else if (now - Due(n, settings) > TimeSpan.FromMinutes(2)) n.State = NotificationIntentState.Expired;
         else
@@ -33,11 +34,24 @@ public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore pref
                 foreach (var s in subscriptions.Where(x => !existing.Contains(x.Id))) db.PushDeliveries.Add(new() { Id = Guid.CreateVersion7(), UserId = n.UserId, NotificationId = n.Id, SubscriptionId = s.Id, SnoozeCount = n.SnoozeCount, CreatedAt = now });
             }
         }
+        if (validSource && n.Kind == "Custom") await ScheduleNext(n, now, ct);
         var obsolete = n.State != NotificationIntentState.Ready; await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return obsolete;
+    }
+    private async Task ScheduleNext(NotificationIntent n, DateTimeOffset now, CancellationToken ct)
+    {
+        var row = await db.CustomReminders.SingleAsync(x => x.UserId == n.UserId && x.Id == n.SourceId, ct);
+        if (NotificationStore.ReadRepeat(row) is not { } repeat) return;
+        if (await db.NotificationIntents.AnyAsync(x => x.UserId == n.UserId && x.SourceId == row.Id && x.Kind == "Custom" && x.SourceVersion == row.Version && x.OccurredAt > now && x.OccurredAt > n.OccurredAt && x.State == NotificationIntentState.Pending, ct)) return;
+        var at = ReminderRepeatRules.Next(repeat, now > n.OccurredAt ? now : n.OccurredAt);
+        row.NextDueAt = at;
+        var key = $"custom:{row.Id}:v{row.Version}:at:{at.UtcTicks}";
+        if (await db.NotificationIntents.AnyAsync(x => x.UserId == n.UserId && x.SourceKey == key, ct)) return;
+        db.NotificationIntents.Add(new() { Id = Guid.CreateVersion7(), UserId = n.UserId, Kind = "Custom", Title = row.Title, SourceKey = key, SourceId = row.Id, SourceVersion = row.Version, TaskId = row.TaskId, OccurredAt = at, NotBefore = at, CreatedAt = now });
     }
     private async Task<bool> Deliver(OutboxClaim claim, CancellationToken ct)
     {
         PushDelivery delivery; PushSubscriptionRecord subscription; NotificationIntent n; NotificationSettings settings;
+        NotificationMessage presentation;
         var now = clock.GetUtcNow();
         await using (var tx = await db.Database.BeginTransactionAsync(ct))
         {
@@ -51,10 +65,12 @@ public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore pref
                 delivery.State = DeliveryState.Obsolete; await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return true;
             }
             var until = await DeferredUntil(n, settings, now, ct); if (until.HasValue) throw new JobDeferredException(until.Value);
+            presentation = await NotificationPresentationReader.Read(db, n, now, ct);
             await tx.CommitAsync(ct);
         }
         // Dış servise gitmeden hemen önce kaynağı ve kuralı kontrol et. Ağda beklerken hesap kilidi tutma
-        var envelope = new PushEnvelope(n.Id, n.UserId, $"notification:{n.Id:D}", "Gün planlayıcısı", "Bir hatırlatmanız var.", $"/notifications/{n.Id:D}", !settings.SoundEnabled, n.SnoozeCount);
+        var sound = await NotificationSources.SoundEnabled(db, n, settings, ct);
+        var envelope = new PushEnvelope(n.Id, n.UserId, $"notification:{n.Id:D}", presentation.Title, presentation.Body, $"/notifications/{n.Id:D}", !sound, n.SnoozeCount, NotificationSounds.For(settings, n.Kind));
         var result = await transport.SendAsync(subscription, envelope, ct);
         if (result.StatusCode == 429 || result.StatusCode >= 500)
         {
@@ -72,7 +88,7 @@ public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore pref
         await db.SaveChangesAsync(ct); await finish.CommitAsync(ct); return delivery.State != DeliveryState.Succeeded;
     }
     private async Task<NotificationSettings> Settings(Guid user, CancellationToken ct) => NotificationStore.Settings(await db.NotificationPreferences.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == user, ct));
-    private static DateTimeOffset Due(NotificationIntent n, NotificationSettings s) => n.SnoozeCount > 0 ? n.NotBefore ?? n.OccurredAt : n.Kind is "ScheduleStart" or "ScheduleEnd" or "TaskDeadline" ? n.OccurredAt.AddSeconds(-s.LeadSeconds) : n.NotBefore ?? n.OccurredAt;
+    private static DateTimeOffset Due(NotificationIntent n, NotificationSettings s) => NotificationSources.Due(n, s);
     private async Task<DateTimeOffset?> DeferredUntil(NotificationIntent n, NotificationSettings settings, DateTimeOffset now, CancellationToken ct)
     {
         var due = Due(n, settings); if (due > now) return due;

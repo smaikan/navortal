@@ -1,6 +1,7 @@
 using Adhd.Application.Notifications;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Adhd.Infrastructure.Notifications;
 
@@ -8,7 +9,8 @@ public static class NotificationRegistration
 {
     public static IServiceCollection AddPlannerNotifications(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<PushSettings>(config.GetSection("Push"));
+        services.AddSingleton<IValidateOptions<PushSettings>, PushSettingsValidator>();
+        services.AddOptions<PushSettings>().Bind(config.GetSection("Push")).ValidateOnStart();
         services.AddScoped<INotificationStore, NotificationStore>(); services.AddScoped<INotificationJobs, NotificationJobs>();
         services.AddScoped<Adhd.Application.Sync.ISyncStore, SyncStore>();
         // Ortak HTTP istemcisi istek logu tutmaz. Push adresi ve bilgileri loga girmesin.

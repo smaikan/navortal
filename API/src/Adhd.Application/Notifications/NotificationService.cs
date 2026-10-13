@@ -11,11 +11,13 @@ public sealed record SubscriptionView(Guid Id, string ProviderHost, string Label
 public sealed record PushConfiguration(bool Enabled, string? PublicKey);
 public sealed record NotificationView(Guid Id, string Kind, Guid SourceId, Guid? TaskId, Guid? DailyPlanId, Guid? RevisionId,
     DateTimeOffset OccurredAt, DateTimeOffset? ReadyAt, DateTimeOffset? NotBefore, DateTimeOffset? ReadAt, NotificationIntentState State,
-    int SnoozeCount, bool SoundEnabled, long Version);
+    int SnoozeCount, bool SoundEnabled, long Version, string? Title = null, string? Sound = null);
 public sealed record NotificationPage(NotificationView[] Items, int Offset, int Limit, int Total);
+public sealed record NotificationAlertPage(DateTimeOffset ServerNow, long PreferencesVersion, NotificationView[] Items, string? NextCursor);
 public sealed record SnoozeNotification(long Version, int? Seconds = null);
-public sealed record CustomReminderCommand(string Title, DateTimeOffset DueAt, Guid? TaskId = null, long? Version = null);
-public sealed record CustomReminderView(Guid Id, string Title, DateTimeOffset DueAt, Guid? TaskId, bool Canceled, long Version);
+public sealed record CustomReminderCommand(string Title, DateTimeOffset DueAt, Guid? TaskId = null, long? Version = null, ReminderRepeat? Repeat = null);
+public sealed record CustomReminderView(Guid Id, string Title, DateTimeOffset DueAt, Guid? TaskId, bool Canceled, long Version, ReminderRepeat? Repeat = null);
+public sealed record ReadAllNotificationsResult(int ReadCount, DateTimeOffset ReadAt);
 public interface INotificationStore
 {
     Task<NotificationPreferencesView> PreferencesAsync(Guid user, CancellationToken ct);
@@ -24,10 +26,12 @@ public interface INotificationStore
     Task<SubscriptionView> SubscribeAsync(Guid user, RegisterSubscription command, CancellationToken ct);
     Task UnsubscribeAsync(Guid user, Guid id, long version, CancellationToken ct);
     Task<NotificationPage> ListAsync(Guid user, int offset, int limit, CancellationToken ct);
+    Task<NotificationAlertPage> AlertsAsync(Guid user, int limit, string? cursor, CancellationToken ct);
     Task<NotificationView> GetAsync(Guid user, Guid id, CancellationToken ct);
     Task<NotificationView> SnoozeAsync(Guid user, Guid id, SnoozeNotification command, CancellationToken ct);
     Task<NotificationView> ReadAsync(Guid user, Guid id, long version, CancellationToken ct);
-    Task<CustomReminderView[]> RemindersAsync(Guid user, int offset, int limit, CancellationToken ct);
+    Task<ReadAllNotificationsResult> ReadAllAsync(Guid user, CancellationToken ct);
+    Task<CustomReminderView[]> RemindersAsync(Guid user, int offset, int limit, CancellationToken ct, bool activeOnly = false);
     Task<CustomReminderView> SaveReminderAsync(Guid user, Guid? id, CustomReminderCommand command, string key, CancellationToken ct);
     Task<CustomReminderView> CancelReminderAsync(Guid user, Guid id, long version, CancellationToken ct);
 }
@@ -40,6 +44,6 @@ public sealed class JobDeferredException(DateTimeOffset until, bool countAttempt
     public DateTimeOffset Until { get; } = until;
     public bool CountAttempt { get; } = countAttempt;
 }
-public sealed record PushEnvelope(Guid NotificationId, Guid RecipientUserId, string Tag, string Title, string Body, string Url, bool Silent, int SnoozeCount = 0);
+public sealed record PushEnvelope(Guid NotificationId, Guid RecipientUserId, string Tag, string Title, string Body, string Url, bool Silent, int SnoozeCount = 0, string Sound = "soft");
 public sealed record PushSendResult(int StatusCode, TimeSpan? RetryAfter = null);
 public interface IPushTransport { Task<PushSendResult> SendAsync(PushSubscriptionRecord subscription, PushEnvelope envelope, CancellationToken ct); }

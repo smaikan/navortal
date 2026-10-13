@@ -22,6 +22,7 @@ internal static class NotificationPersistence
         });
         model.Entity<CustomReminder>(b =>
         {
+            b.Property(x => x.RepeatSettings).HasColumnType("jsonb");
             b.ToTable("custom_reminders"); b.HasKey(x => x.Id); b.Property(x => x.Title).HasMaxLength(200); b.Property(x => x.Version).IsConcurrencyToken(); b.HasIndex(x => new { x.UserId, x.DueAt, x.Id });
             b.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict); b.HasOne<TaskItem>().WithMany().HasForeignKey(x => new { x.UserId, Id = x.TaskId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         });

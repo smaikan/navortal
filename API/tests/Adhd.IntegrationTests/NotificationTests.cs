@@ -26,13 +26,17 @@ public sealed class NotificationTests
         var first = await TaskScenario.Read<CustomReminderView>(await Reminder(s.User, now.AddMinutes(1), key)); var replay = await TaskScenario.Read<CustomReminderView>(await Reminder(s.User, now.AddMinutes(1), key)); Assert.Equal(first.Id, replay.Id);
         Assert.Equal(HttpStatusCode.Conflict, (await Reminder(s.User, now.AddMinutes(2), key)).StatusCode);
         await s.Pump(); s.App.Clock.Now = now.AddMinutes(1); await s.Pump();
-        var page = await TaskScenario.Read<NotificationPage>(await s.User.Client.GetAsync("/api/notifications")); var n = Assert.Single(page.Items); Assert.Equal(NotificationIntentState.Ready, n.State);
+        var page = await TaskScenario.Read<NotificationPage>(await s.User.Client.GetAsync("/api/notifications")); var n = Assert.Single(page.Items); Assert.Equal(NotificationIntentState.Ready, n.State); Assert.Equal(first.Title,n.Title);
         var foreign = await TaskScenario.User(s.App); Assert.Equal(HttpStatusCode.NotFound, (await foreign.Client.GetAsync($"/api/notifications/{n.Id}")).StatusCode);
         var snooze = await TaskScenario.Read<NotificationView>(await s.User.Client.PostAsJsonAsync($"/api/notifications/{n.Id}/snooze", new { version = n.Version, seconds = 60 })); Assert.Equal(1, snooze.SnoozeCount);
         Assert.Equal(HttpStatusCode.Conflict, (await s.User.Client.PostAsJsonAsync($"/api/notifications/{n.Id}/snooze", new { version = n.Version })).StatusCode);
         await s.Pump(); Assert.Equal(NotificationIntentState.Pending, (await TaskScenario.Read<NotificationView>(await s.User.Client.GetAsync($"/api/notifications/{n.Id}"))).State);
         s.App.Clock.Now = now.AddMinutes(2); await s.Pump(); n = await TaskScenario.Read<NotificationView>(await s.User.Client.GetAsync($"/api/notifications/{n.Id}")); Assert.Equal(snooze.Id, n.Id); Assert.Equal(NotificationIntentState.Ready, n.State);
         var read = await s.User.Client.PostAsJsonAsync($"/api/notifications/{n.Id}/read", new { version = n.Version }); Assert.NotNull((await TaskScenario.Read<NotificationView>(read)).ReadAt);
+        var updated=await Send(s.User,HttpMethod.Put,$"/api/notifications/reminders/{first.Id}",new{title="Yeni hatırlatma başlığı",dueAt=s.App.Clock.Now.AddMinutes(10),version=first.Version});Assert.True(updated.IsSuccessStatusCode);
+        Assert.Equal(first.Title,(await TaskScenario.Read<NotificationView>(await s.User.Client.GetAsync($"/api/notifications/{n.Id}"))).Title);
+        Assert.DoesNotContain((await TaskScenario.Read<NotificationPage>(await s.User.Client.GetAsync("/api/notifications"))).Items,x=>x.Title=="Yeni hatırlatma başlığı");
+        Assert.Contains(await TaskScenario.Read<CustomReminderView[]>(await s.User.Client.GetAsync("/api/notifications/reminders")),x=>x.Title=="Yeni hatırlatma başlığı");
     }
     [Fact]
     public async Task QuietHoursDeferWithoutBurningAttemptsAndDoNotReplayOldAlarmsInMorning()
