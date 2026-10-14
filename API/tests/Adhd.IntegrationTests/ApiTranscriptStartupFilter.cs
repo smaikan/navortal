@@ -39,6 +39,7 @@ public sealed class ApiTranscriptStartupFilter : IStartupFilter
         });
         next(app);
     };
+    private static readonly System.Text.RegularExpressions.Regex JwtShape = new(@"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+");
     internal static JsonNode? Clean(string text)
     {
         if (string.IsNullOrWhiteSpace(text)) return null;
@@ -50,6 +51,8 @@ public sealed class ApiTranscriptStartupFilter : IStartupFilter
                 {
                     // Alan hatasında anahtar alanın adı, değer hata dizisi. Bunlar kimlik bilgisi değil
                     if (Sensitive.Contains(key) && obj[key] is JsonValue) obj[key] = key.Equals("password", StringComparison.OrdinalIgnoreCase) || key.Equals("newPassword", StringComparison.OrdinalIgnoreCase) ? "123456" : $"<REPLACE_{key.ToUpperInvariant()}>";
+                    // JWT'ye benzeyen değeri başka bir alanın içinde olsa da belgeye koyma
+                    else if (obj[key] is JsonValue value && value.TryGetValue<string>(out var s) && JwtShape.IsMatch(s)) obj[key] = JwtShape.Replace(s, "<REDACTED-JWT>");
                     else Visit(obj[key]);
                 }
             else if (current is JsonArray array) foreach (var value in array) Visit(value);

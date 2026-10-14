@@ -30,6 +30,10 @@ public sealed partial class OutboxHandler(PlannerDbContext db, Adhd.Application.
             "FocusChanged" => await FocusChanged(claim, ct),
             // Gün listesi değişince ekranları yenilemek yeterli. Hatırlatma çıkmaz.
             "DayItemChanged" => false,
+            "MatrixChanged" => false,
+            // Özel gün değişince ekranı yenile. Hatırlatma zaten kayıt sırasında hazırlanır.
+            "SpecialDayChanged" => false,
+            "NotesChanged" => false,
             "PreferencesChanged" => !await db.Preferences.AnyAsync(x => x.UserId == claim.UserId && x.Version == claim.SourceVersion, ct),
             "NotificationPreferencesChanged" => !await db.NotificationPreferences.AnyAsync(x => x.UserId == claim.UserId && x.Version == claim.SourceVersion, ct),
             _ => throw new UseCaseException(ErrorKind.Validation, "unknown_outbox_kind", "Bu arka plan iş türü desteklenmiyor.")

@@ -28,9 +28,14 @@ public sealed class OutboxStore(PlannerDbContext db, TimeProvider clock) : IOutb
             WHERE "State"='Processing' AND "LeaseUntil"<={now} AND "Attempts">={JobRetry.MaxAttempts}
             """, ct);
         var rows = await db.Database.SqlQuery<ClaimedRow>($"""
-            WITH picked AS (SELECT "Id" FROM outbox_messages WHERE "Attempts"<{JobRetry.MaxAttempts}
+            WITH ranked AS MATERIALIZED (SELECT "Id","AvailableAt",
+                ROW_NUMBER() OVER (PARTITION BY "UserId" ORDER BY "AvailableAt","Id") AS owner_slot
+                FROM outbox_messages WHERE "Attempts"<{JobRetry.MaxAttempts}
                 AND (("State"='Pending' AND "AvailableAt"<={now}) OR ("State"='Processing' AND "LeaseUntil"<={now}))
-                ORDER BY "AvailableAt","Id" FOR UPDATE SKIP LOCKED LIMIT {limit})
+            ), picked AS (SELECT m."Id" FROM outbox_messages m JOIN ranked r ON r."Id"=m."Id"
+                WHERE m."Attempts"<{JobRetry.MaxAttempts}
+                AND ((m."State"='Pending' AND m."AvailableAt"<={now}) OR (m."State"='Processing' AND m."LeaseUntil"<={now}))
+                ORDER BY r.owner_slot,r."AvailableAt",m."Id" FOR UPDATE OF m SKIP LOCKED LIMIT {limit})
             UPDATE outbox_messages m SET "State"='Processing',"Attempts"=m."Attempts"+1,"LeaseId"={lease},"LeaseUntil"={until},"Version"=m."Version"+1
             FROM picked p WHERE m."Id"=p."Id" RETURNING m."Id",m."UserId",m."Kind",m."SourceId",m."SourceVersion",m."Payload"::text AS "Payload",m."LeaseId",m."LeaseUntil",m."Attempts"
             """).ToArrayAsync(ct);

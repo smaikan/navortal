@@ -28,6 +28,8 @@ internal static class OutboxCapture
         {
             switch (entry.Entity)
             {
+                case MatrixState m when entry.State == EntityState.Modified:
+                    Add(m.UserId, "MatrixChanged", m.UserId, m.Version, $"matrix:v{m.Version}", new { m.Version }); break;
                 case TaskEvent e when entry.State == EntityState.Added:
                     Add(e.UserId, "TaskChanged", e.TaskId, e.Sequence, $"task-event:{e.Id}", new { e.TaskId, e.Type, e.Sequence }); break;
                 case PlanRevision r when entry.State == EntityState.Added:
@@ -45,8 +47,12 @@ internal static class OutboxCapture
                     break;
                 case RecurrenceTemplate t:
                     Add(t.UserId, "RecurrenceChanged", t.Id, t.Version, $"recurrence:{t.Id}:v{t.Version}", new { templateId = t.Id, t.Version }); break;
+                case Adhd.Domain.SpecialDays.SpecialDay sd:
+                    Add(sd.UserId, "SpecialDayChanged", sd.Id, sd.Version, $"special-day:{sd.Id}:v{sd.Version}", new { specialDayId = sd.Id, sd.Version }); break;
                 case UserPreferencesRecord p:
                     Add(p.UserId, "PreferencesChanged", p.UserId, p.Version, $"preferences:v{p.Version}", new { p.Version }); break;
+                case Adhd.Domain.Users.UserPlanningState s when entry.State == EntityState.Modified && entry.Property(nameof(s.NotesVersion)).IsModified:
+                    Add(s.UserId, "NotesChanged", s.UserId, s.NotesVersion, $"notes:v{s.NotesVersion}", new { version = s.NotesVersion }); break;
                 case NotificationIntent n when n.State == NotificationIntentState.Pending && (entry.State == EntityState.Added || entry.Property(nameof(NotificationIntent.SnoozeCount)).IsModified || entry.Property(nameof(NotificationIntent.RevisionId)).IsModified):
                     var notificationKey = $"notification:{n.Id}:snooze:{n.SnoozeCount}:revision:{n.RevisionId}";
                     Add(n.UserId, "NotificationReady", n.Id, n.SnoozeCount, notificationKey, new { notificationId = n.Id });

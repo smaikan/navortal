@@ -34,6 +34,7 @@ internal static class JobPersistence
         });
         model.Entity<NotificationIntent>(b =>
         {
+            b.Property(x=>x.Title).HasMaxLength(200);
             b.ToTable("notification_intents"); b.HasKey(x => x.Id); b.Property(x => x.SourceKey).HasMaxLength(250); b.Property(x => x.Kind).HasMaxLength(40); b.Property(x => x.State).HasConversion<string>().HasMaxLength(20); b.HasIndex(x => new { x.UserId, x.SourceKey }).IsUnique(); b.HasIndex(x => new { x.UserId, x.CreatedAt, x.Id });
             b.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict); b.HasOne<TaskItem>().WithMany().HasForeignKey(x => new { x.UserId, Id = x.TaskId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<DailyPlan>().WithMany().HasForeignKey(x => new { x.UserId, Id = x.DailyPlanId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);

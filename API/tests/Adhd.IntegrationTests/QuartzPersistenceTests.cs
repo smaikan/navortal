@@ -35,10 +35,11 @@ public sealed class QuartzPersistenceTests
             await Until(async () => { await using var db = dbOwner.CreateContext(); return await db.NotificationIntents.AnyAsync(x => x.UserId == user.UserId && x.Kind == "FocusTarget"); });
             var scheduler = await app.Services.GetRequiredService<ISchedulerFactory>().GetScheduler(); var metadata = await scheduler.GetMetadata(); Assert.True(metadata.JobStorePersistent); Assert.True(metadata.JobStoreClustered);
             var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } }; var today = Adhd.Domain.Planning.PlanTime.Date(DateTimeOffset.UtcNow, "Europe/Istanbul");
-            var recurrence = new RecurrenceCreate(new(today, UntilDate: today.AddDays(1)), new("Gerçek worker"));
+            var recurrence = new RecurrenceCreate(new(today, UntilDate: today.AddDays(1), StartTime:new(11,15), AutoAddToPlan:true), new("Gerçek worker"));
             var created = await ManualPlanningTests.Send(user, HttpMethod.Post, "/api/recurrence-templates", JsonSerializer.SerializeToElement(recurrence, json)); Assert.Equal(System.Net.HttpStatusCode.Created, created.StatusCode);
             var template = (await TaskScenario.Read<RecurrenceEffect>(created)).Template;
             await Until(async () => { await using var db = dbOwner.CreateContext(); return await db.RecurrenceOccurrences.CountAsync(x => x.TemplateId == template.Id) == 2; });
+            await Until(async () => { await using var db = dbOwner.CreateContext(); return await db.DayItems.CountAsync(x => x.UserId == user.UserId) == 2; });
             await scheduler.TriggerJob(new("recurrence-sweep", "adhd"));
             await Until(async () => { await using var db = dbOwner.CreateContext(); return await db.Outbox.AnyAsync(x => x.UserId == user.UserId && x.Kind == "RecurrenceWindow" && x.State == Adhd.Domain.Jobs.OutboxState.Completed); });
             var task = await user.Root("Gerçek reminder"); var scheduledAt = DateTimeOffset.UtcNow.AddSeconds(3);

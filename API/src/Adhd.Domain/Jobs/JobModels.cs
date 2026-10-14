@@ -52,6 +52,7 @@ public sealed class ReminderWork
 public enum NotificationIntentState { Pending, Obsolete, Ready, Suppressed, Expired }
 public sealed class NotificationIntent
 {
+    public string? Title { get; set; }
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string SourceKey { get; set; } = "";

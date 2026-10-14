@@ -53,6 +53,28 @@ public sealed class OutboxTests
         await using var after = s.Context(); Assert.Equal(0, await after.Outbox.CountAsync(x => x.State == OutboxState.Pending || x.State == OutboxState.Processing)); Assert.Equal(75, await after.Outbox.CountAsync(x => x.EventKey.StartsWith("backlog:") && x.State == OutboxState.Obsolete));
     }
     [Fact]
+    public async Task OneOwnersBacklogCannotFillTheBatchAheadOfAnotherOwnersDueNotification()
+    {
+        await using var s = await JobScenario.Create(); var other = await TaskScenario.User(s.App);
+        var readyId = Guid.NewGuid(); var futureId = Guid.NewGuid(); var oldestId = Guid.CreateVersion7();
+        await using (var db = s.Context())
+        {
+            for (var i = 0; i < 1000; i++) db.Outbox.Add(new() { Id = i == 0 ? oldestId : Guid.CreateVersion7(), UserId = s.User.UserId, EventKey = $"bulk-task:{i}", Kind = "TaskChanged", SourceId = Guid.NewGuid(), SourceVersion = 1, OccurredAt = Morning.AddMinutes(-5), AvailableAt = Morning.AddMinutes(i == 0 ? -10 : -5) });
+            db.Outbox.Add(new() { Id = readyId, UserId = other.UserId, EventKey = "other-owner-ready", Kind = "NotificationReady", SourceId = Guid.NewGuid(), SourceVersion = 0, OccurredAt = Morning, AvailableAt = Morning });
+            db.Outbox.Add(new() { Id = futureId, UserId = other.UserId, EventKey = "other-owner-future", Kind = "NotificationReady", SourceId = Guid.NewGuid(), SourceVersion = 0, OccurredAt = Morning, AvailableAt = Morning.AddHours(1) });
+            await db.SaveChangesAsync();
+        }
+        var batch = await s.Claim(20);
+        Assert.Equal(20, batch.Length);
+        Assert.Contains(batch, x => x.Id == oldestId && x.UserId == s.User.UserId);
+        Assert.Contains(batch, x => x.Id == readyId && x.UserId == other.UserId);
+        Assert.DoesNotContain(batch, x => x.Id == futureId);
+        Assert.All(batch, x => Assert.Equal(1, x.Attempts));
+        await using var after = s.Context();
+        Assert.Equal(0, (await after.Outbox.SingleAsync(x => x.Id == futureId)).Attempts);
+        Assert.Equal(OutboxState.Pending, (await after.Outbox.SingleAsync(x => x.Id == futureId)).State);
+    }
+    [Fact]
     public async Task EffectCommitThenLostAckSurvivesHostRestartLeaseExpiryAndDoesNotDuplicateReminder()
     {
         await using var s = await JobScenario.Create(); var task = await s.User.Root(); task = await s.User.Get(task.Id); await s.User.Client.PutAsJsonAsync($"/api/tasks/{task.Id}", new { version = task.Version, title = task.Title, deadlineAt = Morning.AddMinutes(30) });
