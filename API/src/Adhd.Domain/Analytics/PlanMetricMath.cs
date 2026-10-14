@@ -7,6 +7,13 @@ public static class PlanMetricMath
     {
         var a = values.Order().ToArray(); return a.Length == 0 ? null : a.Length % 2 == 1 ? a[a.Length / 2] : (a[a.Length / 2 - 1] + a[a.Length / 2]) / 2;
     }
+    // Sıralı değerler arasında doğrusal yüzdelik hesapla. Liste boşsa null dön.
+    public static decimal? Percentile(IEnumerable<decimal> values, decimal p)
+    {
+        var a = values.Order().ToArray(); if (a.Length == 0) return null;
+        var rank = (a.Length - 1) * p; var low = (int)Math.Floor(rank); var high = (int)Math.Ceiling(rank);
+        return a[low] + (a[high] - a[low]) * (rank - low);
+    }
     public static decimal UnionSeconds(IEnumerable<(DateTimeOffset Start, DateTimeOffset End)> intervals)
     {
         DateTimeOffset? a = null; DateTimeOffset b = default; decimal seconds = 0;

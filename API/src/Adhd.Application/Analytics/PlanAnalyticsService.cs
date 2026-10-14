@@ -21,8 +21,12 @@ public sealed record EstimateSuggestionSample(Guid TaskId, string Title, DateTim
 public sealed record EstimateSuggestionView(Guid TaskId, DateOnly FromDate, DateOnly ToDate, string ComparisonContext, Guid? ContextId,
     int SampleCount, int ExcludedWithoutWorkCount, int ExcludedUnknownZoneCount, decimal? SuggestedSeconds, string? UnavailableReason, string Method, bool Applied, int SampleLimit,
     EstimateSuggestionSample[] Samples, DateTimeOffset ServerNow);
+// Kendi tahmini ve çalışma kaydı olan bitmiş görevlerde gerçekleşen süreyi tahmine böl. Sadece okuma.
+public sealed record EstimateAccuracyView(DateOnly FromDate, DateOnly ToDate, int SampleCount, int ExcludedWithoutWorkCount,
+    decimal? MedianRatio, decimal? P25Ratio, decimal? P75Ratio, string? UnavailableReason, int MinimumSamples, DateTimeOffset ServerNow);
 public interface IPlanAnalyticsStore
 {
+    Task<EstimateAccuracyView> AccuracyAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct);
     Task<PlanAnalyticsView> ReadAsync(Guid userId, PlanAnalyticsQuery query, CancellationToken ct);
     Task<EstimateSuggestionView> SuggestionAsync(Guid userId, Guid taskId, DateOnly from, DateOnly to, CancellationToken ct);
 }
@@ -34,6 +38,7 @@ public sealed class PlanAnalyticsService(IPlanAnalyticsStore store)
     }
     public async Task<PlanAnalyticsDay> ReviewAsync(Guid userId, DateOnly date, int tolerance, CancellationToken ct) => (await ReadAsync(userId, new(date, date, tolerance), ct)).Days[0];
     public Task<EstimateSuggestionView> SuggestionAsync(Guid userId, Guid taskId, DateOnly from, DateOnly to, CancellationToken ct) { Validate(from, to); return store.SuggestionAsync(userId, taskId, from, to, ct); }
+    public Task<EstimateAccuracyView> AccuracyAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct) { Validate(from, to); return store.AccuracyAsync(userId, from, to, ct); }
     private static void Validate(DateOnly from, DateOnly to) { if (!AnalyticsTime.ValidRange(from, to)) throw Invalid(); }
     private static UseCaseException Invalid() => new(ErrorKind.Validation, "analytics_query_invalid", "1..366 gün ve tolerans0..3600sn seçin.");
 }

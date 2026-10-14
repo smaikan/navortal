@@ -12,6 +12,8 @@ public sealed class PlanAnalyticsController(PlanAnalyticsService service) : Cont
     public Task<PlanAnalyticsView> Plans([FromQuery] DateOnly fromDate, [FromQuery] DateOnly toDate, [FromQuery] int startToleranceSeconds = 60, CancellationToken ct = default) => service.ReadAsync(UserId, new(fromDate, toDate, startToleranceSeconds), ct);
     [HttpGet("days/{date}/review")]
     public Task<PlanAnalyticsDay> Review(DateOnly date, [FromQuery] int startToleranceSeconds = 60, CancellationToken ct = default) => service.ReviewAsync(UserId, date, startToleranceSeconds, ct);
+    [HttpGet("estimate-accuracy")]
+    public Task<EstimateAccuracyView> Accuracy([FromQuery] DateOnly fromDate, [FromQuery] DateOnly toDate, CancellationToken ct) => service.AccuracyAsync(UserId, fromDate, toDate, ct);
     [HttpGet("estimate-suggestion")]
     public Task<EstimateSuggestionView> Suggestion([FromQuery] Guid taskId, [FromQuery] DateOnly fromDate, [FromQuery] DateOnly toDate, CancellationToken ct) => service.SuggestionAsync(UserId, taskId, fromDate, toDate, ct);
 }
