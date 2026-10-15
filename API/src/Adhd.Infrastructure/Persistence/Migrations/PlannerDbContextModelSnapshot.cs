@@ -407,6 +407,10 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("TaskId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
@@ -592,6 +596,12 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset>("DueAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("NextDueAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RepeatSettings")
+                        .HasColumnType("jsonb");
 
                     b.Property<Guid?>("TaskId")
                         .HasColumnType("uuid");
@@ -787,11 +797,23 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsUrgent")
+                        .HasColumnType("boolean");
+
                     b.Property<DateOnly>("LocalDate")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("ScheduleId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -800,6 +822,10 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("TaskId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("TimingIssue")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -812,8 +838,6 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasAlternateKey("UserId", "Id");
 
                     b.HasIndex("UserId", "TaskId");
 
@@ -828,6 +852,8 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_day_item_sort", "\"SortOrder\" >= 0");
 
                             t.HasCheckConstraint("CK_day_item_state", "\"State\" IN ('Planned','Removed','Scheduled')");
+
+                            t.HasCheckConstraint("CK_day_item_time", "\"EndsAt\" IS NULL OR (\"StartsAt\" IS NOT NULL AND \"StartsAt\" < \"EndsAt\")");
 
                             t.HasCheckConstraint("CK_day_item_version", "\"Version\" > 0");
                         });
@@ -913,10 +939,13 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<bool>("ConflictsAccepted")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("DayItemId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("RevisionId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ScheduleId")
+                    b.Property<Guid?>("ScheduleId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Type")
@@ -929,11 +958,45 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId", "DayItemId");
+
                     b.HasIndex("UserId", "ScheduleId");
 
                     b.HasIndex("UserId", "RevisionId", "Id");
 
-                    b.ToTable("plan_revision_changes", (string)null);
+                    b.ToTable("plan_revision_changes", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_revision_change_target", "(\"ScheduleId\" IS NULL) <> (\"DayItemId\" IS NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Planning.PlanRevisionDayItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DayItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RevisionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "DayItemId");
+
+                    b.HasIndex("UserId", "RevisionId", "DayItemId")
+                        .IsUnique();
+
+                    b.ToTable("plan_revision_day_items", (string)null);
                 });
 
             modelBuilder.Entity("Adhd.Domain.Planning.PlanRevisionItem", b =>
@@ -1188,6 +1251,76 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Adhd.Domain.SpecialDays.SpecialDay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("NonWorking")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Recurrence")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Reminder")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "DeletedAt", "Month", "Day");
+
+                    b.ToTable("special_days", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_special_day_day", "\"Day\" BETWEEN 1 AND 31");
+
+                            t.HasCheckConstraint("CK_special_day_month", "\"Month\" BETWEEN 1 AND 12");
+
+                            t.HasCheckConstraint("CK_special_day_once_year", "\"Recurrence\" <> 'Once' OR \"Year\" IS NOT NULL");
+
+                            t.HasCheckConstraint("CK_special_day_version", "\"Version\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Adhd.Domain.Support.DailyCriticalTask", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -1212,6 +1345,65 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.ToTable("daily_critical_tasks", null, t =>
                         {
                             t.HasCheckConstraint("CK_critical_slot", "\"Slot\" BETWEEN 1 AND 3");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Support.NoteCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<bool>("PinInAll")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("RemovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("ShowInBar")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("SortOrder")
+                        .HasPrecision(28, 10)
+                        .HasColumnType("numeric(28,10)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ViewMode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "RemovedAt", "SortOrder");
+
+                    b.ToTable("note_categories", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_note_category_enums", "\"Color\" IN ('Gray','Blue','Teal','Green','Red','Pink','Purple') AND \"ViewMode\" IN ('Cards','List')");
+
+                            t.HasCheckConstraint("CK_note_category_name", "length(btrim(\"Name\")) BETWEEN 1 AND 40 AND \"Version\">0");
                         });
                 });
 
@@ -1250,6 +1442,9 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ConversionHash")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
@@ -1262,6 +1457,13 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Display")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Short");
 
                     b.Property<DateTimeOffset?>("DueAt")
                         .HasColumnType("timestamp with time zone");
@@ -1287,6 +1489,10 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1310,15 +1516,61 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId", "LocalDate", "Id");
 
+                    b.HasIndex("UserId", "CategoryId", "UpdatedAt", "Id");
+
                     b.HasIndex("UserId", "TaskId", "UpdatedAt", "Id");
 
                     b.ToTable("user_notes", null, t =>
                         {
                             t.HasCheckConstraint("CK_note_conversion", "(\"ConvertedTaskId\" IS NULL)=(\"ConversionHash\" IS NULL)");
 
-                            t.HasCheckConstraint("CK_note_kind", "\"Kind\" IN ('Task','Distraction','NextStep','Daily') AND (\"Kind\" NOT IN ('Task','NextStep') OR \"TaskId\" IS NOT NULL) AND ((\"Kind\"='Daily')=(\"LocalDate\" IS NOT NULL))");
+                            t.HasCheckConstraint("CK_note_display", "\"Display\" IN ('Short','Detailed','Toggle') AND ((\"Display\"='Short')=(\"Title\" IS NULL)) AND (\"Title\" IS NULL OR length(btrim(\"Title\")) BETWEEN 1 AND 200)");
+
+                            t.HasCheckConstraint("CK_note_kind", "\"Kind\" IN ('Task','Distraction','NextStep','Daily','General') AND (\"Kind\" NOT IN ('Task','NextStep') OR \"TaskId\" IS NOT NULL) AND ((\"Kind\"='Daily')=(\"LocalDate\" IS NOT NULL))");
 
                             t.HasCheckConstraint("CK_note_text", "length(btrim(\"Text\"))>0 AND \"Version\">0");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.MatrixItem", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Quadrant")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("SortOrder")
+                        .HasPrecision(28, 10)
+                        .HasColumnType("numeric(28,10)");
+
+                    b.HasKey("UserId", "TaskId");
+
+                    b.HasIndex("UserId", "Quadrant", "SortOrder", "TaskId");
+
+                    b.ToTable("matrix_items", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_matrix_quadrant", "\"Quadrant\" IN ('Inbox','Do','Schedule','Delegate','Eliminate')");
+                        });
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.MatrixState", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("matrix_states", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_matrix_version", "\"Version\" >= 0");
                         });
                 });
 
@@ -1620,6 +1872,56 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("Adhd.Domain.Users.AuthSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AdoptedTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserAgentFamily")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdoptedTokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "RevokedAt");
+
+                    b.ToTable("auth_sessions", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.AuthSessionCutoff", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ValidAfter")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("auth_session_cutoffs", (string)null);
+                });
+
             modelBuilder.Entity("Adhd.Domain.Users.ExternalLogin", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1687,8 +1989,28 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("NotesAllViewMode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Cards");
+
+                    b.Property<string>("NotesTaskViewMode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("List");
+
+                    b.Property<long>("NotesVersion")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("PlanningVersion")
                         .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SpecialDaysVersion")
                         .HasColumnType("bigint");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -1875,6 +2197,55 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("CK_segment_void", "NOT \"IsVoided\" OR \"EndedAt\" IS NOT NULL");
                         });
+                });
+
+            modelBuilder.Entity("Adhd.Infrastructure.ClientErrors.ClientErrorReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BrowserFamily")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("BuildId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Route")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceivedAt");
+
+                    b.HasIndex("UserId", "ReceivedAt");
+
+                    b.ToTable("client_error_reports", (string)null);
                 });
 
             modelBuilder.Entity("Adhd.Infrastructure.Persistence.DatabaseMetadata", b =>
@@ -2270,6 +2641,12 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Adhd.Domain.Planning.PlanRevisionChange", b =>
                 {
+                    b.HasOne("Adhd.Domain.Planning.DayItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "DayItemId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Adhd.Domain.Planning.PlanRevision", null)
                         .WithMany()
                         .HasForeignKey("UserId", "RevisionId")
@@ -2280,6 +2657,22 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.HasOne("Adhd.Domain.Planning.TaskSchedule", null)
                         .WithMany()
                         .HasForeignKey("UserId", "ScheduleId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Planning.PlanRevisionDayItem", b =>
+                {
+                    b.HasOne("Adhd.Domain.Planning.DayItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "DayItemId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Planning.PlanRevision", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "RevisionId")
                         .HasPrincipalKey("UserId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -2374,6 +2767,15 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Adhd.Domain.SpecialDays.SpecialDay", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Adhd.Domain.Support.DailyCriticalTask", b =>
                 {
                     b.HasOne("Adhd.Domain.Support.SupportDay", null)
@@ -2386,6 +2788,15 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId", "TaskId")
                         .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Support.NoteCategory", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -2407,6 +2818,12 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Adhd.Domain.Support.NoteCategory", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "CategoryId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
                         .WithMany()
                         .HasForeignKey("UserId", "ConvertedTaskId")
@@ -2424,6 +2841,25 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId", "WorkSessionId")
                         .HasPrincipalKey("UserId", "Id")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.MatrixItem", b =>
+                {
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "TaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Tasks.MatrixState", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Adhd.Domain.Tasks.TaskDependency", b =>
@@ -2520,6 +2956,24 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Adhd.Domain.Users.AuthSession", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Users.AuthSessionCutoff", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithOne()
+                        .HasForeignKey("Adhd.Domain.Users.AuthSessionCutoff", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Adhd.Domain.Users.ExternalLogin", b =>
                 {
                     b.HasOne("Adhd.Domain.Users.AppUser", null)
@@ -2591,6 +3045,15 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId", "SessionId")
                         .HasPrincipalKey("UserId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Infrastructure.ClientErrors.ClientErrorReport", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

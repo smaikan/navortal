@@ -28,9 +28,9 @@ public sealed class MigrationUpgradeTests(DatabaseFixture fixture) : IClassFixtu
     public async Task RecurrenceSchemaUpgradeBootstrapsDurableJobsAndCreatesPinnedQuartzTablesWithoutLosingData()
     {
         await using var db = fixture.CreateContext(); var previous = db.Database.GetMigrations().Single(x => x.EndsWith("_AddRecurrence", StringComparison.Ordinal)); await db.GetService<IMigrator>().MigrateAsync(previous);
-        var now = DateTimeOffset.UtcNow; var user = new AppUser { Id = Guid.NewGuid(), Email = $"{Guid.NewGuid():N}@example.test", NormalizedEmail = Guid.NewGuid().ToString(), CreatedAt = now }; db.Users.Add(user); db.PlanningStates.Add(new() { UserId = user.Id, UpdatedAt = now });
+        var now = DateTimeOffset.UtcNow; var user = new AppUser { Id = Guid.NewGuid(), Email = $"{Guid.NewGuid():N}@example.test", NormalizedEmail = Guid.NewGuid().ToString(), CreatedAt = now }; db.Users.Add(user);
         // Güncel modelde yeni kolonlar var. Eski satırı doğrudan SQL ile eski şemaya ekle
-        await db.SaveChangesAsync(); var task = new TaskItem { Id = Guid.NewGuid(), UserId = user.Id, Title = "Existing deadline", CreatedAt = now, UpdatedAt = now, DeadlineAt = now.AddDays(1) }; await InsertLegacyTask(db, task);
+        await db.SaveChangesAsync(); await InsertLegacyPlanningState(db,user.Id,now); var task = new TaskItem { Id = Guid.NewGuid(), UserId = user.Id, Title = "Existing deadline", CreatedAt = now, UpdatedAt = now, DeadlineAt = now.AddDays(1) }; await InsertLegacyTask(db, task);
         await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE tasks SET \"DeadlineAt\" = {task.DeadlineAt} WHERE \"Id\" = {task.Id}"); var template = new Adhd.Domain.Recurrence.RecurrenceTemplate { Id = Guid.NewGuid(), UserId = user.Id, CreatedAt = now, UpdatedAt = now }; db.RecurrenceTemplates.Add(template);
         db.RecurrenceDefinitions.Add(new() { Id = Guid.NewGuid(), UserId = user.Id, TemplateId = template.Id, Number = 1, EffectiveFrom = new(2026, 10, 15), CreatedAt = now }); await db.SaveChangesAsync();
         await db.Database.MigrateAsync(); db.ChangeTracker.Clear(); Assert.Equal(task.DeadlineAt!.Value.ToUnixTimeMilliseconds(), (await db.Tasks.SingleAsync(x => x.Id == task.Id)).DeadlineAt!.Value.ToUnixTimeMilliseconds());
@@ -44,7 +44,7 @@ public sealed class MigrationUpgradeTests(DatabaseFixture fixture) : IClassFixtu
         var now = new DateTimeOffset(2026, 10, 15, 6, 0, 0, TimeSpan.Zero); var date = new DateOnly(2026, 10, 15); var user = new AppUser { Id = Guid.NewGuid(), Email = $"{Guid.NewGuid():N}@example.test", NormalizedEmail = Guid.NewGuid().ToString(), CreatedAt = now }; db.Users.Add(user);
         await db.SaveChangesAsync(); var task = new TaskItem { Id = Guid.NewGuid(), UserId = user.Id, Title = "Keep support", CreatedAt = now, UpdatedAt = now, EnergyDemand = Adhd.Domain.Support.EnergyLevel.High }; await InsertLegacyTask(db, task);
         await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE tasks SET \"EnergyDemand\" = 'High' WHERE \"Id\" = {task.Id}");
-        var note = new Adhd.Domain.Support.UserNote { Id = Guid.NewGuid(), UserId = user.Id, TaskId = task.Id, Kind = Adhd.Domain.Support.NoteKind.NextStep, Text = "Keep next step", CreatedAt = now, UpdatedAt = now }; db.Notes.Add(note);
+        var note = new Adhd.Domain.Support.UserNote { Id = Guid.NewGuid(), UserId = user.Id, TaskId = task.Id, Kind = Adhd.Domain.Support.NoteKind.NextStep, Text = "Keep next step", CreatedAt = now, UpdatedAt = now }; await InsertLegacyNote(db, note);
         db.SupportDays.Add(new() { UserId = user.Id, LocalDate = date, AvailableEnergy = Adhd.Domain.Support.EnergyLevel.Low }); db.CriticalTasks.Add(new() { UserId = user.Id, LocalDate = date, TaskId = task.Id, Slot = 1 }); await db.SaveChangesAsync();
         await db.Database.MigrateAsync(); db.ChangeTracker.Clear(); Assert.Equal("Keep next step", (await db.Notes.SingleAsync(x => x.Id == note.Id)).Text); Assert.Equal(Adhd.Domain.Support.EnergyLevel.High, (await db.Tasks.SingleAsync(x => x.Id == task.Id)).EnergyDemand); Assert.Equal(task.Id, (await db.CriticalTasks.SingleAsync(x => x.UserId == user.Id)).TaskId); Assert.Empty(await db.RecurrenceTemplates.Where(x => x.UserId == user.Id).ToArrayAsync()); Assert.Empty(await db.Database.GetPendingMigrationsAsync());
     }
@@ -80,9 +80,9 @@ public sealed class MigrationUpgradeTests(DatabaseFixture fixture) : IClassFixtu
         await using var db = fixture.CreateContext(); var previous = db.Database.GetMigrations().Single(x => x.EndsWith("_AddDistributionProposals", StringComparison.Ordinal));
         await db.GetService<IMigrator>().MigrateAsync(previous);
         var now = new DateTimeOffset(2026, 10, 15, 8, 0, 0, TimeSpan.Zero); var user = new AppUser { Id = Guid.CreateVersion7(), Email = $"{Guid.NewGuid():N}@example.test", NormalizedEmail = Guid.NewGuid().ToString(), CreatedAt = now };
-        db.Users.Add(user); db.PlanningStates.Add(new() { UserId = user.Id, UpdatedAt = now });
+        db.Users.Add(user);
         var task = new TaskItem { Id = Guid.CreateVersion7(), UserId = user.Id, Title = "Legacy", CreatedAt = now, UpdatedAt = now };
-        db.Preferences.Add(new() { UserId = user.Id, Version = 1, Payload = "{\"TimeZoneId\":\"Europe/Berlin\"}" }); await db.SaveChangesAsync();
+        db.Preferences.Add(new() { UserId = user.Id, Version = 1, Payload = "{\"TimeZoneId\":\"Europe/Berlin\"}" }); await db.SaveChangesAsync(); await InsertLegacyPlanningState(db,user.Id,now);
         await InsertLegacyTask(db, task);
         var legacyId = Guid.CreateVersion7(); var payload = "{\"after\":{\"State\":\"Completed\",\"Title\":\"Legacy\"},\"before\":{\"State\":\"Pending\"}}";
         await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO task_events (\"Id\",\"UserId\",\"TaskId\",\"Type\",\"Sequence\",\"EffectiveAt\",\"Payload\") VALUES ({legacyId},{user.Id},{task.Id},'Completed',1,{now},{payload}::jsonb)");
@@ -264,4 +264,28 @@ public sealed class MigrationUpgradeTests(DatabaseFixture fixture) : IClassFixtu
         Assert.Equal("Before planning upgrade", (await db.WorkCorrections.SingleAsync(x => x.Id == journalId)).Reason);
         Assert.Empty(await db.DailyPlans.ToArrayAsync()); Assert.Empty(await db.TaskSchedules.ToArrayAsync()); Assert.Empty(await db.PlanRevisions.ToArrayAsync());
     }
+    private static Task<int> InsertLegacyNote(PlannerDbContext db, Adhd.Domain.Support.UserNote n) => db.Database.ExecuteSqlInterpolatedAsync($"""
+        INSERT INTO user_notes ("Id","UserId","TaskId","Kind","Text","TimeZoneId","CreatedAt","UpdatedAt","Version")
+        VALUES ({n.Id},{n.UserId},{n.TaskId},{n.Kind.ToString()},{n.Text},{n.TimeZoneId},{n.CreatedAt},{n.UpdatedAt},1)
+        """);
+    // EF yeni sayaçları biliyor. Yükseltmeden önce veriyi gerçek eski şemaya ekle.
+    private static Task<int> InsertLegacyPlanningState(PlannerDbContext db,Guid user,DateTimeOffset now) => db.Database.ExecuteSqlInterpolatedAsync($"""
+        INSERT INTO user_planning_states ("UserId","PlanningVersion","UpdatedAt") VALUES ({user},0,{now})
+        """);
+
+    [Fact]
+    public async Task ReadVersionUpgradePreservesExistingTaskNoteAndPlanningVersionAndStartsBothCountersAtZero()
+    {
+        await using var db=fixture.CreateContext();var migrations=db.Database.GetMigrations().ToArray();var target=Array.FindIndex(migrations,x=>x.EndsWith("_FrontendReadVersions",StringComparison.Ordinal));
+        Assert.True(target>0);await db.GetService<IMigrator>().MigrateAsync(migrations[target-1]);
+        var now=DateTimeOffset.UtcNow;var user=new AppUser {Id=Guid.NewGuid(),Email=$"{Guid.NewGuid():N}@example.test",NormalizedEmail=Guid.NewGuid().ToString(),CreatedAt=now};
+        db.Users.Add(user);await db.SaveChangesAsync();await InsertLegacyPlanningState(db,user.Id,now);
+        await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE user_planning_states SET \"PlanningVersion\"=17 WHERE \"UserId\"={user.Id}");
+        var task=new TaskItem {Id=Guid.NewGuid(),UserId=user.Id,Title="Existing read upgrade task",CreatedAt=now,UpdatedAt=now};db.Tasks.Add(task);
+        var noteId=Guid.NewGuid();await db.SaveChangesAsync();await InsertLegacyNote(db,new() {Id=noteId,UserId=user.Id,TaskId=task.Id,Text="Existing private note",CreatedAt=now,UpdatedAt=now});
+        await db.Database.MigrateAsync();db.ChangeTracker.Clear();
+        var state=await db.PlanningStates.SingleAsync(x=>x.UserId==user.Id);Assert.Equal(17,state.PlanningVersion);Assert.Equal(0,state.NotesVersion);Assert.Equal(0,state.SpecialDaysVersion);
+        Assert.Equal(task.Title,(await db.Tasks.SingleAsync(x=>x.Id==task.Id)).Title);Assert.Equal("Existing private note",(await db.Notes.SingleAsync(x=>x.Id==noteId)).Text);Assert.Equal(task.Id,(await db.Notes.SingleAsync(x=>x.Id==noteId)).TaskId);Assert.Empty(await db.Database.GetPendingMigrationsAsync());
+    }
+
 }
