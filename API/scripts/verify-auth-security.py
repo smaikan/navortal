@@ -1,4 +1,4 @@
-"""Verify JWT/SMTP boundaries using an owned loopback PostgreSQL cluster, never the user DB."""
+"""JWT/SMTP sınırını bize ait yerel PostgreSQL ile kontrol eder. Kullanıcı DB'sine dokunmaz."""
 from pathlib import Path
 import hashlib
 import json
@@ -61,7 +61,7 @@ try:
         root = ET.parse(trx).getroot()
         counters = root.find('.//{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}Counters')
         summary['counters'] = counters.attrib if counters is not None else {}
-    # Bu PostgreSQL kümesi teste ait. Her test kendi geçici veritabanını önceden silmeli
+    # Bu PostgreSQL kümesi teste ait. Her test kendi geçici veritabanını önceden silmeli.
     result = subprocess.run([binary('psql'), '--no-psqlrc', '-At', '-c', "SELECT count(*) FROM pg_database WHERE datname NOT IN ('postgres','template0','template1')"],
                             env=ENV, capture_output=True, text=True, creationflags=FLAGS, check=True)
     summary['remainingFixtureDatabases'] = int(result.stdout.strip())
@@ -76,8 +76,9 @@ finally:
     lock.unlink()
     files = ['src/Adhd.Api/Auth/AuthRegistration.cs', 'src/Adhd.Api/Auth/SmtpSettingsValidator.cs', 'src/Adhd.Infrastructure/Auth/JwtTokenIssuer.cs',
              'src/Adhd.Infrastructure/Auth/SmtpResetMailSender.cs', 'tests/Adhd.IntegrationTests/AuthConfigurationTests.cs',
-             'tests/Adhd.IntegrationTests/PasswordResetTests.cs', 'scripts/verify-auth-security.py', '.gitignore', '.dockerignore']
+             'tests/Adhd.IntegrationTests/PasswordResetTests.cs', 'scripts/verify-auth-security.py', '.dockerignore']
     summary['sourceHashes'] = {name: hashlib.sha256((API / name).read_bytes()).hexdigest() for name in files}
+    summary['sourceHashes']['../.gitignore'] = hashlib.sha256((API.parent / '.gitignore').read_bytes()).hexdigest()
     (PROOF / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(summary), flush=True)
 if 'failure' in summary or not summary.get('ownedPostgresStopped'):

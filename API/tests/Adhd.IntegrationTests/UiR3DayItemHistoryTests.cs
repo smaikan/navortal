@@ -8,7 +8,7 @@ using Npgsql;
 
 namespace Adhd.IntegrationTests;
 
-// Saatsiz öğe değişikliği plan geçmişine girer, geri alınabilir, sürümü artırır ve günün başına taşınabilir.
+// Saatsiz öğe geri alınabilir geçmişe girer, plan sürümünü ilerletir ve günün başına gelebilir.
 public sealed class UiR3DayItemHistoryTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private static readonly DateTimeOffset Morning = new(2026, 10, 15, 6, 0, 0, TimeSpan.Zero);
@@ -50,7 +50,7 @@ public sealed class UiR3DayItemHistoryTests(DatabaseFixture fixture) : IClassFix
         Assert.Equal("DayItemCompleted", completed.Type); Assert.Null(completed.DayItemBefore!.CompletedAt); Assert.NotNull(completed.DayItemAfter!.CompletedAt);
         var day = await ManualPlanningTests.Day(s);
         Assert.Equal(v0 + 2, day.PlanningVersion); Assert.NotNull(day.CurrentRevisionId); Assert.Null(day.BaselineRevisionId);
-        // Gün öğesi grubu saatli geri alma için kaynak olamaz.
+        // Gün öğesi grubu saatli geri alma için kaynak olamaz
         var scheduleUndo = await s.Client.PostAsJsonAsync("/api/scheduling/undo-preview", new { changeSetId = done.ChangeSetId, expectedPlanningVersion = day.PlanningVersion });
         Assert.Equal(HttpStatusCode.Conflict, scheduleUndo.StatusCode); Assert.Equal("undo_use_day_items", await Code(scheduleUndo));
         await using var db = fixture.CreateContext();
@@ -66,13 +66,13 @@ public sealed class UiR3DayItemHistoryTests(DatabaseFixture fixture) : IClassFix
         var first = await Add(s, a.Id); var second = await Add(s, b.Id);
         var removed = await Act(s, second, "remove");
         Assert.Equal(new[] { a.Id }, (await List(s)).Items.Select(x => x.TaskId));
-        // Bu değişiklik günün en yenisi değil
+        // Bu değişiklik günün en yenisi değil.
         var stale = await Undo(s, first.ChangeSetId!.Value, removed.PlanningVersion!.Value);
         Assert.Equal(HttpStatusCode.Conflict, stale.StatusCode); Assert.Equal("undo_not_latest", await Code(stale));
-        // Plan sürümü artık güncel değil
+        // Plan sürümü artık güncel değil.
         var oldVersion = await Undo(s, removed.ChangeSetId!.Value, removed.PlanningVersion.Value - 1);
         Assert.Equal(HttpStatusCode.Conflict, oldVersion.StatusCode); Assert.Equal("planning_version_conflict", await Code(oldVersion));
-        // Başka hesap bu değişiklik grubunu okuyamaz.
+        // Başka hesap bu değişiklik grubunu okuyamaz
         var foreign = await Undo(other, removed.ChangeSetId.Value, (await ManualPlanningTests.Day(other)).PlanningVersion);
         Assert.Equal(HttpStatusCode.NotFound, foreign.StatusCode);
         var undone = await TaskScenario.Read<DayItemBatchResult>(await Undo(s, removed.ChangeSetId.Value, removed.PlanningVersion.Value));
@@ -81,7 +81,7 @@ public sealed class UiR3DayItemHistoryTests(DatabaseFixture fixture) : IClassFix
         Assert.Equal(new[] { a.Id, b.Id }, (await List(s)).Items.Select(x => x.TaskId));
         var again = await Undo(s, removed.ChangeSetId.Value, undone.PlanningVersion);
         Assert.Equal(HttpStatusCode.Conflict, again.StatusCode); Assert.Equal("undo_already_applied", await Code(again));
-        // Geri alma da son değişiklik olur. Onu geri alınca öğe yeniden kalkar
+        // Geri alma da son değişiklik olur. Onu geri alınca öğe yeniden kalkar.
         var redo = await TaskScenario.Read<DayItemBatchResult>(await Undo(s, undone.ChangeSetId, undone.PlanningVersion));
         Assert.Equal(new[] { a.Id }, (await List(s)).Items.Select(x => x.TaskId));
         Assert.Equal(undone.PlanningVersion + 1, redo.PlanningVersion);
@@ -111,7 +111,7 @@ public sealed class UiR3DayItemHistoryTests(DatabaseFixture fixture) : IClassFix
         Assert.Equal(new[] { tasks[0].Id, tasks[1].Id, tasks[2].Id, keep.TaskId }, today.Select(x => x.TaskId));
         Assert.NotNull(today.Single(x => x.Id == done.Id).CompletedAt);
         Assert.Equal(new[] { waiting.TaskId }, (await List(s, Tomorrow)).Items.Select(x => x.TaskId));
-        // Taşımadan sonra öğe değiştiyse eski taşımayı geri alma.
+        // Taşımadan sonra öğe değiştiyse eski taşımayı geri alma
         var single = await TaskScenario.Read<DayItemView>(await s.Client.PostAsJsonAsync($"/api/day-items/{keep.Id}/move", new { version = keep.Version, targetDate = Tomorrow }));
         var reopened = await TaskScenario.Read<DayItemView>(await s.Client.PostAsJsonAsync($"/api/day-items/{single.Id}/complete", new { version = single.Version }));
         var changed = await Undo(s, single.ChangeSetId!.Value, reopened.PlanningVersion!.Value);
@@ -123,7 +123,7 @@ public sealed class UiR3DayItemHistoryTests(DatabaseFixture fixture) : IClassFix
     [Fact]
     public async Task BatchMoveToADayWithoutAPlanCreatesThatPlanOnceAndUndoes()
     {
-        // Planı olmayan güne iki öğe taşınınca aynı plan iki kez eklenip unique indeks hatası veriyordu
+        // Planı olmayan güne iki öğe taşınınca aynı plan iki kez eklenip unique indeks hatası veriyordu.
         await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app);
         var later = Today.AddDays(9);
         var items = new List<DayItemView>(); foreach (var name in new[] { "Bir", "İki", "Üç" }) items.Add(await Add(s, (await s.Root(name)).Id));
@@ -169,10 +169,10 @@ public sealed class UiR3DayItemHistoryTests(DatabaseFixture fixture) : IClassFix
         var latest = await db.PlanRevisions.Where(x => x.UserId == s.UserId).OrderByDescending(x => x.Number).FirstAsync();
         var snapshot = JsonSerializer.Deserialize<DayItemSnapshot>((await db.PlanRevisionDayItems.SingleAsync(x => x.RevisionId == latest.Id && x.DayItemId == item.Id)).Snapshot, new JsonSerializerOptions(JsonSerializerDefaults.Web) { Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() } })!;
         Assert.Equal((DayItemState.Scheduled, (Guid?)block.Id), (snapshot.State, snapshot.TimedScheduleId));
-        // Önceki saatli revizyonlar aynı değişiklik ucundan okunur.
+        // Önceki saatli revizyonlar aynı değişiklik ucundan okunur
         var timedChanges = await Changes(s, Today);
         Assert.All(timedChanges, x => Assert.NotNull(x.ScheduleId));
-        // CHECK kuralı tam bir hedef istiyor
+        // CHECK kuralı tam bir hedef istiyor.
         var revision = latest.Id;
         var bad = new PlanRevisionChange { Id = Guid.CreateVersion7(), UserId = s.UserId, RevisionId = revision, Type = "Broken", After = "{}" };
         db.PlanRevisionChanges.Add(bad);

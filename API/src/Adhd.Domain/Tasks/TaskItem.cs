@@ -15,7 +15,7 @@ public sealed class TaskItem
     public bool HasDirectWork { get; set; } = true;
     public bool DirectWorkCompleted { get; set; }
     public bool RequiredForParent { get; set; } = true;
-    // Ayar kapalıysa bütün zorunlu çocuklar bitse de üst görevi kendiliğinden bitirme.
+    // False ise bütün zorunlu çocuklar bitse de bu görev kendiliğinden bitmez.
     public bool AutoCompleteFromChildren { get; set; } = true;
     public CompletionOrigin? CompletionOrigin { get; set; }
     public DateTimeOffset? CompletedAt { get; set; }
@@ -28,13 +28,13 @@ public sealed class TaskItem
     public bool CanSplit { get; set; } = true;
     public Adhd.Domain.Support.EnergyLevel? EnergyDemand { get; set; }
     public long? DirectEstimatedSeconds { get; set; }
-    // Başlangıç ve bitiş birlikte dolu ya da boş. Bu yalnız gün önerisi, saatli bloğa engel olmaz.
+    // Atanmış gün aralığında ikisi birlikte dolu veya null. Sadece gün planı önerisi, saatli kayıt açmaz veya engellemez.
     public DateOnly? PlannedFrom { get; set; }
     public DateOnly? PlannedTo { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? ArchivedAt { get; set; }
-    // Alt ağacı silerken ArchivedAt ile birlikte işaretle. Aynı grup geri gelince ikisini de temizle.
+    // Alt ağaç yumuşak silmede ArchivedAt ile birlikte işaretlenir. Aynı grubun geri yüklemesi ikisini temizler.
     public DateTimeOffset? DeletedAt { get; set; }
     public long Version { get; set; } = 1;
 }

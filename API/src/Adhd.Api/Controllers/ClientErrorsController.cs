@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Adhd.Api.Controllers;
 
-// Tarayıcı yakalanmamış hatasını gönderir. Maskele, 30 gün tut. Sınır aşılırsa 429 dön.
+// Tarayıcının maskeli hata raporunu 30 gün tutar. Sınır aşılınca 429 ile atar.
 [ApiController, Authorize, Route("api/client-errors")]
 public sealed class ClientErrorsController(ClientErrorService service) : ControllerBase
 {

@@ -23,7 +23,7 @@ try {
     [Array]::Copy($parameters.Q.X,0,$publicBytes,1,32)
     [Array]::Copy($parameters.Q.Y,0,$publicBytes,33,32)
     $settings = @{ Subject=$Subject; PublicKey=(ConvertTo-Base64Url $publicBytes); PrivateKey=(ConvertTo-Base64Url $parameters.D) }
-    # İki kurulum aynı anda çalışırsa CreateNew mevcut anahtarları korur
+    # İki kurulum aynı anda çalışırsa CreateNew mevcut anahtarları korur.
     $file = [IO.File]::Open($keyPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
     try {
         $encoded = [Text.Encoding]::UTF8.GetBytes(($settings | ConvertTo-Json))

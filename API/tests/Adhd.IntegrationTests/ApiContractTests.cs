@@ -35,7 +35,7 @@ public sealed class ApiContractTests(DatabaseFixture fixture) : IClassFixture<Da
             ("WorkState", Enum.GetNames<Adhd.Domain.Work.WorkState>()), ("FocusState", Enum.GetNames<Adhd.Domain.Focus.FocusState>()),
             ("CompletionOrigin", Enum.GetNames<Adhd.Domain.Tasks.CompletionOrigin>()) })
         {
-            // Sadece enum içeren JSON Schema geçerli. Nullable enum için null üye gelebilir.
+            // Sadece enum içeren JSON Schema geçerli. Nullable enum için null üye gelebilir
             var members = schemas.GetProperty(name).GetProperty("enum").EnumerateArray().ToArray();
             Assert.All(members, value => Assert.True(value.ValueKind is JsonValueKind.String or JsonValueKind.Null));
             Assert.Equal(values.Order(), members.Where(x => x.ValueKind != JsonValueKind.Null).Select(x => x.GetString()!).Order());

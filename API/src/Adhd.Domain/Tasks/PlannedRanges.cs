@@ -1,10 +1,7 @@
 namespace Adhd.Domain.Tasks;
 
 public sealed record PlannedRange(DateOnly From, DateOnly To);
-// Açık çocukların gün aralığı varsa
-// üst görev ilk ve son
-// günlerini kapsar. Yoksa üst
-// görevin kendi aralığı geçerli.
+// Açık çocuklardan herhangi birinde etkin gün aralığı varsa üst aralık çocukların ilk/son gününü kapsar, kendi aralığı yok sayılır. Yoksa görevin kendi aralığı kullanılır.
 public static class PlannedRanges
 {
     public static IReadOnlyDictionary<Guid, PlannedRange?> Effective(IReadOnlyCollection<TaskItem> input)
@@ -12,7 +9,7 @@ public static class PlannedRanges
         var tasks = input.Where(x => x.ArchivedAt is null).ToDictionary(x => x.Id);
         var children = tasks.Values.Where(x => x.ParentTaskId is { } p && tasks.ContainsKey(p)).ToLookup(x => x.ParentTaskId!.Value);
         var result = new Dictionary<Guid, PlannedRange?>();
-        // Derin ağaçta çağrı yığını dolmasın diye çocuklardan yukarı döngüyle çık
+        // Derin ağaçta çağrı yığını dolmasın diye çocuklardan yukarı döngüyle çık.
         foreach (var root in tasks.Values.Where(x => x.ParentTaskId is not { } p || !tasks.ContainsKey(p)))
         {
             var stack = new Stack<(TaskItem Task, bool Expanded)>(); stack.Push((root, false));

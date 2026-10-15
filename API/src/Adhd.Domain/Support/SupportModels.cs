@@ -28,7 +28,7 @@ public sealed class UserNote
     public Guid? CategoryId { get; set; }
     public NoteDisplay Display { get; set; }
 }
-// Not kategorisi hesaba ait. Kaldırınca seçicide gizlenir, not bağlantısı korunur ve geri yüklenebilir.
+// Kullanıcıya ait kategori. Kaldırılınca seçiciden gizlenir, not bağı kalır ve geri getirilebilir.
 public sealed class NoteCategory
 {
     public const string DefaultWarningName = "Uyarı";

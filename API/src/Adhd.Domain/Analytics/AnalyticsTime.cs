@@ -30,7 +30,7 @@ public static class AnalyticsTime
         AnalyticsBucket.Day => date, AnalyticsBucket.Week => date.AddDays(-(((int)date.DayOfWeek - weekStartsOn + 7) % 7)),
         AnalyticsBucket.Month => new(date.Year, date.Month, 1), _ => throw new ArgumentOutOfRangeException(nameof(bucket))
     };
-    // Eşiği hesaplarken duraklamaları atla. Aşım, eşikten sonra gerçekten çalışılan süre.
+    // Eşiği hesaplarken duraklamaları atla. Aşım, eşikten sonra gerçekten çalışılan süre
     public static (DateTimeOffset? TargetAt, (DateTimeOffset Start, DateTimeOffset End)[] Overtime) FocusThreshold(
         IEnumerable<WorkSessionSegment> segments, DateTimeOffset start, DateTimeOffset end, int targetSeconds)
     {

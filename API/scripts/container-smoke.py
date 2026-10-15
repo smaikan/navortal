@@ -1,4 +1,4 @@
-"""Local isolated Docker acceptance; synthetic data only. Never prints JWTs, credentials or backup contents."""
+"""Yalnız bize ait Docker testi, yapay veri kullanır. JWT, parola veya yedek içeriği yazdırılmaz."""
 import base64
 import datetime as dt
 import json
@@ -87,7 +87,7 @@ def register():
     return ok('POST', '/api/auth/register', {'email': uuid.uuid4().hex + '@example.test', 'password': '123456'})
 
 def websocket(token):
-    """Real TLS + nginx + Kestrel WebSocket and SignalR JSON handshake using the same JWT."""
+    """Aynı JWT ile gerçek TLS, nginx, Kestrel WebSocket ve SignalR JSON el sıkışması."""
     with socket.create_connection(('127.0.0.1', 18443), timeout=10) as raw:
         with TLS.wrap_socket(raw, server_hostname='localhost') as ws:
             key = base64.b64encode(secrets.token_bytes(16)).decode()
@@ -186,7 +186,7 @@ try:
     proof['steps'].append('Custom-format pg_dump/pg_restore and no-op migration preserved users/tasks/plan/revision/work/focus/notes/preferences')
     current = ok('GET', '/api/focus-sessions/current', token=token)['session']
     ok('POST', f'/api/focus-sessions/{current["id"]}/finish', {'version': current['version'], 'workSessionVersion': current['workSessionVersion']}, token, True)
-    # Ek ayarı değiştirip konteyneri yeniden kur. Normal API açılışında migration çalışmaz.
+    # Ek ayarı değiştirip konteyneri yeniden kur. Normal API açılışında migration çalışmaz
     OVERRIDE.write_text(OVERRIDE.read_text().replace('Jobs__Enabled: "false"', 'Jobs__Enabled: "true"'))
     compose('up', '-d', '--no-build', '--no-deps', '--force-recreate', 'api')
     wait_until(lambda: request('GET', '/health/ready')[0] == 200, 'Persistent jobs enabled')
@@ -213,5 +213,5 @@ except Exception:
         pass
     raise
 finally:
-    # Proje adı ve Docker etiketleri sayesinde temizlik sadece bu testin kaynaklarını siler
+    # Proje adı ve Docker etiketleri sayesinde temizlik sadece bu testin kaynaklarını siler.
     compose('down', '-v', '--remove-orphans')

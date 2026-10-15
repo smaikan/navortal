@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Adhd.Infrastructure.Notifications;
 
-// Push aboneliğinden veya dış gönderimden önce ayarı doğrula. Hata metnine ayar değerini koyma.
+// Abonelik sunulmadan veya dış gönderimden önce açık push ayarı kontrol edilir. Değerler hata içine girmez.
 public sealed class PushSettingsValidator : IValidateOptions<PushSettings>
 {
     public ValidateOptionsResult Validate(string? name, PushSettings options)

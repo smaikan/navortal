@@ -55,7 +55,7 @@ public sealed class TaskLifecycleStore(PlannerDbContext db, IPreferencesStore pr
         state.PlanningVersion++; state.UpdatedAt = now;
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return TaskStore.View(selected);
     }
-    // Çocuklardan otomatik bitirme her görev için ayrı. Açılınca görevi hemen kontrol et.
+    // Çocuklardan otomatik bitirme görev bazında. Açmak görevin kendisini hemen uzlaştırır.
     public async Task<TaskView> SetAutoCompleteAsync(Guid userId, Guid taskId, long version, bool enabled, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct);

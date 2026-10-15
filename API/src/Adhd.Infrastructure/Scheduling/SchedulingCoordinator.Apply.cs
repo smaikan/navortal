@@ -14,10 +14,10 @@ public sealed partial class SchedulingCoordinator
     {
         Key(key); var hash = Hash(payload);
         var replay = await Replay<T>(userId, scope, key, hash, ct); if (replay is not null) return (replay, true);
-        // Hesabı ve tutarlılık kontrolünü kısa hesap kilidini almadan yap.
+        // Hesabı ve tutarlılık kontrolünü kısa hesap kilidini almadan yap
         var stored = await db.SchedulingProposals.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == proposalId && x.Kind == "Day", ct)
             ?? throw new Adhd.Application.Common.UseCaseException(Adhd.Application.Common.ErrorKind.NotFound, "proposal_not_found", "Öneri bulunamadı.");
-        // Makbuz kabul edildiyse motor ya da girdi şeması değişse de tekrar hesaplama.
+        // Makbuz kabul edildiyse motor ya da girdi şeması değişse de tekrar hesaplama
         if (stored.Status == "Applied")
         {
             await using var replayTx = await db.Database.BeginTransactionAsync(ct); _ = await Lock(userId, ct);

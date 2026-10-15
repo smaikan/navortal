@@ -48,7 +48,7 @@ public sealed partial class WorkStore
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct);
         _ = await db.Tasks.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == taskId, ct)
             ?? throw new Adhd.Application.Common.UseCaseException(Adhd.Application.Common.ErrorKind.NotFound, "task_not_found", "Görev bulunamadı.");
-        // Arşivleyince geçmiş çalışma kaybolmaz. Bugünkü ağaç ile başlarken kaydettiğimiz yol ayrı.
+        // Arşivleyince geçmiş çalışma kaybolmaz. Bugünkü ağaç ile başlarken kaydettiğimiz yol ayrı
         var tasks = await db.Tasks.FromSqlInterpolated($"""
             WITH RECURSIVE tree AS (
                 SELECT * FROM tasks WHERE "UserId" = {userId} AND "Id" = {taskId}

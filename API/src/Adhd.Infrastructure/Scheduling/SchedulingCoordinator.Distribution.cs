@@ -41,7 +41,7 @@ public sealed partial class SchedulingCoordinator
                     if (original is not null)
                     {
                         outside.Remove(original);
-                        // Takvimdeki koruma kalsın. Miktarı canlı öngörüye bir kere ekle.
+                        // Takvimdeki koruma kalsın. Miktarı canlı öngörüye bir kere ekle
                         if (original.IsFixed || original.IsLocked) outside.Add(original with { TaskId = null, Kind = ScheduleKind.Break });
                     }
                     outside.Add(new(null, taskId, ScheduleKind.Work, now, now.AddTicks((long)(duration * TimeSpan.TicksPerSecond)), IsActive: true, IsAutomatic: true));

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Adhd.Api.Controllers;
 
-// Gün listesindeki saatsiz öğeler görevden bağımsız olarak bitirilebilir.
+// Günün saatsiz öğeleri ve plan öğesi bitirme burada. Plan öğesi görevden bağımsız biter.
 [ApiController, Authorize, Route("api/day-items")]
 public sealed class DayItemsController(PlanningService service) : ControllerBase
 {
@@ -18,11 +18,11 @@ public sealed class DayItemsController(PlanningService service) : ControllerBase
         var item = await service.AddDayItemAsync(UserId, date, request.TaskId!.Value, request.Placement ?? DayItemPlacement.Last, ct);
         return Created($"/api/day-items/{item.Id}", item);
     }
-    // Aynı günün saatsiz öğelerini bir arada taşı. Tek işlemle geri alınabilir.
+    // Aynı günün birkaç saatsiz öğesi birlikte taşınır. Tek değişiklik grubunu Geri al tersine çevirebilir.
     [HttpPost("/api/daily-plans/{date}/items/move")]
     public Task<DayItemBatchResult> MoveMany(DateOnly date, MoveDayItemsRequest request, CancellationToken ct) =>
         service.MoveDayItemsAsync(UserId, date, request.Items.Select(x => new DayItemMoveEntry(x.Id!.Value, x.Version)).ToArray(), request.TargetDate!.Value, ct);
-    // Günlerin en son saatsiz öğe değişikliğini geri al.
+    // İlgili günlerin son saatsiz öğe değişiklik grubunu geri alır.
     [HttpPost("undo")]
     public Task<DayItemBatchResult> Undo(UndoDayItemsRequest request, CancellationToken ct) => service.UndoDayItemsAsync(UserId, request.ChangeSetId!.Value, request.ExpectedPlanningVersion!.Value, ct);
     [HttpPost("{id:guid}/complete")] public Task<DayItemView> Complete(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.ChangeDayItemAsync(UserId, id, request.Version, DayItemAction.Complete, ct);
@@ -35,7 +35,7 @@ public sealed class DayItemsController(PlanningService service) : ControllerBase
 public sealed class AddDayItemRequest
 {
     [Required] public Guid? TaskId { get; set; }
-    // First işi en üste koyar. Varsayılan Last, listenin sonu.
+    // First öğeyi günün başına koyar, yarının ilk işi için. Varsayılan Last.
     public DayItemPlacement? Placement { get; set; }
 }
 public sealed class DayItemMoveEntryRequest

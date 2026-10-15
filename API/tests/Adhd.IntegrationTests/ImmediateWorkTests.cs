@@ -38,7 +38,7 @@ public sealed class ImmediateWorkTests(DatabaseFixture fixture) : IClassFixture<
         else { Assert.Empty(backendPieces); Assert.Equal(3600m, Assert.Single(p.Unplaced, x => x.TaskId == backend.Id).RemainingSeconds); }
         if (mode == "Preview")
         {
-            Assert.Equal(before.CurrentRevisionId, (await Day(s)).CurrentRevisionId); // Önizleme reddedilse de gerçek çalışma kaydı kalır.
+            Assert.Equal(before.CurrentRevisionId, (await Day(s)).CurrentRevisionId); // Önizleme reddedilse de gerçek çalışma kaydı kalır
             Assert.Equal(result.Work.Session.Id, (await TaskScenario.Read<CurrentWork>(await s.Client.GetAsync("/api/work-sessions/current"))).ActiveSession!.Id);
         }
         else Assert.NotEqual(before.CurrentRevisionId, (await Day(s)).CurrentRevisionId);

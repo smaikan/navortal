@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.ClientErrors;
 
-// Maskeli tarayıcı hatası. Bakım işi 30 gün sonra siler.
+// Maskeli tarayıcı hatası. Günlük bakım 30 günden eskisini siler.
 public sealed class ClientErrorReport
 {
     public Guid Id { get; set; }
@@ -23,7 +23,7 @@ public sealed class ClientErrorStore(PlannerDbContext db) : IClientErrorStore
     public async Task<bool> AddAsync(Guid userId, ClientErrorCommand command, DateTimeOffset now, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
-        // Aynı hesabın raporlarını sıraya al. Paralel istekler dakika ve gün sınırını aşmasın
+        // Aynı hesabın raporlarını sıraya al. Paralel istekler dakika ve gün sınırını aşmasın.
         await db.PlanningStates.FromSqlInterpolated($"SELECT * FROM user_planning_states WHERE \"UserId\" = {userId} FOR UPDATE").SingleAsync(ct);
         var dayStart = new DateTimeOffset(now.UtcDateTime.Date, TimeSpan.Zero);
         var minute = await db.ClientErrors.CountAsync(x => x.UserId == userId && x.ReceivedAt > now.AddMinutes(-1), ct);

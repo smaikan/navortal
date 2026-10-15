@@ -4,11 +4,7 @@ public enum SpecialDayKind { Birthday, Anniversary, Holiday, Other }
 public enum SpecialDayRecurrence { Yearly, Once }
 public enum SpecialDayReminder { None, SameDay, OneDayBefore, OneWeekBefore }
 
-// Özel gün kendi tarihinde görünür.
-// Yıllık 29 Şubat diğer
-// yıllarda 28 Şubat'a düşer.
-// Çalışma dışı gün kapasiteyi
-// etkiler, kayıtlı planı taşımaz.
+// Tarihinde gösterilen özel gün. Yıllık gün isteğe bağlı yıldan başlar, 29 Şubat diğer yıllarda 28 Şubat görünür. NonWorking o günün çalışma saatini boşaltır; açık tarih istisnası kazanır. Planı taşımaz veya değiştirmez. Bkz. NonWorking
 public sealed class SpecialDay
 {
     public Guid Id { get; set; }
@@ -36,7 +32,7 @@ public static class SpecialDayRules
     {
         if (title.Length is < 1 or > TitleMax) return "Ad 1–120 karakter olmalı.";
         if (month is < 1 or > 12) return "Geçerli bir ay seçin.";
-        // 29 Şubat yıllık özel gün olabilir. Artık yıl değilse 28 Şubat'ta göster.
+        // 29 Şubat yıllık özel gün olabilir. Artık yıl değilse 28 Şubat'ta göster
         if (day < 1 || day > DateTime.DaysInMonth(2000, month)) return "Geçerli bir gün seçin.";
         if (year is { } y && (y < 1 || y > 9998)) return "Geçerli bir yıl seçin.";
         if (recurrence == SpecialDayRecurrence.Once)
@@ -47,7 +43,7 @@ public static class SpecialDayRules
         return null;
     }
 
-    // O yıl özel günün düştüğü tarihi dön. Tekrar yoksa null.
+    // Verilen yıldaki gerçekleşme tarihi. O yıl yoksa null. Bkz. year
     public static DateOnly? In(SpecialDay d, int year)
     {
         if (year is < 1 or > 9999) return null;
@@ -70,7 +66,7 @@ public static class SpecialDayRules
         _ => occurrence,
     };
 
-    // zoneId ile hatırlatma gününün 09:00 saatini al. Yaz saati boşluğuna denk gelirse sonraki geçerli dakikayı kullan.
+    // Hatırlatma tarihinde zoneId içinde yerel 09:00. Yaz saati boşluğuna düşerse ilk geçerli dakika. Bkz. zoneId
     public static DateTimeOffset ReminderInstant(DateOnly occurrence, SpecialDayReminder reminder, string zoneId)
     {
         var zone = TimeZoneInfo.FindSystemTimeZoneById(zoneId);

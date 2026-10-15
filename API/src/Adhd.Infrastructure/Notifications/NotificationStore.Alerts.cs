@@ -9,7 +9,7 @@ namespace Adhd.Infrastructure.Notifications;
 
 public sealed partial class NotificationStore
 {
-    // İmleç sadece listede nerede kaldığımızı söyler. Her sorguyu giriş yapan hesapla süz.
+    // İmleç sadece listede nerede kaldığımızı söyler. Her sorguyu giriş yapan hesapla süz
     public async Task<NotificationAlertPage> AlertsAsync(Guid user, int limit, string? cursor, CancellationToken ct)
     {
         if (limit is < 1 or > 50) throw Invalid("pagination_invalid");
@@ -22,7 +22,7 @@ public sealed partial class NotificationStore
         if (!settings.Enabled || NotificationPolicy.QuietUntil(settings, planning.Values.TimeZoneId, now).HasValue)
             return new(now, notificationPreferences.Version, [], null);
         var lead = TimeSpan.FromSeconds(settings.LeadSeconds);
-        // Önce SQL ile zaman ve durum adaylarının sayfasını al. Kaynak kontrolü bu sayfanın dışına çıkmaz.
+        // Önce SQL ile zaman ve durum adaylarının sayfasını al. Kaynak kontrolü bu sayfanın dışına çıkmaz
         var query = db.NotificationIntents.AsNoTracking().Where(n => n.UserId == user && n.State == NotificationIntentState.Ready && n.ReadAt == null)
             .Select(n => new
             {

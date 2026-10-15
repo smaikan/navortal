@@ -12,7 +12,7 @@ public sealed partial class WorkStore : IWorkspaceSnapshotStore
     public async Task<WorkspaceSnapshotView> ReadWorkspaceAsync(Guid userId, bool includeFocus, CancellationToken ct)
     {
         // Güncel odak okuması aşamayı ilerletebilir. Aynı işlemde mevcut hesap kilidi ve gözlemi kullan,
-        // normal çalışma alanı okuması ise pasif kalsın ve tek tekrarlanabilir görüntü alsın
+        // normal çalışma alanı okuması ise pasif kalsın ve tek tekrarlanabilir görüntü alsın.
         await using var tx = await db.Database.BeginTransactionAsync(
             includeFocus ? IsolationLevel.ReadCommitted : IsolationLevel.RepeatableRead, ct);
         var state = includeFocus ? await Lock(userId, ct)
@@ -20,7 +20,7 @@ public sealed partial class WorkStore : IWorkspaceSnapshotStore
         var now = clock.GetUtcNow();
         FocusCurrent? evaluated = includeFocus ? await ObserveCurrentFocus(userId, state, now, ct) : null;
         var prefs = await preferences.ReadAsync(userId, ct);
-        // Sync gibi seç. Çalışan varsa o, yoksa en son başlayan duraklatılmış oturum.
+        // Sync gibi seç. Çalışan varsa o, yoksa en son başlayan duraklatılmış oturum
         var work = await db.WorkSessions.AsNoTracking()
             .Where(x => x.UserId == userId && (x.State == WorkState.Running || x.State == WorkState.Paused))
             .OrderByDescending(x => x.State == WorkState.Running).ThenByDescending(x => x.StartedAt)

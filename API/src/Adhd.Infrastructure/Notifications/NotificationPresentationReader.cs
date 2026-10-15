@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Notifications;
 
-// Kaynağı doğrulayıp hesabı kilitledikten sonra çağır. Başka hesabın kaynak adı okunmaz.
+// Sadece hesap işlem kilidinde kaynak geçerliyse çağrılır. Başka hesabın kaynak adı okunmaz.
 internal static class NotificationPresentationReader
 {
     internal static async Task<NotificationMessage> Read(PlannerDbContext db, NotificationIntent n, DateTimeOffset now, CancellationToken ct)
@@ -29,7 +29,7 @@ internal static class NotificationPresentationReader
             breakStarted = focus?.BreakStartedAt.HasValue == true;
         }
         else if (n.Kind == "TaskDeadline")
-            // Görevde başka bir alan değişti diye son tarih uyarısı bozulmasın. Görev sürümü yerine tarih anına bak.
+            // Görevde başka bir alan değişti diye son tarih uyarısı bozulmasın. Görev sürümü yerine tarih anına bak
             name = await db.Tasks.AsNoTracking().Where(x => x.UserId == n.UserId && x.Id == n.SourceId && x.DeadlineAt == n.OccurredAt)
                 .Select(x => x.Title).SingleOrDefaultAsync(ct);
         else if (n.TaskId is { } taskId && n.Kind is "ScheduleStart" or "ScheduleEnd" or "ReturnToTask")

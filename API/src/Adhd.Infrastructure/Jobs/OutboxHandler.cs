@@ -28,10 +28,10 @@ public sealed partial class OutboxHandler(PlannerDbContext db, Adhd.Application.
             "FocusTargetReached" => await FocusTarget(claim, ct),
             "WorkChanged" => await WorkChanged(claim, ct),
             "FocusChanged" => await FocusChanged(claim, ct),
-            // Gün listesi değişince ekranları yenilemek yeterli. Hatırlatma çıkmaz.
+            // Gün listesi değişince ekranları yenilemek yeterli. Hatırlatma çıkmaz
             "DayItemChanged" => false,
             "MatrixChanged" => false,
-            // Özel gün değişince ekranı yenile. Hatırlatma zaten kayıt sırasında hazırlanır.
+            // Özel gün değişince ekranı yenile. Hatırlatma zaten kayıt sırasında hazırlanır
             "SpecialDayChanged" => false,
             "NotesChanged" => false,
             "PreferencesChanged" => !await db.Preferences.AnyAsync(x => x.UserId == claim.UserId && x.Version == claim.SourceVersion, ct),

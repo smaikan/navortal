@@ -30,7 +30,7 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
             tasks = tasks.Where(x => !db.RecurrenceOccurrences.Any(o => o.UserId == userId && o.TaskId == x.Id));
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
-            // LIKE kullanırken yüzde, alt çizgi ve ters eğik çizgiyi joker olarak değil düz metin olarak ara.
+            // LIKE kullanırken yüzde, alt çizgi ve ters eğik çizgiyi joker olarak değil düz metin olarak ara
             var term = query.Search.Trim();
             tasks = tasks.Where(x => EF.Functions.Collate(x.Title, "adhd_search").ToLower().Contains(EF.Functions.Collate(term, "adhd_search").ToLower()));
         }
@@ -41,7 +41,7 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
         if (query.PoolId.HasValue) tasks = tasks.Where(x => x.PoolId == query.PoolId);
         if (query.CategoryId.HasValue) tasks = tasks.Where(x => x.CategoryId == query.CategoryId);
         if (query.AssignedOn is { } day) tasks = tasks.Where(x => x.PlannedFrom <= day && x.PlannedTo >= day);
-        // Efor filtresi görevin kendi eforuna bakar. Eforu boş olanlar gelmez
+        // Efor filtresi görevin kendi eforuna bakar. Eforu boş olanlar gelmez.
         if (query.EnergyDemand is { } energy) tasks = tasks.Where(x => x.EnergyDemand == energy);
         if (query.TagId.HasValue) tasks = tasks.Where(x => db.TaskTagLinks.Any(tag => tag.UserId == userId && tag.TaskId == x.Id && tag.TagId == query.TagId));
         if (query.IsPlanned is { } isPlanned)
@@ -90,11 +90,7 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
         if (archive) await Adhd.Infrastructure.Planning.PlanningLifecycle.CloseFuture(db, userId, [task], now, ct);
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return View(task);
     }
-    // Görevi ve açık alt ağacı
-    // tek işlemde listeden çıkar. Çalışmayı
-    // kapat, gelecek blokları kaldır ve
-    // üstü kontrol et. Geçmiş aynı
-    // kalır, grup geri alınabilir.
+    // Görev ve açık alt ağacı tek işlemde listelerden çıkar. Açık çalışma bitirilir, gelecek plan blokları kalkar, üst bitirme uzlaştırılır. Kayıtlı çalışma ve revizyon değişmez. Aynı grup geri getirilebilir.
     public async Task<TaskView> DeleteAsync(Guid userId, Guid id, long version, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
@@ -119,7 +115,7 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
         state.PlanningVersion++; state.UpdatedAt = now;
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return View(task);
     }
-    // Tek silmede çıkan grubu birlikte geri getir. Silinen veya arşivlenen üst görev önce açılmalı.
+    // Tek silmenin tam grubunu geri getirir. Silinmiş veya arşiv üst önce geri getirilmeli.
     public async Task<TaskView> RestoreAsync(Guid userId, Guid id, long version, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);

@@ -6,7 +6,7 @@ using MimeKit;
 
 namespace Adhd.Api.Auth;
 
-// Ayar güvenli değilse kimlik bilgisi veya sıfırlama kodu göndermeden dur.
+// Güvensiz ayarla kimlik veya sıfırlama kodu gönderilmeden hata veriyoruz.
 public sealed class SmtpSettingsValidator(IHostEnvironment environment) : IValidateOptions<SmtpSettings>
 {
     public ValidateOptionsResult Validate(string? name, SmtpSettings settings)
@@ -30,7 +30,7 @@ public sealed class SmtpSettingsValidator(IHostEnvironment environment) : IValid
             || !string.IsNullOrEmpty(reset.UserInfo) || !string.IsNullOrEmpty(reset.Query)
             || reset.Fragment is not ("" or "#"))
             errors.Add("Smtp:ResetPageUrl requires an absolute HTTPS URL without user info/query; an empty # fragment is allowed. HTTP is permitted only for loopback in Development/Testing.");
-        // SMTP ayar hatasında değeri yazma. Alan adı ve kural yeterli.
+        // SMTP ayar hatasında değeri yazma. Alan adı ve kural yeterli
         return errors.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(errors);
     }
 }

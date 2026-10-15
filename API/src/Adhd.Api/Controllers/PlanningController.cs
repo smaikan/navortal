@@ -11,7 +11,7 @@ public sealed class PlanningController(PlanningService service, DayGlanceService
 {
     private Guid UserId => Guid.Parse(User.FindFirst("sub")!.Value);
     [HttpGet("/api/daily-plans/{date}")] public Task<DailyPlanView> Day(DateOnly date, CancellationToken ct) => service.DayAsync(UserId, date, ct);
-    // Gün çubuğunda çalışma ve plan kalanı, bilinmeyen tahminler, öğe sayıları, gerçek süre ve görev ipuçları var.
+    // Gün çubuğu için kalan çalışma/plan, bilinmeyen tahmin, adet, gerçek çalışma, kapasite ve görev ipuçları.
     [HttpGet("/api/daily-plans/{date}/glance")] public Task<DayGlanceView> Glance(DateOnly date, CancellationToken ct) => glance.ReadAsync(UserId, date, ct);
     [HttpGet("/api/daily-plans/{date}/overview")]
     public Task<DayOverviewView> Overview(DateOnly date, [FromQuery] DayOverviewQuery query, CancellationToken ct)
@@ -88,7 +88,7 @@ public sealed class CreateScheduleRequest
     public bool AllowConflicts { get; set; }
     [Required, Range(0, long.MaxValue)] public long? ExpectedPlanningVersion { get; set; }
     [StringLength(2000)] public string? Reason { get; set; }
-    // Saatsiz öğeye saat ver. Aynı işlemde saatsiz listeden çıkar.
+    // Saatsiz öğeye saat verir. Aynı işlemde saatsiz listeden çıkar.
     public Guid? DayItemId { get; set; }
     [Range(1, long.MaxValue)] public long? DayItemVersion { get; set; }
 }

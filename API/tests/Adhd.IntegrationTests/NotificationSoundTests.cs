@@ -18,7 +18,7 @@ public sealed class NotificationSoundTests
     public async Task PreferencesPersistIndependentlyAndRejectStaleInvalidAndForeignWrites()
     {
         await using var s = await JobScenario.Create();
-        // Eski JSON kaydını migration veya yeni yazı olmadan varsayılanlarla oku
+        // Eski JSON kaydını migration veya yeni yazı olmadan varsayılanlarla oku.
         await using (var db = s.Context())
         {
             db.NotificationPreferences.Add(new() { UserId = s.User.UserId, Version = 4, Settings = "{\"soundEnabled\":false}" });

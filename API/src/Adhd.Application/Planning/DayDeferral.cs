@@ -1,6 +1,6 @@
 namespace Adhd.Application.Planning;
 
-// Seçili saatleri boşalt ve mevcut görevleri ileri güne saatsiz ekle.
+// Seçili saatli yerleri iptal edip mevcut görevleri ileri güne saatsiz koyar.
 public sealed record DeferDaySelection(DateOnly TargetDate, DayItemMoveEntry[] Schedules, DayItemMoveEntry[] Items,
     long ExpectedPlanningVersion, bool AllowProtectedChange, string? Reason);
 public sealed record DayDeferralTask(Guid TaskId, string Title, bool AlreadyPlanned);

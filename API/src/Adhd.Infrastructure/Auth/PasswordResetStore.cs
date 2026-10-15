@@ -17,7 +17,7 @@ public sealed class PasswordResetStore(PlannerDbContext db) : IPasswordResetStor
     public async Task<bool> ConsumeAsync(Guid userId, string tokenHash, string passwordHash, DateTimeOffset now, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
-        // Aynı hesaba ait sıfırlamaları sıraya koy. Başka açık bağlantılardan gelenler de dahil
+        // Aynı hesaba ait sıfırlamaları sıraya koy. Başka açık bağlantılardan gelenler de dahil.
         await db.Users.FromSqlInterpolated($"SELECT * FROM users WHERE \"Id\" = {userId} FOR UPDATE").AsNoTracking().SingleAsync(ct);
         var claimed = await db.PasswordResets.Where(x => x.UserId == userId && x.TokenHash == tokenHash && x.UsedAt == null && x.ExpiresAt > now)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.UsedAt, now), ct);

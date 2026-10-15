@@ -77,7 +77,7 @@ public sealed class TaskReadTests(DatabaseFixture fixture) : IClassFixture<Datab
         Assert.Equal(HttpStatusCode.BadRequest,(await s.Client.GetAsync($"/api/tasks/{leaf.Id}/ancestors?cursor={Uri.EscapeDataString(first.NextCursor![..^1]+(first.NextCursor[^1]=='A'?'B':'A'))}")).StatusCode);
         var changed=await s.Client.PutAsJsonAsync($"/api/tasks/{root.Id}",new {version=root.Version,title="Renamed ancestor"});Assert.Equal(HttpStatusCode.OK,changed.StatusCode);
         Assert.Equal(HttpStatusCode.Conflict,(await s.Client.GetAsync($"/api/tasks/{leaf.Id}/ancestors?cursor={Uri.EscapeDataString(first.NextCursor!)}")).StatusCode);
-        // Bozuk eski veya içe aktarılmış ağaç, sonsuza kadar dönmek yerine hata vermeli
+        // Bozuk eski veya içe aktarılmış ağaç, sonsuza kadar dönmek yerine hata vermeli.
         await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE tasks SET \"ParentTaskId\"={leaf.Id} WHERE \"UserId\"={s.UserId} AND \"Id\"={root.Id}");
         string? cycleCursor=null;var detected=false;
         for(var pageIndex=0;pageIndex<20;pageIndex++) {

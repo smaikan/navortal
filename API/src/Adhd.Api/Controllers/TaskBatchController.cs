@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Adhd.Api.Controllers;
 
-// UI-R3 "Kafamı boşalt": many titles become root tasks atomically. Idempotency-Key is required.
+// Çok başlığı tek atomik işlemle kök görev yapar. Idempotency-Key zorunlu.
 [ApiController, Authorize, Route("api/tasks/batch")]
 public sealed class TaskBatchController(TaskBatchService service) : ControllerBase
 {

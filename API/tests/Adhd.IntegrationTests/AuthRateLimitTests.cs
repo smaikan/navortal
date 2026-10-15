@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Adhd.IntegrationTests;
 
-// Giriş sınırını ayardan oku. Production varsayılanı beş dakikada 30.
+// Giriş sınırı ayardan okunur. Production varsayılanı 5 dakikada 30 kalır.
 public sealed class AuthRateLimitTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     [Fact]

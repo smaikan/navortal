@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.IntegrationTests;
 
-// Saatsiz öğeler kapasiteye ve motora girmez. Öğeyi bitirmek görevi bitirmez, değişiklik geçmişte durur.
+// Saatsiz gün öğesi motor/kapasite dışında. Plan öğesi görevden bağımsız biter, geçmişte tutulur.
 public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private static readonly DateTimeOffset Morning = new(2026, 10, 15, 6, 0, 0, TimeSpan.Zero);
@@ -33,7 +33,7 @@ public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<Da
         Assert.Equal(("Alt adım", parent.Id, "Ana görev", 1500L), (first.TaskTitle, first.ParentTaskId, first.ParentTitle, first.DirectEstimatedSeconds));
         Assert.True(second.SortOrder > first.SortOrder); Assert.Null(second.ParentTitle);
         var page = await List(s); Assert.Equal(2, page.Total); Assert.Equal(new[] { step.Id, lone.Id }, page.Items.Select(x => x.TaskId).ToArray());
-        // Aynı görev bir güne bir kez eklenebilir
+        // Aynı görev bir güne bir kez eklenebilir.
         var duplicate = await Add(s, step.Id); Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode); Assert.Equal("day_item_exists", await Code(duplicate));
         var done = await TaskScenario.Read<DayItemView>(await Act(s, first, "complete"));
         Assert.Equal(Morning, done.CompletedAt); Assert.Equal(first.Version + 1, done.Version); Assert.Equal(TaskState.Pending, (await s.Get(step.Id)).State);
@@ -42,9 +42,9 @@ public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<Da
         var removed = await Act(s, open, "remove"); Assert.Equal(HttpStatusCode.OK, removed.StatusCode);
         Assert.Equal(new[] { lone.Id }, (await List(s)).Items.Select(x => x.TaskId).ToArray());
         Assert.Equal(HttpStatusCode.Conflict, (await Act(s, await TaskScenario.Read<DayItemView>(removed), "complete")).StatusCode);
-        // Öğe kaldırılınca yeri boşalır ve aynı görev yeniden eklenebilir.
+        // Öğe kaldırılınca yeri boşalır ve aynı görev yeniden eklenebilir
         await Added(s, step.Id);
-        // Gün öğesi değişince geçmişe yaz ve plan sürümünü artır. Yukarıda altı değişiklik var
+        // Gün öğesi değişince geçmişe yaz ve plan sürümünü artır. Yukarıda altı değişiklik var.
         var after = await ManualPlanningTests.Day(s);
         Assert.Equal(before.PlanningVersion + 6, after.PlanningVersion); Assert.NotNull(after.Id);
         await using var db = fixture.CreateContext();
@@ -111,7 +111,7 @@ public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<Da
         var block = Assert.Single((await TaskScenario.Read<PlanMutation>(timed)).Schedules); Assert.Equal(task.Id, block.TaskId);
         Assert.Empty((await List(s)).Items);
         await using (var db = fixture.CreateContext()) Assert.Equal(DayItemState.Scheduled, (await db.DayItems.SingleAsync(x => x.Id == item.Id)).State);
-        // Kapanmış saatsiz öğeyi ikinci kez saatliye çevirme
+        // Kapanmış saatsiz öğeyi ikinci kez saatliye çevirme.
         Assert.Equal(HttpStatusCode.Conflict, (await Time(new { dayItemId = item.Id, dayItemVersion = item.Version + 1, startsAt = Morning.AddHours(3), endsAt = Morning.AddHours(4) })).StatusCode);
     }
 
@@ -120,7 +120,7 @@ public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<Da
     {
         await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app); var other = await TaskScenario.User(app);
         var task = await s.Root();
-        // İstanbul'da 23:30–00:30 gece yarısını geçiyor. İki bağlı parça halinde sakla.
+        // İstanbul'da 23:30–00:30 gece yarısını geçiyor. İki bağlı parça halinde sakla
         var created = await ManualPlanningTests.Create(s, task.Id, Morning.AddHours(14).AddMinutes(30), Morning.AddHours(15).AddMinutes(30));
         Assert.Equal(2, created.Schedules.Length); var first = created.Schedules[0]; var planning = (await ManualPlanningTests.Day(s)).PlanningVersion;
         Assert.Equal(HttpStatusCode.NotFound, (await other.Client.PostAsJsonAsync($"/api/schedules/{first.Id}/complete", new { version = first.Version })).StatusCode);

@@ -13,7 +13,7 @@ public sealed record UndoSchedule(Guid Id, Guid? TaskId, ScheduleKind Kind, Sche
 public sealed record UndoDelta(UndoSchedule? Before, UndoSchedule After);
 public sealed record PlanUndoSnapshot(SchedulingSnapshot Current, SchedulingIntent Intent, ImmutableArray<UndoSchedule> Schedules, ImmutableArray<UndoDelta> Changes, bool AllowProtectedChange, Guid? ProtectedActiveTaskId = null);
 
-// Sadece gelecekteki planı güvenli biçimde geri al. Çalışma geçmişi ve görev durumu kalır.
+// Güvenli bir gelecek telafisi hesaplar. Gerçek çalışma veya görev durumunu geri yüklemez.
 public sealed class PlanUndoEngine
 {
     public SchedulingProposal Generate(PlanUndoSnapshot input)
@@ -55,14 +55,14 @@ public sealed class PlanUndoEngine
             proposed[row.Id] = before.Block() with { StartsAt = start, IsPreserved = false }; candidates.Add(row.Id);
             if (start > before.StartsAt) Warn("UndoElapsedPartNotRestored", before, WorkTime.Seconds(before.StartsAt, start));
         }
-        // Bir adımı geri almak yeni çakışma çıkarabilir. Her turda en az bir aday elenir
+        // Bir adımı geri almak yeni çakışma çıkarabilir. Her turda en az bir aday elenir.
         bool changed;
         do
         {
             changed = false;
             foreach (var id in candidates.Order().ToArray())
             {
-                if (!proposed.TryGetValue(id, out var block)) continue; // Öğeyi kaldırmak tek başına yeni bir kısıt ihlali yaratmaz.
+                if (!proposed.TryGetValue(id, out var block)) continue; // Öğeyi kaldırmak tek başına yeni bir kısıt ihlali yaratmaz
                 if (block.EndsAt <= anchor) continue;
                 string? issue = null;
                 if (proposed.Any(pair => pair.Key != id && Overlaps(block, pair.Value)) || active.Any(a => a.ExistingScheduleId != id && Overlaps(block, a))) issue = "UndoOverlap";
@@ -84,7 +84,7 @@ public sealed class PlanUndoEngine
                 candidates.Remove(id); Warn(issue, originals[id]); changed = true;
             }
         } while (changed);
-        // Tahmini bitişte normal motorun önkoşul ve zorunlu çocuk grafiğini kullan.
+        // Tahmini bitişte normal motorun önkoşul ve zorunlu çocuk grafiğini kullan
         do
         {
             changed = false;
@@ -93,7 +93,7 @@ public sealed class PlanUndoEngine
             {
                 if (!proposed.TryGetValue(id, out var block) || block.TaskId is not { } taskId || block.EndsAt <= anchor) continue;
                 var blocked = source.Dependencies.Any(d => d.SuccessorId == taskId && (!completion.TryGetValue(d.PredecessorId, out var end) || end > block.StartsAt));
-                // Üst görevden gelen önkoşullar bu işten de önce bitmeli.
+                // Üst görevden gelen önkoşullar bu işten de önce bitmeli
                 var parent = tasks[taskId].ParentTaskId;
                 while (!blocked && parent is { } parentId)
                 {
@@ -105,7 +105,7 @@ public sealed class PlanUndoEngine
                 candidates.Remove(id); Warn("UndoDependencyConflict", originals[id]); changed = true;
             }
         } while (changed);
-        // Bağımlılığı geri alınca eski dolu saat dönebilir. Çakışan geri alma adımını da çıkar
+        // Bağımlılığı geri alınca eski dolu saat dönebilir. Çakışan geri alma adımını da çıkar.
         do
         {
             changed = false;
@@ -117,8 +117,8 @@ public sealed class PlanUndoEngine
                 candidates.Remove(id); Warn("UndoOverlap", originals[id]); changed = true;
             }
         } while (changed);
-        // Önkoşulu kaldırmak veya geciktirmek, dokunmadığımız sonraki işi bozmamalı.
-        // Geri alma geçersizse uygulamadan çıkmak daha güvenli.
+        // Önkoşulu kaldırmak veya geciktirmek, dokunmadığımız sonraki işi bozmamalı
+        // Geri alma geçersizse uygulamadan çıkmak daha güvenli
         var previousViolations = DependencyViolations(source, current.Values, anchor);
         if (DependencyViolations(source, proposed.Values, anchor).Except(previousViolations).Any())
         {

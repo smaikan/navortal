@@ -90,7 +90,7 @@ public sealed class TaskTreeStore(PlannerDbContext db, TimeProvider clock) : ITa
     public async Task<TreePage> SubtreeAsync(Guid userId, Guid taskId, int offset, int limit, bool includeArchived, CancellationToken ct)
     {
         _ = await Find(userId, taskId, ct);
-        // Derinlik ne olursa olsun tek recursive sorgu kullan. Sayfalarken ParentTaskId kalsın
+        // Derinlik ne olursa olsun tek recursive sorgu kullan. Sayfalarken ParentTaskId kalsın.
         var rows = await db.Tasks.FromSqlInterpolated($"""
             WITH RECURSIVE tree AS (
                 SELECT t.*, 0 AS depth FROM tasks t WHERE t."UserId" = {userId} AND t."Id" = {taskId} AND t."DeletedAt" IS NULL AND ({includeArchived} OR t."ArchivedAt" IS NULL)

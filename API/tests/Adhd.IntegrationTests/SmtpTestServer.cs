@@ -6,7 +6,7 @@ using MimeKit;
 
 namespace Adhd.IntegrationTests;
 
-// Yerel gerçek SMTP alıcısıyla dene. Production'daki MailKit göndericisi aynı kalsın
+// Yerel gerçek SMTP alıcısıyla dene. Production'daki MailKit göndericisi aynı kalsın.
 public sealed class SmtpTestServer : IAsyncDisposable
 {
     private readonly TcpListener listener = new(IPAddress.Loopback, 0);

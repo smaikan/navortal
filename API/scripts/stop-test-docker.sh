@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sadece işaretli test Docker'ını kapat. İmajlar sonraki test için kalsın.
+# Sadece işaretli test Docker'ını kapat. İmajlar sonraki test için kalsın
 set -euo pipefail
 state=/var/tmp/adhd-mvp29-docker
 [[ "$(realpath "$state")" == "$state" && -f "$state/managed-by-adhd-mvp29" ]] || exit 2

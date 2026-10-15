@@ -14,7 +14,7 @@ internal static class WorkloadAccess
     }
     internal static async Task<TaskItem[]> ValidateUserTree(PlannerDbContext db, Guid userId, CancellationToken ct)
     {
-        // EF izlenen nesnenin güncel halini verir. Yeni çocuk henüz SQL'den gelmez.
+        // EF izlenen nesnenin güncel halini verir. Yeni çocuk henüz SQL'den gelmez
         var persisted = await db.Tasks.Where(x => x.UserId == userId).ToArrayAsync(ct);
         var added = db.ChangeTracker.Entries<TaskItem>().Where(x => x.State == EntityState.Added && x.Entity.UserId == userId).Select(x => x.Entity);
         var nodes = persisted.Concat(added).DistinctBy(x => x.Id).ToArray();

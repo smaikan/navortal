@@ -38,7 +38,7 @@ public sealed class CalendarController(CalendarService service, DistributionServ
         if (date.Year is < 2 or > 9998 || request.FromDate <= date)
             throw new UseCaseException(ErrorKind.Validation, "carry_date_invalid", "Hedef aralık kaynak günden sonra başlamalı.");
         if (string.IsNullOrWhiteSpace(key) || key.Length > 100) throw new UseCaseException(ErrorKind.Validation, "idempotency_key_required", "Idempotency-Key gerekli; en çok100 karakter.");
-        // Gelecekte ayrılmış saatler olduğu yerde kalır. Taşımak için ayrı komut var.
+        // Gelecekte ayrılmış saatler olduğu yerde kalır. Taşımak için ayrı komut var
         var result = await distribution.PlanAsync(UserId, new(request.FromDate!.Value, request.ToDate!.Value, request.TaskIds, request.ExpectedPlanningVersion), $"carry:{date:yyyyMMdd}:{key}", ct);
         if (result.Replayed) Response.Headers["Idempotent-Replay"] = "true"; return result.Values;
     }

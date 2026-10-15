@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Adhd.IntegrationTests;
 
-// Belge çıktısı isteğe bağlı ve yalnız test DB'sinden. Production'a middleware eklenmez.
+// Belge çıktısı isteğe bağlı ve yalnız test DB'sinden. Production'a middleware eklenmez
 public sealed class ApiTranscriptStartupFilter : IStartupFilter
 {
     private static readonly SemaphoreSlim Writer = new(1, 1);
@@ -49,9 +49,9 @@ public sealed class ApiTranscriptStartupFilter : IStartupFilter
             if (current is JsonObject obj)
                 foreach (var key in obj.Select(x => x.Key).ToArray())
                 {
-                    // Alan hatasında anahtar alanın adı, değer hata dizisi. Bunlar kimlik bilgisi değil
+                    // Alan hatasında anahtar alanın adı, değer hata dizisi. Bunlar kimlik bilgisi değil.
                     if (Sensitive.Contains(key) && obj[key] is JsonValue) obj[key] = key.Equals("password", StringComparison.OrdinalIgnoreCase) || key.Equals("newPassword", StringComparison.OrdinalIgnoreCase) ? "123456" : $"<REPLACE_{key.ToUpperInvariant()}>";
-                    // JWT'ye benzeyen değeri başka bir alanın içinde olsa da belgeye koyma
+                    // JWT'ye benzeyen değeri başka bir alanın içinde olsa da belgeye koyma.
                     else if (obj[key] is JsonValue value && value.TryGetValue<string>(out var s) && JwtShape.IsMatch(s)) obj[key] = JwtShape.Replace(s, "<REDACTED-JWT>");
                     else Visit(obj[key]);
                 }

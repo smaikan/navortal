@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -236,7 +236,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
             using (var stream = typeof(AddPersistentJobs).Assembly.GetManifestResourceStream("Adhd.Infrastructure.Persistence.Resources.quartz-4.5.0-postgres.sql")
                 ?? throw new InvalidOperationException("Pinned Quartz schema resource is missing."))
             using (var reader = new System.IO.StreamReader(stream)) migrationBuilder.Sql(reader.ReadToEnd());
-            // Outbox öncesi mevcut durumu al. Geçmişe yeni olay ekleme.
+            // Outbox öncesi mevcut durumu al. Geçmişe yeni olay ekleme
             migrationBuilder.Sql("""
                 INSERT INTO outbox_messages ("Id","UserId","EventKey","Kind","SourceId","SourceVersion","Payload","OccurredAt","AvailableAt","State","Attempts","Version")
                     SELECT gen_random_uuid(),t."UserId",'bootstrap-task:'||t."Id"||':v'||t."Version",'TaskChanged',t."Id",t."Version",'{"bootstrap":true}'::jsonb,now(),now(),'Pending',0,1 FROM tasks t;

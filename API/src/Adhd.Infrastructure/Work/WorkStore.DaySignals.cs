@@ -20,7 +20,7 @@ public sealed partial class WorkStore : IDaySignalsStore
         if (observeFocus) _ = await Lock(userId, ct);
         var now = clock.GetUtcNow(); var prefs = (await preferences.ReadAsync(userId, ct)).Values;
         var running = await db.WorkSessions.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.State == WorkState.Running, ct);
-        // Bugün uyarısının gözlem sınırı aynı kalsın. Başka günü okurken işlem başlatma
+        // Bugün uyarısının gözlem sınırı aynı kalsın. Başka günü okurken işlem başlatma.
         var includeFocus = observeFocus && prefs.UiSupports.Nudges && running is not null && date == PlanTime.Date(now, prefs.TimeZoneId);
         var focus = includeFocus ? await ObserveCurrentFocus(userId, await Lock(userId, ct), now, ct) : null;
         if (includeFocus) running = await db.WorkSessions.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.State == WorkState.Running, ct);

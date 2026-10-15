@@ -17,7 +17,7 @@ public sealed partial class TaskReadStore
         var task=source.Task;
         var version=await db.PlanningStates.AsNoTracking().Where(x=>x.UserId==userId).Select(x=>x.PlanningVersion).SingleAsync(ct);
         var now=clock.GetUtcNow();
-        // Ağacı bir kez gez. Açık iş yükünü buradan çıkar, geçmiş çalışma için arşivi de al.
+        // Ağacı bir kez gez. Açık iş yükünü buradan çıkar, geçmiş çalışma için arşivi de al
         var all=await db.Tasks.FromSqlInterpolated($"""
             WITH RECURSIVE tree AS (
                 SELECT t.*,ARRAY[t."Id"] AS path FROM tasks t WHERE t."UserId"={userId} AND t."Id"={taskId}

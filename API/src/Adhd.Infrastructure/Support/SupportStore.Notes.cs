@@ -112,7 +112,7 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
         n.Title, n.CategoryId, n.Display, taskTitle);
     private async Task<NoteView> ViewAsync(Guid userId, UserNote n, CancellationToken ct) =>
         View(n, n.TaskId is { } taskId ? await db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.Id == taskId).Select(x => x.Title).SingleOrDefaultAsync(ct) : null);
-    // Kısa not başlıksız. Ayrıntılı ve açılır notta başlık gerekli. NextStep sade ve kategorisiz kalır.
+    // Kısa not başlıksız, ayrıntılı ve toggle başlık ister. NextStep sade, kategorisiz kısa not kalır.
     private static string? Shape(NoteKind kind, NoteDisplay display, string? title, Guid? categoryId)
     {
         if (!Enum.IsDefined(display)) throw Invalid("note_display_invalid", "Not gösterimi geçersiz.");

@@ -11,7 +11,7 @@ internal sealed record PlanDelta(TaskSchedule Schedule, ScheduleView? Before, st
 {
     internal Guid PlanId => AffectedPlanId ?? Schedule.DailyPlanId;
 }
-// Saatsiz değişikliği aynı plan geçmişine yaz. PlanId, etkilenen günün planı.
+// Saatsiz öğe değişikliği aynı plan geçmişine yazılır. PlanId etkilenen günün planıdır. Bkz. PlanId
 internal sealed record DayDelta(DayItem Item, DayItemSnapshot? Before, string Type, Guid PlanId, DayItemSnapshot? After = null);
 internal static class RevisionWriter
 {
@@ -24,7 +24,7 @@ internal static class RevisionWriter
     {
         dayDeltas ??= [];
         if (deltas.Count == 0 && dayDeltas.Count == 0 && (touchedPlanIds?.Count ?? 0) == 0) return [];
-        // Current ve baseline birbirini gösteriyor. Aradaki kayıtlar aynı işlemde kalsın
+        // Current ve baseline birbirini gösteriyor. Aradaki kayıtlar aynı işlemde kalsın.
         await db.SaveChangesAsync(ct);
         var planIds = deltas.Select(x => x.PlanId).Concat(dayDeltas.Select(x => x.PlanId)).Concat(touchedPlanIds ?? []).Distinct().ToArray();
         var plans = await db.DailyPlans.Where(x => x.UserId == userId && planIds.Contains(x.Id)).ToArrayAsync(ct);

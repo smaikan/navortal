@@ -45,7 +45,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                 nullable: false,
                 defaultValue: 0L);
 
-            // Eski bitirme bilgilerini ve olayların kalıcı sırasını doldur.
+            // Eski bitirme bilgilerini ve olayların kalıcı sırasını doldur
             migrationBuilder.Sql("""
                 UPDATE tasks SET "CompletedAt" = "UpdatedAt", "CompletionOrigin" = 'Manual', "DirectWorkCompleted" = "HasDirectWork" WHERE "State" = 'Completed';
                 WITH ordered AS (

@@ -17,7 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Adhd.IntegrationTests;
 
-// Gerçek PostgreSQL ile cookie oturumu, sid iptali, CSRF, çıkış ve cookie yenilemesini dene.
+// Gerçek PostgreSQL'de HttpOnly oturum, sid iptali, CSRF, çıkış/adopt ve kayan yenileme testleri.
 public sealed class AuthSessionTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private const string Origin = "http://localhost";
@@ -66,7 +66,7 @@ public sealed class AuthSessionTests(DatabaseFixture fixture) : IClassFixture<Da
         var a = await Register(browser);
         Assert.Equal(HttpStatusCode.OK, (await browser.GetAsync("/api/auth/me")).StatusCode);
         var b = await Register(app.CreateClient());
-        // Bearer başlığı varsa cookie'den önce gelir. Bu istemcide CSRF işareti gerekmez.
+        // Bearer başlığı varsa cookie'den önce gelir. Bu istemcide CSRF işareti gerekmez
         browser.DefaultRequestHeaders.Authorization = new("Bearer", b.AccessToken);
         Assert.Equal(b.User.Id, (await browser.GetFromJsonAsync<UserSummary>("/api/auth/me"))!.Id);
         Assert.Equal(HttpStatusCode.Created, (await browser.SendAsync(Unsafe("/api/tasks", new { title = "Bearer" }, csrf: false, origin: null))).StatusCode);
@@ -96,14 +96,14 @@ public sealed class AuthSessionTests(DatabaseFixture fixture) : IClassFixture<Da
         var referer = Unsafe("/api/tasks", task, origin: null); referer.Headers.Referrer = new Uri("http://localhost/app/gorevler");
         Assert.Equal(HttpStatusCode.Created, (await browser.SendAsync(referer)).StatusCode);
         Assert.Equal(HttpStatusCode.Created, (await browser.SendAsync(Unsafe("/api/tasks", task))).StatusCode);
-        // UI proxy tarayıcıdaki host'u geçirir. API'nin kendi host'u farklı.
+        // UI proxy tarayıcıdaki host'u geçirir. API'nin kendi host'u farklı
         var proxied = Unsafe("/api/tasks", task, origin: "http://127.0.0.1:3400"); proxied.Headers.Add("X-Forwarded-Host", "127.0.0.1:3400");
         Assert.Equal(HttpStatusCode.Created, (await browser.SendAsync(proxied)).StatusCode);
         Assert.Equal(3, await TasksTitled("CSRF denemesi"));
-        // Kayıt ve giriş cookie'deki kişi adına işlem yapmaz. Aynı host'tan CSRF işareti gerekmez
+        // Kayıt ve giriş cookie'deki kişi adına işlem yapmaz. Aynı host'tan CSRF işareti gerekmez.
         Assert.Equal(HttpStatusCode.Created, (await browser.SendAsync(Unsafe("/api/auth/register", new { email = Email(), password = "123456" }, csrf: false, origin: null))).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await browser.SendAsync(Unsafe("/api/auth/logout", csrf: false))).StatusCode);
-        // Bearer istemcisi otomatik kimlik taşımaz. Başka siteden gelen anonim yazı da reddedilir.
+        // Bearer istemcisi otomatik kimlik taşımaz. Başka siteden gelen anonim yazı da reddedilir
         var api = app.CreateClient();
         var b = await Register(api);
         api.DefaultRequestHeaders.Authorization = new("Bearer", b.AccessToken);
@@ -175,10 +175,10 @@ public sealed class AuthSessionTests(DatabaseFixture fixture) : IClassFixture<Da
         browser.DefaultRequestHeaders.Authorization = null;
         Assert.Equal(HttpStatusCode.OK, (await browser.GetAsync("/api/auth/me")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await Browser(app).SendAsync(WithBearer(legacy))).StatusCode);
-        // Oturuma bağlı token eski token sayılmaz.
+        // Oturuma bağlı token eski token sayılmaz
         var sessionClient = app.CreateClient();
         Assert.Equal(HttpStatusCode.BadRequest, (await sessionClient.SendAsync(WithBearer(auth.AccessToken))).StatusCode);
-        // Tüm cihazlardan çıkış daha önce üretilmiş, henüz taşınmamış kopyayı da kapatır
+        // Tüm cihazlardan çıkış daha önce üretilmiş, henüz taşınmamış kopyayı da kapatır.
         var older = Legacy(auth.User.Id, app.Clock.Now.AddSeconds(-5));
         var browser2 = Browser(app); await browser2.PostAsJsonAsync("/api/auth/login", new { email = auth.User.Email, password = "123456" });
         Assert.Equal(HttpStatusCode.NoContent, (await browser2.SendAsync(Unsafe("/api/auth/logout-all"))).StatusCode);

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Preferences;
 
-// Ayarları sürümüyle tek işlemde yaz. Domain tarafı JSON ve EF'ye bağlı kalmasın.
+// Ayarları sürümüyle tek işlemde yaz. Domain tarafı JSON ve EF'ye bağlı kalmasın
 public sealed class UserPreferencesRecord
 {
     public Guid UserId { get; set; }

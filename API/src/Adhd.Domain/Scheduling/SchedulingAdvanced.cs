@@ -88,7 +88,7 @@ internal sealed partial class SchedulingRun
         if (policy.TransitionSeconds > 0)
             foreach (var block in blocks.Concat(trial).Concat(holds).Concat(snapshot.ExternalWorkBlocks ?? []).Where(x => x.Kind == ScheduleKind.Work && x.TaskId != taskId))
             {
-                // Bloklar 2 ile 9998 yılları arasında. Sınırı bir gün genişletmek güvenli
+                // Bloklar 2 ile 9998 yılları arasında. Sınırı bir gün genişletmek güvenli.
                 exclusions.Add(new(block.StartsAt.AddSeconds(-policy.TransitionSeconds), block.EndsAt.AddSeconds(policy.TransitionSeconds)));
             }
         return SchedulingIntervals.Free(working, exclusions);

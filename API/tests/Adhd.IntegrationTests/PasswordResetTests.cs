@@ -70,7 +70,7 @@ public sealed class PasswordResetTests(DatabaseFixture fixture) : IClassFixture<
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/auth/reset-password", new { token, newPassword = "654321" })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/auth/login", new { email, password = "123456" })).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync("/api/auth/login", new { email, password = "abcdef" })).StatusCode);
-        // Yeni parola bu eski token kopyası dahil önceki oturumları kapatır.
+        // Yeni parola bu eski token kopyası dahil önceki oturumları kapatır
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/auth/me")).StatusCode);
         await using var check = fixture.CreateContext();

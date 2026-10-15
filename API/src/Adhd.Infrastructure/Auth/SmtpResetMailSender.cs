@@ -43,7 +43,7 @@ public sealed class SmtpResetMailSender(IOptions<SmtpSettings> settings, ILogger
         }
         catch (Exception e) when (e is not OperationCanceledException)
         {
-            // SMTP hata metninde alıcı ya da içerik olabilir. Bu metni loga alma.
+            // SMTP hata metninde alıcı ya da içerik olabilir. Bu metni loga alma
             logger.LogWarning("Password reset delivery failed ({ExceptionType}).", e.GetType().Name);
             return false;
         }

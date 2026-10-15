@@ -61,7 +61,7 @@ public sealed class ActualAnalyticsStore(PlannerDbContext db, IPreferencesStore 
         if (focuses.Length != 0)
         {
             var focusIds = focuses.Select(x => x.WorkSessionId).Distinct().ToArray();
-            // Rapor öncesi eşiğe ulaşıldı mı diye eski çalışmaya bak. Bu süreyi rapora ekleme.
+            // Rapor öncesi eşiğe ulaşıldı mı diye eski çalışmaya bak. Bu süreyi rapora ekleme
             var segments = await db.WorkSegments.AsNoTracking().Where(x => x.UserId == userId && focusIds.Contains(x.SessionId) && !x.IsVoided && x.StartedAt < outerEnd).OrderBy(x => x.Id).Take(MaxRows + 1).ToArrayAsync(ct); Bound(segments.Length); var bySession = segments.ToLookup(x => x.SessionId);
             foreach (var focus in focuses)
             {

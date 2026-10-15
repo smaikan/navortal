@@ -22,7 +22,7 @@ public sealed class CalendarReadTests(DatabaseFixture fixture) : IClassFixture<D
         var root=await s.Root("First root");var child=await s.Child(root.Id,"Child");
         await s.Define(child.Id,true,60);var a=(await ManualPlanningTests.Create(s,child.Id,Morning.AddHours(1),Morning.AddHours(2))).Schedules[0];
         Assert.Equal(HttpStatusCode.OK,(await s.Client.PostAsJsonAsync($"/api/schedules/{a.Id}/complete",new {version=a.Version})).StatusCode);
-        // Aynı kökün ileride açık öğesi varsa kök de açık kalır.
+        // Aynı kökün ileride açık öğesi varsa kök de açık kalır
         await s.Define(root.Id,true,60);
         await s.Client.PostAsJsonAsync($"/api/daily-plans/{Date:yyyy-MM-dd}/items",new {taskId=root.Id});
         for(var i=0;i<4;i++) {var t=await s.Root($"Other {i}");await s.Client.PostAsJsonAsync($"/api/daily-plans/{Date:yyyy-MM-dd}/items",new {taskId=t.Id});}

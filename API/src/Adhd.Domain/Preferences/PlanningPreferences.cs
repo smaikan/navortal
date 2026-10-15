@@ -18,10 +18,10 @@ public sealed record PlanningPreferences
     public bool SupportEnabled { get; init; } = true;
     public WeeklyWindow[] Weekly { get; init; } = [];
     public DateOverride[] Exceptions { get; init; } = [];
-    // Hesabın isteğe bağlı destekleri. Eski kayıtları varsayılanlarla oku.
+    // Hesap genelinde isteğe bağlı destekler. Eski belgeler varsayılanları okur.
     public UiSupports UiSupports { get; init; } = new();
 }
-// Bu tercihler yalnız ekranda görüneni değiştirir. Plan, çalışma ve tahmin etkilenmez.
+// Bu destekler yalnız arayüzü değiştirir. Planı, çalışmayı veya tahmini değiştirmez.
 public sealed record UiSupports(bool CalmView = false, bool DayBar = true, bool CalibrationHints = true, bool Nudges = true, bool ResumeCard = true, bool OpenTodayAsOneThing = false);
 public sealed record UtcWindow(DateTimeOffset StartsAt, DateTimeOffset EndsAt);
 

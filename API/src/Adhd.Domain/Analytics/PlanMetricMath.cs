@@ -7,7 +7,7 @@ public static class PlanMetricMath
     {
         var a = values.Order().ToArray(); return a.Length == 0 ? null : a.Length % 2 == 1 ? a[a.Length / 2] : (a[a.Length / 2 - 1] + a[a.Length / 2]) / 2;
     }
-    // Sıralı değerler arasında doğrusal yüzdelik hesapla. Liste boşsa null dön.
+    // Sıralı değerlerin doğrusal ara değerli yüzdelik hesabı. Oran 0..1, boş kümede null.
     public static decimal? Percentile(IEnumerable<decimal> values, decimal p)
     {
         var a = values.Order().ToArray(); if (a.Length == 0) return null;

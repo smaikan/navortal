@@ -48,8 +48,8 @@ public sealed partial class WorkStore
             if (running.TaskId is { } previousTaskId) TouchTask(await db.Tasks.SingleAsync(x => x.UserId == userId && x.Id == previousTaskId, ct), TaskState.Paused, now, "WorkInterrupted", running.Id);
             paused = View(running, Measured(segments, now), now);
             await Adhd.Infrastructure.Focus.FocusLifecycle.SyncWork(db, running, segments, now, ct);
-            // Unique ve exclusion kuralları beklemiyor. Yeni aralıktan önce eskisini kapat
-            // İki kayıt da aynı işlemde. Alttaki hata eski çalışan aralığı da geri alır.
+            // Unique ve exclusion kuralları beklemiyor. Yeni aralıktan önce eskisini kapat.
+            // İki kayıt da aynı işlemde. Alttaki hata eski çalışan aralığı da geri alır
             await db.SaveChangesAsync(ct);
         }
         var session = await db.WorkSessions.SingleOrDefaultAsync(x => x.UserId == userId && x.TaskId == task.Id && x.State == WorkState.Paused, ct); var resumed = session is not null;

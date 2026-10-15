@@ -1,6 +1,6 @@
 namespace Adhd.Application.Common;
 
-// PostgreSQL mikrosaniye saklıyor. Hem DB'ye hem yanıta aynı hassasiyeti ver
+// PostgreSQL mikrosaniye saklıyor. Hem DB'ye hem yanıta aynı hassasiyeti ver.
 public sealed class UtcTimeProvider(TimeProvider source) : TimeProvider
 {
     public override DateTimeOffset GetUtcNow()

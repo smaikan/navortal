@@ -1,4 +1,0 @@
-interface:
-  display_name: "ADHD Çalışma ve Odak"
-  short_description: "Gerçek süre, düzeltme ve Pomodoro akışları"
-  default_prompt: "Bu projede $adhd-work-sessions-focus becerisini kullanarak ilgili backend işini uygula ve doğrula."

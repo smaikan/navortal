@@ -95,7 +95,7 @@ public sealed class NotificationTests
         await Send(s.User, HttpMethod.Post, $"/api/focus-sessions/{focus.Id}/next", new { version = focus.Version, workSessionVersion = focus.WorkSessionVersion });
         var work = await TaskScenario.Read<Adhd.Application.Work.WorkView>(await s.User.Client.GetAsync($"/api/work-sessions/{focus.WorkSessionId}")); work = await WorkSessionTests.Change(s.User, work, "pause"); await s.Pump();
         s.App.Clock.Now = now.AddMinutes(3); await s.Pump(); var returning = await db.NotificationIntents.AsNoTracking().SingleAsync(x => x.Kind == "ReturnToTask");
-        // Erteleme yeni bir deneme açar. Devam edilirse bu denemeden önce kaynak sürümü geçersiz olur
+        // Erteleme yeni bir deneme açar. Devam edilirse bu denemeden önce kaynak sürümü geçersiz olur.
         var snoozed = await s.User.Client.PostAsJsonAsync($"/api/notifications/{returning.Id}/snooze", new { version = returning.Version, seconds = 60 }); Assert.True(snoozed.IsSuccessStatusCode, await snoozed.Content.ReadAsStringAsync());
         work = await WorkSessionTests.Change(s.User, work, "resume"); s.App.Clock.Now = now.AddMinutes(4); await s.Pump(); Assert.Equal(NotificationIntentState.Obsolete, (await db.NotificationIntents.AsNoTracking().SingleAsync(x => x.Id == returning.Id)).State);
         Assert.Equal(Adhd.Domain.Work.WorkState.Running, work.State);

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -17,8 +17,8 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                 maxLength: 100,
                 nullable: true);
 
-            // Saat dilimini bilmediğimiz eski olayları null bırak.
-            // Yeni olayları tek işlemde kaydet. Zincir değişiklikleri ve çalışma olayları da dahil.
+            // Saat dilimini bilmediğimiz eski olayları null bırak
+            // Yeni olayları tek işlemde kaydet. Zincir değişiklikleri ve çalışma olayları da dahil
             migrationBuilder.Sql("""
                 CREATE FUNCTION capture_task_event_zone() RETURNS trigger LANGUAGE plpgsql AS $$
                 DECLARE event_zone text;

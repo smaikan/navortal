@@ -17,7 +17,7 @@ public sealed class OutboxPumpJob(IOutboxDispatcher dispatcher) : IJob
     private const int Batch = 20;
     private static readonly TimeSpan Budget = TimeSpan.FromSeconds(10);
     // Grup doluysa sırada iş kalmış demektir. Sınırlı bir süre daha iş al,
-    // iki saniye bekleme. Yoksa yoğun bir kuyruk herkesi saniyede on işe düşürür
+    // iki saniye bekleme. Yoksa yoğun bir kuyruk herkesi saniyede on işe düşürür.
     public async ValueTask Execute(IJobExecutionContext context, CancellationToken ct)
     {
         var started = System.Diagnostics.Stopwatch.GetTimestamp();

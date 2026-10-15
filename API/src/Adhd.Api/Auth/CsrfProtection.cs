@@ -2,11 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Adhd.Api.Auth;
 
-// Cookie ile yazarken SameSite=Strict, aynı
-// host'tan Origin ya da Referer
-// ve X-ADHD-CSRF başlığı gerekir. Bearer
-// başlığı bundan muaf. Yabancı Origin
-// ile yazı kabul edilmez.
+// Cookie ile güvenli olmayan yazılarda CSRF kontrolü: SameSite=Strict, aynı-host Origin veya yoksa Referer ve X-ADHD-CSRF: 1 gerekir. Başka site bu başlığı CORS ön kontrolü olmadan gönderemez. Bearer kimliği kendiliğinden taşınmadığı için muaftır; yabancı Origin varsa bütün yazılar reddedilir.
 public sealed class CsrfProtection(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
@@ -22,7 +18,7 @@ public sealed class CsrfProtection(RequestDelegate next)
                 return;
             }
             // CSRF işareti girişli kullanıcı adına çalışan uçlarda gerekiyor. Anonim kayıt, giriş ve sıfırlama
-            // cookie kimliğini kullanmaz. Başka siteden gelen istek Origin ve SameSite=Strict ile engellenir
+            // cookie kimliğini kullanmaz. Başka siteden gelen istek Origin ve SameSite=Strict ile engellenir.
             var endpoint = context.GetEndpoint();
             var actsAsUser = endpoint?.Metadata.GetMetadata<IAuthorizeData>() is not null && endpoint.Metadata.GetMetadata<IAllowAnonymous>() is null;
             if (actsAsUser && context.Items.ContainsKey(SessionCookie.FromCookieItem))
@@ -40,13 +36,13 @@ public sealed class CsrfProtection(RequestDelegate next)
     private static Uri? Source(HttpContext context)
     {
         var raw = context.Request.Headers.Origin.FirstOrDefault();
-        // Sandbox veya dosyadan gelen null Origin'i aynı site sayma.
+        // Sandbox veya dosyadan gelen null Origin'i aynı site sayma
         if (raw == "null") return new Uri("about:blank");
         if (string.IsNullOrEmpty(raw)) raw = context.Request.Headers.Referer.FirstOrDefault();
         return Uri.TryCreate(raw, UriKind.Absolute, out var uri) ? uri : null;
     }
 
-    // Tarayıcı UI proxy host'una bağlı olabilir. Proxy kendi host'unu X-Forwarded-Host ile iletir.
+    // Tarayıcının gördüğü host aynı kaynak UI proxy olabilir. Kendi host'unu X-Forwarded-Host ile iletir.
     private static bool SameHost(HttpContext context, Uri origin)
     {
         if (origin.Scheme is not ("http" or "https")) return false;

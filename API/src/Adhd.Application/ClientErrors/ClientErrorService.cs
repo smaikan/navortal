@@ -7,12 +7,12 @@ public enum ClientErrorKind { Error, UnhandledRejection, React }
 public sealed record ClientErrorCommand(string Message, ClientErrorKind Kind, string Route, string BuildId, string BrowserFamily, DateTimeOffset OccurredAt);
 public interface IClientErrorStore
 {
-    // Hesap dakika başına 10 veya UTC günü başına 500 sınırını aşarsa raporu saklama, false dön.
+    // Hesap dakikada 10 veya UTC günde 500 raporu aştıysa saklamaz, false döner.
     Task<bool> AddAsync(Guid userId, ClientErrorCommand command, DateTimeOffset now, CancellationToken ct);
     Task<int> DeleteOlderThanAsync(DateTimeOffset cutoff, CancellationToken ct);
 }
 
-// Tarayıcı hatasını incelemek için al. Sırları ve e-postayı maskele, 30 gün sakla.
+// Kendi hata incelememiz için tarayıcı raporu. Sır ve e-posta saklamadan önce maskelenir, 30 gün tutulur.
 public sealed partial class ClientErrorService(IClientErrorStore store, TimeProvider clock)
 {
     public static readonly TimeSpan Retention = TimeSpan.FromDays(30);
@@ -27,7 +27,7 @@ public sealed partial class ClientErrorService(IClientErrorStore store, TimeProv
         return await store.AddAsync(userId, clean, now, ct);
     }
 
-    // JWT, Bearer, uzun hex ya da base64 değerleri ve e-postaları maskele.
+    // JWT, bearer, uzun hex/base64 anahtar veya kodları ve e-postaları maskeler.
     public static string Mask(string value)
     {
         var text = Jwt().Replace(value, "[gizli]");
@@ -41,7 +41,7 @@ public sealed partial class ClientErrorService(IClientErrorStore store, TimeProv
     [GeneratedRegex(@"Bearer\s+[A-Za-z0-9._~+/=-]+", RegexOptions.IgnoreCase)] private static partial Regex Bearer();
     [GeneratedRegex(@"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")] private static partial Regex Email();
     [GeneratedRegex(@"(?<![A-Za-z0-9])[A-Za-z0-9+/_=-]{24,}(?![A-Za-z0-9])")] private static partial Regex LongSecret();
-    // Sadece adres yolunu tut. Şema, host, sorgu ve fragment'i at.
+    // Sadece adres yolunu tut. Şema, host, sorgu ve fragment'i at
     [GeneratedRegex(@"^/[A-Za-z0-9/_.\-]{0,199}$")] private static partial Regex RoutePattern();
     private static UseCaseException Invalid(string message) => new(ErrorKind.Validation, "client_error_invalid", message);
 }

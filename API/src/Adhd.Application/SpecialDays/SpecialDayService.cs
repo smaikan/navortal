@@ -6,7 +6,7 @@ namespace Adhd.Application.SpecialDays;
 public sealed record SpecialDayView(Guid Id, string Title, SpecialDayKind Kind, int Month, int Day, int? Year, SpecialDayRecurrence Recurrence,
     bool NonWorking, SpecialDayReminder Reminder, DateOnly? NextOccurrence, long Version, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, DateTimeOffset? DeletedAt);
 public sealed record SpecialDayPage(SpecialDayView[] Items, int Offset, int Limit, int Total);
-// Takvim ve Bugün için özel günün tekrarını sunucuda hesapla.
+// Takvim ve Bugün için sunucunun hesapladığı tek tekrar.
 public sealed record SpecialDayOccurrence(Guid SpecialDayId, DateOnly Date, string Title, SpecialDayKind Kind, bool NonWorking, long Version);
 public sealed record SpecialDayOccurrencePage(DateOnly FromDate, DateOnly ToDate, SpecialDayOccurrence[] Items, Adhd.Application.Sync.ReadCoverage? Coverage = null);
 public sealed record SpecialDayCommand(string Title, SpecialDayKind Kind, int Month, int Day, int? Year, SpecialDayRecurrence Recurrence, bool NonWorking, SpecialDayReminder Reminder);

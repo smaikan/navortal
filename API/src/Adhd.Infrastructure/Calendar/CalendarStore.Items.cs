@@ -9,7 +9,7 @@ namespace Adhd.Infrastructure.Calendar;
 
 public sealed partial class CalendarStore
 {
-    // Filtre ve sıra ortak. Görev ve üst bilgilerini eklemeden önce sayfayı al
+    // Filtre ve sıra ortak. Görev ve üst bilgilerini eklemeden önce sayfayı al.
     private const string CurrentItemsSql = """
         WITH RECURSIVE items AS (
             SELECT 'Timed'::text AS "Kind",s."Id",p."LocalDate",t."Id" AS "TaskId",

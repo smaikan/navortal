@@ -6,10 +6,7 @@ public sealed record TaskBatchCommand(string[] Titles, Guid? PoolId);
 public sealed record TaskBatchResult(TaskView[] Items, long PlanningVersion);
 public interface ITaskBatchStore { Task<(TaskBatchResult Result, bool Replayed)> CreateAsync(Guid userId, TaskBatchCommand command, string key, CancellationToken ct); }
 
-// En çok 50 kök görevi tek
-// işlemde kaydet. Aynı anahtar ve gövde
-// aynı sonucu verir. Gövde farklıysa 409,
-// sonuç belirsizse aynı anahtarla dene.
+// En fazla 50 kök görev tek atomik anahtarlı istekte açılır. Aynı anahtar/gövde aynı sonucu, farklı gövde 409 döndürür. Kısmi başarı yok, belirsizde aynı anahtar güvenle denenebilir.
 public sealed class TaskBatchService(ITaskBatchStore store)
 {
     public const int MaxTitles = 50;

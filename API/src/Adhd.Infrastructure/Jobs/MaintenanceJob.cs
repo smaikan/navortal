@@ -7,10 +7,7 @@ using Quartz;
 
 namespace Adhd.Infrastructure.Jobs;
 
-// Bakım 30 günden eski
-// hataları siler. Özel gün
-// uyarılarını ileriye hazırlar, aynı
-// kaynak ikinci kez yazılmaz.
+// Bakım 30 günden eski hata raporlarını siler. Özel gün hatırlatmalarını kaynak anahtarıyla güvenli biçimde bir ufuk ilerisi için hazır tutar. Yıllık hatırlatma kullanıcı işlemine gerek duymadan sürer.
 [DisallowConcurrentExecution, PersistJobDataAfterExecution]
 public sealed class MaintenanceJob(PlannerDbContext db, IServiceScopeFactory scopes, TimeProvider clock) : IJob
 {
@@ -20,7 +17,7 @@ public sealed class MaintenanceJob(PlannerDbContext db, IServiceScopeFactory sco
         context.JobDetail.JobDataMap["cursor"] = (await RunOnceAsync(cursor, ct)).ToString();
     }
 
-    // Tek geçişte sonraki imleci dön. Liste başa sarınca imleç boş.
+    // Sınırlı tek geçiş. Özel gün listesi başa döndüyse boş, yoksa sonraki imleç döner.
     public async Task<Guid> RunOnceAsync(Guid cursor, CancellationToken ct)
     {
         var now = clock.GetUtcNow();

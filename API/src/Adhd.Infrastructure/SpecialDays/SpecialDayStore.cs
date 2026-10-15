@@ -14,21 +14,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.SpecialDays;
 
-// Özel gün yazısında hesap kilidi
-// kullan. Ekleme anahtarlı, düzenleme ve
-// silme sürümlü. Hatırlatma yerel 09:00,
-// gün değişince eskisi kapanır.
+// Özel gün yazıları hesap kilitli. Oluşturma anahtarlı, güncelleme/silme sürümlü ve 409 korumalı. Hatırlatma yerel 09:00 niyetidir. Değişiklik veya silme eskisini geçersiz yapıp yenisini hazırlar.
 public sealed class SpecialDayStore(PlannerDbContext db, IPreferencesStore preferences, TimeProvider clock) : ISpecialDayStore, IWorkingDayCalendar
 {
     public const string NotificationKind = "SpecialDay";
-    // Hatırlatmalar bu kadar önceden hazırlanır. Günlük bakım pencereyi doldurur.
+    // Hatırlatmalar bu kadar ileri hazırlanır. Günlük iş pencereyi dolu tutar.
     public static readonly TimeSpan ReminderHorizon = TimeSpan.FromDays(400);
 
     public async Task<SpecialDayPage> ListAsync(Guid userId, int offset, int limit, CancellationToken ct)
     {
         var today = await Today(userId, ct);
         var rows = await db.SpecialDays.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null).ToArrayAsync(ct);
-        // Yaklaşanları önce göster. Geçmişte kalmış tek seferlik günler en sona.
+        // Yaklaşanları önce göster. Geçmişte kalmış tek seferlik günler en sona
         var ordered = rows.Select(x => (Row: x, Next: Next(x, today))).OrderBy(x => x.Next is null).ThenBy(x => x.Next).ThenBy(x => x.Row.Title, StringComparer.CurrentCulture).ThenBy(x => x.Row.Id).ToArray();
         return new(ordered.Skip(offset).Take(limit).Select(x => View(x.Row, x.Next)).ToArray(), offset, limit, rows.Length);
     }
@@ -85,7 +82,7 @@ public sealed class SpecialDayStore(PlannerDbContext db, IPreferencesStore prefe
         return new(from, to, items, new(new(state.PlanningVersion, state.NotesVersion, state.SpecialDaysVersion), clock.GetUtcNow()));
     }
 
-    // Çalışma dışı özel günleri uygula. Kullanıcının o güne verdiği ayar önce gelir.
+    // Çalışma dışı özel gün uygulanmış çalışma aralıkları. Ayardaki açık tarih istisnası öncelikli.
     public async Task<UtcWindow[]> UtcIntervalsAsync(Guid userId, PlanningPreferences p, DateOnly date, CancellationToken ct)
     {
         if (p.Exceptions.Any(x => x.Date == date)) return WorkingCalendar.UtcIntervals(p, date);
@@ -102,7 +99,7 @@ public sealed class SpecialDayStore(PlannerDbContext db, IPreferencesStore prefe
     public static async Task<bool> IsNonWorkingAsync(PlannerDbContext db, Guid userId, DateOnly date, CancellationToken ct) =>
         (await NonWorkingDatesAsync(db, userId, date, date, ct)).Contains(date);
 
-    // Pencere içindeki eksik hatırlatmayı ekle. Kaynak anahtarı tekrarını önler.
+    // Ufuk içindeki eksik hatırlatma niyetini ekler. Kaynak anahtarı tekrarı önler.
     public async Task<int> Prepare(Guid userId, SpecialDay row, DateTimeOffset now, CancellationToken ct)
     {
         if (row.Reminder == SpecialDayReminder.None || row.DeletedAt is not null) return 0;

@@ -32,7 +32,7 @@ internal static class FocusLifecycle
         }
         else if (work.State == WorkState.Running && focus.State is FocusState.Break or FocusState.AwaitingNext)
         {
-            // Çalışmayı sürdürmek yeni bir Pomodoro turu başlatmaz.
+            // Çalışmayı sürdürmek yeni bir Pomodoro turu başlatmaz
             focus.State = FocusState.Interrupted; focus.BreakEndedAt ??= now; focus.EndedAt = now;
         }
         else if (focus.State is FocusState.Working or FocusState.Paused) focus.State = work.State == WorkState.Running ? FocusState.Working : FocusState.Paused;

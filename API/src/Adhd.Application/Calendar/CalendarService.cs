@@ -18,7 +18,7 @@ public sealed record CalendarCompletionItem(Guid EventId, Guid TaskId, DateTimeO
 public sealed record CalendarCompletionPage(CalendarCompletionItem[] Items, int Offset, int Limit, int Total);
 public sealed record CalendarDayView(CalendarDaySummary Summary, DateTimeOffset ServerNow, CalendarPlanPage Plan, CalendarActualPage Actual, CalendarCompletionPage Completions, int LegacyZoneCompletionCount);
 public sealed record CalendarDayQuery(Guid? RevisionId = null, int PlanOffset = 0, int PlanLimit = 50, int ActualOffset = 0, int ActualLimit = 50, int CompletionOffset = 0, int CompletionLimit = 50);
-// Hafta ve ay grubu için saatli ya da saatsiz öğeyi görevi, üstü ve köküyle ver.
+// Takvimde saatli veya saatsiz öğe; ay/hafta grubu için görev, üst ve köküyle birlikte gelir.
 public enum CalendarItemKind { Timed, Untimed }
 public sealed record CalendarItem(CalendarItemKind Kind, Guid Id, DateOnly LocalDate, Guid TaskId, string Title, Guid? ParentTaskId, string? ParentTitle,
     Guid RootTaskId, string RootTitle, DateTimeOffset? StartsAt, DateTimeOffset? EndsAt, DateTimeOffset? CompletedAt, TaskState TaskState);

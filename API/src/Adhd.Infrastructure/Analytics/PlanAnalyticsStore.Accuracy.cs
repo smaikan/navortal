@@ -11,10 +11,7 @@ public sealed partial class PlanAnalyticsStore
 {
     public const int AccuracyMinimumSamples = 5;
 
-    // Seçili yerel günlerde biten ve
-    // pozitif tahmini olan görevlerin
-    // toplam çalışmasını tahmine böl.
-    // Bilinmeyen tahmin sıfır sayılmaz.
+    // Yerel aralıkta bitmiş, bitmeden önce kendi tahmini pozitif ve kayıtlı işi olan görevde oran ömür boyu gerçek/tahmindir. Bilinmeyen tahmin dışarıda kalır, sıfır yapılmaz.
     public async Task<EstimateAccuracyView> AccuracyAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct); var now = clock.GetUtcNow();
@@ -28,7 +25,7 @@ public sealed partial class PlanAnalyticsStore
             if (e.TimeZoneId is null || PlanTime.Date(e.EffectiveAt, e.TimeZoneId) < from || PlanTime.Date(e.EffectiveAt, e.TimeZoneId) > to) continue;
             candidates.Add(new(e.TaskId, after.Title, e.EffectiveAt, e.Sequence, e.TimeZoneId, after, before?.DirectEstimatedSeconds ?? after.DirectEstimatedSeconds));
         }
-        // Açılıp yeniden bitirilen görevi bir kere, son bitişiyle say
+        // Açılıp yeniden bitirilen görevi bir kere, son bitişiyle say.
         candidates = candidates.Where(x => x.Estimate is > 0).GroupBy(x => x.TaskId).Select(g => g.OrderByDescending(x => x.At).ThenByDescending(x => x.Sequence).First()).ToList();
         var history = await AnalyticsHistory.Read(db, userId, candidates.Select(x => new HistoryKey(x.TaskId, to, x.Zone!)), now, ct);
         var lifetime = (await LifetimeSegments(userId, candidates.Select(x => x.TaskId).ToArray(), now, ct)).ToLookup(x => x.TaskId);

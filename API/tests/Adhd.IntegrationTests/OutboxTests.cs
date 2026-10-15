@@ -45,7 +45,7 @@ public sealed class OutboxTests
         await using var s = await JobScenario.Create(); var other = await TaskScenario.User(s.App);
         await using (var db = s.Context())
         {
-            // Kaynak yoksa etki Obsolete. Bu test kuyruk hızına bakıyor
+            // Kaynak yoksa etki Obsolete. Bu test kuyruk hızına bakıyor.
             for (var i = 0; i < 75; i++) db.Outbox.Add(new() { Id = Guid.CreateVersion7(), UserId = i % 3 == 0 ? other.UserId : s.User.UserId, EventKey = $"backlog:{i}", Kind = "TaskChanged", SourceId = Guid.NewGuid(), SourceVersion = 1, OccurredAt = Morning, AvailableAt = Morning });
             await db.SaveChangesAsync();
         }
@@ -120,7 +120,7 @@ public sealed class OutboxTests
     public async Task PreparedRecurrenceCommandResumesAfterCrashAcrossMidnightWithoutRecomputingItsWindow()
     {
         await using var s = await JobScenario.Create(); var today = new DateOnly(2026, 10, 15); var body = new RecurrenceCreate(new(today, UntilDate: today.AddDays(1)), new("Kalıcı tekrar"));
-        var created = await s.User.Client.PostAsJsonAsync("/api/recurrence-templates", body, Json); Assert.Equal(HttpStatusCode.BadRequest, created.StatusCode); // Komut anahtarı gerekiyor
+        var created = await s.User.Client.PostAsJsonAsync("/api/recurrence-templates", body, Json); Assert.Equal(HttpStatusCode.BadRequest, created.StatusCode); // Komut anahtarı gerekiyor.
         var r = await Send(s.User, HttpMethod.Post, "/api/recurrence-templates", JsonSerializer.SerializeToElement(body, Json)); Assert.Equal(HttpStatusCode.Created, r.StatusCode); var template = (await TaskScenario.Read<RecurrenceEffect>(r)).Template; var claim = Assert.Single(await s.Claim(), x => x.Kind == "RecurrenceChanged"); var command = new MaterializeRecurrence(template.Version, today, today.AddDays(7));
         await using (var db = s.Context()) { db.JobEffects.Add(new() { OutboxId = claim.Id, UserId = claim.UserId, State = JobEffectState.Prepared, CreatedAt = Morning, ResolvedInput = JsonSerializer.Serialize(new { templateId = template.Id, command }, Json) }); await db.SaveChangesAsync(); }
         await using (var scope = s.App.Services.CreateAsyncScope()) { _ = await scope.ServiceProvider.GetRequiredService<RecurrenceService>().MaterializeAsync(claim.UserId, template.Id, command, $"job:{claim.Id}", default); }

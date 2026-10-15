@@ -2,7 +2,7 @@ using Adhd.Domain.Focus;
 
 namespace Adhd.Application.Notifications;
 
-// Bu yalnız ekranda görünen yazı. Kaynak, zaman ve odak geçişi daha önce kontrol edildi.
+// Sadece gösterim yazısı. Kaynağın uygunluğu, zamanı ve odak geçişi daha önce belirlenir.
 public sealed record NotificationMessage(string Title, string Body);
 
 public static class NotificationPresentation

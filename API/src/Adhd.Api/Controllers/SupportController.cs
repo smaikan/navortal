@@ -53,7 +53,7 @@ public sealed class SupportController(SupportService service, FocusService focus
 public sealed class EditNoteRequest
 {
     [Range(1, long.MaxValue)] public long Version { get; set; } [Required, StringLength(10000)] public string Text { get; set; } = ""; public DateTimeOffset? DueAt { get; set; }
-    // Görünüm null ise başlık, kategori ve görünümü bırak. Değer gelirse üçünü de değiştir.
+    // Null başlığı, kategoriyi ve görünümü korur. Değer varsa üçünü de değiştirir.
     public NoteDisplay? Display { get; set; } [StringLength(200)] public string? Title { get; set; } public Guid? CategoryId { get; set; }
 }
 public sealed class EnergyRequest { [Range(1, long.MaxValue)] public long Version { get; set; } public EnergyLevel? EnergyDemand { get; set; } }

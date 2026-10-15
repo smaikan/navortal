@@ -29,7 +29,7 @@ public sealed partial class SchedulingCoordinator
             var outside = await db.TaskSchedules.AsNoTracking().Where(x => x.UserId == userId && !planIds.Contains(x.DailyPlanId) && x.State == ScheduleState.Planned && x.EndsAt > now).OrderBy(x => x.Id)
                 .Select(x => new SchedulingBlock(x.Id, x.TaskId, x.Kind, x.StartsAt, x.EndsAt, x.IsFixed, x.IsLocked, false, false, x.IsAutomatic)).ToArrayAsync(ct);
             // Bu geri almada başka satırlar da kalkabilir. Önce dokunmadığımız satırlara yer ayır,
-            // sonra kısmi geri almanın kapasiteyi veya bağımlılığı bozmadığını kontrol et
+            // sonra kısmi geri almanın kapasiteyi veya bağımlılığı bozmadığını kontrol et.
             foreach (var (day, index) in days.Select((x, i) => (x, i)).ToArray())
             {
                 var revisionId = revisions.Single(x => x.DailyPlanId == day.CurrentPlanId).Id; var local = changes.Where(x => x.RevisionId == revisionId).ToArray();
@@ -97,7 +97,7 @@ public sealed partial class SchedulingCoordinator
             var old = Amount(originals.Where(x => x.State == ScheduleState.Planned).Select(x => UndoView(x).Block())); var next = Amount(proposed.Select(x => x.Block)); var outside = Amount(input.OutsideBlocks);
             var remaining = Math.Max(0, (task.EstimatedSeconds ?? 0) - task.ActualSeconds - outside); if (next > Math.Max(old, remaining)) invalid = true;
         }
-        // Gün toplamlarını yeniden çıkarma. Motorun bütün aralık için hesapladığı önkoşulları kullan
+        // Gün toplamlarını yeniden çıkarma. Motorun bütün aralık için hesapladığı önkoşulları kullan.
         var snapshot = input.Days[0].Snapshot with { Tasks = input.Days[0].Snapshot.Tasks.Select(t => t with {
             OutsideReservedSeconds = input.OutsideBlocks.Where(b => b.TaskId == t.Id && b.Kind == ScheduleKind.Work && b.EndsAt > now).Sum(b => WorkTime.Seconds(b.StartsAt > now ? b.StartsAt : now, b.EndsAt)),
             OutsideCompletionAt = input.OutsideBlocks.Where(b => b.TaskId == t.Id && b.Kind == ScheduleKind.Work && b.EndsAt > now).Select(b => (DateTimeOffset?)b.EndsAt).Max() }).ToImmutableArray() };

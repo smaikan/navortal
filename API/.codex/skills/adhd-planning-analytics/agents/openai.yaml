@@ -1,4 +1,0 @@
-interface:
-  display_name: "ADHD Planlama Analitiği"
-  short_description: "Plan uyumu ve doğru çalışma istatistikleri"
-  default_prompt: "Bu projede $adhd-planning-analytics becerisini kullanarak ilgili backend işini uygula ve doğrula."

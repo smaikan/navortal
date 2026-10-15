@@ -9,7 +9,7 @@ public sealed record DistributedDay(DateOnly LocalDate, string TimeZoneId, Sched
 public sealed record DistributionProposal(long InputPlanningVersion, DateTimeOffset ServerNow, string AlgorithmVersion, ImmutableArray<DistributedDay> Days,
     ImmutableArray<UnplacedWork> Unplaced, bool HasConstraintConflicts);
 
-// Kalan işi kullanıcının seçtiği yerel günlere dağıt.
+// Tek kalan miktarı açıkça seçilen yerel günlere dağıtır.
 public sealed class MultiDaySchedulingEngine(SchedulingEngine engine)
 {
     public DistributionProposal Generate(DistributionSnapshot input)
@@ -31,8 +31,8 @@ public sealed class MultiDaySchedulingEngine(SchedulingEngine engine)
         for (var i = 0; i < days.Length; i++)
         {
             var day = days[i];
-            // Bu öneride daha önce yerleştirdiğimiz işler eski esnek bloklarının yerini alır
-            // Korunan ileriki saatleri baştan ayır ki önceki günler bu süreyi tüketmesin.
+            // Bu öneride daha önce yerleştirdiğimiz işler eski esnek bloklarının yerini alır.
+            // Korunan ileriki saatleri baştan ayır ki önceki günler bu süreyi tüketmesin
             var outside = input.OutsideBlocks.Concat(results.SelectMany(x => x.Proposal.Blocks)).Concat(protectedByDay.Skip(i + 1).SelectMany(x => x))
                 .Where(x => x.EndsAt > first.ServerNow).ToArray();
             var work = outside.Where(x => x.Kind == ScheduleKind.Work && x.TaskId.HasValue).ToLookup(x => x.TaskId!.Value);

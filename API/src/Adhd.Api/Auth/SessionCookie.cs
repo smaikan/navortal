@@ -1,9 +1,6 @@
 namespace Adhd.Api.Auth;
 
-// Oturum cookie'si HttpOnly, SameSite=Strict ve Path=/
-// kullanır. Yerel geliştirme istisnası dışında Secure
-// ve __Host- gerekir. Yaklaşık 400 gün
-// geçerli, me günde bir yeniler.
+// Tarayıcı oturumu HttpOnly, SameSite=Strict ve Path=/ kullanır. Yerel Development/Testing HTTP istisnası dışında __Host- ve Secure var. Ömrü yaklaşık 400 gün; me günde bir kaydırarak yeniler.
 public static class SessionCookie
 {
     public const string SecureName = "__Host-adhd_session";
@@ -11,7 +8,7 @@ public static class SessionCookie
     public const string CsrfHeader = "X-ADHD-CSRF";
     public static readonly TimeSpan MaxAge = TimeSpan.FromDays(400);
     public static readonly TimeSpan RefreshAfter = TimeSpan.FromDays(1);
-    // İstek Bearer yerine cookie ile doğrulanırsa HttpContext işareti eklenir.
+    // İstek Bearer yerine cookie ile doğrulandıysa HttpContext'e konan işaret.
     public const string FromCookieItem = "adhd.auth.cookie";
 
     public static bool IsLoopbackEnvironment(IHostEnvironment environment) =>
@@ -48,7 +45,7 @@ public static class SessionCookie
         MaxAge = maxAge,
     };
 
-    // Oturum listesinde genel tarayıcı adını kullan, ham User-Agent'ı tutma.
+    // Oturum listesi için kaba tarayıcı ailesi. Ham User-Agent veya kişiyi tanıtan bilgi tutulmaz.
     public static string BrowserFamily(string? userAgent)
     {
         if (string.IsNullOrEmpty(userAgent)) return "Other";

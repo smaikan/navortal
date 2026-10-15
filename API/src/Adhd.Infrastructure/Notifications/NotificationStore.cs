@@ -24,7 +24,7 @@ public sealed partial class NotificationStore(PlannerDbContext db, TimeProvider 
         var row = await db.NotificationPreferences.SingleOrDefaultAsync(x => x.UserId == user, ct); Check(row?.Version ?? 0, command.Version);
         if (row is null) { row = new() { UserId = user, Version = 0 }; db.NotificationPreferences.Add(row); }
         row.Settings = JsonSerializer.Serialize(command.Settings, RevisionWriter.Json); row.Version++;
-        // Gönderme saati değişse de SourceAt aynı kalır. Önceden uyarı süresini ikinci kez çıkarma.
+        // Gönderme saati değişse de SourceAt aynı kalır. Önceden uyarı süresini ikinci kez çıkarma
         var lead = TimeSpan.FromSeconds(command.Settings.LeadSeconds);
         await db.ReminderWork.Where(x => x.UserId == user && x.State == ReminderState.Pending && x.SourceAt != null)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.DueAt, x => x.SourceAt!.Value - lead), ct);

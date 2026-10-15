@@ -12,7 +12,7 @@ internal static class PlannerOpenApi
 {
     internal static void Configure(OpenApiOptions options)
     {
-        // Bu alana null izin versek de ortak görev önceliği şeması zorunlu kalsın.
+        // Bu alana null izin versek de ortak görev önceliği şeması zorunlu kalsın
         var referenceId = options.CreateSchemaReferenceId;
         options.CreateSchemaReferenceId = info => info.Type == typeof(Adhd.Domain.Tasks.TaskPriority?) ? null : referenceId(info);
         options.AddSchemaTransformer((schema, context, _) =>
@@ -53,7 +53,7 @@ internal static class PlannerOpenApi
     }
 }
 
-// Hata ve model doğrulama yanıtına eklenen alanları burada tanımlıyoruz.
+// Hata ve model doğrulama yanıtına eklenen alanları burada tanımlıyoruz
 public sealed class ApiProblemContract : ProblemDetails
 {
     [System.ComponentModel.DataAnnotations.Required] public string Code { get; set; } = "";

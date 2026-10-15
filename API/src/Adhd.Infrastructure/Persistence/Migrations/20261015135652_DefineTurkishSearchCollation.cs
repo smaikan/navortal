@@ -127,7 +127,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                 oldMaxLength: 200,
                 oldCollation: "adhd_search");
 
-            // Collation silinmeden önce kolon ve indeks bağlantılarını kaldır.
+            // Collation silinmeden önce kolon ve indeks bağlantılarını kaldır
             migrationBuilder.AlterDatabase()
                 .OldAnnotation("Npgsql:CollationDefinition:adhd_search", "tr,tr,icu,True");
         }

@@ -30,7 +30,7 @@ public sealed class AuthController(AuthService auth, IUserStore users, GoogleAut
     public async Task<UserSummary> Me(CancellationToken ct)
     {
         var user = (await users.FindByIdAsync(UserId, ct))!;
-        // Cookie bir günden eskiyse aynı oturum için yenile. Kullanan kişi girişte kalsın
+        // Cookie bir günden eskiyse aynı oturum için yenile. Kullanan kişi girişte kalsın.
         if (HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem) && SessionId is { } sid
             && long.TryParse(User.FindFirst(JwtRegisteredClaimNames.Iat)?.Value, out var iat)
             && clock.GetUtcNow() - DateTimeOffset.FromUnixTimeSeconds(iat) >= SessionCookie.RefreshAfter
@@ -38,7 +38,7 @@ public sealed class AuthController(AuthService auth, IUserStore users, GoogleAut
             SessionCookie.Write(HttpContext, token);
         return AuthService.Summary(user);
     }
-    // Bu oturumu sunucuda kapat ve tarayıcının cookie'sini temizle.
+    // Bu girişi sunucuda bitirip tarayıcı cookie'sini siler.
     [Authorize, HttpPost("logout")]
     [ProducesResponseType(204)]
     public async Task<IActionResult> Logout(CancellationToken ct)
@@ -47,7 +47,7 @@ public sealed class AuthController(AuthService auth, IUserStore users, GoogleAut
         SessionCookie.Delete(HttpContext);
         return NoContent();
     }
-    // Bu hesapta mevcut giriş dahil bütün oturumları kapat. Push abonelikleri kalır.
+    // Bu dahil hesabın bütün girişlerini kapatır. Push abonelikleri değişmez.
     [Authorize, HttpPost("logout-all")]
     [ProducesResponseType(204)]
     public async Task<IActionResult> LogoutAll(CancellationToken ct)
@@ -56,7 +56,7 @@ public sealed class AuthController(AuthService auth, IUserStore users, GoogleAut
         SessionCookie.Delete(HttpContext);
         return NoContent();
     }
-    // Bearer ile gelen sid'siz eski tarayıcı tokenını bir kez cookie oturumuna taşı.
+    // Cookie öncesi sid'siz Bearer tokenı bir kez oturum cookie'sine taşır.
     [Authorize, HttpPost("session/adopt"), EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(UserSummary), 200)]
     public async Task<ActionResult<UserSummary>> Adopt(CancellationToken ct)

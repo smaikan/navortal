@@ -59,7 +59,7 @@ public sealed partial class RecurrenceStore
         if (row is null)
         {
             if (command.TaskVersion.HasValue || !RecurrenceRules.Matches(rule, date)) throw Invalid("occurrence_invalid", "Bu tarihte oluşum yok veya task sürümü gereksiz.");
-            // Kullanıcı atladıysa veya iptal ettiyse belirsiz son tarihi çözmemize gerek yok.
+            // Kullanıcı atladıysa veya iptal ettiyse belirsiz son tarihi çözmemize gerek yok
             row = Occurrence(template, definition, new(date, rule.TimeZoneId, rule.DueTime, null, false, true, "User"), now); db.RecurrenceOccurrences.Add(row);
         }
         else if (row.TaskId is { } taskId)

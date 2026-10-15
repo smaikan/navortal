@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.IntegrationTests;
 
-// Silme, geri alma, otomatik bitirme ayarı ve bitenlerin sırasını dene.
+// Yumuşak sil/geri al, görev bazlı otomatik bitirme ve bitmişleri sıralama kontrolleri.
 public sealed class UiR2TaskTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private static readonly DateTimeOffset Morning = new(2026, 10, 15, 6, 0, 0, TimeSpan.Zero);
@@ -34,10 +34,10 @@ public sealed class UiR2TaskTests(DatabaseFixture fixture) : IClassFixture<Datab
         root = await s.Get(root.Id); Assert.Equal(TaskState.Pending, root.State); Assert.False(root.AutoCompleteFromChildren);
         var on = await TaskScenario.Read<TaskView>(await Auto(s, root.Id, true));
         Assert.Equal(TaskState.Completed, on.State); Assert.Equal(CompletionOrigin.Automatic, on.CompletionOrigin);
-        // Ayar sonradan kapansa da daha önce biten üst görevi açma
+        // Ayar sonradan kapansa da daha önce biten üst görevi açma.
         var off = await TaskScenario.Read<TaskView>(await Auto(s, root.Id, false));
         Assert.Equal(TaskState.Completed, off.State);
-        // Yeni üst görevde ayar açık gelir. Çocukları bitince o da biter.
+        // Yeni üst görevde ayar açık gelir. Çocukları bitince o da biter
         var other = await s.Root(); var c = await s.Child(other.Id); await s.State(c.Id, TaskAction.Complete);
         Assert.Equal(TaskState.Completed, (await s.Get(other.Id)).State);
     }
@@ -80,7 +80,7 @@ public sealed class UiR2TaskTests(DatabaseFixture fixture) : IClassFixture<Datab
             Assert.Equal(ScheduleState.Removed, block.State);
             Assert.Contains(await db.TaskEvents.AsNoTracking().Where(x => x.TaskId == grand.Id).Select(x => x.Type).ToArrayAsync(), x => x == "Deleted");
         }
-        // Aynı silme tekrarlanabilir. Eski sürümle yeni yazı kabul edilmez
+        // Aynı silme tekrarlanabilir. Eski sürümle yeni yazı kabul edilmez.
         Assert.Equal(HttpStatusCode.OK, (await Post(s, $"/api/tasks/{child.Id}/delete", new { version = deleted.Version })).StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, (await Post(s, $"/api/tasks/{child.Id}/delete", new { version = child.Version })).StatusCode);
 
@@ -150,7 +150,7 @@ public sealed class UiR2TaskTests(DatabaseFixture fixture) : IClassFixture<Datab
         page = await TaskScenario.Read<TreePage>(await s.Client.GetAsync("/api/tasks/children?limit=25"));
         var after = page.Summaries!.Single(x => x.TaskId == root.Id);
         Assert.Equal((1, 1, 0), (after.ChildCount, after.CompletedChildCount, after.UnknownEstimateCount));
-        // Başka hesabın ağacını bu sayılara katma.
+        // Başka hesabın ağacını bu sayılara katma
         var other = await TaskScenario.User(app);
         Assert.Empty((await TaskScenario.Read<TreePage>(await other.Client.GetAsync("/api/tasks/children?limit=25"))).Summaries!);
     }

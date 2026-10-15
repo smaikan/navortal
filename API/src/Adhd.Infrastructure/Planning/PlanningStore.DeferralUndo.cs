@@ -9,7 +9,7 @@ namespace Adhd.Infrastructure.Planning;
 
 public sealed partial class PlanningStore
 {
-    // Ertelemeyi olduğu gibi geri al. Yeni saat ayırma, eski plan ve gerçek çalışma aynı kalsın
+    // Ertelemeyi olduğu gibi geri al. Yeni saat ayırma, eski plan ve gerçek çalışma aynı kalsın.
     private async Task<DayItemBatchResult> UndoDeferral(Guid userId, Guid original, UserPlanningState state, PlanRevision[] revisions, PlanRevisionChange[] changes, CancellationToken ct)
     {
         if (revisions.Any(x => x.ReversesChangeSetId.HasValue)) throw Conflict("undo_source_invalid", "Geri alınmış erteleme tekrar geri alınamaz.");

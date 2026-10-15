@@ -7,7 +7,7 @@ using Npgsql;
 
 namespace Adhd.Infrastructure.Auth;
 
-// Oturumu süreçte kısa süre sakla. Burada iptal edilirse bu sunucudaki önbellekten hemen çıkar.
+// Oturumların süreçte kısa önbelleği var. Buradaki iptal kaydı hemen siler, bu sunucuda anında etkili olur.
 public sealed class AuthSessionStore(PlannerDbContext db, IMemoryCache cache) : IAuthSessionStore
 {
     public static readonly TimeSpan CacheFor = TimeSpan.FromSeconds(15);

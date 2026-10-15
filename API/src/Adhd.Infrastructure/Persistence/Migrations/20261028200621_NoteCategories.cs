@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -83,7 +83,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            // Kategorisi olmayan mevcut hesaba Uyarı ekle. Varsa olduğu gibi bırak.
+            // Kategorisi olmayan mevcut hesaba Uyarı ekle. Varsa olduğu gibi bırak
             migrationBuilder.Sql("""
                 INSERT INTO note_categories ("Id","UserId","Name","Color","SortOrder","ShowInBar","PinInAll","ViewMode","CreatedAt","UpdatedAt","RemovedAt","Version")
                 SELECT gen_random_uuid(), u."Id", 'Uyarı', 'Amber', 1024, TRUE, TRUE, 'Cards', now(), now(), NULL, 1

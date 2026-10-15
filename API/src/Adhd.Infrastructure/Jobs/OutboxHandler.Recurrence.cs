@@ -52,7 +52,7 @@ public sealed partial class OutboxHandler
         bool obsolete = false;
         try { _ = await recurrence.MaterializeAsync(claim.UserId, input!.TemplateId, input.Command, $"job:{claim.Id}", ct); }
         catch (UseCaseException e) when (e.Code is "version_conflict" or "recurrence_disabled" or "recurrence_not_found") { obsolete = true; }
-        // Makbuzla komut ayrı kaydedilir. Onaydan önce çökülürse aynı komut ve anahtarla dene
+        // Makbuzla komut ayrı kaydedilir. Onaydan önce çökülürse aynı komut ve anahtarla dene.
         await using (var tx = await db.Database.BeginTransactionAsync(ct))
         {
             await Lock(claim.UserId, ct); var current = await db.JobEffects.SingleAsync(x => x.UserId == claim.UserId && x.OutboxId == claim.Id, ct);

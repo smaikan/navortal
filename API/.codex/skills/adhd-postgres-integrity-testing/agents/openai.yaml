@@ -1,4 +1,0 @@
-interface:
-  display_name: "ADHD PostgreSQL ve Test"
-  short_description: "Migration, veri bütünlüğü ve API testleri"
-  default_prompt: "Bu projede $adhd-postgres-integrity-testing becerisini kullanarak ilgili backend işini uygula ve doğrula."

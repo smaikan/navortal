@@ -66,7 +66,7 @@ public sealed class FoundationTests(DatabaseFixture fixture) : IClassFixture<Dat
     }
 }
 
-// Test rotasını yalnız test ApplicationPart'ı ekler. Normal API'de yayınlanmaz.
+// Test rotasını yalnız test ApplicationPart'ı ekler. Normal API'de yayınlanmaz
 [ApiController, Route("test-probe")]
 public sealed class ProbeController : ControllerBase
 {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Yerel test kendi Docker ayarlarıyla çalışır. Sistem hizmeti kurmaz.
+# Yerel test kendi Docker ayarlarıyla çalışır. Sistem hizmeti kurmaz
 set -euo pipefail
 api_root="$(cd "$(dirname "$0")/.." && pwd)"
 tools="$api_root/.local/docker-tools"

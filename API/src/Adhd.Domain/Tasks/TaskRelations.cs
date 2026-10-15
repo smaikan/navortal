@@ -19,7 +19,7 @@ public sealed record TaskStartDecision(Guid TaskId, bool CanStart, string[] Reas
 public static class TaskGraphRules
 {
     // Her görevin başlangıç ve bitiş işareti var. Üst görev çocuğundan önce başlar,
-    // zorunlu çocuk da üst görevden önce biter. Böylece bağlantı sayısı karesel büyümez.
+    // zorunlu çocuk da üst görevden önce biter. Böylece bağlantı sayısı karesel büyümez
     public static bool HasCycle(IReadOnlyCollection<TaskItem> tasks, IReadOnlyCollection<TaskDependency> dependencies)
     {
         var graph = BuildMarkers(tasks, dependencies); var degree = graph.Degree;

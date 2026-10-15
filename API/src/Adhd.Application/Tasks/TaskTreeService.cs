@@ -5,7 +5,7 @@ namespace Adhd.Application.Tasks;
 public enum ParentWorkDisposition { PreserveDirect, ConvertToContainer }
 public sealed record MoveTask(long Version, Guid? ParentTaskId, long? ParentVersion, Guid? BeforeSiblingId, ParentWorkDisposition? ParentWorkDisposition);
 public sealed record TreePage(TaskView[] Items, int Offset, int Limit, bool HasMore, TreeRowSummary[]? Summaries = null);
-// Çocuk sayfasına doğrudan açık çocuk sayısını ve alt ağaç tahminini ekle. Toplanamıyorsa null.
+// Çocuk sayfasının özeti: doğrudan açık çocuk sayısı ve bilinen alt ağaç tahmini. Toplanamıyorsa null.
 public sealed record TreeRowSummary(Guid TaskId, int ChildCount, int CompletedChildCount, long? KnownEstimatedSeconds, int UnknownEstimateCount,
     DateOnly? EffectiveFrom = null, DateOnly? EffectiveTo = null, bool RangeFromChildren = false, DateOnly? UrgentPlanDate = null);
 public interface ITaskTreeStore
@@ -25,7 +25,7 @@ public sealed class TaskTreeService(ITaskTreeStore store)
             throw new UseCaseException(ErrorKind.Validation, "parent_version_required", "Hedef üst görevin sürümü gerekli.");
         return store.MoveAsync(userId, taskId, move, ct);
     }
-    // completed=false açık kardeşleri sırayla getirir. true bitenleri en yeni bitenden başlatır.
+    // completed=false açık kardeşleri kendi sırasında, true bitmişleri son bitenden önce getirir.
     public Task<TreePage> ChildrenAsync(Guid userId, Guid? parentId, int offset, int limit, bool includeArchived, CancellationToken ct, bool? completed = null, bool excludeRecurring = false)
     { ValidatePage(offset, limit); return store.ChildrenAsync(userId, parentId, offset, limit, includeArchived, ct, completed, excludeRecurring); }
     public Task<TreePage> SubtreeAsync(Guid userId, Guid taskId, int offset, int limit, bool includeArchived, CancellationToken ct)

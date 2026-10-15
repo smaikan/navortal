@@ -89,7 +89,7 @@ public sealed partial class SupportStore
     {
         row.Version++; row.UpdatedAt = clock.GetUtcNow(); state.NotesVersion++; await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return CategoryView(row);
     }
-    // Not yalnız aynı hesabın açık kategorisine bağlanabilir.
+    // Yeni veya değişen not yalnız hesabın aktif kategorisine bağlanabilir.
     private async Task ActiveCategory(Guid userId, Guid id, CancellationToken ct)
     {
         var row = await db.NoteCategories.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == id, ct) ?? throw Missing("note_category_not_found");

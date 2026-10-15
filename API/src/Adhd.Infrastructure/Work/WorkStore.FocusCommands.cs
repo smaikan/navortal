@@ -37,7 +37,7 @@ public sealed partial class WorkStore
                     Require(focus.State is FocusState.Break or FocusState.AwaitingNext);
                     if (focus.State == FocusState.Break && !command.SkipBreak) throw Conflict("focus_break_pending", "Mola sürüyor; bitmesini bekleyin veya açıkça atlayın.");
                     focus.BreakEndedAt ??= now; focus.EndedAt = now; focus.State = FocusState.Finished; focus.Version++;
-                    // Yeni odak turunu açmadan eskisini kapat. Aktif tur indeksi ikisini birden kabul etmez
+                    // Yeni odak turunu açmadan eskisini kapat. Aktif tur indeksi ikisini birden kabul etmez.
                     await db.SaveChangesAsync(ct);
                     await FocusWorkState(work, segments, WorkState.Running, now, ct);
                     output = new() { Id = Guid.CreateVersion7(), UserId = userId, WorkSessionId = work.Id, PreviousFocusId = focus.Id, CycleNumber = checked(focus.CycleNumber + 1),

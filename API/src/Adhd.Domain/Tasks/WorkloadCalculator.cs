@@ -7,7 +7,7 @@ public sealed record WorkloadResult(IReadOnlyDictionary<Guid, WorkloadSummary> S
 
 public static class WorkloadCalculator
 {
-    // Önce çocukları gez. Ağaç derinleştikçe çağrı yığını büyümesin diye döngü kullan
+    // Önce çocukları gez. Ağaç derinleştikçe çağrı yığını büyümesin diye döngü kullan.
     public static WorkloadResult Calculate(IReadOnlyCollection<TaskItem> tasks)
     {
         var nodes = tasks.ToDictionary(x => x.Id);

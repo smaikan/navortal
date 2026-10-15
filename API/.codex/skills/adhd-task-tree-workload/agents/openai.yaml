@@ -1,4 +1,0 @@
-interface:
-  display_name: "ADHD Görev ve İş Yükü"
-  short_description: "Görev ağacı, bütçe ve bağımlılık kuralları"
-  default_prompt: "Bu projede $adhd-task-tree-workload becerisini kullanarak ilgili backend işini uygula ve doğrula."

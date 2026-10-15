@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Adhd.IntegrationTests;
 
-// Hesaba ait renkli kategorileri, başlıklı notları ve eski notları dene. NextStep listeden ayrı kalır.
+// Hesaba özel renkli kategori, başlıklı/toggle not, listeden ayrı NextStep ve korunan eski notlar.
 public sealed class NoteCategoryTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private static readonly DateTimeOffset Morning = new(2026, 10, 28, 6, 0, 0, TimeSpan.Zero);

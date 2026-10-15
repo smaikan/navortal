@@ -18,7 +18,7 @@ internal sealed class SchedulingProjection
         var edges = dependencies.Select(x => new TaskDependency { PredecessorTaskId = x.PredecessorId, SuccessorTaskId = x.SuccessorId }).ToArray();
         if (TaskGraphRules.HasCycle(nodes, edges)) throw new ArgumentException("Scheduling task/dependency graph contains a cycle.", nameof(dependencies));
         graph = TaskGraphRules.BuildMarkers(nodes, edges); earliest = Enumerable.Repeat(anchor, source.Length * 2).ToArray(); fired = new bool[earliest.Length];
-        // Üst görev elle bitirildiyse açık çocukları olsa bile kayıtlı Completed geçerli
+        // Üst görev elle bitirildiyse açık çocukları olsa bile kayıtlı Completed geçerli.
         for (var i = 0; i < tasks.Length; i++) if (tasks[i].State == TaskState.Completed) Fire(i * 2 + 1, anchor);
         for (var i = 0; i < earliest.Length; i++) if (graph.Degree[i] == 0) pending.Enqueue(i);
         Drain();

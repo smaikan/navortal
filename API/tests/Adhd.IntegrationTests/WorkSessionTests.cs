@@ -100,7 +100,7 @@ public sealed class WorkSessionTests(DatabaseFixture fixture) : IClassFixture<Da
     [Fact]
     public async Task LogoutClientCloseAndHostRestartContinueSameServerRecord()
     {
-        // Çıkış oturumu kapatır. Yeniden girince aynı çalışma hâlâ sürer.
+        // Çıkış oturumu kapatır. Yeniden girince aynı çalışma hâlâ sürer
         Guid sessionId; string token; TaskScenario s; string email;
         await using (var app = new PlannerFactory(fixture.ConnectionString))
         {

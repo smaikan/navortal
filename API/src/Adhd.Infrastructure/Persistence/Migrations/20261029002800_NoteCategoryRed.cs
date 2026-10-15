@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -10,7 +10,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
         // Açıklama üst sınıftaki tanımda.
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Amber ve Orange kategorilerini kırmızıya çevir. Varsayılan Uyarı da dahil.
+            // Amber ve Orange kategorilerini kırmızıya çevir. Varsayılan Uyarı da dahil
             migrationBuilder.DropCheckConstraint(
                 name: "CK_note_category_enums",
                 table: "note_categories");

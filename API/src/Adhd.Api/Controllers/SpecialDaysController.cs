@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Adhd.Api.Controllers;
 
-// Doğum günü, yıl dönümü, tatil gibi özel günler kendi tarihinde görünür. Hatırlatma isteğe bağlı.
+// Doğum günü, yıldönümü, tatil ve diğer günler kendi tarihinde, istenirse hatırlatmayla görünür.
 [ApiController, Authorize, Route("api/special-days")]
 public sealed class SpecialDaysController(SpecialDayService service) : ControllerBase
 {

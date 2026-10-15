@@ -29,7 +29,7 @@ public sealed class MigrationUpgradeTests(DatabaseFixture fixture) : IClassFixtu
     {
         await using var db = fixture.CreateContext(); var previous = db.Database.GetMigrations().Single(x => x.EndsWith("_AddRecurrence", StringComparison.Ordinal)); await db.GetService<IMigrator>().MigrateAsync(previous);
         var now = DateTimeOffset.UtcNow; var user = new AppUser { Id = Guid.NewGuid(), Email = $"{Guid.NewGuid():N}@example.test", NormalizedEmail = Guid.NewGuid().ToString(), CreatedAt = now }; db.Users.Add(user);
-        // Güncel modelde yeni kolonlar var. Eski satırı doğrudan SQL ile eski şemaya ekle
+        // Güncel modelde yeni kolonlar var. Eski satırı doğrudan SQL ile eski şemaya ekle.
         await db.SaveChangesAsync(); await InsertLegacyPlanningState(db,user.Id,now); var task = new TaskItem { Id = Guid.NewGuid(), UserId = user.Id, Title = "Existing deadline", CreatedAt = now, UpdatedAt = now, DeadlineAt = now.AddDays(1) }; await InsertLegacyTask(db, task);
         await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE tasks SET \"DeadlineAt\" = {task.DeadlineAt} WHERE \"Id\" = {task.Id}"); var template = new Adhd.Domain.Recurrence.RecurrenceTemplate { Id = Guid.NewGuid(), UserId = user.Id, CreatedAt = now, UpdatedAt = now }; db.RecurrenceTemplates.Add(template);
         db.RecurrenceDefinitions.Add(new() { Id = Guid.NewGuid(), UserId = user.Id, TemplateId = template.Id, Number = 1, EffectiveFrom = new(2026, 10, 15), CreatedAt = now }); await db.SaveChangesAsync();
@@ -158,7 +158,7 @@ public sealed class MigrationUpgradeTests(DatabaseFixture fixture) : IClassFixtu
         Assert.Equal("keep-me", (await db.Metadata.SingleAsync(x => x.Key == "upgrade-proof")).Value);
         Assert.Empty(await db.Database.GetPendingMigrationsAsync());
         Assert.Empty(await db.Users.ToListAsync());
-        // Mevcut bir hesapla önceki kimlik şemasından yükseltmeyi dene
+        // Mevcut bir hesapla önceki kimlik şemasından yükseltmeyi dene.
         var previous = db.Database.GetMigrations().Single(x => x.EndsWith("_AddGoogleExternalLogins", StringComparison.Ordinal));
         await db.GetService<IMigrator>().MigrateAsync(previous);
         var user = new AppUser { Id = Guid.CreateVersion7(), Email = "upgrade@example.test", NormalizedEmail = "UPGRADE@EXAMPLE.TEST", DisplayName = "Keep user", PasswordHash = "existing-hash", CreatedAt = DateTimeOffset.UtcNow };
@@ -268,7 +268,7 @@ public sealed class MigrationUpgradeTests(DatabaseFixture fixture) : IClassFixtu
         INSERT INTO user_notes ("Id","UserId","TaskId","Kind","Text","TimeZoneId","CreatedAt","UpdatedAt","Version")
         VALUES ({n.Id},{n.UserId},{n.TaskId},{n.Kind.ToString()},{n.Text},{n.TimeZoneId},{n.CreatedAt},{n.UpdatedAt},1)
         """);
-    // EF yeni sayaçları biliyor. Yükseltmeden önce veriyi gerçek eski şemaya ekle.
+    // EF yeni sayaçları biliyor. Yükseltmeden önce veriyi gerçek eski şemaya ekle
     private static Task<int> InsertLegacyPlanningState(PlannerDbContext db,Guid user,DateTimeOffset now) => db.Database.ExecuteSqlInterpolatedAsync($"""
         INSERT INTO user_planning_states ("UserId","PlanningVersion","UpdatedAt") VALUES ({user},0,{now})
         """);

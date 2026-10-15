@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Tasks;
 
-// Her başlığı tek görev eklemedeki kurallarla bir kök olarak kaydet. Hepsi aynı işlemde.
+// Her başlık tek oluşturmayla aynı kural ve geçmişe sahip kök görev olur. Hepsi tek işlemde.
 public sealed class TaskBatchStore(PlannerDbContext db, TimeProvider clock) : ITaskBatchStore
 {
     public async Task<(TaskBatchResult Result, bool Replayed)> CreateAsync(Guid userId, TaskBatchCommand command, string key, CancellationToken ct)

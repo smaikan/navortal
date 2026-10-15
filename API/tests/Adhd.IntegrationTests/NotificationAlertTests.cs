@@ -42,17 +42,17 @@ public sealed class NotificationAlertTests
         var canceled = await TaskScenario.Read<CustomReminderView>(await ManualPlanningTests.Send(s.User, HttpMethod.Post, "/api/notifications/reminders", new { title = "Canceled after ready", dueAt = due }));
         s.App.Clock.Now = due; await s.Pump();
         await s.User.Client.PostAsJsonAsync($"/api/notifications/reminders/{canceled.Id}/cancel", new { version = canceled.Version });
-        // Eski Ready kaydını bilerek bırak. Temizlik yapılmasa bile kaynak kontrolü bunu yakalamalı.
+        // Eski Ready kaydını bilerek bırak. Temizlik yapılmasa bile kaynak kontrolü bunu yakalamalı
         await using (var stale = s.Context()) await stale.NotificationIntents.Where(x => x.SourceId == canceled.Id).ExecuteUpdateAsync(x => x.SetProperty(n => n.State, Adhd.Domain.Jobs.NotificationIntentState.Ready));
         var item = Assert.Single((await Alerts(s.User)).Items); Assert.Equal(reminder.Id, item.SourceId); Assert.True(item.SoundEnabled);
         await Set(s.User, new(SoundEnabled: false)); var silent = await Alerts(s.User); Assert.Equal(1, silent.PreferencesVersion); Assert.False(Assert.Single(silent.Items).SoundEnabled);
         await Set(s.User, new(Custom: false)); Assert.Empty((await Alerts(s.User)).Items);
         await Set(s.User, new(Enabled: false)); Assert.Empty((await Alerts(s.User)).Items);
-        // Testte İstanbul'da saat 09:01. Ready kaydolmuş olsa da sessiz saat geçerli.
+        // Testte İstanbul'da saat 09:01. Ready kaydolmuş olsa da sessiz saat geçerli
         await Set(s.User, new(QuietStart: new(8, 0), QuietEnd: new(10, 0))); var quiet = await Alerts(s.User); Assert.Equal(4, quiet.PreferencesVersion); Assert.Empty(quiet.Items);
         await Set(s.User, new()); Assert.Single((await Alerts(s.User)).Items);
         await using var db = s.Context(); Assert.Equal(2, await db.NotificationIntents.CountAsync(x => x.State == Adhd.Domain.Jobs.NotificationIntentState.Ready));
-        Assert.Equal(0, await db.NotificationIntents.CountAsync(x => x.ReadAt != null)); // Uyarıları okumak geçmişteki kaydı değiştirmez.
+        Assert.Equal(0, await db.NotificationIntents.CountAsync(x => x.ReadAt != null)); // Uyarıları okumak geçmişteki kaydı değiştirmez
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public sealed class NotificationAlertTests
         var remaining = await Alerts(s.User, "?limit=1&cursor=" + first.NextCursor); Assert.Single(remaining.Items); Assert.Null(remaining.NextCursor);
         Assert.Equal(0, first.PreferencesVersion); Assert.Equal(1, remaining.PreferencesVersion); Assert.False(remaining.Items[0].SoundEnabled);
         Assert.Equal(due, remaining.Items[0].OccurredAt); Assert.Equal(3, (await Alerts(s.User)).Items.Length);
-        // Alarm Ready olduktan sonra görev gizlenebilir. Görevin şu an görünür olup olmadığına bak.
+        // Alarm Ready olduktan sonra görev gizlenebilir. Görevin şu an görünür olup olmadığına bak
         var task = await s.User.Root();
         await ManualPlanningTests.Send(s.User, HttpMethod.Post, "/api/notifications/reminders", new { title = "Task alert", taskId = task.Id, dueAt = s.App.Clock.Now.AddSeconds(1) });
         s.App.Clock.Now = s.App.Clock.Now.AddSeconds(1); await s.Pump(); Assert.Contains((await Alerts(s.User)).Items, x => x.TaskId == task.Id);
@@ -88,7 +88,7 @@ public sealed class NotificationAlertTests
         await using (var stale = s.Context()) await stale.NotificationIntents.Where(x => x.Id == item.Id).ExecuteUpdateAsync(x => x.SetProperty(n => n.State, Adhd.Domain.Jobs.NotificationIntentState.Ready));
         var filtered = await Alerts(s.User, "?limit=1"); Assert.Empty(filtered.Items); Assert.NotNull(filtered.NextCursor);
         Assert.Single((await Alerts(s.User, "?limit=1&cursor=" + filtered.NextCursor)).Items);
-        // Son tarih ileride olsa da uyarı occurredAt eksi LeadSeconds anında uygun olur.
+        // Son tarih ileride olsa da uyarı occurredAt eksi LeadSeconds anında uygun olur
         var task = await s.User.Root();
         await using var db = s.Context(); var row = await db.Tasks.SingleAsync(x => x.Id == task.Id); row.DeadlineAt = due.AddMinutes(1);
         var intent = new Adhd.Domain.Jobs.NotificationIntent { Id = Guid.CreateVersion7(), UserId = s.User.UserId, Kind = "TaskDeadline", SourceId = task.Id, TaskId = task.Id, SourceKey = $"alert-deadline:{task.Id}", SourceVersion = row.Version, OccurredAt = row.DeadlineAt.Value, CreatedAt = due, ReadyAt = due, State = Adhd.Domain.Jobs.NotificationIntentState.Ready };

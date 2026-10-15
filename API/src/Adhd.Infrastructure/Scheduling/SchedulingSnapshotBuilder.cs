@@ -40,7 +40,7 @@ internal sealed class SchedulingSnapshotBuilder(PlannerDbContext db, IPreference
         if (request.TaskIds.Any(id => nodes.All(x => x.Id != id))) throw new UseCaseException(ErrorKind.NotFound, "task_not_found", "Görev bulunamadı.");
         var dependencies = await db.TaskDependencies.AsNoTracking().Where(x => x.UserId == userId).OrderBy(x => x.PredecessorTaskId).ThenBy(x => x.SuccessorTaskId).Select(x => new SchedulingDependency(x.PredecessorTaskId, x.SuccessorTaskId)).ToArrayAsync(ct);
         var ordering = await db.TaskOrderingPreferences.AsNoTracking().Where(x => x.UserId == userId).OrderBy(x => x.BeforeTaskId).ThenBy(x => x.AfterTaskId).Select(x => new SchedulingOrder(x.BeforeTaskId, x.AfterTaskId)).ToArrayAsync(ct);
-        // Eski çalışma parçalarını yüklemeden epoch'u PostgreSQL'de mikrosaniye hassasiyetinde hesapla.
+        // Eski çalışma parçalarını yüklemeden epoch'u PostgreSQL'de mikrosaniye hassasiyetinde hesapla
         var totals = await db.Database.SqlQuery<ActualRollup>($"""
             SELECT ws."TaskId", SUM(EXTRACT(EPOCH FROM (COALESCE(s."EndedAt", {now}) - s."StartedAt")))::numeric AS "Seconds",
                 bool_or(COALESCE(s."EndedAt", s."StartedAt") > {now}) AS "ClockConflict"
@@ -77,8 +77,8 @@ internal sealed class SchedulingSnapshotBuilder(PlannerDbContext db, IPreference
             var available = WorkTime.Seconds(now, dayEnd); var future = remaining is > 0 ? Math.Min(remaining.Value, available) : available;
             var expectedEnd = now.AddTicks((long)(future * TimeSpan.TicksPerSecond));
             var i = existing.FindIndex(x => x.ExistingScheduleId == active.StartedScheduleId && x.TaskId == taskId);
-            // Önceki yeniden planlama, ilk başta plansız başlayan sayacı plana eklemiş olabilir.
-            // Mevcut bloğu kullan. Oturuma geriye dönük başlangıç veya revizyon bağı ekleme
+            // Önceki yeniden planlama, ilk başta plansız başlayan sayacı plana eklemiş olabilir
+            // Mevcut bloğu kullan. Oturuma geriye dönük başlangıç veya revizyon bağı ekleme.
             if (i < 0) i = existing.FindIndex(x => x.TaskId == taskId && x.IsAutomatic && !x.IsFixed && !x.IsLocked && x.StartsAt <= now && x.EndsAt > now);
             if (i >= 0)
             {
@@ -88,7 +88,7 @@ internal sealed class SchedulingSnapshotBuilder(PlannerDbContext db, IPreference
             }
             else existing.Add(new(null, taskId, ScheduleKind.Work, segmentStart > dayStart ? segmentStart : dayStart, expectedEnd, IsActive: true, IsAutomatic: true));
         }
-        // Çalışma dışı özel gün kapasiteyi boşaltır. Tarih ayarı öncelikli, mevcut bloklar yerinde kalır.
+        // Çalışma dışı özel gün kapasiteyi boşaltır. Tarih ayarı öncelikli, mevcut bloklar yerinde kalır
         var nonWorking = !prefs.Values.Exceptions.Any(x => x.Date == request.Date) && await Adhd.Infrastructure.SpecialDays.SpecialDayStore.IsNonWorkingAsync(db, userId, request.Date, ct);
         var windows = nonWorking ? ImmutableArray<SchedulingWindow>.Empty
             : WorkingCalendar.UtcIntervals(prefs.Values with { TimeZoneId = zone }, request.Date).Select(x => new SchedulingWindow(x.StartsAt, x.EndsAt)).ToImmutableArray();
@@ -96,7 +96,7 @@ internal sealed class SchedulingSnapshotBuilder(PlannerDbContext db, IPreference
         var snapshot = new SchedulingSnapshot(request.Date, zone, now, version, tasks.ToImmutableArray(), dependencies.ToImmutableArray(), ordering.ToImmutableArray(), windows,
             existing.ToImmutableArray(), new(prefs.Values.MinimumSplitSeconds, prefs.Values.TransitionSeconds), busy,
             outside.Where(x => x.Kind == ScheduleKind.Work).Select(x => new SchedulingBlock(x.Id, x.TaskId, x.Kind, x.StartsAt, x.EndsAt, x.IsFixed, x.IsLocked, IsAutomatic: x.IsAutomatic)).ToImmutableArray(), support?.AvailableEnergy);
-        // Dakika sınırına yuvarla ki önizleme ve ağ gecikmesi yeni başlangıcı kaçırmasın.
+        // Dakika sınırına yuvarla ki önizleme ve ağ gecikmesi yeni başlangıcı kaçırmasın
         var leadTicks = now.AddSeconds(30).UtcTicks; var minute = TimeSpan.TicksPerMinute;
         var lead = request.NewWorkNotBefore is { } requestedLead ? new DateTimeOffset(requestedLead.UtcTicks / 10 * 10, TimeSpan.Zero) : new DateTimeOffset((leadTicks + minute - 1) / minute * minute, TimeSpan.Zero);
         return new(snapshot, new(request.TaskIds.Order().ToImmutableArray(), NewWorkNotBefore: lead), current.Select(RevisionWriter.View).ToArray(), plan?.Id, plan?.Version ?? 0,

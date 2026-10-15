@@ -6,8 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Planning;
 
-// Saatsiz öğeleri kapasite, çakışma, motor ve hatırlatmaya katma. Her değişiklik
-// sürümü artırır ve geçmişten geri alınabilir. Öğeyi bitirmek görevi bitirmez.
+// Saatsiz gün öğeleri kapasite, çakışma, motor veya hatırlatmaya girmez. Değişiklik geri alınabilir plan geçmişine yazılır ve sürümü ilerletir. Plan öğesini bitirmek görevi değiştirmez.
 public sealed partial class PlanningStore
 {
     public async Task<DayItemPage> DayItemsAsync(Guid userId, DateOnly date, int offset, int limit, CancellationToken ct)
@@ -30,7 +29,7 @@ public sealed partial class PlanningStore
         int order;
         if (placement == DayItemPlacement.First)
         {
-            // Yarının ilk işini en üste koy. Diğer işlerin sırası aynı kalsın.
+            // Yarının ilk işini en üste koy. Diğer işlerin sırası aynı kalsın
             await db.DayItems.Where(x => x.UserId == userId && x.LocalDate == date).ExecuteUpdateAsync(s => s.SetProperty(x => x.SortOrder, x => x.SortOrder + 1), ct);
             order = 0;
         }
@@ -70,7 +69,7 @@ public sealed partial class PlanningStore
         await tx.CommitAsync(ct);
         return await Read(userId, item.Id, ct) with { ChangeSetId = changeSet, PlanningVersion = state.PlanningVersion };
     }
-    // UI-R3 "Bugünü hafiflet": several untimed items of one day move together in one undoable change set.
+    // Bugünü hafiflet aynı günün saatsiz öğelerini tek geri alınabilir grupta taşır.
     public async Task<DayItemBatchResult> MoveDayItemsAsync(Guid userId, DateOnly date, DayItemMoveEntry[] items, DateOnly targetDate, CancellationToken ct)
     {
         ValidateDate(date); ValidateDate(targetDate);
@@ -87,10 +86,7 @@ public sealed partial class PlanningStore
         var views = new List<DayItemView>(); foreach (var item in moved) views.Add(await Read(userId, item.Id, ct));
         return new(changeSet, state.PlanningVersion, views.ToArray());
     }
-    // Son saatsiz değişikliği geri al.
-    // Etkilenen gün veya öğe sonradan
-    // değiştiyse ya da işlem
-    // zaten geri alındıysa reddet.
+    // Son gün öğesi değişikliği tam tersine alınır, saatsiz öğede kapasite/çakışma önizlemesi yok. Etkilenen gün veya öğe sonra değiştiyse ya da zaten geri alındıysa reddedilir.
     public async Task<DayItemBatchResult> UndoDayItemsAsync(Guid userId, Guid changeSetId, long expectedPlanningVersion, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct); CheckVersion(state, expectedPlanningVersion);
@@ -118,7 +114,7 @@ public sealed partial class PlanningStore
         }
         if (changes.Any(x => x.DayItemId is null)) throw Conflict("undo_use_schedule", "Saatli plan değişikliğini plan geçmişinden geri al.");
         var now = clock.GetUtcNow(); var deltas = new List<DayDelta>(); var touched = new Dictionary<Guid, DayItem>();
-        // Taşıma her gün için bir değişiklik yazar. Öğeyi bir kez, en eski haline döndür.
+        // Taşıma her gün için bir değişiklik yazar. Öğeyi bir kez, en eski haline döndür
         foreach (var group in changes.GroupBy(x => x.DayItemId!.Value))
         {
             var item = await db.DayItems.SingleAsync(x => x.UserId == userId && x.Id == group.Key, ct);
@@ -152,7 +148,7 @@ public sealed partial class PlanningStore
             throw Conflict("day_item_exists", "Bu görev hedef günün planında zaten var.");
         var before = RevisionWriter.Snapshot(item); var from = await Plan(userId, item.LocalDate, null, ct); var to = await Plan(userId, targetDate, null, ct);
         var order = await db.DayItems.Where(x => x.UserId == userId && x.LocalDate == targetDate).MaxAsync(x => (int?)x.SortOrder, ct) ?? -1;
-        // Aynı gruptaki taşınmış öğeler henüz DB'de yok. Sıra numaraları birbirine girmesin
+        // Aynı gruptaki taşınmış öğeler henüz DB'de yok. Sıra numaraları birbirine girmesin.
         order = Math.Max(order, db.ChangeTracker.Entries<DayItem>().Where(x => x.Entity.UserId == userId && x.Entity.LocalDate == targetDate).Select(x => x.Entity.SortOrder).DefaultIfEmpty(-1).Max());
         if (item.StartsAt is {} start) {
             var fromZone = TimeZoneInfo.FindSystemTimeZoneById(from.TimeZoneId);
@@ -162,7 +158,7 @@ public sealed partial class PlanningStore
         item.LocalDate = targetDate; item.SortOrder = order + 1; item.CompletedAt = null; item.Version++; item.UpdatedAt = now;
         return [new(item, before, "DayItemMovedOut", from.Id), new(item, before, "DayItemMovedIn", to.Id)];
     }
-    // Değişen her gün için bir revizyon yaz ve plan sürümünü artır.
+    // Etkilenen gün başına tek plan revizyonu yazar, plan sürümünü ilerletir.
     private async Task<Guid> History(Guid userId, Adhd.Domain.Users.UserPlanningState state, IReadOnlyCollection<DayDelta> deltas, DateTimeOffset now, string reason, Guid? reverses, CancellationToken ct)
     {
         var changeSet = Guid.CreateVersion7();
@@ -171,7 +167,7 @@ public sealed partial class PlanningStore
         await db.SaveChangesAsync(ct);
         return changeSet;
     }
-    // Saatli öğeyi bitir ya da tekrar aç. Gece yarısını geçen bloğun parçaları birlikte değişir.
+    // Saatli öğeyi bitmiş veya açık yapar. Gece yarısını geçen bloğun parçaları aynı gruptadır, birlikte değişir.
     public async Task<ScheduleCompletion> CompleteScheduleAsync(Guid userId, Guid id, long version, bool complete, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct); await Lock(userId, ct);
@@ -213,7 +209,7 @@ public sealed partial class PlanningStore
         if (!task.HasDirectWork || task.DirectWorkCompleted || task.ArchivedAt is not null || task.State is not (TaskState.Pending or TaskState.InProgress or TaskState.Paused))
             throw Conflict("task_not_plannable", "Yalnız açık doğrudan işi planlayabilirsiniz.");
     }
-    // EF filtre ve sıralamayı çevirebilsin diye burada kurucu yerine alanları doldur
+    // EF filtre ve sıralamayı çevirebilsin diye burada kurucu yerine alanları doldur.
     private sealed class Row { public required DayItem Item { get; init; } public required TaskItem Task { get; init; } public TaskItem? Parent { get; init; } }
     private IQueryable<Row> Visible(Guid userId) =>
         from item in db.DayItems.AsNoTracking()

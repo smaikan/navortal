@@ -110,6 +110,6 @@ public sealed class ReadApiCostTests(DatabaseFixture fixture) : IClassFixture<Da
 
 
 
-// Süre ve bellek ölçümü başka test trafiğine karışmasın. Paralellik testleri Task.WhenAll kullanıyor.
+// Süre ve bellek ölçümü başka test trafiğine karışmasın. Paralellik testleri Task.WhenAll kullanıyor
 [CollectionDefinition("ReadApiPerformance", DisableParallelization = true)]
 public sealed class ReadApiPerformanceCollection { }

@@ -15,7 +15,7 @@ public sealed record NoteView(Guid Id, NoteKind Kind, string Text, Guid? TaskId,
     DateTimeOffset? DueAt, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, DateTimeOffset? DeletedAt, Guid? ConvertedTaskId, long Version,
     string? Title, Guid? CategoryId, NoteDisplay Display, string? TaskTitle);
 public sealed record NotePage(NoteView[] Items, int Offset, int Limit, int Total);
-// Görünüm null gelirse yalnız metin ve tarih değişir. Başlık, kategori ve görünüm kalır.
+// Görünüm null ise başlık/kategori/görünüm korunur, yalnız metin/tarih değişebilir. Diğer değerler üçünü de değiştirir.
 public sealed record NoteEdit(long Version, string Text, DateTimeOffset? DueAt, NoteDisplay? Display = null, string? Title = null, Guid? CategoryId = null);
 public sealed record NoteQuery(Guid? TaskId = null, NoteKind? Kind = null, DateOnly? Date = null, Guid? CategoryId = null, bool TaskLinked = false,
     bool ExcludePinned = false, string? Search = null, int Offset = 0, int Limit = 50);

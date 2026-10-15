@@ -21,7 +21,7 @@ public sealed record EstimateSuggestionSample(Guid TaskId, string Title, DateTim
 public sealed record EstimateSuggestionView(Guid TaskId, DateOnly FromDate, DateOnly ToDate, string ComparisonContext, Guid? ContextId,
     int SampleCount, int ExcludedWithoutWorkCount, int ExcludedUnknownZoneCount, decimal? SuggestedSeconds, string? UnavailableReason, string Method, bool Applied, int SampleLimit,
     EstimateSuggestionSample[] Samples, DateTimeOffset ServerNow);
-// Kendi tahmini ve çalışma kaydı olan bitmiş görevlerde gerçekleşen süreyi tahmine böl. Sadece okuma.
+// Kendi tahmini ve gerçek çalışması olan bitmiş görevlerin gerçek/tahmin oranı. Salt okunur, otomatik uygulanmaz.
 public sealed record EstimateAccuracyView(DateOnly FromDate, DateOnly ToDate, int SampleCount, int ExcludedWithoutWorkCount,
     decimal? MedianRatio, decimal? P25Ratio, decimal? P75Ratio, string? UnavailableReason, int MinimumSamples, DateTimeOffset ServerNow);
 public interface IPlanAnalyticsStore

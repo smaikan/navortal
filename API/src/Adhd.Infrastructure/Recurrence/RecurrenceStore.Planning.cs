@@ -12,7 +12,7 @@ namespace Adhd.Infrastructure.Recurrence;
 public sealed partial class RecurrenceStore
 {
     // Rutin üreten işlemin hesap kilidiyle çalışır. Daha önceki plan bağları, kaldırılmış olsa bile,
-    // kullanıcı kararıdır. Sonraki tarama bunları geri getirmesin.
+    // kullanıcı kararıdır. Sonraki tarama bunları geri getirmesin
     private async Task<int> AddAutomaticPlans(Guid userId, RecurrenceOccurrence[] occurrences, RecurrenceDefinition[] definitions, long inputVersion, DateTimeOffset now, CancellationToken ct)
     {
         occurrences=occurrences.Where(x=>Applicable(definitions,x.LocalDate) is {} definition && Read<RecurrenceRule>(definition.Rule).AutoAddToPlan).ToArray();

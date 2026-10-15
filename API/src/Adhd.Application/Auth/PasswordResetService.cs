@@ -44,7 +44,7 @@ public sealed class PasswordResetService(IUserStore users, IPasswordResetStore r
         var user = await resets.FindUserAsync(hash, now, ct);
         if (user?.PasswordHash is null || !await resets.ConsumeAsync(user.Id, hash, passwords.Hash(user, newPassword), now, ct))
             throw new UseCaseException(ErrorKind.Validation, "reset_invalid", "Şifre sıfırlama bağlantısı geçersiz veya süresi dolmuş.");
-        // Parola değişince eski token kopyaları dahil bütün girişleri kapat.
+        // Parola değişince eski token kopyaları dahil bütün girişleri kapat
         await sessions.RevokeAllAsync(user.Id, now, ct);
     }
     public static string Hash(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));

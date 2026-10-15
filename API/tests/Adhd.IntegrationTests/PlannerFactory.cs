@@ -18,7 +18,7 @@ public sealed class PlannerFactory : WebApplicationFactory<Program>
     public PlannerFactory(string connection, Action<IServiceCollection>? configure = null, bool runJobs = false)
     {
         this.connection = connection; this.configure = configure; this.runJobs = runJobs;
-        // API testleri Bearer ile girer. Cookie testi kendi cookie kabını açar
+        // API testleri Bearer ile girer. Cookie testi kendi cookie kabını açar.
         ClientOptions.HandleCookies = false;
     }
     public static string SigningKey { get; } = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));

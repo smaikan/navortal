@@ -14,7 +14,7 @@ public sealed record RevisionView(Guid Id, Guid DailyPlanId, long Number, Guid? 
 public sealed record RevisionPage(RevisionView[] Items, int Offset, int Limit, int Total);
 public sealed record RevisionItemView(Guid Id, Guid RevisionId, ScheduleView Schedule);
 public sealed record RevisionItemPage(RevisionItemView[] Items, int Offset, int Limit, int Total);
-// Saatli ScheduleId veya saatsiz DayItemId, ikisinden biri dolu. Önceki ve sonraki değerleri ona göre kullan.
+// Tam bir hedef seçilir: saatli ScheduleId veya saatsiz DayItemId. Öncesi/sonrası kendi alanlarını kullanır. Bkz. ScheduleId DayItemId
 public sealed record RevisionChangeView(Guid Id, Guid? ScheduleId, string Type, ScheduleView? Before, ScheduleView? After, bool ConflictsAccepted,
     Guid? DayItemId = null, DayItemSnapshot? DayItemBefore = null, DayItemSnapshot? DayItemAfter = null);
 public sealed record RevisionChangePage(RevisionChangeView[] Items, int Offset, int Limit, int Total);

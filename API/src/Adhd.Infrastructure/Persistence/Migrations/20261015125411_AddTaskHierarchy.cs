@@ -39,7 +39,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                 type: "bigint",
                 nullable: true);
 
-            // Eski kök görevler aynı işi görsün ve aynı sırada kalsın.
+            // Eski kök görevler aynı işi görsün ve aynı sırada kalsın
             migrationBuilder.Sql("""
                 WITH positions AS (
                     SELECT "Id", row_number() OVER (PARTITION BY "UserId" ORDER BY "CreatedAt", "Id") * 1024 AS position

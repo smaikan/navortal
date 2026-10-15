@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Yalnız bu testin izole imaj önbelleğini temizle. Varsayılan Docker'a dokunma.
+# Yalnız bu testin izole imaj önbelleğini temizle. Varsayılan Docker'a dokunma
 set -euo pipefail
 state=/var/tmp/adhd-mvp29-docker
 [[ "$(realpath "$state")" == /var/tmp/adhd-mvp29-docker && -f "$state/managed-by-adhd-mvp29" ]] || exit 2

@@ -55,7 +55,7 @@ public sealed class PlanRevisionItem
     public Guid ScheduleId { get; set; }
     public string Snapshot { get; set; } = "{}";
 }
-// Plan değişikliği ya saatli ScheduleId ya da saatsiz DayItemId için yapılır.
+// Plan değişikliği tam bir saatli veya saatsiz öğeyi hedefler. Bkz. ScheduleId DayItemId
 public sealed class PlanRevisionChange
 {
     public Guid Id { get; set; }
@@ -68,7 +68,7 @@ public sealed class PlanRevisionChange
     public string? After { get; set; }
     public bool ConflictsAccepted { get; set; }
 }
-// Revizyonun saatsiz öğeleri. Saatli bloklar PlanRevisionItem içinde kalır.
+// Revizyonun saatsiz gün öğeleri. Saatliler PlanRevisionItem içinde kalır. Bkz. PlanRevisionItem
 public sealed class PlanRevisionDayItem
 {
     public Guid Id { get; set; }
@@ -77,9 +77,7 @@ public sealed class PlanRevisionDayItem
     public Guid DayItemId { get; set; }
     public string Snapshot { get; set; } = "{}";
 }
-// Saatsiz iş kapasite, çakışma, motor veya hatırlatmaya
-// girmez. Saat verilirse normal bloğa döner. Değişikliği
-// sürümle geçmişe yaz ve geri alınabilir tut.
+// Kullanıcının bir güne saatsiz koyduğu görev. Kapasite, çakışma, motor veya hatırlatmaya girmez. Saat verilince normal TaskSchedule olur. Değişiklikler geri alınabilir geçmişe yazılır ve plan sürümünü ilerletir. Bkz. TaskSchedule
 public enum DayItemState { Planned, Removed, Scheduled }
 public sealed class DayItem
 {
@@ -93,7 +91,7 @@ public sealed class DayItem
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public long Version { get; set; } = 1;
-    // Saat verilince açılan blok. Geçmişte aynı öğeyi bulmak için bu kimlik tutulur.
+    // Öğenin dönüştüğü saatli blok. Scheduled durumunda geçmiş kimliği bağını korur.
     public Guid? ScheduleId { get; set; }
     public DateTimeOffset? StartsAt { get; set; }
     public DateTimeOffset? EndsAt { get; set; }

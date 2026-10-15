@@ -45,7 +45,7 @@ public sealed class PushDeliveryTests
         var sender = new FakePush(); await using var s = await JobScenario.Create(services => { services.RemoveAll<IPushTransport>(); services.AddSingleton<IPushTransport>(sender); services.PostConfigure<PushSettings>(EnableTransport); });
         await Enable(s.User); await s.User.Client.PostAsJsonAsync("/api/notifications/subscriptions", NotificationTests.Subscription("https://push.example.test/b"));
         var at = s.App.Clock.Now.AddMinutes(1); var reminder = await TaskScenario.Read<CustomReminderView>(await ManualPlanningTests.Send(s.User, HttpMethod.Post, "/api/notifications/reminders", new { title = "Soon", dueAt = at }));
-        s.App.Clock.Now = at; var claims = await s.Claim(); foreach (var c in claims) await s.Effect(c); // Ready teslim satırını kaydetti. Kuyruk henüz bildirimi göndermedi
+        s.App.Clock.Now = at; var claims = await s.Claim(); foreach (var c in claims) await s.Effect(c); // Ready teslim satırını kaydetti. Kuyruk henüz bildirimi göndermedi.
         await s.User.Client.PostAsJsonAsync($"/api/notifications/reminders/{reminder.Id}/cancel", new { version = reminder.Version }); await s.Pump(); Assert.Empty(sender.Sent);
         await using var db = s.Context(); Assert.Equal(DeliveryState.Obsolete, (await db.PushDeliveries.SingleAsync()).State);
     }

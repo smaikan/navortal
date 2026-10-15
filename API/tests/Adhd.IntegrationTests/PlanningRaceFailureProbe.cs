@@ -5,7 +5,7 @@ using Npgsql;
 
 namespace Adhd.IntegrationTests;
 
-// Aralıklı 500'ün nedenini tut. SQL, hata metni, başlık ve kimlik bilgisi loga girmesin
+// Aralıklı 500'ün nedenini tut. SQL, hata metni, başlık ve kimlik bilgisi loga girmesin.
 internal sealed class PlanningRaceFailureProbe : IExceptionHandler
 {
     internal ConcurrentQueue<string> Failures { get; } = new();

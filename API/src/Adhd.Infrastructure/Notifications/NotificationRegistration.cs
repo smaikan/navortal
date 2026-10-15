@@ -13,7 +13,7 @@ public static class NotificationRegistration
         services.AddOptions<PushSettings>().Bind(config.GetSection("Push")).ValidateOnStart();
         services.AddScoped<INotificationStore, NotificationStore>(); services.AddScoped<INotificationJobs, NotificationJobs>();
         services.AddScoped<Adhd.Application.Sync.ISyncStore, SyncStore>();
-        // Ortak HTTP istemcisi istek logu tutmaz. Push adresi ve bilgileri loga girmesin.
+        // Ortak HTTP istemcisi istek logu tutmaz. Push adresi ve bilgileri loga girmesin
         services.AddSingleton<IPushTransport>(s => new WebPushTransport(new HttpClient(new SocketsHttpHandler
         { AllowAutoRedirect = false, UseProxy = false, ConnectCallback = PushEndpoints.Connect, PooledConnectionLifetime = TimeSpan.FromMinutes(5) })
         { Timeout = TimeSpan.FromSeconds(15) }, s.GetRequiredService<Microsoft.Extensions.Options.IOptions<PushSettings>>()));

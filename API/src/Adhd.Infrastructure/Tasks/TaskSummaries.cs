@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Tasks;
 
-// Hesabın açık ağacını bir kez gez. Çocuk sayısını, bilinen tahmini ve etkin gün aralığını al.
+// Hesabın açık ağacında tek geçişle çocuk sayısı, bilinen alt tahmin ve etkin gün aralığı.
 internal static class TaskSummaries
 {
     internal static async Task<TreeRowSummary[]> Build(PlannerDbContext db, Guid userId, Guid[] ids, CancellationToken ct)

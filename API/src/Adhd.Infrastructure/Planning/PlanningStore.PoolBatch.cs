@@ -71,7 +71,7 @@ public sealed partial class PlanningStore
         return new(result, false);
     }
 
-    // Çağıranın plan kilidi ve işlemiyle devam et. Geri alma eski kaydı ezmek yerine yeni revizyon yazar.
+    // Çağıranın plan kilidi ve işlemiyle devam et. Geri alma eski kaydı ezmek yerine yeni revizyon yazar
     private async Task<DayItemBatchResult> UndoPoolBatch(Guid userId, Guid original, UserPlanningState state, PlanRevision[] revisions, PlanRevisionChange[] changes, CancellationToken ct)
     {
         var events = await db.TaskEvents.FromSqlInterpolated($"SELECT * FROM task_events WHERE \"UserId\"={userId} AND \"Type\"='ReturnedToPoolBatch' AND \"Payload\"->'data'->>'changeSetId'={original.ToString()}").AsNoTracking().Take(51).ToArrayAsync(ct);

@@ -26,7 +26,7 @@ public sealed class RealtimeTests
         var logs = new CapturedLogs(); await using var s = await JobScenario.Create(services => services.AddSingleton<ILoggerProvider>(logs));
         var b = await TaskScenario.User(s.App); var token = s.User.Client.DefaultRequestHeaders.Authorization!.Parameter!;
         using var aSocket = await Connect(s.App, token); using var bSocket = await Connect(s.App, b.Client.DefaultRequestHeaders.Authorization!.Parameter!);
-        // İstemci JoinGroup çağıramaz. Başka hesabın grup adını bilmek yetki vermez.
+        // İstemci JoinGroup çağıramaz. Başka hesabın grup adını bilmek yetki vermez
         await Send(bSocket, new { type = 1, invocationId = "join", target = "JoinGroup", arguments = new[] { $"user:{s.User.UserId:D}" } });
         var rejected = await Receive(bSocket); Assert.Equal(3, rejected.GetProperty("type").GetInt32()); Assert.True(rejected.TryGetProperty("error", out _));
         var aTask = await s.User.Root("Private A title"); await s.Pump(); var aChange = await Receive(aSocket); Assert.Equal(aTask.Id, aChange.GetProperty("arguments")[0].GetProperty("sourceId").GetGuid()); Assert.DoesNotContain("Private A", aChange.GetRawText());
@@ -42,14 +42,14 @@ public sealed class RealtimeTests
     {
         await using var s = await JobScenario.Create(); var c = s.App.Server.CreateWebSocketClient();
         await Assert.ThrowsAnyAsync<Exception>(() => c.ConnectAsync(new Uri("ws://localhost/api/hubs/planner?access_token=invalid"), default));
-        // Sorguda geçerli token bile olsa kullanma. Sorgudan giriş yapılmıyor.
+        // Sorguda geçerli token bile olsa kullanma. Sorgudan giriş yapılmıyor
         var s2 = await TaskScenario.User(s.App); var valid = s2.Client.DefaultRequestHeaders.Authorization!.Parameter!;
         await Assert.ThrowsAnyAsync<Exception>(() => c.ConnectAsync(new Uri($"ws://localhost/api/hubs/planner?access_token={Uri.EscapeDataString(valid)}"), default));
         await Assert.ThrowsAnyAsync<Exception>(() => c.ConnectAsync(new Uri("ws://localhost/api/hubs/planner"), default));
     }
     private static async Task<WebSocket> Connect(PlannerFactory app, string token)
     {
-        // Tarayıcı hub'a HttpOnly cookie ile girer. Tokenı URL'ye koyma
+        // Tarayıcı hub'a HttpOnly cookie ile girer. Tokenı URL'ye koyma.
         var client = app.Server.CreateWebSocketClient(); client.ConfigureRequest = r => r.Headers.Cookie = $"adhd_session={token}";
         var socket = await client.ConnectAsync(new Uri("ws://localhost/api/hubs/planner"), default);
         await Send(socket, new { protocol = "json", version = 1 }); var handshake = await Receive(socket); Assert.Equal("{}", handshake.GetRawText()); return socket;

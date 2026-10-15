@@ -19,7 +19,7 @@ public sealed class AuthTests(DatabaseFixture fixture) : IClassFixture<DatabaseF
     {
         var response = await client.PostAsJsonAsync("/api/auth/register", new { email, password = Password, displayName = "Test Reader" });
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        // Kayıt HttpOnly cookie kurar. Tarayıcı dışı istemci için gövdede token durur
+        // Kayıt HttpOnly cookie kurar. Tarayıcı dışı istemci için gövdede token durur.
         Assert.Contains("httponly", Assert.Single(response.Headers.GetValues("Set-Cookie")), StringComparison.OrdinalIgnoreCase);
         return (await response.Content.ReadFromJsonAsync<AuthResponse>())!;
     }
@@ -112,7 +112,7 @@ public sealed class AuthTests(DatabaseFixture fixture) : IClassFixture<DatabaseF
     [Fact]
     public async Task LogoutRevokesTheSessionIncludingACopyOfTheToken()
     {
-        // Çıkış artık sunucudaki oturumu da kapatıyor
+        // Çıkış artık sunucudaki oturumu da kapatıyor.
         await using var app = new PlannerFactory(fixture.ConnectionString);
         var client = app.CreateClient();
         var auth = await Register(client, Email());

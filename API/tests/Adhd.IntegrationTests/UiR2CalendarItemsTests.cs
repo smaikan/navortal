@@ -6,7 +6,7 @@ using Adhd.Domain.Tasks;
 
 namespace Adhd.IntegrationTests;
 
-// Her günün planını üst ve kök görevle, hesaba göre filtreli ve sayfalı oku.
+// Takvimde günün mevcut planı üst/kök görevle, hesaba özel ve sınırlı sayfalı gelir.
 public sealed class UiR2CalendarItemsTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private static readonly DateTimeOffset Morning = new(2026, 10, 15, 6, 0, 0, TimeSpan.Zero);
@@ -38,7 +38,7 @@ public sealed class UiR2CalendarItemsTests(DatabaseFixture fixture) : IClassFixt
         var loose = page.Items[2];
         Assert.Equal((CalendarItemKind.Untimed, (Guid?)null, walk.Id, "Yürüyüş"), (loose.Kind, loose.ParentTaskId, loose.RootTaskId, loose.RootTitle));
         Assert.Null(loose.StartsAt); Assert.Equal(Today.AddDays(1), page.Items[3].LocalDate);
-        // Plan öğesinin bitmiş hali taşınır. Görev açık kalır.
+        // Plan öğesinin bitmiş hali taşınır. Görev açık kalır
         var block = early.Schedules[0];
         Assert.Equal(HttpStatusCode.OK, (await s.Client.PostAsJsonAsync($"/api/schedules/{block.Id}/complete", new { version = block.Version })).StatusCode);
         var after = await Items(s, Today, Today);

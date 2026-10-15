@@ -54,7 +54,7 @@ public sealed class UiR3PoolBatchTests(DatabaseFixture fixture) : IClassFixture<
         Assert.Equal(ScheduleState.Planned, (await db.TaskSchedules.AsNoTracking().SingleAsync(x => x.Id == block.Id)).State);
         Assert.Equal(baseline, (await Day(s, new(2026, 10, 16))).BaselineRevisionId);
         Assert.Equal(result.ChangeSetId, (await TaskScenario.Read<PlanMutation>(await Send(s, HttpMethod.Post, Path, body, key))).ChangeSetId);
-        Assert.Null((await s.Get(a.Id)).PoolId); // Tekrarda makbuzu döndür. Geri alınmış işi tekrar uygulama.
+        Assert.Null((await s.Get(a.Id)).PoolId); // Tekrarda makbuzu döndür. Geri alınmış işi tekrar uygulama
         Assert.Equal(2, await db.TaskEvents.CountAsync(x => x.UserId == s.UserId && x.Type == "ReturnedToPoolBatch"));
         Assert.Equal(2, await db.TaskEvents.CountAsync(x => x.UserId == s.UserId && x.Type == "PoolReturnUndone"));
         Assert.Single(await db.WorkSessions.Where(x => x.UserId == s.UserId).ToArrayAsync());

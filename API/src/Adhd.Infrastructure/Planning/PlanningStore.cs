@@ -84,7 +84,7 @@ public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore
     private async Task<DailyPlan> Plan(Guid userId, DateOnly date, string? zone, CancellationToken ct)
     {
         ValidateDate(date);
-        // Aynı gün kayıt öncesi iki kez istenebilir. Bellekte eklenmiş plan varsa onu kullan.
+        // Aynı gün kayıt öncesi iki kez istenebilir. Bellekte eklenmiş plan varsa onu kullan
         var plan = db.DailyPlans.Local.FirstOrDefault(x => x.UserId == userId && x.LocalDate == date)
             ?? await db.DailyPlans.SingleOrDefaultAsync(x => x.UserId == userId && x.LocalDate == date, ct);
         if (plan is not null) { if (zone is not null && plan.TimeZoneId != zone) throw Conflict("plan_zone_conflict", "Günlerin kayıtlı zaman dilimleri farklı; ayrı planlayın."); return plan; }

@@ -68,7 +68,7 @@ public static class NotificationPolicy
         if (!inside) return null;
         var date = DateOnly.FromDateTime(local.DateTime); if (start > end && time >= start) date = date.AddDays(1);
         var wall = date.ToDateTime(end, DateTimeKind.Unspecified);
-        // Sessiz saat bitişi yaz saati geçişinde yoksa sonraki geçerli dakikayı al. İki kez olursa geç olanı seç.
+        // Sessiz saat bitişi yaz saati geçişinde yoksa sonraki geçerli dakikayı al. İki kez olursa geç olanı seç
         for (var i = 0; zone.IsInvalidTime(wall) && i < 180; i++) wall = wall.AddMinutes(1);
         var offset = zone.IsAmbiguousTime(wall) ? zone.GetAmbiguousTimeOffsets(wall).Min() : zone.GetUtcOffset(wall);
         return new DateTimeOffset(wall, offset).ToUniversalTime();

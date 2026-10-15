@@ -3,7 +3,7 @@ using Adhd.Application.Sync;
 
 namespace Adhd.Application.Planning;
 
-// Tek hesap görüntüsünden ilk sayfaları ve günün tam toplamlarını al.
+// Tek hesap görüntüsünden sınırlı ilk sayfalar ve bütün günün yetkili toplamları.
 public sealed record DayOverviewView(DailyPlanView Day, DateTimeOffset WindowStartsAt, DateTimeOffset WindowEndsAt,
     SchedulePage Timed, DayItemPage Untimed, DayGlanceView Glance, SupportDayView Support, DayReadVersions Versions, Guid[] RecurringTaskIds);
 

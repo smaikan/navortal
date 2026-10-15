@@ -68,7 +68,7 @@ public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore pref
             presentation = await NotificationPresentationReader.Read(db, n, now, ct);
             await tx.CommitAsync(ct);
         }
-        // Dış servise gitmeden hemen önce kaynağı ve kuralı kontrol et. Ağda beklerken hesap kilidi tutma
+        // Dış servise gitmeden hemen önce kaynağı ve kuralı kontrol et. Ağda beklerken hesap kilidi tutma.
         var sound = await NotificationSources.SoundEnabled(db, n, settings, ct);
         var envelope = new PushEnvelope(n.Id, n.UserId, $"notification:{n.Id:D}", presentation.Title, presentation.Body, $"/notifications/{n.Id:D}", !sound, n.SnoozeCount, NotificationSounds.For(settings, n.Kind));
         var result = await transport.SendAsync(subscription, envelope, ct);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,7 +11,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
         // Açıklama üst sınıftaki tanımda.
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Var olan üst görevlerin otomatik bitirme ayarı aynı kalsın.
+            // Var olan üst görevlerin otomatik bitirme ayarı aynı kalsın
             migrationBuilder.AddColumn<bool>(
                 name: "AutoCompleteFromChildren",
                 table: "tasks",
