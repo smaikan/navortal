@@ -7,7 +7,7 @@ Bu klasörde üst dizindeki [proje sözleşmesi](../AGENTS.md) geçerlidir. Back
 - Backend MVP-00 başlangıç yetkisi tarihsel kayıttır. Güncel kök sözleşme geçerlidir: yeni ana MVP için açık kullanıcı talebi gerekir; yetkili MVP içindeki alt teslimler rutin onaysız tamamlanır. Test/kabul kanıtıyla kutuları güncelle.
 - Aynı anda tek MVP aktif olsun. Gerçek dış provider kanıtı eksikse ilgili kutu açık kalsın; bağımsız ve önkoşulları sağlanan sonraki işlere devam edilebilir. Eksik kabulü sahte başarıyla kapatma.
 - Production yayın ve gerçek harici hesap değişiklikleri bu devam yetkisinin dışında.
-- JWT süresiz ve exp'siz; refresh veya Identity cookie yok. Kullanıcı veri izolasyonu ve gerçek çalışma geçmişi korunur.
+- JWT exp'siz; refresh veya Identity cookie yok. UI-R3: her JWT `sid` ile `auth_sessions` kaydına bağlıdır ve iptal kontrolü her istekte yapılır; tarayıcıya HttpOnly session cookie yazılır (açık Bearer başlığı varsa o, yoksa cookie okunur; query token yok); kullanıcı adına çalışan uçlarda cookie ile yazmada CSRF kontrolü (aynı-host Origin + `X-ADHD-CSRF`), yabancı Origin'li her yazma reddedilir. Logout/logout-all/parola sıfırlama oturumları kapatır. Kullanıcı veri izolasyonu ve gerçek çalışma geçmişi korunur.
 - PostgreSQL'e özgü testler gerçek PostgreSQL kullanır. Docker yoksa projeye ait izole yerel PostgreSQL kullanılabilir; EF InMemory ile geçilmiş gösterilmez.
 - Her uygulama tesliminde test ekleme/çalıştırma zorunludur; çalışmayan kontrolleri ve ortam gerekçesini yaz. Dokümantasyon MVP-00 tasarım senaryosu incelemesiyle doğrulanır, uygulama testi geçmiş sayılmaz.
 - Sırlar ve geçici veritabanı/binary/log dosyaları `.local/` gibi ignore edilmiş alanda kalır; kaynak veya kanıt raporuna alınmaz.

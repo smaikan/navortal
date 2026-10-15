@@ -44,7 +44,8 @@ class FrontendDocsValidationTests(unittest.TestCase):
     def test_complete_current_reference_passes(self):
         result = self.run_validator()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertEqual(json.loads(result.stdout)['operationPolicies'], 171)
+        expected = len(json.loads((self.docs / 'operation-policies.json').read_text())['operations'])
+        self.assertEqual(json.loads(result.stdout)['operationPolicies'], expected)
 
     def test_missing_required_key_is_rejected(self):
         path = self.docs / 'operation-policies.json'

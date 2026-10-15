@@ -21,6 +21,8 @@ Native runtime EDB'nin resmi binary arşivinden `.local/` içine alınır; siste
 
 run-api.ps1 development JWT anahtarını ilk açılışta .local/jwt-signing.key içinde rastgele üretir ve sonraki açılışta korur; anahtarı ekrana yazmaz. Hazır Jwt__SigningKey ortam değeri varsa onu kullanır. Production'da kalıcı anahtarı ortam/secret store'dan ver; kaynakta veya image'da anahtar yok.
 
+Yerel Web Push isteğe bağlıdır; varsayılan kapalıdır. Gerçek iletişim URI'siyle bir kez `./scripts/new-web-push-keys.ps1 -Subject 'mailto:YOUR-CONTACT'` çalıştır; Windows PowerShell 5 ve PowerShell 7 için P-256 üretimi desteklenir. Ignore edilen `.local/web-push.json` içeriğini paylaşma; mevcut dosya korunur. Sonra `./scripts/run-api.ps1 -EnablePush` açık opt-in ile keypair'i yükleyerek başlatır; switch verilmezse mevcut ortam/default davranışı sürer, script çıkışta ortam değerini geri koyar. `Development` ve çalışan jobs gerekir; `Testing` hosted jobs'u kapatır. Edge'de `http://127.0.0.1:3100` loopback güvenli bağlamdır; tarayıcı izni, hesap push tercihi ve gerçek subscription ayrıca açılır. Harici subscription endpointi HTTPS/443 ve public hedef olmalıdır. Enabled push hatalı iletişim/eksik veya eşleşmeyen keypair ile startup'ta reddedilir; anahtarlar hata mesajlarına yazılmaz. [Kanonik işletim ve alarm sözleşmesi](../docs/notifications-realtime.md).
+
 ## Test
 
 ```powershell

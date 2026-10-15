@@ -1,4 +1,4 @@
-param([string]$Urls = 'http://127.0.0.1:5080')
+param([string]$Urls = 'http://127.0.0.1:5080', [switch]$EnablePush)
 $ErrorActionPreference = 'Stop'
 $apiRoot = Split-Path $PSScriptRoot -Parent
 $oldKey = $env:Jwt__SigningKey
@@ -6,6 +6,7 @@ $oldEnvironment = $env:ASPNETCORE_ENVIRONMENT
 $oldPushSubject = $env:Push__Subject
 $oldPushPublicKey = $env:Push__PublicKey
 $oldPushPrivateKey = $env:Push__PrivateKey
+$oldPushEnabled = $env:Push__Enabled
 try {
     if (-not $env:Jwt__SigningKey) {
         $local = Join-Path $apiRoot '.local'
@@ -17,6 +18,7 @@ try {
         $env:Jwt__SigningKey = [IO.File]::ReadAllText($keyFile).Trim()
     }
     if (-not $env:ASPNETCORE_ENVIRONMENT) { $env:ASPNETCORE_ENVIRONMENT = 'Development' }
+    if ($EnablePush) { $env:Push__Enabled = 'true' }
     $pushPath = Join-Path $apiRoot '.local/web-push.json'
     if ($env:Push__Enabled -eq 'true' -and (Test-Path -LiteralPath $pushPath)) {
         $pushKeys = Get-Content -LiteralPath $pushPath -Raw | ConvertFrom-Json
@@ -32,4 +34,5 @@ try {
     $env:Push__Subject = $oldPushSubject
     $env:Push__PublicKey = $oldPushPublicKey
     $env:Push__PrivateKey = $oldPushPrivateKey
+    $env:Push__Enabled = $oldPushEnabled
 }

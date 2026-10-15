@@ -1,5 +1,7 @@
 # Uygulama Adımları
 
+27 Ekim2026 — kullanıcı talebiyle Eisenhower Matrisi yerel teslim: beş owner/sürümlü API, iki additive tablo, bağımsız alan/sıra ve MatrixChanged. Gerçek PG5/5; owner filtresi bozma testi beklendiği gibi başarısız, restorasyon1/1. OpenAPI197/202somut/274şema eşliği ve docs denetimi geçti. UI'daki kalıcı seçim/sürükleme/klavye ve tarayıcı kanıtı [tek UI raporunda](../UI/docs/verification/matrix.md), backend [sözleşme/kanıt](../docs/verification/matrix.md). Dev DB yedeği sonrası yalnız bu migration uygulandı; kullanıcı DB'si test fixture'ı değildi. Yeni ana backend MVP sayılmaz; ana backend/UI sayaçları değişmez.
+
 Backend durum tarihi: **17 Ekim 2026**; UI devir eşlemesi **24 Ekim 2026** — Europe/Istanbul.
 
 Bu dosya ADHD planlayıcısının uygulanabilir backend iş listesi, kabul kapısı ve ilerleme kaydıdır. Ürün/mimari bağlamı [AGENTS.md](AGENTS.md) içindedir. Çelişkide güncel kullanıcı kararı üstündür; iki belge birlikte güncellenir.
