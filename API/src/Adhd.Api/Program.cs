@@ -12,7 +12,7 @@ using System.Net;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole();
-// İstek başlangıcı logu ham sorguyu alıyor. Bu sürümde hub bilgileri de oradan geçiyor.
+// İstek başlangıcı logu ham sorguyu yazıyor. Kapatıyoruz, token artık sorgudan gelmiyor.
 builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 builder.Services.AddSingleton<TimeProvider>(new Adhd.Application.Common.UtcTimeProvider(TimeProvider.System));
 builder.Services.AddDbContext<PlannerDbContext>(o => o.UseNpgsql(
@@ -38,7 +38,9 @@ builder.Services.AddSingleton<Adhd.Application.Jobs.IRealtimePublisher, Adhd.Api
 builder.Services.AddScoped<Adhd.Application.Preferences.IPreferencesStore, Adhd.Infrastructure.Preferences.PreferencesStore>();
 builder.Services.AddScoped<Adhd.Application.Preferences.PreferencesService>();
 builder.Services.AddScoped<Adhd.Application.Tasks.ITaskStore, Adhd.Infrastructure.Tasks.TaskStore>();
+builder.Services.AddScoped<Adhd.Application.Tasks.ITaskReadStore, Adhd.Infrastructure.Tasks.TaskReadStore>();
 builder.Services.AddScoped<Adhd.Application.Tasks.TaskService>();
+builder.Services.AddScoped<Adhd.Application.Tasks.IMatrixStore, Adhd.Infrastructure.Tasks.MatrixStore>();
 builder.Services.AddScoped<Adhd.Application.Tasks.ITaskTreeStore, Adhd.Infrastructure.Tasks.TaskTreeStore>();
 builder.Services.AddScoped<Adhd.Application.Tasks.TaskTreeService>();
 builder.Services.AddScoped<Adhd.Application.Tasks.ITaskWorkloadStore, Adhd.Infrastructure.Tasks.TaskWorkloadStore>();
@@ -57,11 +59,15 @@ builder.Services.AddScoped<Adhd.Application.Work.IWorkCorrectionStore>(s => s.Ge
 builder.Services.AddScoped<Adhd.Application.Work.WorkService>();
 builder.Services.AddScoped<Adhd.Application.Work.WorkCorrectionService>();
 builder.Services.AddScoped<Adhd.Application.Focus.IFocusStore>(s => s.GetRequiredService<Adhd.Infrastructure.Work.WorkStore>());
+builder.Services.AddScoped<Adhd.Application.Sync.IWorkspaceSnapshotStore>(s => s.GetRequiredService<Adhd.Infrastructure.Work.WorkStore>());
+builder.Services.AddScoped<Adhd.Application.Planning.IDaySignalsStore>(s => s.GetRequiredService<Adhd.Infrastructure.Work.WorkStore>());
 builder.Services.AddScoped<Adhd.Application.Focus.FocusService>();
 builder.Services.AddScoped<Adhd.Application.Work.IImmediateWorkStore>(s => s.GetRequiredService<Adhd.Infrastructure.Work.WorkStore>());
 builder.Services.AddScoped<Adhd.Application.Work.IImmediateWorkCoordinator, Adhd.Infrastructure.Scheduling.ImmediateWorkCoordinator>();
 builder.Services.AddScoped<Adhd.Application.Work.ImmediateWorkService>();
-builder.Services.AddScoped<Adhd.Application.Planning.IPlanningStore, Adhd.Infrastructure.Planning.PlanningStore>();
+builder.Services.AddScoped<Adhd.Infrastructure.Planning.PlanningStore>();
+builder.Services.AddScoped<Adhd.Application.Planning.IPlanningStore>(s => s.GetRequiredService<Adhd.Infrastructure.Planning.PlanningStore>());
+builder.Services.AddScoped<Adhd.Application.Planning.IDayOverviewStore>(s => s.GetRequiredService<Adhd.Infrastructure.Planning.PlanningStore>());
 builder.Services.AddScoped<Adhd.Application.Planning.PlanningService>();
 builder.Services.AddScoped<Adhd.Application.Calendar.ICalendarStore, Adhd.Infrastructure.Calendar.CalendarStore>();
 builder.Services.AddScoped<Adhd.Application.Calendar.CalendarService>();
@@ -69,6 +75,18 @@ builder.Services.AddScoped<Adhd.Application.Analytics.IActualAnalyticsStore, Adh
 builder.Services.AddScoped<Adhd.Application.Analytics.ActualAnalyticsService>();
 builder.Services.AddScoped<Adhd.Application.Analytics.IPlanAnalyticsStore, Adhd.Infrastructure.Analytics.PlanAnalyticsStore>();
 builder.Services.AddScoped<Adhd.Application.Analytics.PlanAnalyticsService>();
+builder.Services.AddScoped<Adhd.Infrastructure.SpecialDays.SpecialDayStore>();
+builder.Services.AddScoped<Adhd.Application.SpecialDays.ISpecialDayStore>(s => s.GetRequiredService<Adhd.Infrastructure.SpecialDays.SpecialDayStore>());
+builder.Services.AddScoped<Adhd.Application.Planning.IWorkingDayCalendar>(s => s.GetRequiredService<Adhd.Infrastructure.SpecialDays.SpecialDayStore>());
+builder.Services.AddScoped<Adhd.Application.SpecialDays.SpecialDayService>();
+builder.Services.AddScoped<Adhd.Infrastructure.Planning.DayGlanceStore>();
+builder.Services.AddScoped<Adhd.Application.Planning.IDayGlanceStore>(s => s.GetRequiredService<Adhd.Infrastructure.Planning.DayGlanceStore>());
+builder.Services.AddScoped<Adhd.Application.Planning.DayGlanceService>();
+builder.Services.AddScoped<Adhd.Application.ClientErrors.IClientErrorStore, Adhd.Infrastructure.ClientErrors.ClientErrorStore>();
+builder.Services.AddScoped<Adhd.Application.ClientErrors.ClientErrorService>();
+builder.Services.AddScoped<Adhd.Application.Tasks.ITaskBatchStore, Adhd.Infrastructure.Tasks.TaskBatchStore>();
+builder.Services.AddScoped<Adhd.Application.Tasks.TaskBatchService>();
+builder.Services.AddScoped<Adhd.Infrastructure.Jobs.MaintenanceJob>();
 builder.Services.AddScoped<Adhd.Application.Support.ISupportStore, Adhd.Infrastructure.Support.SupportStore>();
 builder.Services.AddScoped<Adhd.Application.Support.SupportService>();
 builder.Services.AddScoped<Adhd.Application.Recurrence.IRecurrenceStore, Adhd.Infrastructure.Recurrence.RecurrenceStore>();
@@ -104,9 +122,11 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseRouting();
 app.UseRateLimiter();
-// Sorgu tokenını kontrol etmeden önce Kestrel'in gerçek Upgrade bilgisi hazır olsun.
+// Hub WebSocket'i oturum cookie'siyle açılıyor. Upgrade doğrulamadan önce hazır olsun
 app.UseWebSockets();
 app.UseAuthentication();
+// Cookie ile veri yazarken CSRF başlığı ve aynı host'tan gelen Origin gerekiyor
+app.UseMiddleware<Adhd.Api.Auth.CsrfProtection>();
 app.UseAuthorization();
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = x => x.Tags.Contains("ready") });

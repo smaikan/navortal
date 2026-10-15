@@ -12,6 +12,9 @@ internal static class PlannerOpenApi
 {
     internal static void Configure(OpenApiOptions options)
     {
+        // Bu alana null izin versek de ortak görev önceliği şeması zorunlu kalsın.
+        var referenceId = options.CreateSchemaReferenceId;
+        options.CreateSchemaReferenceId = info => info.Type == typeof(Adhd.Domain.Tasks.TaskPriority?) ? null : referenceId(info);
         options.AddSchemaTransformer((schema, context, _) =>
         {
             if (context.JsonPropertyInfo?.AttributeProvider?.IsDefined(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute), inherit: true) == true)
