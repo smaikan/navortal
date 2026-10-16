@@ -1,4 +1,4 @@
-"""Build complete frontend reference from exported public OpenAPI and redacted synthetic HTTP evidence."""
+"""Dış OpenAPI ve maskelenmiş yapay HTTP kanıtından frontend rehberi üretir."""
 import collections
 import hashlib
 import json
@@ -33,9 +33,9 @@ for line in (args.transcripts.read_text(encoding='utf-8-sig').splitlines() if ar
 
 GROUPS = {
     'matrix': ('Eisenhower Matrisi', {'Matrix'}, 'matrix'),
-    'auth': ('Kimlik doğrulama', {'Auth', 'PasswordReset'}, 'auth'),
+    'auth': ('Kimlik doğrulama ve profil', {'Auth', 'PasswordReset', 'Profile'}, 'auth'),
     'preferences': ('Tercihler ve çalışma saatleri', {'Preferences'}, 'preferences'),
-    'tasks': ('Görev, ağaç, yaşam döngüsü ve ilişkiler', {'Tasks', 'TaskTree', 'TaskLifecycle', 'TaskRelations', 'TaskWorkload', 'TaskClassification', 'TaskBatch', 'TaskRead'}, 'tasks'),
+    'tasks': ('Görev, ağaç, yaşam döngüsü ve ilişkiler', {'Tasks', 'TaskTree', 'TaskLifecycle', 'TaskRelations', 'TaskWorkload', 'TaskClassification', 'TaskBatch', 'TaskTreeCreate', 'TaskRead'}, 'tasks'),
     'collections': ('Proje, havuz, kategori ve etiket', {'Projects', 'Pools', 'Categories', 'Tags'}, 'collections'),
     'planning': ('Manuel plan, motor, acil iş, revizyon ve undo', {'Planning', 'PlanEntries', 'DayItems', 'Scheduling', 'Distribution', 'ImmediateWork'}, 'planning'),
     'calendar': ('Takvim ve gün sonu taşıma', {'Calendar'}, 'calendar'),
@@ -379,7 +379,7 @@ def error_dictionary():
     for source in (API / 'src/Adhd.Domain').rglob('*.cs'):
         if not any(p in ('obj', 'bin') for p in source.parts):
             domain.update(re.findall(r'"([a-z]+_[a-z0-9_]+)"', source.read_text(encoding='utf-8-sig')))
-    # Eligible, 409 kodunu grafikteki nedenden çıkarıyor. Sabit metin araması bunu bulamaz
+    # Eligible, 409 kodunu grafikteki nedenden çıkarıyor. Sabit metin araması bunu bulamaz.
     for code in ('direct_work_completed', 'direct_work_required', 'predecessor_incomplete', 'task_archived', 'task_inactive'):
         rows[code].add('409')
         locations[code].add(('src/Adhd.Infrastructure/Work/WorkStore.cs', 0))
@@ -465,7 +465,7 @@ def build_modules():
 def operation_policies(coverage):
     rows = []
     lines = ['# İşlem bazında tekrar, sürüm ve key politikası', '',
-        f'Bu tablo {len(coverage)} somut işlemi kapsar; kaynak OpenAPI{len(CATALOG)}operationdır. 26 OpenAPI operation key ister (focus altı komut açıldığında31 somut key işlemi). Diğer{len(CATALOG) - 26}operationda header tanımlı değildir. GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.', '',
+        '{summary} GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.', '',
         '| HTTP işlemi | Key / üst sınır | Body sürüm alanları | Tekrar / toparlanma |', '| --- | --- | --- | --- |']
     for item in coverage:
         operation = SPEC['paths'][item['openApiPath']][item['method'].lower()]
@@ -483,6 +483,9 @@ def operation_policies(coverage):
         key_label = f'Zorunlu / {maximum}' if key else 'Tanımlı değil'
         retry_label = 'Aynı payload/key; sonra güncel GET' if key else 'Sınırlı okuma; focus gözlemi ayrı' if item['method'] == 'GET' else 'Otomatik yazım retry yok; güncel GET'
         lines.append(f'| `{item["method"]} {item["documentedPath"]}` | {key_label} | {", ".join("`" + x + "`" for x in versions) or "—"} | {retry_label} |')
+    keyed = [r for r in rows if r['idempotencyKeyRequired']]
+    operations = len({(r['method'], r['openApiPath']) for r in keyed})
+    lines[2] = lines[2].replace('{summary}', f'Bu tablo {len(coverage)} somut işlemi kapsar; kaynak OpenAPI{len(CATALOG)}operationdır. {operations} OpenAPI operation key ister (focus altı komut açıldığında{len(keyed)} somut key işlemi). Diğer{len(CATALOG) - operations}operationda header tanımlı değildir.')
     (MODULES / 'Islem-Politikalari.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
     (DEST / 'operation-policies.json').write_text(dump({'openApiOperations': len(CATALOG), 'concreteOperations': len(rows),
         'sourceSha256': hashlib.sha256((DEST / 'openapi-v1.json').read_bytes()).hexdigest(), 'operations': rows}), encoding='utf-8')

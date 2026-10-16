@@ -1,4 +1,4 @@
-"""Exercise documentation-validator failures in isolated copies; never edit published examples."""
+"""Belge kontrolünün hata durumlarını izole kopyalarda dener. Yayımlanmış örneği değiştirmez."""
 from pathlib import Path
 import json
 import re
@@ -20,7 +20,7 @@ class FrontendDocsValidationTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.docs = self.root / 'docs'
         shutil.copytree(REPO / 'docs', self.docs)
-        # Belgenin işaret ettiği gerçek dosyaları al. .local, sırlar, DB ve binary dosyalar kalır.
+        # Belgenin işaret ettiği gerçek dosyaları al. .local, sırlar, DB ve binary dosyalar kalır
         for file in (REPO / 'docs').rglob('*.md'):
             for href in re.findall(r'\[[^\]]+\]\(([^)]+)\)', file.read_text(encoding='utf-8')):
                 parsed = urlsplit(href)

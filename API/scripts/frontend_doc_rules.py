@@ -1,6 +1,8 @@
-"""Reviewed wire-field meanings and endpoint conditions. Keep aligned with src and integration tests."""
+"""Kontrol edilmiş API alan anlamları ve uç şartları. Kaynak ve gerçek testlerle aynı tutulmalı."""
 
 EXTRA_FIELD_NOTES = {
+    'expectedUserId': 'me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404.',
+    'mediaType': 'Profil fotoğrafının MIME türü: yalnız image/jpeg, image/png veya image/webp. Byte imzası ayrıca denetlenir.',
     'pomodoroSound': 'Pomodoro hedefi (FocusTarget) ve mola bitişi (BreakEnd) uygulama sesi. bell (varsayılan), marimba, digital, glass, pulse veya soft; null/geçersiz kimlik reddedilir.',
     'reminderSound': 'Custom, ReturnToTask, TaskDeadline, SpecialDay ve ScheduleStart uygulama sesi. bell, marimba (varsayılan), digital, glass, pulse veya soft.',
     'taskEndSound': 'ScheduleEnd için uygulama sesi. bell, marimba, digital (varsayılan), glass, pulse veya soft. Planlanan sürenin dolması görevi tamamlamaz.',
@@ -8,7 +10,7 @@ EXTRA_FIELD_NOTES = {
     'quadrant': 'Matris alanı: Inbox ayrılmamış, Do önemli/acil, Schedule önemli/acil değil, Delegate önemli değil/acil, Eliminate önemli değil/acil değil. Görev önceliği veya durumu değildir.',
     'columns': 'Tek owner/snapshot sürümünden beş matris alanının bağımsız sayfaları; her alan kendi offset/limit/total değerini taşır.',
     'isUrgent': 'Acil plan bağlamı işareti; görev priority değerinden ayrıdır. Sayaç veya görevin tamamlanma durumu değildir.',
-    'unboundedItemCount': 'Başlangıcı olan ancak bitişi henüz belirlenmemiş gün planı öğelerinin sayısı; süre sıfır kabul edilmez.',
+    'unboundedItemCount': 'Uyumluluk alanı; süre artık görev tahmininden geldiği için 0 döner. Tahmini olmayan görevler unknownEstimateCount içindedir.',
     'item': 'İşlem sonucu dönen gün planı öğesi; görev tanımı veya gerçek çalışma kaydı değildir.',
     'parentTitle': 'Owner kapsamındaki doğrudan ana görevin başlığı; kök görevde null. Tam ata yolu değildir.',
     'assigned': 'Seçilen günün atanmış tarih aralığına uyan görev önerilerinin bağımsız sayfası.',
@@ -41,7 +43,7 @@ EXTRA_FIELD_NOTES = {
     'openTodayAsOneThing': "Bugün ekranı 'Şimdi tek şey' görünümünde açılsın mı (varsayılan kapalı).",
     'overCapacity': 'Planın kalanı günün kalan çalışma süresini aşıyor mu; sunucu hesaplar.',
     'placement': 'First öğeyi günün başına koyar (Yarının ilk işi); varsayılan Last.',
-    'plannedRemainingSeconds': 'Şimdiden sonraki açık saatli blok süresi + açık saatsiz öğelerin bilinen kendi tahminleri.',
+    'plannedRemainingSeconds': 'Günün açık plan öğelerindeki görevlerin bilinen kendi tahminlerinin toplamı; her görev bir kez sayılır, saatli blok aralığı süre kaynağı değildir.',
     'recurrence': 'Yearly (her yıl) veya Once (yalnız verilen yıl).',
     'reminder': 'Hatırlatma: None, SameDay, OneDayBefore veya OneWeekBefore; yerel 09:00.',
     'resumeCard': "UI-R3 'Nerede kalmıştım?' kartı gösterilsin mi (varsayılan açık).",
@@ -65,6 +67,8 @@ EXTRA_FIELD_NOTES = {
     'password': 'Register en az6karakter; login mevcut parolayı aynen alır. Trim/karmaşıklık eklemeyin.',
     'newPassword': 'Reset sonrası parola; en az6karakter. Eski JWT kopyalarını iptal etmez.',
     'displayName': 'Register alanı isteğe bağlı; boş/null ise trim edilmiş e-postanın tamamı kullanılır.',
+    'firstName': 'Profil adı; trim sonrası1..50karakter. Eski kayıtta görünen adın tamamı, e-postaya eşitse boş.',
+    'lastName': 'İsteğe bağlı soyad; trim sonrası0..50karakter. Boşsa displayName yalnız addır.',
     'taskVersion': 'Bu DTO bağlamındaki task sürümü; occurrence komutunda bağlı taskın güncel sürümü, snapshotta yakalanmış tarihsel sürüm.',
     'user': 'Doğrulanmış hesabın id/email/displayName özeti.',
     'title': 'Görev başlığı300, özel hatırlatma başlığı200karakter sınırındadır; DTO/use-case bağlamını izleyin.',
@@ -409,6 +413,13 @@ EXTRA_FIELD_NOTES = {
 }
 
 SCHEMA_FIELD_NOTES = {
+    'TaskTreeRequest': {'children': 'Bu görevin alt görevleri, gönderilen sırayla; null/boş yaprak görevdir. Kök dahil en çok50 görev ve5 seviye.'},
+    'TaskTreeCreateResult': {'root': 'Yeni kök görev; alt görevi varsa kapsayıcıdır.', 'created': 'Kök dahil oluşturulan bütün görevler, derinlik öncelikli gönderim sırasıyla.'},
+    'ProfileView': {'photoUploadEnabled': 'Sunucuda Cloudinary yapılandırması etkin ve doğrulanmışsa true; yalnız fotoğraf yükleme kullanılabilirliğidir.'},
+    'ProfileVersionRequest': {'expectedUserId': 'İstemcinin me ile doğruladığı hesap kimliği; JWT sahibiyle eşleşmezse404. Yazı hedefini seçmez, cookie değişimi yarışını engeller.'},
+    'UpdateProfileRequest': {'expectedUserId': 'İstemcinin me ile doğruladığı hesap kimliği; JWT sahibiyle eşleşmezse404.'},
+    'UploadProfilePhotoRequest': {'uploadId': 'Her yeni kullanıcı niyeti için rastgele UUID; belirsiz yanıt GET user.photoVersion ile uzlaştırılır. Cloudinary asset kimliği değildir.', 'contentBase64': 'En fazla2MiB JPEG/PNG/WebP dosyasının saf base64 içeriği; data URL öneki yok. Azami2796204 karakter; gerçek byte imzası da denetlenir.'},
+    'UserSummary': {'profileVersion': 'Profil yazılarının beklenen users sürümü; ad/fotoğraf değişiminde artar. Geç eski me yanıtı daha yeni sürümü ezmez.', 'photoVersion': 'Fotoğraf yoksa null; varsa fotoğraf yükleme niyetinin opak UUID sürümü. Yalnız aynı owner /api/account/profile/photo?version= üzerinden okunur; Cloudinary adresi veya asset kimliği değildir.'},
     'NoteView': {'title': 'Yalnız Detailed/Toggle notta zorunlu, 1–200 karakter, trim edilir; Short notta null olmalıdır.', 'categoryId': 'Owner not kategorisi; null kategorisiz. Yazmada etkin kategori gerekir; kaldırılmış kategorideki notlar bağını korur.', 'display': 'Short tek metin; Detailed listede başlık + pencere; Toggle listede başlık + yerinde açılan içerik. NextStep yalnız Short.', 'taskTitle': 'Bağlı görevin güncel başlığı aynı okumada; görev yoksa null. Görev kopyası değildir.'},
     'NoteFields': {'title': 'Yalnız Detailed/Toggle notta zorunlu, 1–200 karakter, trim edilir; Short notta null olmalıdır.', 'categoryId': 'Owner not kategorisi; null kategorisiz. Yazmada etkin kategori gerekir; kaldırılmış kategorideki notlar bağını korur.', 'display': 'Short tek metin; Detailed listede başlık + pencere; Toggle listede başlık + yerinde açılan içerik. NextStep yalnız Short.'},
     'EditNoteRequest': {'display': 'Null/verilmezse başlık, kategori ve gösterim aynen kalır (yalnız metin/tarih düzenleme). Değer verilirse title ve categoryId birlikte yeniden yazılır.', 'title': 'display verildiğinde: Detailed/Toggle için 1–200, Short için null.', 'categoryId': 'display verildiğinde yeni değerdir; null kategoriyi kaldırır. Değişmeyen kaldırılmış kategori kabul edilir, yeni kategori etkin olmalıdır.'},
@@ -561,6 +572,8 @@ def operation_notes(method, path):
         notes.append('UI-R2 görev başına otomatik tamamlama anahtarı. true yapıldığında görev hemen uzlaştırılır (çocukları bitmişse Automatic tamamlanır); false yapmak tamamlanmış görevi yeniden açmaz.')
     if method == 'POST' and path == '/api/tasks/{id}/children':
         notes.append('Çocuk parentın project/pool/category/tag bağlarını başlangıçta miras alır. İlk çocukta parentın direct estimate/history/future plan durumuna göre PreserveDirect/ConvertToContainer seçimi gerekebilir. Yanıt çocuktur; parent sürümünü de refetch edin.')
+    if method == 'POST' and path == '/api/tasks/tree':
+        notes.append('F7 satır içi ekleme: yeni kök görev ve iç içe alt görevleri tek transaction ile açar. Kök dahil en çok50 görev, en çok5 seviye; başlıklar kırpılır ve1..300 olmalı, boş satır gönderilmez. Alt görevi olan görev kapsayıcıdır (doğrudan iş yok), yapraklar doğrudan iştir; sıra gönderilen sıradır. Geçersiz ağaç400 task_tree_invalid ve hiçbir kayıt oluşmaz. Idempotency-Key zorunlu: aynı key + aynı ağaç özgün sonucu Idempotent-Replay ile döndürür, farklı ağaç409 idempotency_conflict. Yanıt root, oluşturulma sırasıyla created ve planningVersion içerir; ağaç okumaları sonra yenilenir. Alt görevsiz tek başlık için POST /api/tasks yeterlidir.')
     if method == 'PUT' and path == '/api/preferences':
         notes.append('Bütün values belgesini gönderin. MinimumSplit1..86400/Transition0..86400; Weekly<=70/Exceptions<=366, her istisnada<=24aralık. Empty exceptions.intervals o gün çalışılmayacağını belirtir.')
     if method == 'PUT' and path == '/api/notifications/reminders/{id}':
@@ -583,4 +596,6 @@ def operation_notes(method, path):
     if method == 'POST' and path == '/api/day-items/undo':
         notes.append('Defer erteleme grubu da saatli iptal ve saatsiz öğeleri birlikte geri alır; mevcut hedef öğeyi bozmaz, sonradan hedefe verilen saati geri sarmaz. Görev tanımı, actual ve eski revizyonlar değişmez. Sonraki sürüm/plan değişikliği ya da çalışan iş 409 verir.')
         notes.append('UI-R3 Pool grubu da bu uçtan changeSetId + expectedPlanningVersion ile geri alınır: havuz bağı + saatli/saatsiz öğe kimlikleri birlikte telafi edilir. Sonraki kullanıcı değişikliği veya başlayan saatli tahsis 409 verir; görev tamamlanması ya da gerçek çalışma geri sarılmaz.')
+    if path.startswith('/api/account/profile'):
+        notes.append('Profil sahibi JWT/cookie kimliğidir; istemci owner veya Cloudinary URL vermez. Ad (1–50) ve isteğe bağlı soyad (0–50) ayrı alanlardır; displayName sunucuda ad + soyaddan türetilir. Eski kayıtta firstName görünen adın tamamı (e-postaya eşitse boş), lastName boştur; ad bölünerek tahmin edilmez. Ad ve fotoğraf yazıları mevcut user.profileVersion ister; stale409. Key yok; belirsiz yazı otomatik tekrarlanmaz, GET ile uzlaştırılır. Fotoğraf en fazla2MiB JPEG/PNG/WebP base64; uploadId istemcinin niyet kimliği, Cloudinary asset kimliği sunucuda rastgele üretilir. Authenticated Cloudinary p1/<user-id>/ altında256px JPEG; signed URL/anahtar tarayıcıya dönmez. GET photo?version=<photoVersion> yalnız güncel kullanıcının aynı sürümünü image/jpeg ve private/no-store sunar. Kaldırma profil bağını CAS ile keser, eski varlık temizliği best-effort; sağlayıcı/DB belirsizliğinde korumalı yetim varlık kalabilir.')
     return notes
