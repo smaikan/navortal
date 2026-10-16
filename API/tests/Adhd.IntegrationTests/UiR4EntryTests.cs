@@ -36,7 +36,7 @@ public sealed class UiR4EntryTests(DatabaseFixture fixture) : IClassFixture<Data
         var first=await TaskScenario.Read<PlanEntryResult>(response);Assert.True(first.Item.IsUrgent);Assert.Equal(Now.AddSeconds(-30),first.Item.StartsAt);Assert.Null(first.Item.EndsAt);
         var replay=await TaskScenario.Read<PlanEntryResult>(await Add(s,body,key));Assert.True(replay.Replayed);Assert.Equal(first.Item,replay.Item);
         await using var db=fixture.CreateContext();Assert.Equal(1,await db.Tasks.CountAsync(x=>x.UserId==s.UserId));Assert.Equal(1,await db.DayItems.CountAsync(x=>x.UserId==s.UserId));Assert.False(await db.WorkSessions.AnyAsync(x=>x.UserId==s.UserId));
-        var glance=await TaskScenario.Read<DayGlanceView>(await s.Client.GetAsync($"/api/daily-plans/{Day}/glance"));Assert.Equal(1,glance.UnboundedItemCount);Assert.Equal(0,glance.PlannedRemainingSeconds);
+        var glance=await TaskScenario.Read<DayGlanceView>(await s.Client.GetAsync($"/api/daily-plans/{Day}/glance"));Assert.Equal(1,glance.UnknownEstimateCount);Assert.Equal(0,glance.PlannedRemainingSeconds);
         Assert.Equal(HttpStatusCode.Conflict,(await Add(s,new {title="Başka niyet",isUrgent=true,expectedPlanningVersion=await Version(s)},key)).StatusCode);
         var undone=await s.Client.PostAsJsonAsync("/api/day-items/undo",new {changeSetId=first.Item.ChangeSetId,expectedPlanningVersion=await Version(s)});Assert.Equal(HttpStatusCode.OK,undone.StatusCode);
         Assert.True((await TaskScenario.Read<PlanEntryResult>(await Add(s,body,key))).Replayed);

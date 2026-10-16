@@ -9,10 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Planning;
 
-// Kalan çalışma şu andan sonraki çalışma aralıkları.
-// Kalan plan açık saatli blokların kalan
-// kısmı ve saatsiz işlerin bilinen kendi
-// tahmini. Bölünmüş blok tek öğe sayılır.
+// Kalan çalışma şimdiden sonraki çalışma aralıklarıdır. Kalan plan açık saatli blokların gelecek kısmı ve açık saatsiz öğelerin bilinen kendi tahminidir. Kapasite aşımı ikisini karşılaştırır. Aynı bölünmüş blok tek öğe sayılır.
 public sealed class DayGlanceStore(PlannerDbContext db, IPreferencesStore preferences, IWorkingDayCalendar calendar, TimeProvider clock) : IDayGlanceStore
 {
     public async Task<DayGlanceView> ReadAsync(Guid userId, DateOnly date, CancellationToken ct)
@@ -35,20 +32,25 @@ public sealed class DayGlanceStore(PlannerDbContext db, IPreferencesStore prefer
                            join task in db.Tasks.AsNoTracking() on new { item.UserId, Id = item.TaskId } equals new { task.UserId, task.Id }
                            where item.UserId == userId && item.LocalDate == date && item.State == DayItemState.Planned && task.DeletedAt == null && task.ArchivedAt == null
                            select new { item.CompletedAt, item.StartsAt, item.EndsAt, task.Id, task.DirectEstimatedSeconds }).ToArrayAsync(ct);
+        // Kalan süreyi açık görevlerin kendi tahmininden topla. Takvimdeki blok uzunluğunu alma.
+        // Görev birden fazla öğede görünse de bir kere say. Tahmin yoksa tahminsiz olarak say.
         decimal planned = 0; var unknown = 0; var completed = 0; var open = 0; var unbounded = 0;
+        var openTasks = new HashSet<Guid>();
         foreach (var group in blocks.GroupBy(x => x.SplitGroupId ?? x.Id))
         {
-            if (group.Any(x => x.CompletedAt is null)) { open++; planned += group.Where(x => x.CompletedAt is null).Sum(x => Remaining(x.StartsAt, x.EndsAt, now)); }
-            else completed++;
+            var left = group.Where(x => x.CompletedAt is null).ToArray();
+            if (left.Length == 0) { completed++; continue; }
+            open++;
+            if (left[0].TaskId is { } id) openTasks.Add(id); else planned += left.Sum(x => Remaining(x.StartsAt, x.EndsAt, now));
         }
         foreach (var item in items)
         {
             if (item.CompletedAt is not null) { completed++; continue; }
-            open++;
-            if(item.StartsAt is {} start) {
-                if(item.EndsAt is {} end) planned += Remaining(start,end,now); else unbounded++;
-            } else if (item.DirectEstimatedSeconds is { } seconds) planned += seconds; else unknown++;
+            open++; openTasks.Add(item.Id);
         }
+        var estimates = await db.Tasks.AsNoTracking().Where(x => x.UserId == userId && openTasks.Contains(x.Id))
+            .Select(x => new { x.Id, x.DirectEstimatedSeconds }).ToArrayAsync(ct);
+        foreach (var task in estimates) { if (task.DirectEstimatedSeconds is { } seconds) planned += seconds; else unknown++; }
         var dayStart = PlanTime.DayStart(date, zone); var dayEnd = PlanTime.DayStart(date.AddDays(1), zone); var cutoff = now < dayEnd ? now : dayEnd;
         var segments = await db.WorkSegments.AsNoTracking().Where(x => x.UserId == userId && !x.IsVoided && x.StartedAt < cutoff && (x.EndedAt == null || x.EndedAt > dayStart))
             .Select(x => new { x.StartedAt, x.EndedAt }).ToArrayAsync(ct);

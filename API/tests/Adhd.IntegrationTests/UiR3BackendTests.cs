@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Adhd.IntegrationTests;
 
-// Tahmin doğruluğu, gün özeti, istemci hatası, toplu görev ve özel günleri gerçek PostgreSQL ile dene.
+// Gerçek PostgreSQL'de tahmin doğruluğu, gün özeti, istemci hatası, toplu görev ve özel günler.
 public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<DatabaseFixture>
 {
     private static readonly DateTimeOffset Morning = new(2026, 10, 15, 6, 0, 0, TimeSpan.Zero);
@@ -48,7 +48,7 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
         await Finished(s, "Beşinci", 600, 30, 300);
         var five = await Read(s);
         Assert.Equal(5, five.SampleCount); Assert.Null(five.UnavailableReason);
-        // Oranlar 1, 1,5, 2, 0,5 ve 3. Ortanca 1,5, p25 1, p75 2
+        // Oranlar 1, 1,5, 2, 0,5 ve 3. Ortanca 1,5, p25 1, p75 2.
         Assert.Equal((1.5m, 1m, 2m), (five.MedianRatio!.Value, five.P25Ratio!.Value, five.P75Ratio!.Value));
         var stranger = await TaskScenario.User(app);
         Assert.Equal(0, (await Read(stranger)).SampleCount);
@@ -59,7 +59,7 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
     public async Task GlanceComputesRemainingTimeUnknownEstimatesCapacityAndHintsInOneRead()
     {
         await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app);
-        await SchedulingHttpTests.Configure(s, end: 600); // Yerel saat 09:00–10:00. UTC karşılığı 06:00–07:00.
+        await SchedulingHttpTests.Configure(s, end: 600); // Yerel saat 09:00–10:00. UTC karşılığı 06:00–07:00
         var timed = await s.Root("Saatli"); await s.Define(timed.Id, true, 1800);
         await ManualPlanningTests.Create(s, timed.Id, Morning.AddMinutes(10), Morning.AddMinutes(40));
         var known = await s.Root("Bilinen"); await s.Define(known.Id, true, 1200);
@@ -71,15 +71,15 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
         await Manual(s, known.Id, Morning, Morning.AddMinutes(5));
         var glance = await TaskScenario.Read<DayGlanceView>(await s.Client.GetAsync($"/api/daily-plans/{Today:yyyy-MM-dd}/glance"));
         Assert.Equal(40m * 60, glance.WorkingRemainingSeconds);
-        Assert.Equal(20m * 60 + 1200, glance.PlannedRemainingSeconds);
+        Assert.Equal(1800m + 1200, glance.PlannedRemainingSeconds); // Saat bloklarının uzunluğu yerine görev tahminlerini kullan.
         Assert.Equal((1, 0, 3), (glance.UnknownEstimateCount, glance.CompletedItemCount, glance.OpenItemCount));
         Assert.Equal(300m, glance.ActualSeconds);
-        Assert.False(glance.OverCapacity);
+        Assert.True(glance.OverCapacity); // Tahmin 50 dakika, çalışma kalanı 40 dakika.
         Assert.Equal("Dünkü notu aç", glance.Hints.Single(x => x.TaskId == timed.Id).NextStep!.Text);
         Assert.Null(glance.Hints.Single(x => x.TaskId == known.Id).NextStep);
         app.Clock.Now = Morning.AddMinutes(45);
         var late = await TaskScenario.Read<DayGlanceView>(await s.Client.GetAsync($"/api/daily-plans/{Today:yyyy-MM-dd}/glance"));
-        Assert.Equal(15m * 60, late.WorkingRemainingSeconds); Assert.Equal(1200m, late.PlannedRemainingSeconds); Assert.True(late.OverCapacity);
+        Assert.Equal(15m * 60, late.WorkingRemainingSeconds); Assert.Equal(1800m + 1200, late.PlannedRemainingSeconds); Assert.True(late.OverCapacity);
         var stranger = await TaskScenario.User(app);
         var empty = await TaskScenario.Read<DayGlanceView>(await stranger.Client.GetAsync($"/api/daily-plans/{Today:yyyy-MM-dd}/glance"));
         Assert.Equal((0, 0, 0m), (empty.OpenItemCount, empty.UnknownEstimateCount, empty.PlannedRemainingSeconds)); Assert.Empty(empty.Hints);
@@ -133,7 +133,7 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
         Assert.Equal(result.Items.Select(x => x.Id), (await TaskScenario.Read<TaskBatchResult>(replay)).Items.Select(x => x.Id));
         var conflict = await ManualPlanningTests.Send(s, HttpMethod.Post, "/api/tasks/batch", new { titles = new[] { "Başka" } }, key);
         Assert.Equal(HttpStatusCode.Conflict, conflict.StatusCode);
-        // Bir başlık geçersizse hiçbir görevi kaydetme.
+        // Bir başlık geçersizse hiçbir görevi kaydetme
         var invalid = await ManualPlanningTests.Send(s, HttpMethod.Post, "/api/tasks/batch", new { titles = new[] { "Geçerli", new string('x', 201) } }, Guid.NewGuid().ToString());
         Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await ManualPlanningTests.Send(s, HttpMethod.Post, "/api/tasks/batch", new { titles = Enumerable.Range(0, 51).Select(i => $"t{i}").ToArray() }, Guid.NewGuid().ToString())).StatusCode);
@@ -165,7 +165,7 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
         var newYear = await TaskScenario.Read<SpecialDayView>(await ManualPlanningTests.Send(s, HttpMethod.Post, "/api/special-days", Day("Yılbaşı", "Holiday", 1, 1), Guid.NewGuid().ToString()));
         foreach (var bad in new[] { Day("", "Other", 1, 1), Day("x", "Other", 2, 30), Day("x", "Other", 13, 1), Day("x", "Other", 2, 29, 2027, "Once"), Day("x", "Other", 3, 3, null, "Once") })
             Assert.Equal(HttpStatusCode.BadRequest, (await ManualPlanningTests.Send(s, HttpMethod.Post, "/api/special-days", bad, Guid.NewGuid().ToString())).StatusCode);
-        // Aralık en çok 366 gün. Biri normal, biri artık yıl Şubat'ını kapsayan iki okuma yap
+        // Aralık en çok 366 gün. Biri normal, biri artık yıl Şubat'ını kapsayan iki okuma yap.
         var first = await TaskScenario.Read<SpecialDayOccurrencePage>(await s.Client.GetAsync("/api/special-days/occurrences?fromDate=2026-12-01&toDate=2027-11-30"));
         var second = await TaskScenario.Read<SpecialDayOccurrencePage>(await s.Client.GetAsync("/api/special-days/occurrences?fromDate=2027-12-01&toDate=2028-03-01"));
         Assert.Equal(new[] { new DateOnly(2026, 12, 31), new DateOnly(2027, 1, 1), new DateOnly(2027, 2, 28), new DateOnly(2028, 1, 1), new DateOnly(2028, 2, 29) }, first.Items.Concat(second.Items).Select(x => x.Date));
@@ -200,8 +200,8 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
         {
             var w = await db.NotificationIntents.SingleAsync(x => x.UserId == s.UserId && x.SourceId == winter.Id);
             var su = await db.NotificationIntents.SingleAsync(x => x.UserId == s.UserId && x.SourceId == summer.Id);
-            Assert.Equal(new DateTimeOffset(2027, 1, 10, 8, 0, 0, TimeSpan.Zero), w.NotBefore); // CET saat farkı +1 saat.
-            Assert.Equal(new DateTimeOffset(2027, 7, 3, 7, 0, 0, TimeSpan.Zero), su.NotBefore); // Bir hafta önce saat farkı CEST ile +2
+            Assert.Equal(new DateTimeOffset(2027, 1, 10, 8, 0, 0, TimeSpan.Zero), w.NotBefore); // CET saat farkı +1 saat
+            Assert.Equal(new DateTimeOffset(2027, 7, 3, 7, 0, 0, TimeSpan.Zero), su.NotBefore); // Bir hafta önce saat farkı CEST ile +2.
             Assert.Equal(("SpecialDay", NotificationIntentState.Pending), (w.Kind, w.State));
         }
         var changed = await TaskScenario.Read<SpecialDayView>(await s.Client.PutAsJsonAsync($"/api/special-days/{winter.Id}", new { version = winter.Version, title = "Kış", kind = "Other", month = 1, day = 11, recurrence = "Yearly", reminder = "OneDayBefore" }));
@@ -213,7 +213,7 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
             Assert.Equal(new DateTimeOffset(2027, 1, 10, 8, 0, 0, TimeSpan.Zero), winterIntents.Single(x => x.SourceVersion == changed.Version).NotBefore);
             Assert.Equal(NotificationIntentState.Obsolete, (await db.NotificationIntents.SingleAsync(x => x.UserId == s.UserId && x.SourceId == summer.Id)).State);
         }
-        // Bakım işi pencereyi doldurur. Mevcut görevi ikinci kez üretmez
+        // Bakım işi pencereyi doldurur. Mevcut görevi ikinci kez üretmez.
         await using (var scope = app.Services.CreateAsyncScope()) await scope.ServiceProvider.GetRequiredService<MaintenanceJob>().RunOnceAsync(Guid.Empty, default);
         await using (var db = fixture.CreateContext()) Assert.Equal(1, await db.NotificationIntents.CountAsync(x => x.UserId == s.UserId && x.SourceId == winter.Id && x.State == NotificationIntentState.Pending));
     }
