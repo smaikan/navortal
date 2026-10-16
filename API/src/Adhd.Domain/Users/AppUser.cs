@@ -6,9 +6,15 @@ public sealed class AppUser
     public string Email { get; set; } = "";
     public string NormalizedEmail { get; set; } = "";
     public string DisplayName { get; set; } = "";
+    // Ad ve soyad ayrı tutulur; null ise eski kayıttır ve görünen ad bölünmeden ad sayılır.
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
     public string? PasswordHash { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public long Version { get; set; } = 1;
+    public Guid? ProfilePhotoId { get; set; }
+    public Guid? ProfilePhotoRevision { get; set; }
+    public long? ProfilePhotoCloudVersion { get; set; }
 }
 
 public sealed class UserPlanningState

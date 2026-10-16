@@ -1852,6 +1852,14 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
 
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<string>("NormalizedEmail")
                         .IsRequired()
                         .HasMaxLength(320)
@@ -1859,6 +1867,15 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
+
+                    b.Property<long?>("ProfilePhotoCloudVersion")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("ProfilePhotoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ProfilePhotoRevision")
+                        .HasColumnType("uuid");
 
                     b.Property<long>("Version")
                         .IsConcurrencyToken()

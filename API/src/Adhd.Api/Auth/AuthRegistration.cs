@@ -14,6 +14,12 @@ public static class AuthRegistration
 {
     public static IServiceCollection AddPlannerAuth(this IServiceCollection services, IConfiguration config)
     {
+        services.AddScoped<Adhd.Application.Auth.IProfileStore, Adhd.Infrastructure.Auth.ProfileStore>();
+        services.AddScoped<Adhd.Application.Auth.ProfileService>();
+        services.AddSingleton<IValidateOptions<CloudinarySettings>, CloudinarySettingsValidator>();
+        services.AddOptions<CloudinarySettings>().Bind(config.GetSection("Cloudinary")).ValidateOnStart();
+        services.AddSingleton<CloudinaryPhotos>(s => new CloudinaryPhotos(new HttpClient(new SocketsHttpHandler { AllowAutoRedirect = false, UseCookies = false }) { Timeout = TimeSpan.FromSeconds(12) }, s.GetRequiredService<IOptions<CloudinarySettings>>()));
+        services.AddSingleton<Adhd.Application.Auth.IProfilePhotos>(s => s.GetRequiredService<CloudinaryPhotos>());
         services.AddOptions<JwtSettings>().Bind(config.GetSection("Jwt"))
             .Validate(x => !string.IsNullOrWhiteSpace(x.SigningKey) && Encoding.UTF8.GetByteCount(x.SigningKey) >= 32, "Jwt:SigningKey must contain at least 32 bytes and cannot be blank.")
             .Validate(x => !string.IsNullOrWhiteSpace(x.Issuer) && !string.IsNullOrWhiteSpace(x.Audience), "JWT issuer and audience are required.")
@@ -52,11 +58,11 @@ public static class AuthRegistration
                 };
                 options.Events = new JwtBearerEvents
                 {
-                    // Bu sürümde önce HttpOnly oturum cookie'sine bakıyoruz. Cookie yoksa Bearer başlığını kullan.
-                    // Test ve tarayıcı dışı istemciler Bearer kullanabilir. Hub da sorgudan token okumaz.
+                    // Tarayıcı oturum cookie'siyle gelir. Bearer başlığı varsa aşağıdaki öncelik geçerli.
+                    // Test ve tarayıcı dışı istemciler Bearer kullanabilir. Hub da sorgudan token okumaz
                     OnMessageReceived = context =>
                     {
-                        // Bearer başlığı varsa onu kullan. Yoksa oturum cookie'sine bak.
+                        // Bearer başlığı varsa onu kullan. Yoksa oturum cookie'sine bak
                         if (context.Request.Headers.Authorization.Any(x => x?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true)) return Task.CompletedTask;
                         var cookie = SessionCookie.Read(context.HttpContext);
                         if (cookie is not null) { context.Token = cookie; context.HttpContext.Items[SessionCookie.FromCookieItem] = true; }
@@ -70,7 +76,7 @@ public static class AuthRegistration
                         var sid = context.Principal?.FindFirst("sid")?.Value;
                         if (sid is null)
                         {
-                            // Oturumu olmayan eski tokenı sadece bir kez cookie oturumuna taşımak için kabul et.
+                            // Oturumu olmayan eski tokenı sadece bir kez cookie oturumuna taşımak için kabul et
                             if (context.Request.Path != "/api/auth/session/adopt" || context.HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem)) context.Fail("Session is required.");
                             return;
                         }
@@ -79,7 +85,7 @@ public static class AuthRegistration
                     OnChallenge = async context =>
                     {
                         context.HandleResponse();
-                        // Cookie geçersiz veya iptal edilmişse sil ki tarayıcı tekrar göndermesin.
+                        // Cookie geçersiz veya iptal edilmişse sil ki tarayıcı tekrar göndermesin
                         if (context.HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem)) SessionCookie.Delete(context.HttpContext);
                         await Results.Problem(statusCode: 401, title: "Giriş yapmanız gerekiyor.", extensions: new Dictionary<string, object?>
                         { ["code"] = "unauthorized", ["traceId"] = context.HttpContext.TraceIdentifier }).ExecuteAsync(context.HttpContext);
@@ -87,7 +93,7 @@ public static class AuthRegistration
                 };
             });
         services.AddAuthorization();
-        // Adres başına sınır 5 dakikada 30 giriş isteği. Bunu sadece kendi test sunucumuz artırabilir
+        // Adres başına sınır 5 dakikada 30 giriş isteği. Bunu sadece kendi test sunucumuz artırabilir.
         services.AddOptions<AuthRateLimitSettings>().Bind(config.GetSection("AuthRateLimit"))
             .Validate(x => x.PermitLimit is >= 1 and <= 100_000 && x.WindowSeconds is >= 1 and <= 86_400, "AuthRateLimit values are out of range.")
             .ValidateOnStart();
@@ -112,7 +118,7 @@ public static class AuthRegistration
 
     public static IServiceCollection AddPlannerOpenApi(this IServiceCollection services)
     {
-        // OpenAPI HTTP JSON ayarını okuyor. Enum değerleri MVC yanıtıyla aynı kalsın
+        // OpenAPI HTTP JSON ayarını okuyor. Enum değerleri MVC yanıtıyla aynı kalsın.
         services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter(allowIntegerValues: false)));
         services.AddOpenApi(PlannerOpenApi.Configure);
         return services;

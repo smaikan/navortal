@@ -8,7 +8,7 @@ namespace Adhd.Infrastructure.Persistence;
 
 public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options, TimeProvider? clock = null) : DbContext(options)
 {
-    // Eski şema testi veya kontrollü içe aktarma outbox öncesi satır ekleyebilir
+    // Eski şema testi veya kontrollü içe aktarma outbox öncesi satır ekleyebilir.
     public bool SuppressOutboxCapture { get; set; }
     public DbSet<MatrixItem> MatrixItems => Set<MatrixItem>();
     public DbSet<MatrixState> MatrixStates => Set<MatrixState>();
@@ -228,6 +228,8 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options,
             b.Property(x => x.Email).HasMaxLength(320);
             b.Property(x => x.NormalizedEmail).HasMaxLength(320);
             b.Property(x => x.DisplayName).HasMaxLength(320);
+            b.Property(x => x.FirstName).HasMaxLength(50);
+            b.Property(x => x.LastName).HasMaxLength(50);
             b.HasIndex(x => x.NormalizedEmail).IsUnique();
             b.Property(x => x.Version).IsConcurrencyToken();
         });

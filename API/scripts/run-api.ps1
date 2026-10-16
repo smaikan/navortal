@@ -7,7 +7,20 @@ $oldPushSubject = $env:Push__Subject
 $oldPushPublicKey = $env:Push__PublicKey
 $oldPushPrivateKey = $env:Push__PrivateKey
 $oldPushEnabled = $env:Push__Enabled
+$cloudinaryKeys = @('Cloudinary__Enabled','Cloudinary__CloudName','Cloudinary__ApiKey','Cloudinary__ApiSecret')
+$oldCloudinary = @{}
+foreach ($cloudinaryKey in $cloudinaryKeys) { $oldCloudinary[$cloudinaryKey] = [Environment]::GetEnvironmentVariable($cloudinaryKey, 'Process') }
 try {
+    # Bu dosyada düz değerler var. Çalıştırmadan ve ekrana basmadan oku.
+    $cloudinaryEnvPath = Join-Path $apiRoot '.local/cloudinary.env'
+    if (Test-Path -LiteralPath $cloudinaryEnvPath) {
+        foreach ($cloudinaryLine in [IO.File]::ReadAllLines($cloudinaryEnvPath)) {
+            if ([string]::IsNullOrWhiteSpace($cloudinaryLine) -or $cloudinaryLine.TrimStart().StartsWith('#')) { continue }
+            $cloudinaryPair = $cloudinaryLine.Split('=', 2)
+            if ($cloudinaryPair.Length -ne 2 -or $cloudinaryKeys -notcontains $cloudinaryPair[0]) { throw 'Invalid Cloudinary environment file entry.' }
+            if (-not [Environment]::GetEnvironmentVariable($cloudinaryPair[0], 'Process')) { [Environment]::SetEnvironmentVariable($cloudinaryPair[0], $cloudinaryPair[1], 'Process') }
+        }
+    }
     if (-not $env:Jwt__SigningKey) {
         $local = Join-Path $apiRoot '.local'
         New-Item -ItemType Directory -Path $local -Force | Out-Null
@@ -35,4 +48,5 @@ try {
     $env:Push__PublicKey = $oldPushPublicKey
     $env:Push__PrivateKey = $oldPushPrivateKey
     $env:Push__Enabled = $oldPushEnabled
+    foreach ($cloudinaryKey in $cloudinaryKeys) { [Environment]::SetEnvironmentVariable($cloudinaryKey, $oldCloudinary[$cloudinaryKey], 'Process') }
 }

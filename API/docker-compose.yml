@@ -27,6 +27,10 @@ services:
     environment:
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
       ASPNETCORE_ENVIRONMENT: Production
+      Cloudinary__Enabled: ${Cloudinary__Enabled:-false}
+      Cloudinary__CloudName: ${Cloudinary__CloudName:-}
+      Cloudinary__ApiKey: ${Cloudinary__ApiKey:-}
+      Cloudinary__ApiSecret: ${Cloudinary__ApiSecret:-}
       ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     ports: ["127.0.0.1:5080:8080"]
     depends_on:

@@ -35,14 +35,14 @@ public sealed class AuthService(IUserStore users, IPasswordService passwords, IA
             ?? throw new InvalidOperationException("A new session cannot collide with an adopted token.");
         return new(new(tokens.Issue(user, sid), "Bearer", Summary(user)), sid);
     }
-    // Aktif oturumun cookie'sini yenilemek için aynı oturuma token üret.
+    // Mevcut aktif oturumun tokenını kaydırılan cookie için yeniden üretir.
     public async Task<string?> RefreshAsync(Guid userId, Guid sessionId, CancellationToken ct)
     {
         if (await sessions.FindAsync(userId, sessionId, ct) is not { RevokedAt: null }) return null;
         var user = await users.FindByIdAsync(userId, ct);
         return user is null ? null : tokens.Issue(user, sessionId);
     }
-    // Sid'siz eski tokenı bir kere oturuma dönüştür.
+    // Sid'siz eski tokenı bir kez oturuma dönüştürür.
     public async Task<SignIn> AdoptAsync(Guid userId, string legacyToken, DateTimeOffset issuedAt, string userAgentFamily, CancellationToken ct)
     {
         var user = await users.FindByIdAsync(userId, ct)
@@ -55,7 +55,7 @@ public sealed class AuthService(IUserStore users, IPasswordService passwords, IA
     }
     public Task<bool> LogoutAsync(Guid userId, Guid sessionId, CancellationToken ct) => sessions.RevokeAsync(userId, sessionId, clock.GetUtcNow(), ct);
     public Task<int> LogoutAllAsync(Guid userId, CancellationToken ct) => sessions.RevokeAllAsync(userId, clock.GetUtcNow(), ct);
-    // Oturum açıksa true. LastSeenAt en sık TouchInterval aralığında yenilenir.
+    // Oturum aktifse true. LastSeenAt en sık TouchInterval aralığında yenilenir. Bkz. TouchInterval
     public async Task<bool> ValidateAsync(Guid userId, Guid sessionId, CancellationToken ct)
     {
         var state = await sessions.FindAsync(userId, sessionId, ct);
@@ -65,6 +65,6 @@ public sealed class AuthService(IUserStore users, IPasswordService passwords, IA
         return true;
     }
     public static string NormalizeEmail(string email) => email.Trim().ToUpperInvariant();
-    public static UserSummary Summary(AppUser u) => new(u.Id, u.Email, u.DisplayName);
+    public static UserSummary Summary(AppUser u) => new(u.Id, u.Email, u.DisplayName, u.Version, u.ProfilePhotoRevision);
     public static string TokenHash(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 }
