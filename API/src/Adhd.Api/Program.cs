@@ -12,7 +12,7 @@ using System.Net;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole();
-// İstek başlangıcı logu ham sorguyu yazıyor. Kapatıyoruz, token artık sorgudan gelmiyor.
+// İstek başlangıcı logu ham sorguyu yazıyor. Kapatıyoruz, token artık sorgudan gelmiyor
 builder.Logging.AddFilter("Microsoft.AspNetCore.Hosting.Diagnostics", LogLevel.Warning);
 builder.Services.AddSingleton<TimeProvider>(new Adhd.Application.Common.UtcTimeProvider(TimeProvider.System));
 builder.Services.AddDbContext<PlannerDbContext>(o => o.UseNpgsql(
@@ -86,6 +86,8 @@ builder.Services.AddScoped<Adhd.Application.ClientErrors.IClientErrorStore, Adhd
 builder.Services.AddScoped<Adhd.Application.ClientErrors.ClientErrorService>();
 builder.Services.AddScoped<Adhd.Application.Tasks.ITaskBatchStore, Adhd.Infrastructure.Tasks.TaskBatchStore>();
 builder.Services.AddScoped<Adhd.Application.Tasks.TaskBatchService>();
+builder.Services.AddScoped<Adhd.Application.Tasks.ITaskTreeCreateStore, Adhd.Infrastructure.Tasks.TaskTreeCreateStore>();
+builder.Services.AddScoped<Adhd.Application.Tasks.TaskTreeCreateService>();
 builder.Services.AddScoped<Adhd.Infrastructure.Jobs.MaintenanceJob>();
 builder.Services.AddScoped<Adhd.Application.Support.ISupportStore, Adhd.Infrastructure.Support.SupportStore>();
 builder.Services.AddScoped<Adhd.Application.Support.SupportService>();
@@ -105,7 +107,7 @@ builder.Services.AddPlannerOpenApi();
 builder.Services.AddHealthChecks().AddCheck<DatabaseReadiness>("postgresql", tags: ["ready"]);
 var app = builder.Build();
 app.UseForwardedHeaders();
-// Giriş yanıtını ve hesaba özel veriyi önbelleğe alma.
+// Giriş yanıtını ve hesaba özel veriyi önbelleğe alma
 app.Use(async (HttpContext context, RequestDelegate next) =>
 {
     if (context.Request.Path.StartsWithSegments("/api"))
@@ -122,10 +124,10 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseRouting();
 app.UseRateLimiter();
-// Hub WebSocket'i oturum cookie'siyle açılıyor. Upgrade doğrulamadan önce hazır olsun
+// Hub WebSocket'i oturum cookie'siyle açılıyor. Upgrade doğrulamadan önce hazır olsun.
 app.UseWebSockets();
 app.UseAuthentication();
-// Cookie ile veri yazarken CSRF başlığı ve aynı host'tan gelen Origin gerekiyor
+// Cookie ile veri yazarken CSRF başlığı ve aynı host'tan gelen Origin gerekiyor.
 app.UseMiddleware<Adhd.Api.Auth.CsrfProtection>();
 app.UseAuthorization();
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
