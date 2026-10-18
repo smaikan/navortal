@@ -39,6 +39,6 @@ public sealed class NotificationPresentationTests
         Assert.Equal("İşine kaldığın yerden devam edebilirsin.", NotificationPresentation.Build("ReturnToTask").Body);
         Assert.Equal(new string('a', 200), NotificationPresentation.Build("Custom", new string('a', 201)).Title);
         Assert.Equal(new string('a', 199), NotificationPresentation.Build("Custom", new string('a', 199) + "🙂").Title);
-        Assert.Equal(new("Gün planlayıcısı", "Bir hatırlatmanız var."), NotificationPresentation.Build("FutureKind", "private"));
+        Assert.Equal(new("Navortal", "Bir hatırlatmanız var."), NotificationPresentation.Build("FutureKind", "private"));
     }
 }

@@ -24,7 +24,7 @@ public static class NotificationPresentation
             Text(sourceName, "Son teslimi olan görevine göz atabilirsin.")),
         "ReturnToTask" => new("İşe dönüş hatırlatması", Text(sourceName, "İşine kaldığın yerden devam edebilirsin.")),
         "SpecialDay" => new("Özel gün hatırlatması", Text(sourceName, "Özel günlerine göz atabilirsin.")),
-        _ => new("Gün planlayıcısı", "Bir hatırlatmanız var."),
+        _ => new("Navortal", "Bir hatırlatmanız var."),
     };
 
     private static string Text(string? name, string fallback)

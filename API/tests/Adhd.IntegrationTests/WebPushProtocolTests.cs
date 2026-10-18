@@ -18,7 +18,7 @@ public sealed class WebPushProtocolTests
         using var signing = ECDsa.Create(ECCurve.NamedCurves.nistP256); var keys = signing.ExportParameters(true);
         var push = new PushSettings { Enabled = true, PublicKey = NotificationTests.Base64(Point(keys.Q)), PrivateKey = NotificationTests.Base64(keys.D!), Subject = "mailto:planner@example.test" };
         var handler = new ReceiverHandler(); using var transport = new WebPushTransport(new HttpClient(handler), Options.Create(push));
-        var notification = Guid.NewGuid(); var envelope = new PushEnvelope(notification, Guid.NewGuid(), $"notification:{notification:D}", "Gün planlayıcısı", "Bir hatırlatmanız var.", $"/notifications/{notification}", false, 3);
+        var notification = Guid.NewGuid(); var envelope = new PushEnvelope(notification, Guid.NewGuid(), $"notification:{notification:D}", "Navortal", "Bir hatırlatmanız var.", $"/notifications/{notification}", false, 3);
         var result = await transport.SendAsync(new PushSubscriptionRecord { Endpoint = "https://push.example.test/opaque", P256dh = NotificationTests.Base64(receiverPublic), Auth = NotificationTests.Base64(auth) }, envelope, default);
         Assert.Equal(201, result.StatusCode); Assert.Equal("aes128gcm", handler.Encoding); Assert.Equal("120", handler.Ttl); Assert.StartsWith("vapid ", handler.Authorization);
         var attributes = handler.Authorization![6..].Split(',').Select(x => x.Trim().Split('=', 2)).ToDictionary(x => x[0], x => x[1]); var jwt = attributes["t"].Split('.');
