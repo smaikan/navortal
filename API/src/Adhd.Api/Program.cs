@@ -75,6 +75,8 @@ builder.Services.AddScoped<Adhd.Application.Analytics.IActualAnalyticsStore, Adh
 builder.Services.AddScoped<Adhd.Application.Analytics.ActualAnalyticsService>();
 builder.Services.AddScoped<Adhd.Application.Analytics.IPlanAnalyticsStore, Adhd.Infrastructure.Analytics.PlanAnalyticsStore>();
 builder.Services.AddScoped<Adhd.Application.Analytics.PlanAnalyticsService>();
+builder.Services.AddScoped<Adhd.Application.Analytics.IRecurrenceAnalyticsStore, Adhd.Infrastructure.Analytics.RecurrenceAnalyticsStore>();
+builder.Services.AddScoped<Adhd.Application.Analytics.RecurrenceAnalyticsService>();
 builder.Services.AddScoped<Adhd.Infrastructure.SpecialDays.SpecialDayStore>();
 builder.Services.AddScoped<Adhd.Application.SpecialDays.ISpecialDayStore>(s => s.GetRequiredService<Adhd.Infrastructure.SpecialDays.SpecialDayStore>());
 builder.Services.AddScoped<Adhd.Application.Planning.IWorkingDayCalendar>(s => s.GetRequiredService<Adhd.Infrastructure.SpecialDays.SpecialDayStore>());
