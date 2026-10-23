@@ -260,7 +260,9 @@ EXTRA_FIELD_NOTES = {
     'monthEnd': 'Skip veya ClampToLastDay; Monthly dışındaki sıklıklarda null.',
     'dueTime': 'Serinin yerel deadline saati; dakika hassasiyeti, plan bloğu değildir.',
     'startTime': 'UI-R4: son teslimden ayrı yerel başlangıç saati; dakika hassasiyeti.',
-    'autoAddToPlan': 'UI-R4: sunucu occurrence üretiminde gün planına ekleme tercihi; eski tanımlarda false.',
+    'autoAddToPlan': 'UI-R4: sunucu occurrence üretiminde gün planına ekleme tercihi; eski tanımlarda false. Açıkken gerçek kayıt penceresi bugün+30 gündür, kapalıyken bugün+7.',
+    'templateVersion': 'Materialize ve skip için gönderilecek güncel şablon sürümü.',
+    'retractedDayItemCount': 'Seri değişikliğinin yarından sonraki gün planlarından çektiği, kullanıcının dokunmadığı öğe sayısı.',
     'timingIssue': 'UI-R4: otomatik saat kurulamama nedeni; ScheduleOverlap, LocalTimeUnavailable, PlanTimeZoneMismatch veya EstimateTooLong. Görev gün planında görünür kalır.',
     'gap': 'Olmayan yerel DST saati: Reject/Skip/ShiftForward.',
     'overlap': 'İki kez oluşan yerel saat: Reject/Earlier/Later.',
@@ -413,6 +415,16 @@ EXTRA_FIELD_NOTES = {
 }
 
 SCHEMA_FIELD_NOTES = {
+    'NamedResourcePage': {'summaries': 'includeSummary=true ise sayfadaki her kayıt için özet; aksi halde null. Etiketlerde boş dizidir.'},
+    'NamedResourceSummary': {'resourceId': 'Özetin ait olduğu kayıt.', 'taskCount': 'Arşivlenmemiş bağlı görev sayısı; iş yükü ucuyla aynıdır.', 'completedCount': 'Bu görevlerden tamamlananların sayısı.', 'openComponentCount': 'Açık iş bileşeni sayısı; iş yükü ucuyla aynıdır.', 'knownEstimatedSeconds': 'Bilinen tahmin toplamı, saniye.', 'unknownEstimateCount': 'Tahmini olmayan iş sayısı; süre sıfır sayılmaz.'},
+    'RecurrenceCounts': {'onTime': 'Görev, oluşum gününün sonunda tamamlanmıştı; sonradan yeniden açılması bunu değiştirmez.', 'late': 'Gün sonunda açıktı, serverNow anına kadar tamamlandı.', 'notDone': 'Günü geçti, görev açık veya ertelenmiş.', 'todayPending': 'Bugünkü açık görev; orana girmez.', 'skipped': 'Kullanıcı atladı/iptal etti veya görev silindi; orana girmez.', 'notGenerated': 'Kurala göre rutin günü, kullanıcıya görev oluşmadı; orana girmez.', 'completed': 'onTime + late.', 'total': 'completed + notDone; yalnız sonucu belli görevler.', 'consistency': 'completed / total; payda0 ise null. Örnek sınırı minimumSamples ile UI tarafından uygulanır.'},
+    'RecurrenceAnalyticsView': {'compareFromDate': 'İstekte verilen karşılaştırma başlangıcı; yoksa null.', 'compareToDate': 'İstekte verilen karşılaştırma bitişi; yoksa null.', 'activeCount': 'Dönemde sonucu belli veya bugün bekleyen görevi olan rutin sayısı.', 'compare': 'compareFromDate/compareToDate verildiyse aynı hesap; verilmediyse null.', 'minimumSamples': 'Bu sayının altında yüzde gösterilmez.'},
+    'RecurrenceAnalyticsDay': {'class': 'Günün tek analiz sınıfı; tanımı RecurrenceCounts alanlarıyla aynıdır.'},
+    'RecurrenceWeek': {'weekStart': 'Haftanın ilk yerel günü; WeekStartsOn tercihine göre.', 'completed': 'Haftada yapılan görev sayısı (onTime + late).', 'total': 'Haftada sonucu belli görev; 0 ise o hafta görev yoktur.'},
+    'RecurrenceWeekday': {'weekDay': '0=Pazar … 6=Cumartesi.', 'completed': 'Bu gün yapılan görev sayısı.', 'total': 'Bu gün sonucu belli görev sayısı.'},
+    'RecurrenceWorkSummary': {'totalSeconds': 'Yapılan görevlerin effective gerçek çalışma toplamı.', 'averageSeconds': 'totalSeconds / sampleCount; örnek yoksa null.'},
+    'RecurrenceAnalyticsItem': {'counts': 'Seçili dönemin sınıf sayıları.', 'weeks': 'Bugünün haftasıyla biten son12 hafta; seçili dönemden bağımsızdır, hafta başlangıcı tercihtir.'},
+    'RecurrenceAnalyticsDetail': {'today': 'Rutinin güncel saat dilimindeki bugün.', 'work': 'Son365 günde yapılan görevlerin gerçek süre özeti.', 'days': 'Son6 takvim ayı.', 'weekdays': 'Son26 hafta; görevi olan günler, 0=Pazar.', 'recent': 'Bugünle biten28 gün.', 'prior': 'Ondan önceki28 gün.', 'longestRun': 'Son365 günde üst üste yapılan en uzun görev dizisi; atlanan ve oluşmayan gün kesmez.'},
     'TaskTreeRequest': {'children': 'Bu görevin alt görevleri, gönderilen sırayla; null/boş yaprak görevdir. Kök dahil en çok50 görev ve5 seviye.'},
     'TaskTreeCreateResult': {'root': 'Yeni kök görev; alt görevi varsa kapsayıcıdır.', 'created': 'Kök dahil oluşturulan bütün görevler, derinlik öncelikli gönderim sırasıyla.'},
     'ProfileView': {'photoUploadEnabled': 'Sunucuda Cloudinary yapılandırması etkin ve doğrulanmışsa true; yalnız fotoğraf yükleme kullanılabilirliğidir.'},
@@ -485,6 +497,8 @@ SCHEMA_FIELD_NOTES = {
 
 
 def operation_notes(method, path):
+    if path.startswith('/api/analytics/recurrences'):
+        return ['Rutin tamamlama analizi; salt okunur, owner JWT sub. Oluşum, görev geçmişi ve o günün değişmez tanımından sınıflanır; gelecek günler sayılmaz. Bütün oranlar sunucudadır. Formüller statistics-definitions.md içindedir.']
     if method == 'POST' and path == '/api/calendar/days/{date}/defer-tasks':
         return ['Görev Ertele: tasks[{taskId,targetDate}] 1–50 farklı görev ve her birinin kaynak günden sonraki hedefi; expectedPlanningVersion ve zorunlu Idempotency-Key. Sunucu görevlerin kaynak gündeki bütün açık saatli/saatsiz parçalarını bulur (en çok500 öğe); UI sayfaları tam olmak zorunda değildir. Önizleme/onay adımı yok. Tüm hedefler tek transaction/ChangeSet, tek planning version artışı; rutin görevi/protected/running/stale/owner/hedefte tamamlanmış öğe veya DB hatasında tamamı rollback. Hedefte mevcut açık öğe korunur; diğerleri saatsiz taşınır, görev ve actual değişmez. Sonuç items farklı localDate içerebilir. Aynı normalize seçim+key özgün sonucu döndürür; belirsiz yazı yalnız açık kullanıcı isteğiyle aynı key ile alınır. [Ayrıntı](../task-deferral.md).']
     if path == '/api/tasks/picker':
@@ -495,9 +509,11 @@ def operation_notes(method, path):
         return ['UI-R4: version ve expectedPlanningVersion; start null olabilir, end varsa start gerekli ve pozitif en çok24saat. Başlangıç öğenin kayıtlı gününde; saat dilimi gün planından. Acil day itemda end dolabilir ve overlap reddi yoktur; normal tam aralık mevcut schedules dönüşümünü kullanır. Key yok; belirsiz yazı tekrarlanmaz.']
     notes = []
     if method == 'GET' and path == '/api/notes':
-        notes.append('NextStep notları kind=NextStep istenmedikçe sayım/sayfalama öncesinde dışlanır (Gün Planlama sonraki adımı ayrı okur). categoryId tek kategori (kaldırılmış dahil), taskLinked=true göreve bağlı notlar (görev başlığına göre sıralı), excludePinned=true etkin ve Tümü\'nde sabit kategorilerin notlarını dışlar. search başlık+metinde Türkçe büyük/küçük harf duyarsız, en çok200karakter. Daily artık oluşturulmaz; eski kayıtlar okunur.')
+        notes.append('NextStep notları kind=NextStep istenmedikçe sayım/sayfalama öncesinde dışlanır (Gün Planlama sonraki adımı ayrı okur). categoryId tek kategori (kaldırılmış dahil), taskLinked=true göreve bağlı notlar (görev başlığına göre sıralı), excludePinned=true etkin ve Tümü\'nde sabit kategorilerin notlarını dışlar. search başlık+metinde Türkçe büyük/küçük harf duyarsız, en çok200karakter. Takvim ve Gün Planlama gün notlarını kind=Daily ve date ile aynı kaynaktan okur.')
+    if method == 'POST' and path == '/api/notes':
+        notes.append('Daily notta localDate zorunludur, taskId ve workSessionId boş kalır. Diğer türlerde localDate boş kalır. Daily için categoryId boşsa Gün Notları kategorisi kullanılır. Kategori eksikse notla aynı işlemde eklenir. Otomatik ekleme manuel kategori sınırından bağımsızdır. Gün notu eklemek plan oluşturmaz.')
     if path.startswith('/api/note-categories') or path == '/api/notes/view-modes':
-        notes.append('Kategoriler owner kapsamlıdır; yeni kullanıcıda ve migration ile mevcut kullanıcılarda bir kez Uyarı (Kırmızı, çubukta, Tümü\'nde sabit) oluşur, kaldırılırsa yeniden eklenmez. Etkin kategori en çok100. remove kalıcı silme değildir: notların categoryId bağı değişmez. restore ad çakışmasında 409 note_category_name_taken. Bütün yazılar NotesVersion artırır; view-modes aynı değerle tekrarı sürüm artırmaz.')
+        notes.append('Kategoriler owner kapsamlıdır; yeni kullanıcıda ve migration ile mevcut kullanıcılarda bir kez Uyarı (Kırmızı, çubukta, Tümü\'nde sabit) oluşur, kaldırılırsa yeniden eklenmez. Manuel ekleme ve geri getirmede etkin kategori sınırı 100. remove kalıcı silme değildir: notların categoryId bağı değişmez. restore ad çakışmasında 409 note_category_name_taken. Bütün yazılar NotesVersion artırır; view-modes aynı değerle tekrarı sürüm artırmaz.')
     if method == 'POST' and path == '/api/notes/{id}/restore':
         notes.append('Geri al: silinmiş notu aynı alanlarla geri getirir; version silme yanıtındaki sürümdür. Silinmemiş not için 409 note_not_deleted.')
     if method == 'POST' and path == '/api/notifications/read-all':
@@ -542,6 +558,8 @@ def operation_notes(method, path):
         notes.append('UI-R2: completed=false açık kardeşleri kardeş sırasıyla, completed=true tamamlananları en yeni tamamlanma önce döndürür; boşsa ikisi birlikte. summaries her satır için doğrudan çocuk sayıları ve bilinen alt ağaç tahminini taşır.')
     if path.startswith('/api/notifications'):
         notes.append('UI-R4: özel hatırlatmanın title alanı oluşturulan notification intent içinde snapshot olarak saklanır ve NotificationView.title ile okunur; düzenleme eski bildirimi yeniden adlandırmaz. Önceki kayıtlar null title ile tür etiketine düşer. Hazır/okundu/cihaza teslim ayrı durumlardır.')
+    if path == '/api/recurrence-templates/projection':
+        notes.append('Yazmaz. Etkin ve autoAddToPlan açık rutinlerin bugünden itibaren gerçek kaydı olmayan günlerini kuraldan hesaplar. Sonuç plan veya kapasite değildir; startTime yerel saattir. Aralık en çok 42 gün. Gün için skip ve materialize mevcut uçlardır.')
     if path.startswith('/api/recurrence-templates'):
         notes.append('UI-R4: rule.startTime ve autoAddToPlan son teslimden ayrıdır. Checkbox kapalı eski davranıştır. Açıkken sunucu üretimi her uygun oluşumu tek plan bağına ekler; saat yoksa saatsiz, saat/tahmin yoksa başlangıçlı-bitişsiz, pozitif tahminle normal saatli blok. Çakışma/DST/zone sorunu timingIssue taşıyan bitişsiz öğe bırakır; çalışma başlamaz. Mevcut veya kaldırılmış plan bağı yeniden oluşturulmaz; geçmiş/elle değişmiş/çalışılmış görev korunur. Mevcut worker bugün+7gün penceresini üretir; daha ileri günler açık materialize ile gelir.')
     if method == 'PUT' and path == '/api/tasks/{id}/planned-range':
