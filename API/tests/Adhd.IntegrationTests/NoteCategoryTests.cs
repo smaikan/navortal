@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Adhd.Application.Support;
 using Adhd.Domain.Support;
-using Adhd.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -84,7 +83,6 @@ public sealed class NoteCategoryTests(DatabaseFixture fixture) : IClassFixture<D
         await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.General, "Ayrıntı", Display: NoteDisplay.Detailed)), HttpStatusCode.BadRequest, "note_title_invalid");
         await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.General, "Ayrıntı", Title: new string('b', 201), Display: NoteDisplay.Toggle)), HttpStatusCode.BadRequest, "note_title_invalid");
         await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.NextStep, "Adım", task.Id, Title: "x", Display: NoteDisplay.Detailed)), HttpStatusCode.BadRequest, "note_next_step_shape");
-        await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.Daily, "Günlük", LocalDate: new(2026, 10, 28))), HttpStatusCode.BadRequest, "note_kind_retired");
         await Fails(await Post(other, "/api/notes", new NoteFields(NoteKind.General, "Yabancı", CategoryId: study.Id)), HttpStatusCode.NotFound, "note_category_not_found");
         var lesson = await Note(s, new NoteFields(NoteKind.General, "H0: fark yok.\nH1: fark var.", Title: "Hipotez testleri", CategoryId: study.Id, Display: NoteDisplay.Detailed));
         Assert.Equal(("Hipotez testleri", NoteDisplay.Detailed, study.Id, (string?)null), (lesson.Title, lesson.Display, lesson.CategoryId, lesson.TaskTitle));
@@ -113,15 +111,61 @@ public sealed class NoteCategoryTests(DatabaseFixture fixture) : IClassFixture<D
     }
 
     [Fact]
-    public async Task UpgradeKeepsLegacyNotesAsShortUncategorisedAndSeedsOneWarningPerUser()
+    public async Task DailyNotesAreScopedToOwnerAndLocalDateAndDoNotCreatePlans()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning;
+        var s = await TaskScenario.User(app); var other = await TaskScenario.User(app);
+        var date = new DateOnly(2026, 10, 28); var task = await s.Root("Bağlanmayan görev");
+        await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.Daily, "Günsüz")), HttpStatusCode.BadRequest, "note_invalid");
+        await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.General, "Genel", LocalDate: date)), HttpStatusCode.BadRequest, "note_invalid");
+        await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.Daily, "Göreve bağlı", task.Id, LocalDate: date)), HttpStatusCode.BadRequest, "note_invalid");
+        await Fails(await Post(s, "/api/notes", new NoteFields(NoteKind.Daily, "Sınır dışı", LocalDate: new(1, 1, 1))), HttpStatusCode.BadRequest, "date_invalid");
+        Assert.DoesNotContain((await List(s)).Items, x => x.Name == "Gün Notları");
+        var created = await Task.WhenAll(
+            Note(s, new NoteFields(NoteKind.Daily, "  Günün notu  ", LocalDate: date)),
+            Note(s, new NoteFields(NoteKind.Daily, "Yarın", LocalDate: date.AddDays(1))));
+        var daily = created[0];
+        var dayCategory = Assert.Single((await List(s)).Items, x => x.Name == "Gün Notları");
+        Assert.True(dayCategory.ShowInBar);
+        Assert.All(created, n => Assert.Equal(dayCategory.Id, n.CategoryId));
+        Assert.Equal(2, (await Notes(s, $"?categoryId={dayCategory.Id}")).Total);
+        var existingCategory = await Create(other, "gün notları", NoteCategoryColor.Teal);
+        var otherNote = await Note(other, new NoteFields(NoteKind.Daily, "Başka hesabın notu", LocalDate: date.AddDays(2)));
+        Assert.Equal(existingCategory.Id, otherNote.CategoryId);
+        Assert.Equal(2, (await List(other)).Items.Length);
+        await Note(s, new NoteFields(NoteKind.General, "Genel"));
+        const string query = "?kind=Daily&date=2026-10-28";
+        var page = await Notes(s, query);
+        Assert.Equal(1, page.Total);
+        var saved = Assert.Single(page.Items);
+        Assert.Equal((daily.Id, (DateOnly?)date, "Günün notu"), (saved.Id, saved.LocalDate, saved.Text));
+        Assert.Empty((await Notes(other, query)).Items);
+        await Fails(await Put(other, $"/api/notes/{daily.Id}", new { version = daily.Version, text = "Yabancı" }), HttpStatusCode.NotFound, "note_not_found");
+        var edited = await Ok<NoteView>(await Put(s, $"/api/notes/{daily.Id}", new { version = daily.Version, text = "Düzenlendi", display = "Short" }));
+        Assert.Equal((DateOnly?)date, edited.LocalDate);
+        Assert.Equal(dayCategory.Id, edited.CategoryId);
+        var deleted = await Ok<NoteView>(await Post(s, $"/api/notes/{daily.Id}/delete", new { version = edited.Version }));
+        Assert.Empty((await Notes(s, query)).Items);
+        var restored = await Ok<NoteView>(await Post(s, $"/api/notes/{daily.Id}/restore", new { version = deleted.Version }));
+        Assert.Equal(restored, Assert.Single((await Notes(s, query)).Items));
+        await using var db = fixture.CreateContext();
+        Assert.False(await db.DailyPlans.AnyAsync(x => x.UserId == s.UserId && x.LocalDate == date));
+    }
+
+    [Fact]
+    public async Task UpgradeKeepsLegacyNotesAndCategorizesDailyNotesOnly()
     {
         await using var db = fixture.CreateContext(); var migrations = db.Database.GetMigrations().ToArray(); var target = Array.FindIndex(migrations, x => x.EndsWith("_NoteCategories", StringComparison.Ordinal));
         Assert.True(target > 0); await db.GetService<IMigrator>().MigrateAsync(migrations[target - 1]);
-        var now = Morning; var user = new AppUser { Id = Guid.NewGuid(), Email = $"{Guid.NewGuid():N}@example.test", NormalizedEmail = Guid.NewGuid().ToString(), CreatedAt = now }; db.Users.Add(user); await db.SaveChangesAsync();
-        await db.Database.ExecuteSqlInterpolatedAsync($"""INSERT INTO user_planning_states ("UserId","PlanningVersion","NotesVersion","SpecialDaysVersion","UpdatedAt") VALUES ({user.Id},3,5,0,{now})""");
+        var now = Morning; var userId = Guid.NewGuid(); var email = $"{Guid.NewGuid():N}@example.test";
+        await db.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO users ("Id","Email","NormalizedEmail","DisplayName","CreatedAt","Version")
+            VALUES ({userId},{email},{email.ToUpperInvariant()},'Eski kullanıcı',{now},1)
+            """);
+        await db.Database.ExecuteSqlInterpolatedAsync($"""INSERT INTO user_planning_states ("UserId","PlanningVersion","NotesVersion","SpecialDaysVersion","UpdatedAt") VALUES ({userId},3,5,0,{now})""");
         var taskId = Guid.NewGuid(); await db.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO tasks ("Id","UserId","Title","State","Priority","CanSplit","HasDirectWork","DirectWorkCompleted","RequiredForParent","SortOrder","CreatedAt","UpdatedAt","Version")
-            VALUES ({taskId},{user.Id},'Eski görev','Pending','Normal',true,true,false,true,1024,{now},{now},1)
+            VALUES ({taskId},{userId},'Eski görev','Pending','Normal',true,true,false,true,1024,{now},{now},1)
             """);
         var ids = new Dictionary<string, Guid> { ["Task"] = Guid.NewGuid(), ["Distraction"] = Guid.NewGuid(), ["Daily"] = Guid.NewGuid(), ["NextStep"] = Guid.NewGuid() };
         foreach (var (kind, id) in ids)
@@ -129,18 +173,23 @@ public sealed class NoteCategoryTests(DatabaseFixture fixture) : IClassFixture<D
             Guid? link = kind is "Task" or "NextStep" ? taskId : null; DateOnly? day = kind == "Daily" ? new DateOnly(2026, 10, 20) : null;
             await db.Database.ExecuteSqlInterpolatedAsync($"""
                 INSERT INTO user_notes ("Id","UserId","TaskId","Kind","Text","LocalDate","TimeZoneId","DueAt","CreatedAt","UpdatedAt","Version")
-                VALUES ({id},{user.Id},{link},{kind},{"Eski " + kind},{day},'Europe/Istanbul',{now.AddDays(1)},{now},{now},2)
+                VALUES ({id},{userId},{link},{kind},{"Eski " + kind},{day},'Europe/Istanbul',{now.AddDays(1)},{now},{now},2)
                 """);
         }
         await db.Database.MigrateAsync(); db.ChangeTracker.Clear();
-        var notes = await db.Notes.Where(x => x.UserId == user.Id).ToArrayAsync(); Assert.Equal(4, notes.Length);
-        Assert.All(notes, n => Assert.Equal((NoteDisplay.Short, (string?)null, (Guid?)null, 2L, "Eski " + n.Kind), (n.Display, n.Title, n.CategoryId, n.Version, n.Text)));
+        var notes = await db.Notes.Where(x => x.UserId == userId).ToArrayAsync(); Assert.Equal(4, notes.Length);
+        Assert.All(notes, n => Assert.Equal((NoteDisplay.Short, (string?)null, "Eski " + n.Kind), (n.Display, n.Title, n.Text)));
+        Assert.All(notes.Where(n => n.Kind != NoteKind.Daily), n => Assert.Equal(((Guid?)null, 2L), (n.CategoryId, n.Version)));
         Assert.Equal(taskId, notes.Single(x => x.Id == ids["Task"]).TaskId); Assert.Equal(new DateOnly(2026, 10, 20), notes.Single(x => x.Id == ids["Daily"]).LocalDate);
         Assert.Equal(now.AddDays(1).ToUnixTimeMilliseconds(), notes.Single(x => x.Id == ids["Distraction"]).DueAt!.Value.ToUnixTimeMilliseconds());
-        var seeded = Assert.Single(await db.NoteCategories.Where(x => x.UserId == user.Id).ToArrayAsync());
+        var categories = await db.NoteCategories.Where(x => x.UserId == userId).ToArrayAsync();
+        Assert.Equal(2, categories.Length);
+        var seeded = Assert.Single(categories, x => x.Name == NoteCategory.DefaultWarningName);
+        var dayCategory = Assert.Single(categories, x => x.Name == "Gün Notları");
+        Assert.Equal(((Guid?)dayCategory.Id, 3L), (notes.Single(x => x.Id == ids["Daily"]).CategoryId, notes.Single(x => x.Id == ids["Daily"]).Version));
         Assert.Equal((NoteCategory.DefaultWarningName, NoteCategoryColor.Red, true, true, (DateTimeOffset?)null), (seeded.Name, seeded.Color, seeded.ShowInBar, seeded.PinInAll, seeded.RemovedAt));
-        var state = await db.PlanningStates.SingleAsync(x => x.UserId == user.Id); Assert.Equal((5L, NoteViewMode.Cards, NoteViewMode.List), (state.NotesVersion, state.NotesAllViewMode, state.NotesTaskViewMode));
+        var state = await db.PlanningStates.SingleAsync(x => x.UserId == userId); Assert.Equal((6L, NoteViewMode.Cards, NoteViewMode.List), (state.NotesVersion, state.NotesAllViewMode, state.NotesTaskViewMode));
         await db.GetService<IMigrator>().MigrateAsync(migrations[target - 1]); await db.Database.MigrateAsync(); db.ChangeTracker.Clear();
-        Assert.Single(await db.NoteCategories.Where(x => x.UserId == user.Id).ToArrayAsync()); Assert.Empty(await db.Database.GetPendingMigrationsAsync());
+        Assert.Equal(2, await db.NoteCategories.CountAsync(x => x.UserId == userId)); Assert.Empty(await db.Database.GetPendingMigrationsAsync());
     }
 }

@@ -8,6 +8,7 @@ namespace Adhd.Infrastructure.Support;
 public sealed partial class SupportStore
 {
     private const int CategoryLimit = 100;
+    private const string DailyCategoryName = "Gün Notları";
     private static readonly CompareInfo TurkishCompare = CultureInfo.GetCultureInfo("tr-TR").CompareInfo;
     public async Task<NoteCategoryList> CategoriesAsync(Guid userId, CancellationToken ct)
     {
@@ -97,6 +98,22 @@ public sealed partial class SupportStore
     }
     private async Task<NoteCategory> Category(Guid userId, Guid id, CancellationToken ct) =>
         await db.NoteCategories.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == id, ct) ?? throw Missing("note_category_not_found");
+    // Hesap kilidi tutulurken çağır. Kategoriyle not birlikte kaydolur.
+    private async Task<Guid> DailyCategoryId(Guid userId, CancellationToken ct)
+    {
+        var active = await db.NoteCategories.AsNoTracking().Where(x => x.UserId == userId && x.RemovedAt == null)
+            .OrderBy(x => x.SortOrder).ThenBy(x => x.Id).ToArrayAsync(ct);
+        var existing = active.FirstOrDefault(x => TurkishCompare.Compare(x.Name, DailyCategoryName, CompareOptions.IgnoreCase) == 0);
+        if (existing is not null) return existing.Id;
+        var now = clock.GetUtcNow();
+        var category = new NoteCategory
+        {
+            Id = Guid.CreateVersion7(), UserId = userId, Name = DailyCategoryName, Color = NoteCategoryColor.Blue,
+            SortOrder = (active.LastOrDefault()?.SortOrder ?? 0) + 1024, CreatedAt = now, UpdatedAt = now
+        };
+        db.NoteCategories.Add(category);
+        return category.Id;
+    }
     private static void Unique(IEnumerable<NoteCategory> active, string name, Guid? except)
     {
         if (active.Any(x => x.Id != except && TurkishCompare.Compare(x.Name, name, CompareOptions.IgnoreCase) == 0))

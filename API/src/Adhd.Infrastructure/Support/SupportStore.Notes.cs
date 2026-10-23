@@ -19,8 +19,12 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
 {
     public async Task<NoteView> CreateNoteAsync(Guid userId, NoteFields fields, CancellationToken ct)
     {
-        var text = Text(fields.Text); if (fields.Kind == NoteKind.Daily) throw Invalid("note_kind_retired", "Günlük not artık oluşturulmuyor; genel not kullanın.");
-        if (!Enum.IsDefined(fields.Kind) || fields.LocalDate.HasValue) throw Invalid("note_invalid", "Not türü, görev ve yerel gün bağlamını kontrol edin.");
+        var text = Text(fields.Text);
+        var daily = fields.Kind == NoteKind.Daily;
+        if (!Enum.IsDefined(fields.Kind) || daily != fields.LocalDate.HasValue ||
+            (daily && (fields.TaskId.HasValue || fields.WorkSessionId.HasValue)))
+            throw Invalid("note_invalid", "Not türü, görev ve yerel gün bağlamını kontrol edin.");
+        if (fields.LocalDate is { } date) Date(date);
         var title = Shape(fields.Kind, fields.Display, fields.Title, fields.CategoryId);
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct);
         var taskId = fields.TaskId; if (taskId.HasValue) _ = await Task(userId, taskId.Value, ct);
@@ -31,9 +35,11 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
             taskId ??= work.TaskId;
         }
         if (fields.Kind is NoteKind.Task or NoteKind.NextStep && taskId is null) throw Invalid("note_task_required", "Bu not türü gerçek bir görev bağlamı gerektirir.");
-        if (fields.CategoryId.HasValue) await ActiveCategory(userId, fields.CategoryId.Value, ct);
+        var categoryId = fields.CategoryId;
+        if (categoryId.HasValue) await ActiveCategory(userId, categoryId.Value, ct);
+        else if (daily) categoryId = await DailyCategoryId(userId, ct);
         var now = clock.GetUtcNow(); var row = new UserNote { Id = Guid.CreateVersion7(), UserId = userId, TaskId = taskId, WorkSessionId = fields.WorkSessionId, Kind = fields.Kind,
-            Text = text, Title = title, CategoryId = fields.CategoryId, Display = fields.Display, DueAt = Utc(fields.DueAt), TimeZoneId = (await preferences.ReadAsync(userId, ct)).Values.TimeZoneId, CreatedAt = now, UpdatedAt = now };
+            Text = text, Title = title, CategoryId = categoryId, Display = fields.Display, LocalDate = fields.LocalDate, DueAt = Utc(fields.DueAt), TimeZoneId = (await preferences.ReadAsync(userId, ct)).Values.TimeZoneId, CreatedAt = now, UpdatedAt = now };
         db.Notes.Add(row); state.NotesVersion++; await db.SaveChangesAsync(ct); var view = await ViewAsync(userId, row, ct); await tx.CommitAsync(ct); return view;
     }
     public async Task<NoteView> EditNoteAsync(Guid userId, Guid id, NoteEdit edit, CancellationToken ct)
@@ -44,7 +50,8 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
         {
             var title = Shape(note.Kind, display, edit.Title, edit.CategoryId);
             if (edit.CategoryId.HasValue && edit.CategoryId != note.CategoryId) await ActiveCategory(userId, edit.CategoryId.Value, ct);
-            note.Display = display; note.Title = title; note.CategoryId = edit.CategoryId;
+            note.Display = display; note.Title = title;
+            note.CategoryId = edit.CategoryId ?? (note.Kind == NoteKind.Daily ? await DailyCategoryId(userId, ct) : (Guid?)null);
         }
         note.Text = text; note.DueAt = Utc(edit.DueAt); note.Version++; note.UpdatedAt = clock.GetUtcNow(); state.NotesVersion++;
         await db.SaveChangesAsync(ct); var view = await ViewAsync(userId, note, ct); await tx.CommitAsync(ct); return view;
