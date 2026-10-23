@@ -5,6 +5,11 @@ namespace Adhd.UnitTests;
 public sealed class RecurrenceRulesTests
 {
     [Fact]
+    public void AutomaticRoutinesKeepThirtyOneRealDaysAndOthersKeepEight()
+    {
+        var start = new DateOnly(2026, 11, 2); Assert.Equal(30, RecurrenceRules.HorizonDays(new(start, AutoAddToPlan: true))); Assert.Equal(7, RecurrenceRules.HorizonDays(new(start)));
+    }
+    [Fact]
     public void DailyAndCustomIntervalStayAnchoredAndBoundedByStartAndInclusiveUntil()
     {
         var start = new DateOnly(2026, 10, 15); var rule = new RecurrenceRule(start, Frequency: RecurrenceFrequency.IntervalDays, Interval: 3, UntilDate: start.AddDays(8));

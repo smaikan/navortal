@@ -56,7 +56,9 @@ public sealed class RecurrenceSweepJob(PlannerDbContext db, TimeProvider clock) 
         var ids = rows.Select(x => x.Id).ToArray(); var definitions = await db.RecurrenceDefinitions.AsNoTracking().Where(x => ids.Contains(x.TemplateId)).GroupBy(x => x.TemplateId).Select(g => g.OrderByDescending(x => x.Number).First()).ToDictionaryAsync(x => x.TemplateId, ct);
         foreach (var template in rows)
         {
-            var rule = JsonSerializer.Deserialize<RecurrenceRule>(definitions[template.Id].Rule, RevisionWriter.Json)!; var now = clock.GetUtcNow(); var date = PlanTime.Date(now, rule.TimeZoneId); var payload = JsonSerializer.Serialize(new RecurrenceWindowPayload(template.Id, template.Version, date, date.AddDays(7)), RevisionWriter.Json); var key = $"recurrence-window:{template.Id}:v{template.Version}:{date:yyyyMMdd}"; var id = Guid.CreateVersion7();
+            var head = definitions[template.Id]; var rule = JsonSerializer.Deserialize<RecurrenceRule>(head.Rule, RevisionWriter.Json)!; var now = clock.GetUtcNow(); var date = PlanTime.Date(now, rule.TimeZoneId);
+            if (rule.UntilDate < date && head.EffectiveFrom <= date) continue; // Seri bittiyse o güne yeni görev açma.
+            var horizon = RecurrenceRules.HorizonDays(rule); var payload = JsonSerializer.Serialize(new RecurrenceWindowPayload(template.Id, template.Version, date, date.AddDays(horizon)), RevisionWriter.Json); var key = $"recurrence-window:{template.Id}:v{template.Version}:{date:yyyyMMdd}:h{horizon}"; var id = Guid.CreateVersion7();
             await db.Database.ExecuteSqlInterpolatedAsync($"""
                 INSERT INTO outbox_messages ("Id","UserId","EventKey","Kind","SourceId","SourceVersion","Payload","OccurredAt","AvailableAt","State","Attempts","Version")
                 VALUES ({id},{template.UserId},{key},'RecurrenceWindow',{template.Id},{template.Version},{payload}::jsonb,{now},{now},'Pending',0,1)

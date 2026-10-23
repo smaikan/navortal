@@ -11,6 +11,7 @@ using Adhd.Domain.Tasks;
 using Adhd.Domain.Users;
 using Adhd.Infrastructure.Persistence;
 using Adhd.Infrastructure.Planning;
+using Adhd.Infrastructure.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Recurrence;
@@ -28,8 +29,18 @@ public sealed partial class RecurrenceStore(PlannerDbContext db, IPreferencesSto
     public async Task<RecurrenceEffect> EnableAsync(Guid userId, Guid id, long version, bool enabled, string key, CancellationToken ct)
     {
         var payload = new { id, version, enabled }; await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct); var replay = await Replay(userId, "recurrence-enable", key, payload, ct); if (replay is not null) return replay;
-        var template = await Find(userId, id, ct); Check(template, version); template.Enabled = enabled; template.Version++; template.UpdatedAt = clock.GetUtcNow(); var definition = await Head(userId, id, ct);
-        var result = await Result(userId, template, definition, [], [], [], state.PlanningVersion, "recurrence-enable", key, payload, ct); await tx.CommitAsync(ct); return result;
+        var template = await Find(userId, id, ct); Check(template, version); var now = clock.GetUtcNow(); template.Enabled = enabled; template.Version++; template.UpdatedAt = now; var definition = await Head(userId, id, ct);
+        RecurrenceOccurrence[] rows = []; var retracted = 0;
+        if (!enabled)
+        {
+            var today = PlanTime.Date(now, Read<RecurrenceRule>(definition.Rule).TimeZoneId);
+            var owned = await OwnedPlans(userId, await db.RecurrenceOccurrences.Where(x => x.UserId == userId && x.TemplateId == id && x.LocalDate > today).ToArrayAsync(ct), ct);
+            retracted = await Retract(userId, owned, "Rutin duraklatıldı", now, ct);
+            await new TaskLifecycleStore(db, preferences, clock).ExecuteManyInTransaction(userId, owned.Select(x => x.Task.Id).ToArray(), TaskAction.Skip, ct);
+            foreach (var plan in owned) { plan.Occurrence.State = OccurrenceState.Skipped; plan.Occurrence.Reason = OccurrenceReason.SeriesPaused; plan.Occurrence.SyncedTaskVersion = plan.Task.Version; }
+            rows = owned.Select(x => x.Occurrence).ToArray(); if (retracted > 0) { state.PlanningVersion++; state.UpdatedAt = now; }
+        }
+        var result = await Result(userId, template, definition, rows, [], [], state.PlanningVersion, "recurrence-enable", key, payload, ct, retracted); await tx.CommitAsync(ct); return result;
     }
     private static RecurrenceRule Rule(RecurrenceRule rule)
     {
@@ -59,9 +70,9 @@ public sealed partial class RecurrenceStore(PlannerDbContext db, IPreferencesSto
         if (row is null) return null; if (row.RequestHash != Hash(payload)) throw Conflict("idempotency_conflict", "Anahtar farklı tekrar komutunda kullanılmış."); return Read<RecurrenceEffect>(row.Response) with { Replayed = true };
     }
     private async Task<RecurrenceEffect> Result(Guid userId, RecurrenceTemplate template, RecurrenceDefinition definition, RecurrenceOccurrence[] rows, Guid[] refreshed, Guid[] protectedIds,
-        long planningVersion, string scope, string key, object payload, CancellationToken ct)
+        long planningVersion, string scope, string key, object payload, CancellationToken ct, int retracted = 0)
     {
-        await db.SaveChangesAsync(ct); var result = new RecurrenceEffect(View(template, definition), await Views(userId, rows, ct), refreshed, protectedIds, planningVersion);
+        await db.SaveChangesAsync(ct); var result = new RecurrenceEffect(View(template, definition), await Views(userId, rows, ct), refreshed, protectedIds, planningVersion, RetractedDayItemCount: retracted);
         db.IdempotencyRecords.Add(new() { UserId = userId, Scope = scope, Key = key, RequestHash = Hash(payload), Response = JsonSerializer.Serialize(result, RevisionWriter.Json), CreatedAt = clock.GetUtcNow() }); await db.SaveChangesAsync(ct); return result;
     }
     private static RecurrenceTemplateView View(RecurrenceTemplate t, RecurrenceDefinition d) => new(t.Id, t.Enabled, t.Version, d.Id, d.Number, d.EffectiveFrom, Read<RecurrenceRule>(d.Rule), Read<RecurringTaskDefaults>(d.TaskDefaults), t.CreatedAt);

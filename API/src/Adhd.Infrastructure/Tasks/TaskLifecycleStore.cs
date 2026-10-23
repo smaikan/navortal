@@ -12,6 +12,19 @@ public sealed class TaskLifecycleStore(PlannerDbContext db, IPreferencesStore pr
 {
     public Task<TaskView> ExecuteAsync(Guid userId, Guid taskId, TaskStateCommand command, CancellationToken ct) => ExecuteCore(userId, taskId, command, true, ct);
     internal Task<TaskView> ExecuteInTransaction(Guid userId, Guid taskId, TaskStateCommand command, CancellationToken ct) => ExecuteCore(userId, taskId, command, false, ct);
+    // Aynı işlemdeki görevleri tek grafik yüklemesiyle uygular. Rutin serisi değişince toplu atlama ve geri açma bununla yapılır.
+    internal async Task ExecuteManyInTransaction(Guid userId, IReadOnlyCollection<Guid> taskIds, TaskAction action, CancellationToken ct)
+    {
+        if (taskIds.Count == 0) return;
+        if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("An owning transaction is required.");
+        var nodes = await db.Tasks.Where(x => x.UserId == userId && x.ArchivedAt == null).ToArrayAsync(ct);
+        var before = LifecycleAccess.Capture(nodes); var now = clock.GetUtcNow();
+        foreach (var id in taskIds) TaskLifecycle.Apply(nodes, id, action, null, now);
+        var closed = await Adhd.Infrastructure.Work.WorkLifecycle.CloseForTasks(db, userId, nodes, now, ct);
+        if (LifecycleAccess.Record(db, nodes, before, now, "StateChanged") == 0 && closed == 0) return;
+        await Adhd.Infrastructure.Planning.PlanningLifecycle.CloseFuture(db, userId, nodes, now, ct);
+        await db.SaveChangesAsync(ct);
+    }
     private async Task<TaskView> ExecuteCore(Guid userId, Guid taskId, TaskStateCommand command, bool ownTransaction, CancellationToken ct)
     {
         if (command.Reason?.Length > 2000) throw new UseCaseException(ErrorKind.Validation, "reason_invalid", "Neden en çok2000 karakter olabilir.");

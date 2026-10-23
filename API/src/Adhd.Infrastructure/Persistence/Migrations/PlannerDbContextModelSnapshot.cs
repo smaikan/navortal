@@ -806,8 +806,14 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("LocalDate")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("RecurrenceOccurrenceId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("ScheduleId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("SeriesRetractedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -838,6 +844,9 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId", "RecurrenceOccurrenceId")
+                        .HasFilter("\"RecurrenceOccurrenceId\" IS NOT NULL");
 
                     b.HasIndex("UserId", "TaskId");
 
@@ -2631,6 +2640,12 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Recurrence.RecurrenceOccurrence", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "RecurrenceOccurrenceId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
                         .WithMany()

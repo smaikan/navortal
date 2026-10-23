@@ -127,6 +127,14 @@ public sealed class OutboxTests
         await s.Restart(Morning.AddDays(1)); await s.Pump(); await using var after = s.Context(); Assert.Equal(2, await after.Tasks.CountAsync()); Assert.Equal(JobEffectState.Completed, (await after.JobEffects.SingleAsync(x => x.OutboxId == claim.Id)).State); Assert.Equal(OutboxState.Completed, (await after.Outbox.SingleAsync(x => x.Id == claim.Id)).State);
     }
     [Fact]
+    public async Task WorkerKeepsThirtyOneRealDaysForAutomaticRoutinesAndEightForOthers()
+    {
+        await using var s = await JobScenario.Create(); var today = new DateOnly(2026, 10, 15);
+        var auto = await Send(s.User, HttpMethod.Post, "/api/recurrence-templates", JsonSerializer.SerializeToElement(new RecurrenceCreate(new(today, AutoAddToPlan: true), new("Otomatik")), Json)); Assert.Equal(HttpStatusCode.Created, auto.StatusCode);
+        var plain = await Send(s.User, HttpMethod.Post, "/api/recurrence-templates", JsonSerializer.SerializeToElement(new RecurrenceCreate(new(today), new("Elle")), Json)); Assert.Equal(HttpStatusCode.Created, plain.StatusCode); await s.Pump();
+        await using var db = s.Context(); Assert.Equal(31, await db.Tasks.CountAsync(x => x.Title == "Otomatik")); Assert.Equal(31, await db.DayItems.CountAsync()); Assert.Equal(8, await db.Tasks.CountAsync(x => x.Title == "Elle"));
+    }
+    [Fact]
     public async Task RecurrenceOutboxRunsRealMaterializationAndExpiredUnpreparedWindowDoesNotBackfill()
     {
         await using var s = await JobScenario.Create(); var today = new DateOnly(2026, 10, 15); var body = new RecurrenceCreate(new(today, UntilDate: today.AddDays(2)), new("Worker oluşturdu"));

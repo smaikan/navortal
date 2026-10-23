@@ -10,6 +10,8 @@ public sealed record RecurrenceRule(DateOnly StartDate, string TimeZoneId = "Eur
 public sealed record RecurrenceCandidate(DateOnly LocalDate, string TimeZoneId, TimeOnly? DueTime, DateTimeOffset? DueAt, bool Adjusted, bool Skipped, string? Reason);
 public static class RecurrenceRules
 {
+    // Otomatik plana giren seri bugünden 30 gün ileriye (toplam 31 gün) gerçek kayıt üretir; diğerleri 7 gün ileriye.
+    public static int HorizonDays(RecurrenceRule rule) => rule.AutoAddToPlan ? 30 : 7;
     public static bool Valid(RecurrenceRule r)
     {
         if (r.StartDate.Year is < 2 or > 9998 || r.UntilDate < r.StartDate || r.UntilDate?.Year > 9998 || !Enum.IsDefined(r.Frequency) || !Enum.IsDefined(r.Gap) || !Enum.IsDefined(r.Overlap)

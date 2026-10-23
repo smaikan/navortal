@@ -20,6 +20,7 @@ public sealed class RecurrenceController(RecurrenceService service) : Controller
     [HttpPost("{id:guid}/materialize")] public async Task<RecurrenceEffect> Materialize(Guid id, MaterializeRecurrence request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct) => Result(await service.MaterializeAsync(UserId, id, request, key ?? "", ct));
     [HttpPost("{id:guid}/occurrences/{date}/skip")] public async Task<RecurrenceEffect> Skip(Guid id, DateOnly date, ChangeOccurrence request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct) => Result(await service.ChangeOccurrenceAsync(UserId, id, date, request, false, key ?? "", ct));
     [HttpPost("{id:guid}/occurrences/{date}/cancel")] public async Task<RecurrenceEffect> Cancel(Guid id, DateOnly date, ChangeOccurrence request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct) => Result(await service.ChangeOccurrenceAsync(UserId, id, date, request, true, key ?? "", ct));
+    [HttpGet("projection")] public Task<RecurrenceProjectionView> Projection([FromQuery] RecurrenceProjectionQuery query, CancellationToken ct) => service.ProjectionAsync(UserId, query.FromDate!.Value, query.ToDate!.Value, ct);
     [HttpGet("{id:guid}")] public Task<RecurrenceTemplateView> Get(Guid id, CancellationToken ct) => service.GetAsync(UserId, id, ct);
     [HttpGet] public Task<RecurrenceTemplatePage> List([FromQuery] int offset = 0, [FromQuery] int limit = 50, CancellationToken ct = default) => service.ListAsync(UserId, offset, limit, ct);
     [HttpGet("{id:guid}/definitions")] public Task<RecurrenceDefinitionPage> Definitions(Guid id, [FromQuery] int offset = 0, [FromQuery] int limit = 50, CancellationToken ct = default) => service.DefinitionsAsync(UserId, id, offset, limit, ct);
@@ -32,5 +33,10 @@ public sealed class RecurrenceWindowQuery
     [Required] public DateOnly? ToDate { get; set; }
     public int Offset { get; set; }
     public int Limit { get; set; } = 50;
+}
+public sealed class RecurrenceProjectionQuery
+{
+    [Required] public DateOnly? FromDate { get; set; }
+    [Required] public DateOnly? ToDate { get; set; }
 }
 public sealed class RecurrenceEnableRequest { [Range(1, long.MaxValue)] public long Version { get; set; } [Required] public bool? Enabled { get; set; } }

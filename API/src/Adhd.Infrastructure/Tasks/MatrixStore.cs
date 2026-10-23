@@ -37,7 +37,7 @@ public sealed class MatrixStore(PlannerDbContext db) : IMatrixStore
         if (offset is < 0 or > 100000 || limit is < 1 or > 100 || search?.Length > 200) throw Invalid();
         var term = search?.Trim() ?? "";
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct);
-        var query = from t in Active(userId).Where(t => !db.MatrixItems.Any(m => m.UserId == userId && m.TaskId == t.Id))
+        var query = from t in Active(userId).Where(t => !db.MatrixItems.Any(m => m.UserId == userId && m.TaskId == t.Id) && !db.RecurrenceOccurrences.Any(o => o.UserId == userId && o.TaskId == t.Id))
                     join p in db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null) on t.ParentTaskId equals (Guid?)p.Id into parents
                     from p in parents.DefaultIfEmpty()
                     where term == "" || EF.Functions.Collate(t.Title, "adhd_search").ToLower().Contains(EF.Functions.Collate(term, "adhd_search").ToLower())

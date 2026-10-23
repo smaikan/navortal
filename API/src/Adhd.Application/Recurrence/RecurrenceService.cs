@@ -14,7 +14,9 @@ public sealed record RecurrenceDefinitionPage(RecurrenceDefinitionView[] Items, 
 public sealed record OccurrenceView(Guid Id, Guid TemplateId, Guid OriginalDefinitionId, Guid AppliedDefinitionId, DateOnly LocalDate, string OriginalTimeZoneId, TimeOnly? OriginalDueTime, DateTimeOffset? OriginalDueAt,
     bool TimeAdjusted, Guid? TaskId, TaskState? TaskState, long? TaskVersion, bool TaskChangedSinceSync, OccurrenceState State, string? Reason);
 public sealed record OccurrencePage(OccurrenceView[] Items, int Offset, int Limit, int Total);
-public sealed record RecurrenceEffect(RecurrenceTemplateView Template, OccurrenceView[] Occurrences, Guid[] RefreshedTaskIds, Guid[] ProtectedTaskIds, long PlanningVersion, bool Replayed = false);
+public sealed record RecurrenceEffect(RecurrenceTemplateView Template, OccurrenceView[] Occurrences, Guid[] RefreshedTaskIds, Guid[] ProtectedTaskIds, long PlanningVersion, bool Replayed = false, int RetractedDayItemCount = 0);
+public sealed record RecurrenceProjectionItem(Guid TemplateId, long TemplateVersion, DateOnly LocalDate, string Title, TimeOnly? StartTime, long? EstimatedSeconds);
+public sealed record RecurrenceProjectionView(DateOnly FromDate, DateOnly ToDate, RecurrenceProjectionItem[] Items);
 public sealed record MaterializeRecurrence(long Version, DateOnly FromDate, DateOnly ToDate);
 public sealed record ChangeOccurrence(long Version, long? TaskVersion = null);
 public interface IRecurrenceStore
@@ -29,6 +31,7 @@ public interface IRecurrenceStore
     Task<RecurrenceEffect> ChangeOccurrenceAsync(Guid userId, Guid id, DateOnly date, ChangeOccurrence command, bool cancel, string key, CancellationToken ct);
     Task<OccurrencePage> OccurrencesAsync(Guid userId, Guid id, DateOnly from, DateOnly to, int offset, int limit, CancellationToken ct);
     Task<OccurrenceView> ForTaskAsync(Guid userId, Guid taskId, CancellationToken ct);
+    Task<RecurrenceProjectionView> ProjectionAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct);
 }
 public sealed class RecurrenceService(IRecurrenceStore store)
 {
@@ -42,4 +45,5 @@ public sealed class RecurrenceService(IRecurrenceStore store)
     public Task<RecurrenceEffect> ChangeOccurrenceAsync(Guid userId, Guid id, DateOnly date, ChangeOccurrence command, bool cancel, string key, CancellationToken ct) => store.ChangeOccurrenceAsync(userId, id, date, command, cancel, key, ct);
     public Task<OccurrencePage> OccurrencesAsync(Guid userId, Guid id, DateOnly from, DateOnly to, int offset, int limit, CancellationToken ct) => store.OccurrencesAsync(userId, id, from, to, offset, limit, ct);
     public Task<OccurrenceView> ForTaskAsync(Guid userId, Guid taskId, CancellationToken ct) => store.ForTaskAsync(userId, taskId, ct);
+    public Task<RecurrenceProjectionView> ProjectionAsync(Guid userId, DateOnly from, DateOnly to, CancellationToken ct) => store.ProjectionAsync(userId, from, to, ct);
 }

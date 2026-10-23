@@ -16,12 +16,18 @@ public sealed partial class RecurrenceStore
         var template = await Find(userId, id, ct); Check(template, command.Version); if (!template.Enabled) throw Conflict("recurrence_disabled", "Şablon pasif; yeni örnek üretilmez.");
         var definitions = await Definitions(userId, id, command.FromDate, command.ToDate, ct);
         var existing = await db.RecurrenceOccurrences.Where(x => x.UserId == userId && x.TemplateId == id && x.LocalDate >= command.FromDate && x.LocalDate <= command.ToDate).ToListAsync(ct);
-        var held = existing.Select(x => x.LocalDate).ToHashSet(); var now = clock.GetUtcNow(); var made = 0;
+        var dormant = existing.Where(x => OccurrenceReason.Revivable(x.State, x.Reason, x.TaskId)).ToDictionary(x => x.LocalDate);
+        var held = existing.Select(x => x.LocalDate).Where(x => !dormant.ContainsKey(x)).ToHashSet(); var now = clock.GetUtcNow(); var made = 0; var returning = new List<Returning>();
         var order = await db.Tasks.Where(x => x.UserId == userId && x.ParentTaskId == null && x.ArchivedAt == null).Select(x => (decimal?)x.SortOrder).MaxAsync(ct) ?? 0;
         for (var date = command.FromDate; date <= command.ToDate; date = date.AddDays(1))
         {
             if (held.Contains(date)) continue; var definition = Applicable(definitions, date); if (definition is null) continue;
             var rule = Read<RecurrenceRule>(definition.Rule); if (!RecurrenceRules.Matches(rule, date)) continue; var candidate = Candidate(rule, date); var fields = Read<RecurringTaskDefaults>(definition.TaskDefaults);
+            if (dormant.TryGetValue(date, out var closed))
+            {
+                if (!candidate.Skipped && date >= PlanTime.Date(now, rule.TimeZoneId)) returning.Add(new(closed, definition, fields, candidate));
+                continue;
+            }
             var occurrence = Occurrence(template, definition, candidate, now); existing.Add(occurrence); db.RecurrenceOccurrences.Add(occurrence);
             if (candidate.Skipped) continue;
             await Pool(userId, fields, ct); order += 1024;
@@ -29,9 +35,27 @@ public sealed partial class RecurrenceStore
             Apply(task, fields, candidate.DueAt); occurrence.TaskId = task.Id; occurrence.SyncedTaskVersion = task.Version; db.Tasks.Add(task);
             TaskHistory.Append(db, task, "CreatedFromRecurrence", null, new { templateId = id, occurrenceId = occurrence.Id, definitionId = definition.Id, localDate = date, candidate.TimeZoneId, candidate.DueTime, candidate.Adjusted }); made++;
         }
+        made += await Revive(userId, id, returning, now, ct);
         var planned = await AddAutomaticPlans(userId, existing.ToArray(), definitions, state.PlanningVersion, now, ct);
         if (made > 0 || planned > 0) { state.PlanningVersion++; state.UpdatedAt = now; }
         var result = await Result(userId, template, await Head(userId, id, ct), existing.ToArray(), [], [], state.PlanningVersion, "recurrence-materialize", key, payload, ct); await tx.CommitAsync(ct); return result;
+    }
+    private sealed record Returning(RecurrenceOccurrence Row, RecurrenceDefinition Definition, RecurringTaskDefaults Fields, RecurrenceCandidate Candidate);
+    // Seri kararıyla kapanmış oluşumu aynı görevle geri açar. Sonradan elle değişmiş görev kapalı kalır.
+    private async Task<int> Revive(Guid userId, Guid templateId, List<Returning> rows, DateTimeOffset now, CancellationToken ct)
+    {
+        if (rows.Count == 0) return 0;
+        var ids = rows.Select(x => x.Row.TaskId!.Value).ToArray(); var tasks = await db.Tasks.Where(x => x.UserId == userId && ids.Contains(x.Id)).ToDictionaryAsync(x => x.Id, ct);
+        var ready = rows.Where(x => tasks[x.Row.TaskId!.Value] is { State: TaskState.Skipped, ArchivedAt: null, DeletedAt: null } task && task.Version == x.Row.SyncedTaskVersion).ToArray();
+        await new TaskLifecycleStore(db, preferences, clock).ExecuteManyInTransaction(userId, ready.Select(x => x.Row.TaskId!.Value).ToArray(), TaskAction.Reopen, ct);
+        foreach (var (row, definition, fields, candidate) in ready)
+        {
+            await Pool(userId, fields, ct); var task = tasks[row.TaskId!.Value]; var before = TaskStore.View(task);
+            Apply(task, fields, candidate.DueAt); task.Version++; task.UpdatedAt = now;
+            TaskHistory.Append(db, task, "RecurrenceRevived", before, new { templateId, occurrenceId = row.Id, definitionId = definition.Id });
+            row.State = OccurrenceState.Materialized; row.Reason = null; row.AppliedDefinitionId = definition.Id; row.DueTime = candidate.DueTime; row.DueAt = candidate.DueAt; row.TimeAdjusted = candidate.Adjusted; row.SyncedTaskVersion = task.Version;
+        }
+        return ready.Length;
     }
     private async Task<RecurrenceDefinition[]> Definitions(Guid userId, Guid id, DateOnly from, DateOnly to, CancellationToken ct)
     {

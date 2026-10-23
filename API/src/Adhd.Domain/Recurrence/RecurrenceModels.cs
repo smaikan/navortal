@@ -21,6 +21,12 @@ public sealed class RecurrenceDefinition
     public DateTimeOffset CreatedAt { get; set; }
 }
 public enum OccurrenceState { Materialized, Skipped, Canceled }
+// Sistem kararıyla kapanan oluşum nedenleri. Seri geri açılır veya uzarsa bu oluşumlar aynı görevle döner; kullanıcı işaretleri dönmez.
+public static class OccurrenceReason
+{
+    public const string User = "User", SeriesPaused = "SeriesPaused", SeriesChanged = "SeriesChanged";
+    public static bool Revivable(OccurrenceState state, string? reason, Guid? taskId) => state == OccurrenceState.Skipped && taskId.HasValue && reason is SeriesPaused or SeriesChanged;
+}
 public sealed class RecurrenceOccurrence
 {
     public Guid Id { get; set; }

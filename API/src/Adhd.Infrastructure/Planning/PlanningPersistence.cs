@@ -49,6 +49,8 @@ internal static class PlanningPersistence
             b.HasKey(x => x.Id); b.HasAlternateKey(x => new { x.UserId, x.Id });
             b.HasIndex(x => new { x.UserId, x.LocalDate, x.SortOrder });
             b.HasIndex(x => new { x.UserId, x.LocalDate, x.TaskId }).IsUnique().HasFilter("\"State\" = 'Planned'");
+            b.HasIndex(x => new { x.UserId, x.RecurrenceOccurrenceId }).HasFilter("\"RecurrenceOccurrenceId\" IS NOT NULL");
+            b.HasOne<Adhd.Domain.Recurrence.RecurrenceOccurrence>().WithMany().HasForeignKey(x => new { x.UserId, x.RecurrenceOccurrenceId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             b.Property(x => x.State).HasConversion<string>().HasMaxLength(20); b.Property(x => x.Version).IsConcurrencyToken(); b.Property(x => x.TimingIssue).HasMaxLength(60);
             b.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<TaskItem>().WithMany().HasForeignKey(x => new { x.UserId, x.TaskId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);

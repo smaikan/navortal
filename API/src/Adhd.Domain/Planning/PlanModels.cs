@@ -97,4 +97,8 @@ public sealed class DayItem
     public DateTimeOffset? EndsAt { get; set; }
     public bool IsUrgent { get; set; }
     public string? TimingIssue { get; set; }
+    // Öğeyi sistem bu rutin oluşumundan eklediyse dolu. Kullanıcının eklediği öğede boştur.
+    public Guid? RecurrenceOccurrenceId { get; set; }
+    // Öğeyi seri değişikliği çektiyse dolu. Kullanıcının plandan çıkarması bunu yazmaz, o karar kalıcıdır.
+    public DateTimeOffset? SeriesRetractedAt { get; set; }
 }

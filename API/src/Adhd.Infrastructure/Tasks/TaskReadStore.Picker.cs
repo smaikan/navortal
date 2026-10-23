@@ -16,7 +16,9 @@ public sealed partial class TaskReadStore
         var state = await db.PlanningStates.AsNoTracking().SingleAsync(x => x.UserId == userId, ct);
         var term = search?.Trim() ?? "";
         var eligible = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null && x.ArchivedAt == null
-            && x.HasDirectWork && !x.DirectWorkCompleted && (x.State == TaskState.Pending || x.State == TaskState.InProgress || x.State == TaskState.Paused));
+            && x.HasDirectWork && !x.DirectWorkCompleted && (x.State == TaskState.Pending || x.State == TaskState.InProgress || x.State == TaskState.Paused)
+            // Rutin görevini yalnız kendi tarihinde seçilebilir yap. Yoksa aynı başlık her gün için çıkar.
+            && !db.RecurrenceOccurrences.Any(o => o.UserId == userId && o.TaskId == x.Id && (date == null || o.LocalDate != date)));
         var exact = term.Length > 0 && await eligible.AnyAsync(x => EF.Functions.Collate(x.Title, "adhd_search").ToLower() == EF.Functions.Collate(term, "adhd_search").ToLower(), ct);
         var rows = from t in eligible
                    join p in db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null) on t.ParentTaskId equals (Guid?)p.Id into parents

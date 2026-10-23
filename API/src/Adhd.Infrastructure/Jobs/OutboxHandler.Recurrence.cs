@@ -43,7 +43,7 @@ public sealed partial class OutboxHandler
                 else
                 {
                     var definition = await db.RecurrenceDefinitions.AsNoTracking().Where(x => x.UserId == claim.UserId && x.TemplateId == template.Id).OrderByDescending(x => x.Number).FirstAsync(ct); var rule = JsonSerializer.Deserialize<RecurrenceRule>(definition.Rule, RevisionWriter.Json)!;
-                    var today = PlanTime.Date(clock.GetUtcNow(), rule.TimeZoneId); input = new(template.Id, new(template.Version, today, today.AddDays(7)));
+                    var today = PlanTime.Date(clock.GetUtcNow(), rule.TimeZoneId); input = new(template.Id, new(template.Version, today, today.AddDays(RecurrenceRules.HorizonDays(rule))));
                 }
                 receipt.ResolvedInput = JsonSerializer.Serialize(input, RevisionWriter.Json); receipt.State = JobEffectState.Prepared;
             }
