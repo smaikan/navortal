@@ -40,6 +40,34 @@ public sealed class NamedResourceTests(DatabaseFixture fixture) : IClassFixture<
         Assert.Equal(turkish.Id, Assert.Single(unicodeSearch.Items).Id);
     }
     [Fact]
+    public async Task ListSummaryMatchesWorkloadIsOwnerScopedAndOnlyOnRequest()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); var a = await TaskScenario.User(app); var b = await TaskScenario.User(app);
+        var full = await TaskScenario.Read<NamedResourceView>(await a.Client.PostAsJsonAsync("/api/projects", new { name = "Dolu" }));
+        var empty = await TaskScenario.Read<NamedResourceView>(await a.Client.PostAsJsonAsync("/api/projects", new { name = "Boş" }));
+        var done = await a.Root("Biten"); await a.Define(done.Id, true, 600);
+        var open = await a.Root("Açık"); await a.Define(open.Id, true, 1200);
+        var unknown = await a.Root("Süresiz"); await a.Define(unknown.Id, true, null);
+        var other = await b.Root("Yabancı");
+        await using (var db = fixture.CreateContext())
+        {
+            foreach (var task in await db.Tasks.Where(x => x.UserId == a.UserId).ToListAsync()) task.ProjectId = full.Id;
+            var finished = await db.Tasks.SingleAsync(x => x.Id == done.Id); finished.State = Adhd.Domain.Tasks.TaskState.Completed; finished.CompletedAt = DateTimeOffset.UtcNow; finished.CompletionOrigin = Adhd.Domain.Tasks.CompletionOrigin.Manual;
+            await db.SaveChangesAsync();
+        }
+        var plain = await TaskScenario.Read<NamedResourcePage>(await a.Client.GetAsync("/api/projects"));
+        Assert.Null(plain.Summaries);
+        var page = await TaskScenario.Read<NamedResourcePage>(await a.Client.GetAsync("/api/projects?includeSummary=true"));
+        Assert.Equal(2, page.Summaries!.Length);
+        var summary = page.Summaries.Single(x => x.ResourceId == full.Id);
+        var workload = await TaskScenario.Read<NamedResourceWorkload>(await a.Client.GetAsync($"/api/projects/{full.Id}/workload"));
+        Assert.Equal((3, 1), (summary.TaskCount, summary.CompletedCount));
+        Assert.Equal((workload.Values.TaskCount, workload.Values.OpenComponentCount, workload.Values.KnownEstimatedSeconds, workload.Values.UnknownEstimateCount), (summary.TaskCount, summary.OpenComponentCount, summary.KnownEstimatedSeconds, summary.UnknownEstimateCount));
+        Assert.Equal(0, page.Summaries.Single(x => x.ResourceId == empty.Id).TaskCount);
+        Assert.Empty((await TaskScenario.Read<NamedResourcePage>(await b.Client.GetAsync("/api/projects?includeSummary=true"))).Summaries!);
+        Assert.NotEqual(Guid.Empty, other.Id);
+    }
+    [Fact]
     public async Task ConcurrentResourceUpdatesHaveOneWinnerAndPlanningVersionIsAtomic()
     {
         await using var app = new PlannerFactory(fixture.ConnectionString); var s = await TaskScenario.User(app);

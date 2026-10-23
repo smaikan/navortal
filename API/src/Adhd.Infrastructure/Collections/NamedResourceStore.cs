@@ -18,7 +18,7 @@ public sealed class NamedResourceStore<T>(PlannerDbContext db, TimeProvider cloc
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return View(entity);
     }
     public async Task<NamedResourceView> GetAsync(Guid userId, Guid id, CancellationToken ct) => View(await Find(userId, id, ct));
-    public async Task<NamedResourcePage> ListAsync(Guid userId, int offset, int limit, string? search, bool includeArchived, CancellationToken ct)
+    public async Task<NamedResourcePage> ListAsync(Guid userId, int offset, int limit, string? search, bool includeArchived, bool includeSummary, CancellationToken ct)
     {
         var query = db.Set<T>().AsNoTracking().Where(x => EF.Property<Guid>(x, "UserId") == userId && (includeArchived || EF.Property<DateTimeOffset?>(x, "ArchivedAt") == null));
         if (!string.IsNullOrWhiteSpace(search))
@@ -28,7 +28,27 @@ public sealed class NamedResourceStore<T>(PlannerDbContext db, TimeProvider cloc
         }
         var total = await query.CountAsync(ct);
         var rows = await query.OrderBy(x => EF.Property<string>(x, "Name")).ThenBy(x => EF.Property<Guid>(x, "Id")).Skip(offset).Take(limit).ToArrayAsync(ct);
-        return new(rows.Select(View).ToArray(), offset, limit, total);
+        return new(rows.Select(View).ToArray(), offset, limit, total, includeSummary ? await SummariesAsync(userId, rows.Select(x => x.Id).ToArray(), ct) : null);
+    }
+    // Sayfadaki özetleri tek görev sorgusunda al. Sayıları iş yüküyle aynı şekilde hesapla.
+    private async Task<NamedResourceSummary[]> SummariesAsync(Guid userId, Guid[] ids, CancellationToken ct)
+    {
+        var query = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.ArchivedAt == null);
+        Func<TaskItem, Guid?> owner;
+        if (typeof(T) == typeof(TaskProject)) { query = query.Where(x => x.ProjectId != null && ids.Contains(x.ProjectId.Value)); owner = x => x.ProjectId; }
+        else if (typeof(T) == typeof(TaskPool)) { query = query.Where(x => x.PoolId != null && ids.Contains(x.PoolId.Value)); owner = x => x.PoolId; }
+        else if (typeof(T) == typeof(TaskCategory)) { query = query.Where(x => x.CategoryId != null && ids.Contains(x.CategoryId.Value)); owner = x => x.CategoryId; }
+        else return [];
+        var groups = (await query.ToArrayAsync(ct)).ToLookup(owner);
+        try
+        {
+            return ids.Select(id =>
+            {
+                var tasks = groups[id].ToArray(); var values = WorkloadForestCalculator.Calculate(tasks);
+                return new NamedResourceSummary(id, values.TaskCount, tasks.Count(x => x.State == TaskState.Completed), values.OpenComponentCount, values.KnownEstimatedSeconds, values.UnknownEstimateCount);
+            }).ToArray();
+        }
+        catch (OverflowException) { throw new UseCaseException(ErrorKind.Validation, "workload_overflow", "Toplam süre desteklenen sayı aralığını aşıyor."); }
     }
     public async Task<NamedResourceView> UpdateAsync(Guid userId, Guid id, long version, NamedResourceFields? fields, bool archive, CancellationToken ct)
     {

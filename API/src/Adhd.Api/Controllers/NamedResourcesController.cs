@@ -17,8 +17,8 @@ public abstract class NamedResourcesController<T>(NamedResourceService<T> servic
     }
     [HttpGet("{id:guid}")] public Task<NamedResourceView> Get(Guid id, CancellationToken ct) => service.GetAsync(UserId, id, ct);
     [HttpGet("{id:guid}/workload")] public Task<NamedResourceWorkload> Workload(Guid id, CancellationToken ct) => service.WorkloadAsync(UserId, id, ct);
-    [HttpGet] public Task<NamedResourcePage> List([FromQuery] int offset = 0, [FromQuery] int limit = 50, [FromQuery] string? search = null, [FromQuery] bool includeArchived = false, CancellationToken ct = default) =>
-        service.ListAsync(UserId, offset, limit, search, includeArchived, ct);
+    [HttpGet] public Task<NamedResourcePage> List([FromQuery] int offset = 0, [FromQuery] int limit = 50, [FromQuery] string? search = null, [FromQuery] bool includeArchived = false, [FromQuery] bool includeSummary = false, CancellationToken ct = default) =>
+        service.ListAsync(UserId, offset, limit, search, includeArchived, includeSummary, ct);
     [HttpPut("{id:guid}")] public Task<NamedResourceView> Update(Guid id, UpdateResourceRequest request, CancellationToken ct) => service.UpdateAsync(UserId, id, request.Version, new(request.Name, request.Description), ct);
     [HttpPost("{id:guid}/archive")] public Task<NamedResourceView> Archive(Guid id, ResourceVersionRequest request, CancellationToken ct) => service.ArchiveAsync(UserId, id, request.Version, ct);
 }
