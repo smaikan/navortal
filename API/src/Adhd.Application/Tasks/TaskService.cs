@@ -12,7 +12,7 @@ public sealed record TaskView(Guid Id, string Title, string? Description, TaskSt
 public sealed record TaskPage(TaskView[] Items, int Offset, int Limit, int Total, Adhd.Application.Sync.ReadCoverage? Coverage = null);
 public sealed record TaskQuery(int Offset = 0, int Limit = 50, string? Search = null, bool IncludeArchived = false, TaskPriority? Priority = null,
     Guid? ProjectId = null, Guid? PoolId = null, Guid? CategoryId = null, Guid? TagId = null, string OrderBy = "CreatedDesc",
-    TaskState? State = null, bool IncludeCompleted = true, bool? IsPlanned = null, DateTimeOffset? From = null, DateTimeOffset? To = null, DateOnly? AssignedOn = null, Adhd.Domain.Support.EnergyLevel? EnergyDemand = null, bool ExcludeRecurring = false);
+    TaskState? State = null, bool IncludeCompleted = true, bool? IsPlanned = null, DateTimeOffset? From = null, DateTimeOffset? To = null, DateOnly? AssignedOn = null, Adhd.Domain.Support.EnergyLevel? EnergyDemand = null, bool ExcludeRecurring = false, long? MinEstimateSeconds = null, long? MaxEstimateSeconds = null, DateOnly? DateFrom = null, DateOnly? DateTo = null);
 public interface ITaskStore
 {
     Task<TaskView> CreateAsync(Guid userId, TaskFields fields, CancellationToken ct);
@@ -32,6 +32,9 @@ public sealed class TaskService(ITaskStore store)
     {
         if (query.Offset is < 0 or > 100000 || query.Limit is < 1 or > 100 || query.Search?.Length > 200 || (query.Priority.HasValue && !Enum.IsDefined(query.Priority.Value))
             || query.OrderBy is not ("CreatedDesc" or "Title" or "Priority" or "Deadline" or "CompletedDesc") || (query.State.HasValue && !Enum.IsDefined(query.State.Value)))
+            throw new UseCaseException(ErrorKind.Validation, "task_query_invalid", "Liste filtreleri geçersiz.");
+        if (query.MinEstimateSeconds < 0 || query.MaxEstimateSeconds < 0 || query.MinEstimateSeconds > query.MaxEstimateSeconds
+            || query.DateFrom.HasValue != query.DateTo.HasValue || query.DateFrom > query.DateTo || query.DateTo?.DayNumber - query.DateFrom?.DayNumber > 366)
             throw new UseCaseException(ErrorKind.Validation, "task_query_invalid", "Liste filtreleri geçersiz.");
         return store.ListAsync(userId, query, ct);
     }

@@ -280,5 +280,8 @@ public sealed class UiR3BackendTests(DatabaseFixture fixture) : IClassFixture<Da
         var other = await TaskScenario.User(app);
         Assert.Empty((await TaskScenario.Read<TaskPage>(await other.Client.GetAsync("/api/tasks?energyDemand=Low"))).Items);
         Assert.Equal(HttpStatusCode.BadRequest, (await s.Client.GetAsync("/api/tasks?energyDemand=Sleepy")).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await s.Client.GetAsync("/api/tasks?minEstimateSeconds=60&maxEstimateSeconds=30")).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await s.Client.GetAsync("/api/tasks?dateFrom=2026-01-01")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await s.Client.GetAsync("/api/tasks?minEstimateSeconds=60&maxEstimateSeconds=3600&dateFrom=2026-01-01&dateTo=2026-01-31")).StatusCode);
     }
 }

@@ -1,5 +1,7 @@
 using Adhd.Application.Common;
+using Adhd.Application.Preferences;
 using Adhd.Application.Tasks;
+using Adhd.Domain.Planning;
 using Adhd.Domain.Tasks;
 using Adhd.Domain.Users;
 using Adhd.Infrastructure.Persistence;
@@ -7,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Tasks;
 
-public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskStore
+public sealed class TaskStore(PlannerDbContext db, TimeProvider clock, IPreferencesStore preferences) : ITaskStore
 {
     public async Task<TaskView> CreateAsync(Guid userId, TaskFields fields, CancellationToken ct)
     {
@@ -43,6 +45,17 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock) : ITaskSt
         if (query.AssignedOn is { } day) tasks = tasks.Where(x => x.PlannedFrom <= day && x.PlannedTo >= day);
         // Efor filtresi görevin kendi eforuna bakar. Eforu boş olanlar gelmez.
         if (query.EnergyDemand is { } energy) tasks = tasks.Where(x => x.EnergyDemand == energy);
+        // Görevin kendi tahminini kullan. Tahmin yoksa süre filtresiyle eşleştirme.
+        if (query.MinEstimateSeconds is { } minimum) tasks = tasks.Where(x => x.DirectEstimatedSeconds >= minimum);
+        if (query.MaxEstimateSeconds is { } maximum) tasks = tasks.Where(x => x.DirectEstimatedSeconds <= maximum);
+        if (query.DateFrom is { } first && query.DateTo is { } last)
+        {
+            // Atanmış aralık, son tarih veya plan öğesi seçili günlere değiyorsa görevi getir.
+            var zone = (await preferences.ReadAsync(userId, ct)).Values.TimeZoneId; var start = PlanTime.DayStart(first, zone); var end = PlanTime.DayStart(last.AddDays(1), zone);
+            tasks = tasks.Where(x => (x.PlannedFrom <= last && x.PlannedTo >= first) || (x.DeadlineAt >= start && x.DeadlineAt < end)
+                || db.DayItems.Any(d => d.UserId == userId && d.TaskId == x.Id && d.State == DayItemState.Planned && d.LocalDate >= first && d.LocalDate <= last)
+                || db.TaskSchedules.Any(s => s.UserId == userId && s.TaskId == x.Id && s.State == ScheduleState.Planned && s.Kind == ScheduleKind.Work && s.StartsAt < end && s.EndsAt > start));
+        }
         if (query.TagId.HasValue) tasks = tasks.Where(x => db.TaskTagLinks.Any(tag => tag.UserId == userId && tag.TaskId == x.Id && tag.TagId == query.TagId));
         if (query.IsPlanned is { } isPlanned)
         {
