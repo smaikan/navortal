@@ -1,0 +1,110 @@
+.temporal-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  color: var(--text);
+  text-align: start;
+}
+.temporal-control > .temporal-icon {
+  position: absolute;
+  inset-inline-start: 12px;
+  flex: none;
+  color: var(--muted);
+  pointer-events: none;
+}
+.temporal-control > input.temporal-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--control);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  cursor: text;
+}
+.temporal-control > input.temporal-input:hover:not(:disabled):not([readonly]) {
+  border-color: var(--primary-text);
+}
+.temporal-control > input.temporal-input:focus-visible {
+  border-color: var(--primary-text);
+  outline: 2px solid var(--primary-text);
+  outline-offset: 2px;
+}
+.temporal-control:focus-within > .temporal-icon {
+  color: var(--primary-text);
+}
+.temporal-control > input.temporal-input:disabled,
+.temporal-control > input.temporal-input[readonly] {
+  background: var(--raised);
+  cursor: default;
+}
+.temporal-control > input.temporal-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.temporal-control > input.temporal-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 6px;
+  margin-inline-end: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+.temporal-control > input.temporal-input::-webkit-calendar-picker-indicator:hover {
+  background-color: var(--raised);
+}
+.temporal-control > input.temporal-input::-webkit-datetime-edit {
+  padding: 0;
+}
+.temporal-time,
+.temporal-text {
+  max-width: 190px;
+}
+.temporal-datetime-local {
+  min-width: min(100%, 280px);
+}
+.clock-select {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 12px;
+  width: min(100%, 280px);
+}
+.clock-select > div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.clock-select label {
+  font-size: 14px;
+  color: var(--muted);
+}
+.clock-select > span {
+  padding-bottom: 10px;
+  color: var(--muted);
+  font-size: 22px;
+}
+.clock-select select {
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 12px;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  border-color: var(--control);
+}
+@media (forced-colors: active) {
+  .temporal-control > .temporal-icon {
+    color: CanvasText;
+  }
+}
