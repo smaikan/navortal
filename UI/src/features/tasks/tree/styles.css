@@ -1,0 +1,202 @@
+/* Görev ağacı stilleri globals'tan ayrıldı. Kart yerine sade satır ve hiyerarşi çizgisi var. */
+.r2-children {
+  margin-left: var(--indent, 19px);
+  padding-left: 3px;
+  border-left: 1px solid var(--divider);
+}
+.r2-toggle {
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+}
+.r2-toggle:hover {
+  background: var(--raised);
+}
+.r2-toggle svg {
+  transition: transform var(--dur-fast) ease;
+}
+.r2-toggle[aria-expanded="true"] svg,
+.r2-completed-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+.r2-ghost {
+  max-width: 360px;
+  padding: 8px 14px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-weight: 500;
+  transform: rotate(-1.2deg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.r2-root-end {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px dashed var(--control);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 13px;
+}
+.r2-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding-left: 8px;
+  color: var(--primary-text);
+}
+.r2-add > button {
+  min-height: 32px;
+  padding: 0 6px 0 2px;
+  gap: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+.r2-add > button:hover {
+  background: transparent;
+  color: var(--text);
+}
+.r2-add input {
+  flex: 1 1 200px;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 1px solid var(--primary);
+  border-radius: 0;
+  background: transparent;
+}
+.r2-add input:focus-visible {
+  outline: 0;
+  border-bottom-width: 2px;
+}
+.r2-state {
+  padding: 10px 6px;
+  color: var(--muted);
+}
+/* Yerine geçtiği iskeletle aynı ölçü. Üst boşluk bölüme çöküp satırlar gelince bütün ağacı kaydırmasın. */
+.r2-loading {
+  padding: 0;
+}
+.r2-loading .skeleton-list {
+  margin-top: 0;
+}
+.r2-completed {
+  max-width: 960px;
+  margin-top: 20px;
+}
+.r2-completed-toggle {
+  min-height: 32px;
+  padding: 0 8px 0 4px;
+  gap: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+}
+.r2-completed-toggle svg {
+  transition: transform var(--dur-fast) ease;
+}
+@media (pointer: coarse) {
+  .r2-toggle {
+    min-width: 36px;
+    min-height: 44px;
+  }
+  .r2-add > button,
+  .r2-completed-toggle {
+    min-height: 44px;
+  }
+}
+@media (max-width: 767px) {
+  .r2-menu {
+    grid-area: menu;
+  }
+}
+
+.workspace-main.r2-tasks > * {
+  max-width: 960px;
+}
+
+/* Yeni görev taslağı: ad satırının sağında "+", altında girintili alt görev satırları. Ölçüler ekleme satırıyla aynı. */
+.r2-add-draft {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding-bottom: 6px;
+}
+.r2-add-line,
+.r2-draft-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.r2-draft-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.r2-draft-row {
+  padding-left: calc(22px + 22px * var(--draft-depth, 1));
+}
+.r2-add .r2-draft-plus {
+  flex: none;
+  width: 28px;
+  min-height: 28px;
+  padding: 0;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+}
+.r2-add .r2-draft-plus:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--text);
+}
+.r2-draft-menu {
+  display: none;
+}
+.r2-draft-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-left: 22px;
+}
+.r2-draft-hint {
+  font-size: 12px;
+}
+@media (max-width: 640px), (pointer: coarse) {
+  .r2-draft-menu {
+    display: inline-flex;
+  }
+  .r2-draft-hint {
+    display: none;
+  }
+  .r2-add .r2-draft-plus {
+    width: 44px;
+    min-height: 44px;
+  }
+  .r2-draft-row {
+    padding-left: calc(22px + 14px * var(--draft-depth, 1));
+  }
+}
+
+/* Üst görev ilerlemesi biraz daha görünür; alt görev ayrıntısındaki çubuk aynı kalır. */
+.r2-progress .r2-progress-bar {
+  width: 72px;
+  height: 5px;
+}

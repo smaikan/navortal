@@ -1,0 +1,523 @@
+/* Görev paneli globals dosyasından ayrıldı. İşlemler önce, alanlar çıkışta kaydoluyor. */
+.r2-panel {
+  display: grid;
+  min-width: 0;
+}
+.r2-panel-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 10px;
+}
+.r2-start {
+  min-height: 32px;
+  padding: 4px 12px;
+  font-size: 13px;
+}
+.r2-finish {
+  min-height: 32px;
+  padding: 4px 12px;
+  gap: 6px;
+  background: var(--raised);
+  font-size: 13px;
+  font-weight: 500;
+}
+.r2-working {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal);
+}
+.r2-start-help {
+  flex-basis: 100%;
+  margin: 0;
+}
+.r2-parent {
+  justify-self: start;
+  min-height: 24px;
+  padding: 0 4px;
+  gap: 2px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.r2-parent:hover {
+  background: transparent;
+  color: var(--text);
+}
+.r2-fields {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.r2-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.r2-title-row > .r2-check {
+  margin-top: 12px;
+}
+.r2-title-input,
+.r2-description {
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  resize: none;
+  field-sizing: content;
+}
+.r2-title-input {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.r2-title-input:hover,
+.r2-description:hover {
+  border-color: var(--divider);
+}
+.r2-description {
+  min-height: 30px;
+  margin-bottom: 6px;
+}
+.r2-prop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-height: 36px;
+  color: var(--muted);
+}
+.r2-prop > label {
+  width: 84px;
+  font-size: 13px;
+}
+.r2-prop select,
+.r2-prop input {
+  min-height: 30px;
+  padding: 2px 6px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+}
+.r2-prop select:hover,
+.r2-prop input:hover {
+  border-color: var(--divider);
+}
+.r2-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.r2-section-head h3 {
+  margin: 0;
+}
+.r2-estimate-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.r2-estimate-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  accent-color: var(--primary);
+}
+.r2-estimate-row input[type="range"][data-empty] {
+  opacity: 0.5;
+}
+.r2-minutes {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.r2-minutes input {
+  width: 72px;
+  min-height: 32px;
+  padding: 2px 8px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.r2-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin: 10px 0 0;
+}
+.r2-facts dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.r2-facts dd {
+  margin: 2px 0 0;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.r2-derived {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.r2-derived > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+/* Başlangıç ve bitiş yan yana; alt görevlerin aralıkları kompakt satırlar. */
+.r2-range-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+}
+.r2-range-fields > span {
+  text-align: center;
+  color: var(--muted);
+}
+.r2-child-ranges {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.r2-child-ranges > li {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.r2-child-title {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task-classification .classification-content {
+  padding: 0;
+  gap: 4px;
+}
+.task-classification .classification-row {
+  grid-template-columns: 84px minmax(0, 1fr) auto;
+  padding-block: 2px;
+  border-bottom: 0;
+}
+.task-classification .classification-row dt {
+  grid-column: auto;
+  font-size: 13px;
+}
+.task-classification .classification-action button {
+  min-height: 30px;
+  padding: 0 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+@media (pointer: coarse) {
+  .r2-parent,
+  .task-classification .classification-action button {
+    min-height: 44px;
+  }
+}
+
+.r2-meta > .r2-effort {
+  font-weight: 500;
+}
+.r2-meta > .r2-effort[data-effort="Low"] {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+.r2-meta > .r2-effort[data-effort="Medium"] {
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.r2-meta > .r2-effort[data-effort="High"] {
+  background: var(--note-purple-soft);
+  color: var(--note-purple);
+}
+
+/* Görev filtreleri: başlığın altında tek sakin satır. */
+.r2-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 960px;
+  padding-bottom: 14px;
+}
+.r2-filters select {
+  width: auto;
+  min-height: 36px;
+  padding: 4px 10px;
+  border-color: var(--divider);
+  font-size: 13px;
+}
+.r2-date-filter {
+  position: relative;
+}
+.r2-date-filter > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  box-sizing: border-box;
+  padding: 4px 10px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 13px;
+  cursor: pointer;
+  list-style: none;
+}
+.r2-date-filter > summary::-webkit-details-marker {
+  display: none;
+}
+.r2-date-filter > summary svg {
+  color: var(--muted);
+}
+.r2-date-filter.active > summary {
+  border-color: var(--control);
+  font-weight: 600;
+}
+.r2-date-pop {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 0;
+  display: grid;
+  gap: 10px;
+  width: 220px;
+  padding: 12px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 10%);
+}
+.r2-date-pop label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 640px) {
+  .r2-tasks .r2-meta {
+    row-gap: 4px;
+  }
+  .r2-filters > label,
+  .r2-date-filter {
+    flex: 1 1 140px;
+  }
+  .r2-filters select {
+    width: 100%;
+    min-height: 44px;
+  }
+  .r2-date-filter > summary {
+    justify-content: space-between;
+    min-height: 44px;
+  }
+}
+
+.temporal-range-label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.r2-range-fields > .temporal-range-divider {
+  display: none;
+}
+.r2-range-fields > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+.r2-prop:has(.temporal-control) {
+  align-items: start;
+  padding-block: 6px;
+}
+.r2-prop:has(.temporal-control) > label {
+  padding-top: 12px;
+}
+.r2-prop > .temporal-control {
+  flex: 1 1 280px;
+}
+
+/* Görev ayrıntısında alt görevler. */
+.r2-subtasks-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.r2-subtasks-head h3 {
+  margin: 0;
+}
+.r2-subtasks-count {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.r2-subtasks-bar {
+  flex: 1;
+  width: auto;
+  max-width: 160px;
+}
+.r2-progress-bar {
+  display: inline-block;
+  width: 44px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--divider);
+  overflow: hidden;
+}
+.r2-progress-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+}
+.r2-subtask-list {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.r2-subtask-children {
+  margin-left: 11px;
+  padding-left: 6px;
+  border-left: 1px solid var(--divider);
+}
+.r2-subtask-line {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto 28px;
+  align-items: center;
+  column-gap: 4px;
+  min-height: 34px;
+  border-radius: var(--radius);
+}
+.r2-subtask-line:hover,
+.r2-subtask-line:focus-within {
+  background: var(--hover);
+}
+.r2-subtask-line > .r2-toggle {
+  justify-self: center;
+}
+.r2-subtask-title {
+  justify-content: flex-start;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 400;
+  text-align: left;
+}
+.r2-subtask-title:hover {
+  background: transparent;
+}
+.r2-subtask-title .r2-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.r2-subtask.done > .r2-subtask-line .r2-text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.r2-subtask-meta {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.r2-subtask-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  margin-top: 4px;
+  padding: 0 8px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  color: var(--primary-text);
+}
+.r2-subtask-add input {
+  flex: 1;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+}
+.r2-subtask-add input:focus-visible {
+  outline: none;
+}
+.r2-subtask-add:focus-within {
+  border-color: var(--primary);
+}
+.r2-subtask-add .field-error {
+  flex-basis: 100%;
+}
+/* Proje, havuz ve kategori: bütün satır seçiciyi açar. */
+.task-classification .classification-row {
+  grid-template-columns: 84px minmax(0, 1fr);
+}
+.classification-pick {
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--control);
+  font-weight: 400;
+  text-align: left;
+}
+.classification-pick:hover {
+  background: var(--hover);
+}
+.classification-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--text);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.classification-empty {
+  color: var(--primary-text);
+  font-size: 13px;
+}
+@media (pointer: coarse) {
+  .r2-subtask-line {
+    grid-template-columns: 44px minmax(0, 1fr) auto 44px;
+    min-height: 44px;
+  }
+  .r2-subtask-add,
+  .classification-pick {
+    min-height: 44px;
+  }
+}
