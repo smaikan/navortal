@@ -1,0 +1,228 @@
+/* Havuz, Projeler ve Kategoriler ortak düzeni. Renk yalnız tür simgesinin zemininde. */
+.resource-page {
+  max-width: 1080px;
+}
+.resource-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+.resource-add {
+  margin-left: auto;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+}
+.resource-page .resource-shell {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.resource-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+.resource-page .resource-search {
+  flex: 0 1 280px;
+  margin: 0;
+}
+.resource-page .resource-tools .task-count {
+  margin: 0 0 0 auto;
+}
+.resource-page .r2-archived-toggle {
+  margin: 0;
+}
+.resource-tile {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+.resource-tile.projects {
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.resource-tile.pools {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+.resource-tile.categories {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+.resource-page .resource-items {
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.resource-page .resource-items:empty {
+  display: none;
+}
+.resource-page .resource-items .resource-row {
+  padding: 12px 18px;
+}
+.resource-page .resource-items .resource-row:hover {
+  background: var(--hover);
+}
+.resource-page .resource-items > li:last-child {
+  border-bottom: 0;
+}
+.resource-page .resource-items.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+  overflow: visible;
+  border: 0;
+  background: none;
+}
+.resource-page .resource-items.cards > li {
+  display: grid;
+  border: 0;
+}
+.resource-page .resource-items.cards .resource-row {
+  align-content: start;
+  gap: 12px;
+  min-height: 150px;
+  padding: 18px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.resource-page .resource-items.cards .resource-row:hover {
+  border-color: var(--control);
+  background: var(--surface);
+}
+.resource-row-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+.resource-row-title {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.resource-summary {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+.resource-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 13px;
+}
+.resource-progress > span:first-child {
+  flex: 1;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--divider);
+}
+.resource-progress i {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+}
+.resource-page .resource-create {
+  max-width: none;
+  padding-top: 12px;
+}
+.resource-page .resource-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: none;
+  margin: 64px 0 24px;
+  text-align: center;
+}
+.resource-page .resource-empty .resource-tile {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+}
+.resource-page .resource-empty p {
+  max-width: 38ch;
+  margin: 0;
+}
+.resource-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.resource-title .resource-tile {
+  width: 48px;
+  height: 48px;
+}
+.resource-title h2 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.resource-title h2:focus {
+  outline: none;
+}
+.resource-title .resource-state {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+}
+.resource-page .resource-block {
+  margin-top: 8px;
+  padding-block: 12px;
+  border-top: 0;
+}
+.resource-workload > h3 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.resource-page .resource-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 0 8px;
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--divider);
+}
+.resource-page .resource-metrics > div {
+  padding: 14px 16px;
+  background: var(--surface);
+}
+.resource-page .resource-metrics dd {
+  font-size: 20px;
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  .resource-page .resource-search {
+    flex-basis: 100%;
+  }
+  .resource-page .resource-tools .task-count {
+    margin-left: 0;
+  }
+  .resource-page .resource-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .resource-add {
+    min-height: 44px;
+  }
+}
