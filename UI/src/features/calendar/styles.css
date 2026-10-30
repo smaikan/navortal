@@ -1,0 +1,444 @@
+/* Takvim ay görünümüyle başlıyor. Hafta sütunları ve salt okunur gün penceresi var. Renkler yalnız globals.css'ten geliyor. */
+.r2-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.r2-cal-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.r2-icon {
+  width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+}
+.r2-cal-label {
+  min-width: 120px;
+  text-align: center;
+  font-weight: 600;
+}
+.r2-cal-today {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--divider);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 400;
+}
+.r2-month {
+  display: grid;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  min-height: 560px;
+}
+.r2-month-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.r2-month-row + .r2-month-row {
+  border-top: 1px solid var(--divider);
+}
+.r2-weekday {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.r2-day-cell {
+  min-width: 0;
+  display: flex;
+}
+.r2-day-cell + .r2-day-cell {
+  border-left: 1px solid var(--divider);
+}
+.r2-day-cell.out {
+  background: var(--bg);
+}
+.r2-day-cell.today {
+  background: var(--primary-soft);
+}
+.r2-day-button {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 6px 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-weight: 400;
+  text-align: left;
+}
+.r2-day-button:hover {
+  background: var(--hover);
+}
+.r2-day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.out .r2-day-number {
+  color: var(--muted);
+  font-weight: 400;
+}
+.today .r2-day-number {
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+.r2-day-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.r2-day-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 1px 4px;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.r2-day-item .r2-dot,
+.r2-day-dots .r2-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--primary);
+}
+.r2-day-item.past .r2-dot {
+  background: var(--muted);
+}
+.r2-day-item.done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.r2-day-item.done .r2-dot,
+.r2-day-dots .r2-dot.done {
+  background: var(--divider);
+}
+.r2-more {
+  padding-left: 4px;
+  font-size: 12px;
+  color: var(--primary-text);
+}
+.r2-day-dots {
+  display: none;
+  gap: 3px;
+  justify-content: center;
+}
+.r2-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--week-line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  /* Saydam çizgiler bugün sütununun mavi zemininde de görünüyor. Günler arası çizgi plan satırlarından güçlü. */
+  --week-line: color-mix(in srgb, var(--control) 55%, transparent);
+  --week-row: color-mix(in srgb, var(--control) 30%, transparent);
+}
+.r2-week-day {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.r2-week-day + .r2-week-day {
+  border-left: 1px solid var(--week-line);
+}
+.r2-week-day.today {
+  background: var(--primary-soft);
+}
+/* Başlık satırı tablonun gövdesinden ayrılıyor; bugünün işareti ay görünümündeki yuvarlakla aynı. */
+.r2-week-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 2px solid var(--control);
+  border-radius: 0;
+  background: var(--page);
+  color: var(--text);
+  font-weight: 400;
+}
+.r2-week-head:focus-visible {
+  outline-offset: -2px;
+}
+.today .r2-week-head:not(:hover) {
+  background: transparent;
+}
+.r2-week-head span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.r2-week-head strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.today .r2-week-head span {
+  color: var(--primary-text);
+  font-weight: 600;
+}
+.today .r2-week-head strong {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.r2-week-groups,
+.r2-week-items {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.r2-week-day > .r2-day-special {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--week-row);
+}
+/* Masaüstünde boş gün boş hücredir; yazı yalnız ekran okuyucuda kalıyor. */
+.r2-week-empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Başlıkla ilk plan arasında nefes payı var. */
+.r2-week-groups {
+  padding: 8px 0;
+}
+/* Çizelge satırları: kart yok, planları yalnız aralarındaki ince çizgi ayırıyor. */
+.r2-week-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--week-row);
+  font-size: 13px;
+  line-height: 18px;
+}
+.r2-week-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+.r2-week-group:last-child {
+  border-bottom: 0;
+}
+.r2-week-time {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.r2-week-root,
+.r2-week-title {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+.r2-week-root {
+  font-weight: 500;
+}
+.r2-week-root.done,
+.r2-week-time.done,
+.r2-week-items li.done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.r2-week-items {
+  gap: 6px;
+  margin-top: 4px;
+  padding-left: 8px;
+  border-left: 1px solid var(--week-row);
+}
+.r2-week-items li {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.r2-cal-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: min(480px, 100%);
+}
+.r2-actual {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-size: 13px;
+}
+.r2-cal-groups,
+.r2-cal-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.r2-cal-root {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.r2-cal-items.nested {
+  margin-left: 4px;
+  padding-left: 12px;
+  border-left: 1px solid var(--divider);
+}
+.r2-cal-items li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+.r2-cal-items li.done .r2-cal-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+/* Durum işaretleri yuvarlak, basılacak kutuya benzemesin. */
+.r2-cal-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--muted);
+  border-radius: 50%;
+  color: var(--muted);
+}
+.done .r2-cal-mark {
+  border-color: transparent;
+}
+.r2-cal-time {
+  min-width: 84px;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.r2-cal-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--divider);
+}
+@media (max-width: 760px) {
+  .r2-month {
+    min-height: 0;
+  }
+  .r2-day-items {
+    display: none;
+  }
+  .r2-day-dots {
+    display: flex;
+  }
+  .r2-day-button {
+    align-items: center;
+    min-height: 52px;
+    padding: 4px 2px;
+  }
+  .r2-weekday {
+    justify-content: center;
+    padding: 0;
+  }
+  .r2-week {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .r2-week-day + .r2-week-day {
+    border-left: 0;
+    border-top: 1px solid var(--week-line);
+  }
+  .r2-week-head {
+    justify-content: flex-start;
+  }
+  /* Telefonda boş gün tek satır: listeyi gereksiz uzatmıyor. */
+  .r2-week-day.empty {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .r2-week-day.empty .r2-week-head {
+    flex: 0 0 auto;
+    border-bottom: 0;
+    background: transparent;
+  }
+  .r2-week-empty {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0 0 0 auto;
+    padding-right: 12px;
+    clip-path: none;
+  }
+}
+@media (pointer: coarse) {
+  .r2-icon,
+  .r2-cal-today,
+  .r2-segment button,
+  .r2-week-head {
+    min-height: 44px;
+  }
+  .r2-icon {
+    min-width: 44px;
+  }
+}
+/* Telefonda ay satırları daha kısa. Masaüstünün 96px alt sınırını kullanmıyoruz. */
+@media (max-width: 767px) {
+  .r2-month {
+    grid-template-rows: 28px !important;
+    grid-auto-rows: minmax(52px, auto);
+  }
+  .r2-day-button {
+    min-height: 52px;
+  }
+}
