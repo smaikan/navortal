@@ -1,0 +1,405 @@
+/* Özel günün renk tokenı, simgesi ve erişilebilir adı var. Anlam yalnız renkte değil. */
+.special-birthday {
+  --special: var(--day-birthday);
+  --special-soft: var(--day-birthday-soft);
+}
+.special-anniversary {
+  --special: var(--day-anniversary);
+  --special-soft: var(--day-anniversary-soft);
+}
+.special-holiday {
+  --special: var(--day-holiday);
+  --special-soft: var(--day-holiday-soft);
+}
+.special-other {
+  --special: var(--day-other);
+  --special-soft: var(--day-other-soft);
+}
+.special-days {
+  max-width: 820px;
+  margin-top: 8px;
+}
+.special-heading {
+  margin: 20px 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.special-mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--special-soft);
+  color: var(--special);
+}
+.special-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.special-text strong {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+.special-text .muted {
+  font-size: 13px;
+}
+/* Sonraki 30 günde gün başına kart. Kalan süre türün renginde. */
+.special-soon {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.special-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 6px 12px 14px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.special-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--special);
+}
+.special-when {
+  color: var(--special);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.special-when.now {
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--special);
+  color: var(--surface);
+}
+/* İlerideki günler ayla gruplanır, tarih rozeti türün renginde. */
+.special-month {
+  margin: 18px 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.special-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.special-row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 64px;
+  padding: 8px 6px 8px 12px;
+  border-top: 1px solid var(--divider);
+}
+.special-row:first-child {
+  border-top: 0;
+}
+.special-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius);
+  background: var(--special-soft);
+  color: var(--special);
+  line-height: 1;
+}
+.special-date b {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.special-date small {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.special-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.special-facts > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.special-facts .special-off {
+  color: var(--text);
+}
+.special-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--special-soft);
+  color: var(--special);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .special-kind {
+    display: none;
+  }
+  .special-row {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+  .special-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  .special-card .special-when {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+  }
+  .special-card > :last-child {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+.special-empty {
+  max-width: 520px;
+  margin: 24px 0;
+  padding: 36px 24px;
+  border: 1px dashed var(--control);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.special-empty h2 {
+  margin: 12px 0 4px;
+  font-size: 16px;
+}
+.special-empty-marks {
+  display: inline-flex;
+  gap: 8px;
+}
+/* Formda dört tür görsel seçenek, çalışılmayan gün açıklamalı anahtar. */
+.special-kinds {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.special-kinds legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 500;
+}
+.special-kind-option {
+  position: relative;
+}
+.special-kind-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+}
+.special-kind-option > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 76px;
+  padding: 10px 4px;
+  border: 1px solid color-mix(in srgb, var(--control) 55%, var(--surface));
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+}
+.special-kind-option input:checked + span {
+  border-color: var(--special);
+  background: var(--special-soft);
+  box-shadow: inset 0 0 0 1px var(--special);
+  color: var(--text);
+  font-weight: 500;
+}
+.special-kind-option input:focus-visible + span {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+@media (max-width: 420px) {
+  .special-kinds {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.special-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  background: var(--page);
+  cursor: pointer;
+}
+.special-switch > span {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+}
+.special-switch small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.special-switch input {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  margin: 2px 0 0;
+  border-radius: 999px;
+  background: var(--control);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease;
+}
+.special-switch input::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform var(--dur-fast) ease;
+}
+.special-switch input:checked {
+  background: var(--primary);
+}
+.special-switch input:checked::after {
+  transform: translateX(16px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .special-switch input,
+  .special-switch input::after {
+    transition: none;
+  }
+}
+.special-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.special-date-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 100px) minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.special-date-fields legend {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.special-date-fields .form-field {
+  margin: 0;
+  min-width: 0;
+}
+.special-date-fields select {
+  width: 100%;
+  min-height: 48px;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.special-repeat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  border: 0;
+  padding: 0;
+}
+.special-repeat legend {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.special-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.special-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--special-soft);
+  color: var(--special);
+  font-size: 13px;
+}
+.special-chip span {
+  color: var(--text);
+}
+.special-cell-mark {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--special);
+}
+.special-cell-mark span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+@media (max-width: 640px) {
+  .special-cell-mark span {
+    display: none;
+  }
+}
+@media (pointer: coarse) {
+  .special-row {
+    min-height: 64px;
+  }
+}
+@media (forced-colors: active) {
+  .special-mark,
+  .special-chip {
+    forced-color-adjust: none;
+    outline: 1px solid CanvasText;
+  }
+}

@@ -1,0 +1,145 @@
+.reminder-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.reminder-add-short {
+  display: none;
+}
+@media (max-width: 600px) {
+  .reminder-add-label {
+    display: none;
+  }
+  .reminder-add-short {
+    display: inline;
+  }
+  .reminder-head > h1 {
+    font-size: 20px;
+  }
+}
+.reminders-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+.reminders-list > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.reminder-copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.reminder-copy h2 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 6px;
+}
+.reminder-copy p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.reminder-copy > .button {
+  font-size: 12px;
+  background: transparent;
+  border-color: transparent;
+  padding: 4px 0;
+}
+.reminder-form,
+.reminder-form fieldset {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.reminder-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.reminder-form label {
+  display: grid;
+  gap: 6px;
+}
+.reminder-date-field,
+.reminder-clock-field,
+.reminder-repeat {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.reminder-clock-field,
+.reminder-repeat {
+  border-top: 1px solid var(--divider);
+  padding-top: 18px;
+}
+.reminder-clock-field h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.reminder-date-shortcuts,
+.reminder-time-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.reminder-date-shortcuts button[aria-pressed="true"] {
+  border-color: var(--primary-text);
+  color: var(--primary-text);
+  background: var(--primary-soft);
+}
+.reminder-form input[type="date"],
+.reminder-form input:not([type]) {
+  min-width: 0;
+  width: 100%;
+}
+.reminder-form > .actions {
+  justify-content: flex-end;
+}
+.reminder-repeat-toggle,
+.reminder-weekdays label {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+.reminder-repeat input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--primary-text);
+}
+.reminder-form .reminder-weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding-top: 10px;
+}
+.reminder-weekdays legend {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.reminder-weekdays label {
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid var(--divider);
+  border-radius: 8px;
+}
+.reminder-weekdays label:has(input:checked) {
+  border-color: var(--primary-text);
+  background: var(--primary-soft);
+}
+.reminder-weekdays p {
+  width: 100%;
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+.reminder-list-count {
+  font-size: 13px;
+  color: var(--muted);
+}
