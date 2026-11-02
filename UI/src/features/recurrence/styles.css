@@ -1,0 +1,618 @@
+.recurrence-board,
+.recurrence-detail,
+.recurrence-fields,
+.recurrence-form {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.recurrence-detail {
+  border-top: 1px solid var(--divider);
+  padding-top: 2rem;
+  margin-top: 1rem;
+}
+.recurrence-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.recurrence-list > li {
+  display: grid;
+  gap: 0.8rem;
+  padding-block: 1.5rem;
+  border-bottom: 1px solid var(--divider);
+  overflow-wrap: anywhere;
+}
+.recurrence-form fieldset,
+.recurrence-range fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+}
+.recurrence-form legend,
+.recurrence-range legend {
+  font-weight: 600;
+  padding-bottom: 1rem;
+}
+.recurrence-form label,
+.recurrence-range label {
+  display: grid;
+  gap: 0.4rem;
+}
+.recurrence-form label.r2-check-row {
+  display: flex;
+}
+.recurrence-form label.r2-check-row input {
+  flex: 0 0 auto;
+}
+.recurrence-form input,
+.recurrence-form select,
+.recurrence-form textarea,
+.recurrence-range input {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--control);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.recurrence-form .recurrence-check,
+.recurrence-week label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.recurrence-form input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  flex-shrink: 0;
+}
+.recurrence-week label {
+  min-height: 44px;
+}
+.recurrence-form summary {
+  min-height: 44px;
+  cursor: pointer;
+  padding-block: 0.75rem;
+}
+.recurrence-form details > div {
+  margin-block: 1rem;
+}
+.recurrence-form p {
+  overflow-wrap: anywhere;
+}
+@media (min-width: 700px) {
+  .recurrence-range fieldset {
+    grid-template-columns: 1fr 1fr auto;
+    align-items: end;
+  }
+}
+
+/* İlk tekrar boş liste yerine kullanılabilir taslakla başlar. */
+.recurrence-empty {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  max-width: 1000px;
+  min-height: 440px;
+  padding-block: 40px;
+}
+.recurrence-empty-copy {
+  min-width: 0;
+}
+.recurrence-empty-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 24px;
+  border-radius: 16px;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.recurrence-empty h2 {
+  margin: 0 0 16px;
+  font-size: clamp(26px, 2.6vw, 32px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+}
+.recurrence-empty-copy > p {
+  max-width: 40ch;
+  margin: 0 0 24px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.recurrence-starters {
+  min-width: 0;
+  padding: 24px 16px 16px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.recurrence-starters > h3 {
+  margin: 0 8px 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.recurrence-starters > p {
+  margin: 0 8px 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.recurrence-starters ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.recurrence-starters li + li {
+  border-top: 1px solid var(--divider);
+}
+.recurrence-starters button {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 18px;
+  gap: 12px;
+  width: 100%;
+  min-height: 80px;
+  padding: 16px 8px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.recurrence-starters button:hover {
+  background: var(--hover);
+}
+.recurrence-starters button > span {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.recurrence-starters strong {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.recurrence-starters small,
+.recurrence-starter-icon,
+.recurrence-starter-arrow {
+  color: var(--muted);
+}
+.recurrence-starters small {
+  font-size: 12px;
+  font-weight: 400;
+}
+@media (max-width: 899px) {
+  .recurrence-empty {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    max-width: 600px;
+    min-height: 0;
+    padding-block: 20px;
+  }
+  .recurrence-empty-mark {
+    margin-bottom: 20px;
+  }
+}
+
+/* Tekrar seçimi ve gün çipleri. Renk yalnız mevcut tokenlardan gelir. */
+.recurrence-form fieldset.recurrence-freq,
+.recurrence-form fieldset.recurrence-days {
+  gap: 0.75rem;
+}
+.recurrence-seg {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.recurrence-chips {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.recurrence-form label.recurrence-seg-item,
+.recurrence-form label.recurrence-chip {
+  position: relative;
+  display: block;
+  gap: 0;
+}
+.recurrence-form .recurrence-seg-item input,
+.recurrence-form .recurrence-chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.recurrence-seg-item > span,
+.recurrence-chip > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--control);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  text-align: center;
+}
+.recurrence-chip > span {
+  min-height: 48px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.recurrence-chip svg {
+  display: none;
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+.recurrence-seg-item input:checked + span,
+.recurrence-chip input:checked + span {
+  border-color: var(--primary-text);
+  background: var(--primary-text);
+  color: var(--surface);
+  font-weight: 600;
+}
+.recurrence-chip input:checked + span svg {
+  display: block;
+}
+.recurrence-seg-item input:focus-visible + span,
+.recurrence-chip input:focus-visible + span {
+  outline: 2px solid var(--primary-text);
+  outline-offset: 2px;
+}
+.recurrence-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.recurrence-presets button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--primary-text);
+  font-weight: 500;
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.recurrence-presets button[aria-pressed="true"] {
+  background: var(--primary-soft);
+  font-weight: 600;
+  text-decoration: none;
+}
+.recurrence-presets .recurrence-clear {
+  color: var(--muted);
+}
+.recurrence-days-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-weight: 500;
+}
+.recurrence-form .recurrence-days-summary {
+  margin: 0;
+  min-height: 0;
+}
+.recurrence-days-summary:not(:empty) {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--primary-soft);
+}
+.recurrence-strip {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+.recurrence-strip > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 11px;
+}
+.recurrence-strip > span[data-on] {
+  background: var(--primary-text);
+  color: var(--surface);
+  font-weight: 700;
+}
+/* Yerleşim ekranın değil, kutunun genişliğine bakar: yan panel dar, ortadaki pencere geniş. */
+.recurrence-fit {
+  container-type: inline-size;
+}
+@container (min-width: 440px) {
+  .recurrence-seg {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@container (min-width: 480px) {
+  .recurrence-chips {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+  .recurrence-chip > span {
+    padding: 0 2px;
+    gap: 2px;
+    font-size: 13px;
+  }
+}
+
+/* Rutin listesi: tek çerçeveli, satırlar ince çizgiyle ayrılır. */
+.recurrence-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.recurrence-cards > li + li {
+  border-top: 1px solid var(--divider);
+}
+.recurrence-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "text state"
+    "strip strip";
+  align-items: center;
+  gap: 8px 12px;
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-weight: 400;
+  text-align: left;
+  box-shadow: none;
+}
+.recurrence-card:hover:not(:disabled) {
+  background: var(--hover);
+}
+.recurrence-card[aria-pressed="true"] {
+  background: var(--primary-soft);
+}
+.recurrence-card .recurrence-strip {
+  grid-area: strip;
+  margin-top: 0;
+}
+.recurrence-card-text {
+  grid-area: text;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.recurrence-card-text strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.recurrence-state {
+  grid-area: state;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 13px;
+}
+.recurrence-state.off {
+  background: var(--raised);
+  color: var(--muted);
+}
+@media (min-width: 640px) {
+  .recurrence-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "strip text state";
+    gap: 16px;
+    padding: 16px 20px;
+  }
+  .recurrence-card .recurrence-strip:empty,
+  .recurrence-card:not(:has(.recurrence-strip)) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "text state";
+  }
+}
+
+/* Ayrıntı: başlık, eylemler ve geçmiş görevler. */
+.recurrence-detail {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+  min-width: 0;
+}
+.recurrence-head {
+  display: grid;
+  gap: 6px;
+}
+.recurrence-head p {
+  margin: 0;
+}
+.recurrence-head-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.recurrence-head-line h2 {
+  flex-grow: 1;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.recurrence-head-line .recurrence-state {
+  flex: none;
+}
+.recurrence-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.recurrence-history {
+  display: grid;
+  gap: 8px;
+}
+.recurrence-history h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.recurrence-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.recurrence-history-list > li + li,
+.recurrence-history-list > li:has(+ li) + li {
+  border-top: 1px solid var(--divider);
+}
+.recurrence-history-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-weight: 400;
+  text-align: left;
+  box-shadow: none;
+}
+label.recurrence-history-row {
+  position: relative;
+  cursor: pointer;
+}
+label.recurrence-history-row:has(input:focus-visible) {
+  outline: 2px solid var(--primary-text);
+  outline-offset: -2px;
+}
+label.recurrence-history-row[data-pending] {
+  cursor: progress;
+}
+label.recurrence-history-row:hover {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+.recurrence-history-day {
+  font-size: 15px;
+  font-weight: 500;
+}
+.recurrence-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--control);
+  border-radius: 50%;
+  color: var(--muted);
+}
+.recurrence-result {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+/* Yapıldı ve Yapılmadı satırın bütününde ayırt edilir: zemin, simge ve yazı birlikte. */
+.recurrence-history-list > li[data-tone="done"] {
+  background: var(--teal-soft);
+}
+.recurrence-history-list > li[data-tone="done"] .recurrence-mark {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: var(--surface);
+}
+.recurrence-history-list > li[data-tone="done"] .recurrence-result {
+  color: var(--teal);
+}
+.recurrence-history-list > li[data-tone="missed"] {
+  background: color-mix(in srgb, var(--danger-soft) 55%, var(--surface));
+}
+.recurrence-history-list > li[data-tone="missed"] .recurrence-mark {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.recurrence-history-list > li[data-tone="missed"] .recurrence-result {
+  color: var(--danger);
+}
+.recurrence-history-note,
+.recurrence-def {
+  display: grid;
+  gap: 2px;
+  padding: 12px 16px;
+}
+.recurrence-none {
+  margin: 0;
+  padding: 20px 16px;
+  border: 1px dashed var(--control);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  text-align: center;
+}
+.recurrence-more {
+  justify-self: start;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--primary-text);
+  font-weight: 500;
+}
+.recurrence-defs {
+  display: grid;
+  gap: 8px;
+}
+/* İki sütun, ekranın değil sayfa alanının genişliğine bağlı: görev paneli açılınca alan daralır. */
+.recurrence-wrap {
+  container-type: inline-size;
+}
+@container (min-width: 820px) {
+  .recurrence-board {
+    grid-template-columns: minmax(340px, 460px) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .recurrence-board > .recurrence-detail {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+    border-left: 1px solid var(--divider);
+    padding-left: 32px;
+  }
+}
+
+/* Rutin oluştur düğmesi listeyle bitişik durmasın. */
+.recurrence-top {
+  margin-bottom: 20px;
+}

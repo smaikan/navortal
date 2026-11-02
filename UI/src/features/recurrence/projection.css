@@ -1,0 +1,77 @@
+.routine-projected {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--divider);
+}
+.routine-projected h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.routine-projected p {
+  margin: 0;
+}
+.routine-projected ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.routine-projected-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px dashed var(--control);
+  border-radius: var(--radius);
+}
+.routine-projected-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.routine-projected-time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.routine-projected-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.routine-projected-chip {
+  display: block;
+  overflow: hidden;
+  padding-left: 4px;
+  border-left: 2px dashed var(--control);
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.r2-day-dots .r2-dot.routine-projected-dot {
+  box-sizing: border-box;
+  border: 1px solid var(--control);
+  background: transparent;
+}
+.routine-projected-week {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.routine-until-clear {
+  justify-self: start;
+}
+@media (max-width: 640px) {
+  .routine-projected-actions button {
+    min-height: 44px;
+  }
+}
