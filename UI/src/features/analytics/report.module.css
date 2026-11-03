@@ -1,0 +1,740 @@
+.page {
+  --analytics-task: var(--primary);
+  --analytics-general: var(--teal);
+  display: grid;
+  align-content: start;
+  gap: 32px;
+  max-width: 1040px;
+}
+.page > * {
+  min-width: 0;
+}
+/* Dönem bağlantıları birlikte kalsın, özel aralık düzenleyicisi ayrı satırı alsın. */
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+.custom,
+.range {
+  flex-basis: 100%;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 16px;
+  border: 1px solid var(--divider);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.chip:hover {
+  background: var(--hover);
+}
+.chip[aria-current] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.custom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-top: 4px;
+}
+.custom > div {
+  flex: 1 1 220px;
+  max-width: 280px;
+}
+.custom > p {
+  flex-basis: 100%;
+  margin: 0;
+}
+.range {
+  margin: 0;
+  font-size: 13px;
+}
+.section {
+  display: grid;
+  gap: 8px;
+}
+.section > h2 {
+  margin: 0;
+}
+.sub {
+  margin: 0 0 4px;
+  color: var(--muted);
+}
+.lead {
+  margin: 0 0 8px;
+  font-size: 19px;
+  line-height: 1.45;
+  max-width: 60ch;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.tile {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.label,
+.note {
+  color: var(--muted);
+  font-size: 13px;
+}
+.note {
+  margin: 0;
+  max-width: none;
+}
+.value {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.columns {
+  display: flex;
+  gap: clamp(2px, 1vw, 10px);
+  height: 190px;
+  margin-bottom: 10px;
+}
+.column {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.area {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-top: 18px;
+  border-bottom: 1px solid var(--divider);
+}
+.bar {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 36px;
+  border-radius: 4px 4px 0 0;
+  background: color-mix(in srgb, var(--analytics-task) 55%, var(--surface));
+}
+.columnValue {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.column[data-peak] .bar {
+  background: var(--analytics-task);
+}
+.column[data-peak] .columnValue {
+  color: var(--text);
+  font-weight: 600;
+}
+.bar[data-empty] {
+  background: var(--divider);
+}
+.axis {
+  min-height: 16px;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.rows {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) 6.5rem;
+  gap: 12px;
+  align-items: center;
+}
+.rowName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowValue {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.track {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--raised);
+  overflow: hidden;
+}
+.track > span {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--analytics-task);
+}
+.split {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--divider);
+}
+.stack {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.stack > span {
+  flex-basis: 0;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 13px;
+}
+.legend > li::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 2px;
+  background: var(--key);
+  vertical-align: -1px;
+}
+.legend > li.plain::before {
+  display: none;
+}
+.legend > li.dashed::before {
+  background: transparent;
+  border: 1.5px dashed var(--control);
+}
+.planGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.pairs {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(2px, 0.8vw, 8px);
+  height: 130px;
+  border-bottom: 1px solid var(--divider);
+}
+.pair {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+.planned,
+.done {
+  display: block;
+  width: 45%;
+  max-width: 14px;
+  border-radius: 3px 3px 0 0;
+}
+.planned {
+  border: 1.5px dashed var(--control);
+  border-bottom: 0;
+}
+.done {
+  background: var(--analytics-task);
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0 24px;
+  margin: 0;
+}
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.facts dt {
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.more > summary,
+.details > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  color: var(--primary-text);
+  font-weight: 500;
+  cursor: pointer;
+}
+.reasons {
+  display: grid;
+  gap: 10px;
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.reasons ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+.details {
+  padding-top: 8px;
+  border-top: 1px solid var(--divider);
+}
+.details[open] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+/* Geniş tablo kendi alanında kayıyor. Telefonda sayfayı genişletmemeli. */
+.details > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.details > summary {
+  color: var(--text);
+}
+.scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.details table {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: collapse;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.details caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.details th,
+.details td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--divider);
+  vertical-align: top;
+}
+@media (max-width: 767px) {
+  .page {
+    gap: 28px;
+  }
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tile:first-child {
+    grid-column: 1 / -1;
+  }
+  .value {
+    font-size: 22px;
+  }
+  .lead {
+    font-size: 17px;
+  }
+  .planGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .row {
+    grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) 5.5rem;
+    gap: 8px;
+  }
+  .columnValue {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bar,
+  .track > span,
+  .done {
+    transition:
+      height var(--dur-panel) ease,
+      width var(--dur-panel) ease;
+  }
+}
+
+/* Rutinler: satır dili Rutin sayfasıyla aynıdır. Dar kutuda alt alta, geniş kutuda tek satır. */
+.routineNone {
+  margin: 0;
+  padding: 24px 16px;
+  border: 1px dashed var(--control);
+  border-radius: var(--radius-lg);
+  color: var(--muted);
+  text-align: center;
+}
+.routineBox {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  container-type: inline-size;
+}
+.routineHead {
+  display: none;
+  gap: 16px;
+  padding: 0 21px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.routineList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.routineList > li + li {
+  border-top: 1px solid var(--divider);
+}
+.routineRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px;
+  grid-template-areas:
+    "text chevron"
+    "meter meter"
+    "strip strip"
+    "weeks weeks";
+  align-items: center;
+  gap: 10px 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text);
+  font-weight: 400;
+  text-align: left;
+}
+.routineRow:hover:not(:disabled) {
+  background: var(--hover);
+}
+.routineRow[aria-expanded="true"] {
+  background: var(--primary-soft);
+}
+.routineStrip {
+  grid-area: strip;
+  min-width: 0;
+}
+.routineStrip :global(.recurrence-strip) {
+  margin-top: 0;
+}
+.routineText {
+  grid-area: text;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.routineText strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.routineMeter {
+  grid-area: meter;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+.routineMeter > span:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.routineTrack {
+  display: block;
+  overflow: hidden;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--raised);
+}
+.routineTrack > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--teal);
+}
+.routineWeeks {
+  grid-area: weeks;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.routineWeeksCaption {
+  color: var(--muted);
+  font-size: 13px;
+}
+.routineBars {
+  display: flex;
+  gap: 3px;
+  height: 56px;
+}
+.routineBar {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 0;
+  align-items: flex-end;
+  min-width: 0;
+  overflow: hidden;
+  border-bottom: 2px solid transparent;
+  border-radius: 3px 3px 0 0;
+  background: var(--raised);
+}
+.routineBar[data-period] {
+  border-bottom-color: var(--primary-text);
+}
+.routineBar[data-empty] {
+  background: transparent;
+}
+.routineBar > span {
+  display: block;
+  width: 100%;
+  background: var(--teal);
+}
+.routineBar[data-empty] > span {
+  height: 3px;
+  background: var(--control);
+}
+.routineBar > span[data-zero] {
+  height: 3px;
+  background: var(--amber);
+}
+.routineAxis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+}
+.routineChevron {
+  grid-area: chevron;
+  color: var(--muted);
+}
+.routineRow[aria-expanded="true"] .routineChevron {
+  transform: rotate(90deg);
+}
+.routineLegend,
+.routineMonthsHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.routineLegend {
+  justify-content: flex-end;
+}
+.routineLegend > span,
+.routineMonthsHead > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.routineLegend i {
+  display: block;
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+}
+.routineLegend i[data-kind="zero"] {
+  background: var(--amber);
+}
+.routineLegend i[data-kind="none"] {
+  background: var(--control);
+}
+.routineLegend i[data-kind="period"] {
+  height: 2px;
+  background: var(--primary-text);
+}
+.routineOpen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 28px;
+  padding: 16px;
+  border-top: 1px solid var(--divider);
+}
+.routineTrend {
+  flex: 1 1 100%;
+  max-width: none;
+  margin: 0;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.routineMonths {
+  display: grid;
+  flex: 1 1 340px;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+}
+.routineMonthsHead h3,
+.routineDays h3 {
+  flex-grow: 1;
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+.routineMonth {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 48px;
+  align-items: start;
+  gap: 10px;
+  line-height: 16px;
+}
+.routineMonth > span:first-child {
+  justify-self: start;
+  border-bottom: 2px solid transparent;
+}
+/* Seçili dönem hafta sütunlarıyla aynı mavi çizgiyle işaretlenir. */
+.routineMonth > span[data-period] {
+  border-bottom-color: var(--primary-text);
+  color: var(--primary-text);
+  font-weight: 600;
+}
+.routineMonth > span:nth-child(2) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.routineMonth > span:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.routineMonth i,
+.routineMonthsHead i {
+  box-sizing: border-box;
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+.routineMonthsHead i {
+  width: 12px;
+  height: 12px;
+}
+.routineMonth i[data-kind="done"],
+.routineMonthsHead i[data-kind="done"] {
+  background: var(--teal);
+}
+.routineMonth i[data-kind="missed"],
+.routineMonthsHead i[data-kind="missed"] {
+  border: 2px solid var(--amber);
+}
+.routineSide {
+  display: grid;
+  flex: 1 1 260px;
+  align-content: start;
+  gap: 20px;
+  min-width: 0;
+}
+.routineDays {
+  display: grid;
+  gap: 8px;
+}
+.routineDays > div {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.routineDays > div > span:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.routineFacts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 0;
+}
+.routineFacts dt {
+  color: var(--muted);
+}
+.routineFacts dd {
+  margin: 0;
+}
+@container (min-width: 820px) {
+  .routineHead {
+    display: flex;
+  }
+  .routineHead > span:nth-child(1) {
+    flex: 1 1 0;
+  }
+  .routineHead > span:nth-child(2) {
+    flex: 0 0 170px;
+  }
+  .routineHead > span:nth-child(3) {
+    flex: 0 0 240px;
+  }
+  .routineHead > span:nth-child(4) {
+    flex: 0 0 16px;
+  }
+  .routineRow {
+    grid-template-columns: auto minmax(0, 1fr) 170px 240px 16px;
+    grid-template-areas: "strip text meter weeks chevron";
+    gap: 16px;
+    padding: 16px 20px;
+  }
+  .routineWeeksCaption {
+    display: none;
+  }
+}
