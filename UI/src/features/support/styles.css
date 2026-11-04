@@ -1,0 +1,63 @@
+.support-section {
+  margin-block: 0.5rem 1rem;
+}
+.support-panel,
+.support-form,
+.support-end {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.support-form fieldset {
+  display: grid;
+  gap: 1rem;
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.support-form label {
+  display: grid;
+  gap: 0.4rem;
+}
+.support-form input,
+.support-form select {
+  min-height: 44px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 10px 12px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--control);
+  border-radius: var(--radius);
+}
+.support-form legend {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.support-critical-list,
+.support-picker {
+  margin: 0;
+  padding-left: 1.3rem;
+}
+.support-critical-list li {
+  padding-block: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.support-critical-list button {
+  margin-left: 0.5rem;
+}
+.support-picker li {
+  padding-block: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.support-picker button {
+  text-align: left;
+  white-space: normal;
+}
+.support-end dt {
+  margin-top: 0.75rem;
+  color: var(--muted);
+}
+.support-end dd {
+  margin: 0.25rem 0 0;
+}

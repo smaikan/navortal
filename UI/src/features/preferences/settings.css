@@ -1,0 +1,204 @@
+/* Ayarlar geniş penceresi: solda bölüm menüsü, sağda yalnız seçili bölüm. Ölçüler mevcut ayar bölümleriyle aynı. */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.settings-nav {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.settings-nav button {
+  justify-content: space-between;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+  text-align: left;
+}
+.settings-nav button:hover {
+  background: var(--hover);
+}
+.settings-nav button[aria-current="page"] {
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-weight: 600;
+}
+.settings-nav-arrow {
+  display: none;
+}
+.settings-content {
+  min-width: 0;
+}
+.settings-content > .preferences-section,
+.settings-content > .preferences-form > fieldset > .preferences-section:first-child {
+  padding-top: 0;
+}
+.settings-content > .preferences-section {
+  border-bottom: 0;
+}
+/* Destekler pencerede anahtar görünümünde; açıklama etiketin altında. */
+.settings-content .support-toggle {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--divider);
+}
+.settings-content .support-toggle > span .muted {
+  display: block;
+}
+.settings-content .support-toggle > span .muted::first-letter {
+  text-transform: uppercase;
+}
+.settings-content .support-toggle input[type="checkbox"] {
+  appearance: none;
+  flex: none;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--control);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) ease;
+}
+.settings-content .support-toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform var(--dur-fast) ease;
+}
+.settings-content .support-toggle input[type="checkbox"]:checked {
+  background: var(--primary);
+}
+.settings-content .support-toggle input[type="checkbox"]:checked::before {
+  transform: translateX(16px);
+}
+.settings-content .support-toggle input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.settings-back {
+  gap: 4px;
+  margin: 0 0 12px -6px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--primary-text);
+}
+.mini-player-setting {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.settings-content .mini-player-setting .support-toggle {
+  border-bottom: 0;
+  font-weight: 500;
+}
+.mini-player-setting p {
+  max-width: 54ch;
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+/* Ad ve Soyad aynı hizada iki eşit kolon; e-posta aynı genişlikte salt okunur satır. */
+.profile-name-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+.profile-name-fields .form-field + .form-field {
+  margin-top: 0;
+}
+.profile-name-fields input {
+  width: 100%;
+}
+.settings-content .profile-section form {
+  max-width: 480px;
+}
+.profile-email {
+  display: grid;
+  gap: 4px;
+  max-width: 480px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
+}
+.profile-email > span:last-child {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .settings-content .r2-master {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .settings-content .r2-master > .r2-switch {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .settings-content .r2-master > .r2-saved {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .settings-content .r2-master > .r2-saved:empty {
+    display: none;
+  }
+  .settings-content .r2-switch-list > li:has(.r2-inline-select) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-block: 8px;
+  }
+  .settings-content .r2-inline-select {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .settings-content .r2-switch-list > li > .r2-switch {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .settings-layout {
+    display: block;
+  }
+  .settings-layout.has-section .settings-nav {
+    display: none;
+  }
+  .settings-nav button {
+    min-height: 48px;
+    border-bottom: 1px solid var(--divider);
+    border-radius: 0;
+    color: var(--text);
+  }
+  .settings-nav button[aria-current="page"] {
+    background: transparent;
+    color: var(--text);
+  }
+  .settings-nav-arrow {
+    display: block;
+    color: var(--control);
+  }
+  .profile-name-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-content .support-toggle input[type="checkbox"],
+  .settings-content .support-toggle input[type="checkbox"]::before {
+    transition: none;
+  }
+}
