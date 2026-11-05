@@ -1,0 +1,1784 @@
+/* Karşılama renkleri globals.css'ten geliyor. Önizleme gerçek kabuk ölçülerini kullanıyor. */
+.heroActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.heroActions > a {
+  min-height: 48px;
+  padding-inline: 24px;
+  font-size: 15px;
+}
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius);
+  background: rgb(23 23 23 / 6%);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+.secondaryAction:hover {
+  background: rgb(23 23 23 / 10%);
+  color: var(--text);
+}
+
+/* Önizleme çerçevesi. */
+.previewSection {
+  padding: 0 32px;
+  background: var(--page);
+}
+/* Önizleme bileşenine dokunmadan bütünü orantılı küçültüyoruz. */
+@media (min-width: 1200px) {
+  .previewSection {
+    zoom: 0.875;
+  }
+}
+.productFigure {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+/* Sekme, pencere ve altyazı kadar yer ayırıyoruz. Önizleme beklerken sayfa kaymasın. */
+.previewFallback {
+  max-width: 1120px;
+  height: 750px;
+  margin: 0 auto;
+}
+.productFigure button:active:not(:disabled) {
+  transform: none;
+}
+.previewTabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 0 20px;
+}
+.previewTab {
+  flex: 0 1 136px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background var(--dur-fast),
+    color var(--dur-fast),
+    border-color var(--dur-fast);
+}
+.previewTab:hover {
+  background: var(--raised);
+  color: var(--text);
+}
+.previewTab[aria-selected="true"],
+.previewTab[aria-selected="true"]:hover {
+  border-color: var(--primary-soft);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.productWindow {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  height: 640px;
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--page);
+  box-shadow: var(--shadow);
+}
+.mockSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 18px 12px 14px;
+  border-right: 1px solid var(--divider);
+}
+.mockBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin-bottom: 14px;
+  padding: 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.mockBrand svg,
+.mockMobileBrand svg {
+  color: var(--amber);
+}
+.mockNav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+.mockNav .navIcon {
+  display: flex;
+  color: var(--muted);
+}
+button.mockNav {
+  cursor: pointer;
+  transition: background var(--dur-panel);
+}
+button.mockNav:hover {
+  background: var(--raised);
+}
+.mockNavActive,
+button.mockNavActive:hover {
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.mockNavActive .navIcon {
+  color: var(--primary-text);
+}
+.mockDivider {
+  flex: none;
+  margin: 10px 12px;
+  border-top: 1px solid var(--divider);
+}
+/* Hesap alt satırındaki gibi avatar, ad ve ok var; yardım bağlantısı yanında. */
+.mockAccount {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid var(--divider);
+}
+.mockAccountTrigger {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 12px;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  padding: 4px;
+  color: var(--muted);
+}
+.mockAvatar {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--divider);
+  border-radius: 50%;
+}
+.portraitBack {
+  fill: var(--primary-soft);
+}
+.portraitBody {
+  fill: var(--primary);
+}
+.portraitFace {
+  fill: var(--amber-soft);
+}
+.portraitHair {
+  fill: var(--text);
+}
+.mockAccountName {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mockHelp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  min-height: 36px;
+  color: var(--muted);
+}
+.mockArea {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.mockTopbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 12px 24px 0;
+  color: var(--muted);
+}
+.mockMobileBrand {
+  display: none;
+}
+.mockNewTask {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 10px 0 12px;
+  border-radius: var(--radius);
+  background: var(--raised);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.mockNewTask kbd {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--divider);
+  border-radius: 4px;
+  background: var(--surface);
+  font: 500 11px var(--font-ui);
+}
+.mockMain {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px 36px 0;
+}
+.scene:not([hidden]) {
+  animation: scene-in var(--dur-panel) ease-out;
+}
+.scene:focus-visible {
+  outline-offset: -2px;
+}
+@keyframes scene-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene:not([hidden]) {
+    animation: none;
+  }
+}
+/* Gerçek raporun geniş satır düzeni 820 px kutuda açılıyor; önizleme penceresine orantılı sığdırıyoruz.
+   Bütün rutinler listelenir; liste pencereden uzunsa sahne kendi içinde kayar. */
+.sceneScroll {
+  height: 100%;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  container-type: inline-size;
+}
+/* 820 / 0,8 ve 820 / 0,75: liste pencerede tek satır düzenine sığdığı sürece küçültülür; daha darda alt alta kalır. */
+@container (min-width: 656px) {
+  .routineWide {
+    zoom: 0.8;
+  }
+}
+@container (min-width: 615px) and (max-width: 655.98px) {
+  .routineWide {
+    zoom: 0.75;
+  }
+}
+.sceneTitle {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.mockPlayer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: none;
+  min-height: 70px;
+  margin: 0;
+  padding: 10px 24px;
+  border-top: 1px solid var(--divider);
+  background: var(--surface);
+  font-size: 14px;
+  white-space: nowrap;
+}
+.playerMain {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.playerMain > strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  font-weight: 600;
+}
+.playerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.playerMore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  color: var(--muted);
+}
+.playerLabel {
+  color: var(--muted);
+  font-size: 13px;
+}
+.playerState {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.playerState i,
+.stepFocus i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+.playerTime {
+  color: var(--text);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.playerAction {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mockBottomNav {
+  display: none;
+}
+
+/* Örnek ekranların ortak parçaları. */
+.segment {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--radius);
+  background: var(--raised);
+  font-size: 13px;
+}
+.segment > span {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 6px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.segment > .segmentOn {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Gün Planlama örneği. */
+.dayBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+.dayBar strong {
+  color: var(--text);
+  font-size: 16px;
+}
+.dayBarEnd {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+}
+.capacity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 18px 0 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.capacity strong {
+  color: var(--text);
+}
+.meter {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--raised);
+}
+.meter > span {
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+.groupLabel {
+  margin: 20px 0 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.planRow {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) 50px 20px 20px;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 4px;
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+.planRowActive {
+  background: var(--primary-soft);
+}
+.check {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--control);
+  border-radius: 4px;
+  color: var(--on-primary);
+}
+.planRowDone .check {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.planSummary {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+}
+.planDisabled {
+  opacity: 0.4;
+}
+.planTime {
+  flex: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.planBody {
+  flex: 1;
+  min-width: 0;
+}
+.planTitle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.planRowActive .planTitle {
+  font-weight: 600;
+}
+.planRowDone .planTitle {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.planParent {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.planDuration {
+  flex: none;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: right;
+}
+.planPlay {
+  display: flex;
+  color: var(--primary-text);
+}
+.planMore {
+  display: flex;
+  color: var(--muted);
+}
+.addRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  color: var(--primary-text);
+  font-size: 14px;
+}
+
+/* Gerçek ay görünümünü tek parça küçültüyoruz. Takvim oranları aynı kalsın. */
+.calendarZoom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  zoom: 0.72;
+}
+.calHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+.calNav {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+.calNav strong {
+  min-width: 120px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.calIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+}
+.calExtra {
+  color: var(--muted);
+}
+.calToday {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 14px;
+}
+.month {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: 28px repeat(6, 96px);
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.weekday {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--divider);
+  color: var(--muted);
+  font-size: 12px;
+}
+.dayCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 6px 6px 8px;
+  border-right: 1px solid var(--divider);
+  border-bottom: 1px solid var(--divider);
+}
+.dayCell:nth-child(7n) {
+  border-right: 0;
+}
+.dayCell:nth-last-child(-n + 7) {
+  border-bottom: 0;
+}
+.dayToday {
+  background: var(--primary-soft);
+}
+.dayNumber {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.dayOut .dayNumber {
+  color: var(--muted);
+  font-weight: 400;
+}
+.dayToday .dayNumber {
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+.dayLines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.dayLine,
+.dayMore {
+  display: block;
+  min-width: 0;
+  padding: 1px 4px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dayLine i,
+.dayDots i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 3px;
+  background: var(--primary);
+  vertical-align: 1px;
+}
+.dayBirthday {
+  color: var(--day-birthday);
+}
+.daySpecial {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 1px 4px;
+  font-size: 11px;
+  line-height: 18px;
+}
+.daySpecial svg {
+  flex: none;
+}
+.daySpecial > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+.daySpecial[data-special-kind="Birthday"] {
+  color: var(--day-birthday);
+}
+.daySpecial[data-special-kind="Anniversary"] {
+  color: var(--day-anniversary);
+}
+.daySpecial[data-special-kind="Holiday"] {
+  color: var(--day-holiday);
+}
+.daySpecial[data-special-kind="Other"] {
+  color: var(--day-other);
+}
+.dayBirthday i,
+.dayDots .dotBirthday {
+  background: var(--day-birthday);
+}
+.dayMore {
+  padding-left: 16px;
+  color: var(--primary-text);
+}
+.dayDots {
+  display: none;
+  justify-content: center;
+  gap: 3px;
+}
+.dayDots i {
+  margin: 0;
+}
+
+/* Notlar örneği. */
+.notesHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.notesHead .sceneTitle {
+  margin: 0;
+}
+.notesSearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 240px;
+  height: 36px;
+  margin-left: auto;
+  padding: 0 12px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+.notesAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.notesFilters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--divider);
+  overflow: hidden;
+}
+.filter,
+.filterOn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--divider);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+}
+.filterOn {
+  border-color: var(--primary-soft);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-weight: 600;
+}
+.filter i,
+.noteMeta i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.notesFilters [data-color="blue"],
+.noteMeta[data-color="blue"] i {
+  background: var(--note-blue);
+}
+.notesFilters [data-color="teal"],
+.noteMeta[data-color="teal"] i {
+  background: var(--note-teal);
+}
+.notesFilters [data-color="purple"],
+.noteMeta[data-color="purple"] i {
+  background: var(--note-purple);
+}
+.notesView {
+  margin-left: auto;
+}
+.notesCount {
+  margin: 16px 0 10px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.noteGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.noteWarning {
+  border-color: transparent;
+  background: var(--danger-soft);
+}
+.noteContent,
+.noteHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.noteContent {
+  align-items: flex-start;
+}
+.noteContent .noteBody,
+.noteHeading strong {
+  flex: 1;
+  min-width: 0;
+}
+.noteContent > svg,
+.noteHeading > svg {
+  flex: none;
+  color: var(--muted);
+}
+.noteHeading strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.noteDocument {
+  display: inline-flex;
+  flex: none;
+  padding: 6px;
+  border-radius: 6px;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.noteSections {
+  display: grid;
+  gap: 18px;
+  margin-top: 12px;
+}
+.noteSection {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.noteSectionHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.noteSectionHead i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.noteSectionCount {
+  font-weight: 400;
+}
+.noteSectionHead [data-color="warning"] {
+  background: var(--danger);
+}
+.notesFilters [data-color="warning"],
+.noteMeta[data-color="warning"] i {
+  background: var(--danger);
+}
+.noteMeta[data-color="warning"] .noteBadge {
+  background: var(--surface);
+  color: var(--danger);
+}
+.note strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.noteBody {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.noteMeta,
+.noteTask {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.noteMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  min-width: 0;
+}
+.noteMeta[data-color="gray"] i {
+  background: var(--muted);
+}
+.noteTask {
+  min-width: 0;
+  max-width: 100%;
+}
+.noteTask > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+}
+.noteMeta span {
+  color: var(--muted);
+}
+.noteBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--text);
+}
+.noteTask {
+  color: var(--primary-text);
+}
+
+.previewCaption {
+  min-height: 22px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+}
+
+/* Rutin önizlemesi: ölçüler gerçek Rutin sayfasıyla aynı. */
+.routineAdd {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-bottom: 16px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+.routineCards {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.routineCard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "strip text state";
+  align-items: center;
+  gap: 16px;
+  min-height: 72px;
+  box-sizing: border-box;
+  padding: 16px 20px;
+}
+.routineCard + .routineCard {
+  border-top: 1px solid var(--divider);
+}
+.routineCard:not(:has(.routineStrip)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "text state";
+}
+.routineStrip {
+  grid-area: strip;
+  display: flex;
+  gap: 3px;
+}
+.routineStrip > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 11px;
+}
+.routineStrip > span[data-on] {
+  background: var(--primary-text);
+  color: var(--surface);
+  font-weight: 700;
+}
+.routineText {
+  grid-area: text;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.routineText strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.routineText span {
+  color: var(--muted);
+}
+.routineState {
+  grid-area: state;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 13px;
+}
+@media (max-width: 640px) {
+  .routineCard,
+  .routineCard:not(:has(.routineStrip)) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "text state" "strip strip";
+    gap: 8px 12px;
+    padding: 14px 16px;
+  }
+}
+
+/* Projeler önizlemesi: ölçüler gerçek Projeler sayfasıyla aynı. */
+.projectHead,
+.projectTools,
+.projectTop,
+.projectProgress {
+  display: flex;
+  align-items: center;
+}
+.projectHead {
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.projectHead .sceneTitle {
+  margin: 0;
+}
+.projectAdd {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+.projectTools {
+  gap: 16px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.projectCount {
+  margin-left: auto;
+}
+.projectArchive {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.projectArchive i {
+  width: 13px;
+  height: 13px;
+  box-sizing: border-box;
+  border: 1px solid var(--control);
+  border-radius: 3px;
+  background: var(--surface);
+}
+.projectSearch {
+  display: flex;
+  flex: 0 1 280px;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--control);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 14px;
+}
+.projectCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.projectCard {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 150px;
+  box-sizing: border-box;
+  padding: 18px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.projectTop {
+  gap: 12px;
+  min-width: 0;
+}
+.projectTile {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.projectTitle {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.projectTitle span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.projectText {
+  color: var(--muted);
+  font-size: 14px;
+}
+.projectProgress {
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.projectProgress > span {
+  flex: 1;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--divider);
+}
+.projectProgress i {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+}
+
+/* Arka plan: sayfa kaydıkça güneş yayda ilerler. */
+.sky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.sky > div {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+.sky i {
+  --r: 340px;
+  position: absolute;
+  left: calc(50% - var(--r));
+  bottom: calc(-100px - var(--r));
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  box-sizing: border-box;
+  border: 1px solid rgb(23 23 23 / 6%);
+  border-radius: 50%;
+}
+.sky i:nth-child(2) {
+  --r: 500px;
+}
+.sky i:nth-child(3) {
+  --r: 660px;
+}
+.sky i:nth-child(4) {
+  --r: 820px;
+}
+.sunPath {
+  position: absolute;
+  left: 50%;
+  bottom: -100px;
+  width: 0;
+  height: 0;
+  transform: rotate(-52deg);
+}
+.sunPath b {
+  position: absolute;
+  left: -9px;
+  top: -669px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--sun);
+  box-shadow: 0 0 0 9px rgb(245 165 36 / 14%);
+}
+
+/* Kullanım adımları. */
+.workflow {
+  max-width: 1168px;
+  margin: 56px auto 0;
+  padding: 0 24px;
+}
+.workflow h2 {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.steps li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.steps h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.steps p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.stepBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--page);
+  font-size: 13px;
+}
+.stepHead,
+.stepRow,
+.stepTimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stepHead strong {
+  flex: 1;
+}
+.stepHead > span,
+.stepRow > span {
+  color: var(--muted);
+}
+.stepHead i {
+  width: 48px;
+  height: 5px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--teal) 50%, var(--divider) 50%);
+}
+.stepBox s,
+.stepChild {
+  padding-left: 14px;
+}
+.stepBox s {
+  color: var(--teal);
+}
+.stepRow {
+  justify-content: space-between;
+}
+.stepTimer i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+.stepTimer strong {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.stepTimer > span {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--raised);
+  font-weight: 600;
+}
+
+/* Kapanış alanı. */
+.closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 88px 24px;
+  text-align: center;
+}
+.closing h2 {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.closing a {
+  min-height: 46px;
+  padding-inline: 22px;
+}
+
+/* Kaydırma etkileri yalnız CSS; destek yoksa içerik normal görünür. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+}
+@keyframes sunPath {
+  from {
+    transform: rotate(-74deg);
+  }
+  to {
+    transform: rotate(74deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .workflow h2,
+    .steps li,
+    .closing {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+    .sunPath {
+      animation: sunPath linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  .previewFallback {
+    height: 710px;
+  }
+  .productWindow {
+    grid-template-columns: 188px minmax(0, 1fr);
+    height: 600px;
+  }
+  .mockNav {
+    gap: 10px;
+    font-size: 13px;
+  }
+  .mockMain {
+    padding-inline: 24px;
+  }
+  .mockPlayer .playerLabel {
+    display: none;
+  }
+  .planTime {
+    width: 84px;
+  }
+  .planRow .chips,
+  .planMore {
+    display: none;
+  }
+  .calendarZoom {
+    zoom: 0.62;
+  }
+  .notesSearch {
+    display: none;
+  }
+  .noteGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .note:nth-child(n + 4) {
+    display: none;
+  }
+  .noteSections .note:nth-child(n + 3) {
+    display: none;
+  }
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Telefonda gerçek mobil kabuk: 52px üst çubuk, alt menü ve tek satır oynatıcı. */
+@media (max-width: 760px) {
+  .previewSection {
+    padding: 0 16px;
+  }
+  .previewFallback {
+    height: 726px;
+  }
+  .previewTabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    gap: 4px;
+    max-width: 420px;
+    margin: 0 auto 16px;
+    padding: 4px;
+    border-radius: 10px;
+    background: var(--raised);
+  }
+  .previewTab {
+    width: auto;
+    border: 0;
+    border-radius: 7px;
+    font-size: 13px;
+  }
+  .previewTab[aria-selected="true"],
+  .previewTab[aria-selected="true"]:hover {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 10%);
+  }
+  .productWindow {
+    display: flex;
+    max-width: 420px;
+    height: 600px;
+    margin: 0 auto;
+    border-radius: 22px;
+  }
+  .mockSidebar {
+    display: none;
+  }
+  .mockArea {
+    flex: 1;
+  }
+  .mockTopbar {
+    flex: none;
+    justify-content: flex-start;
+    height: 52px;
+    padding: 0 14px;
+  }
+  .mockMobileBrand {
+    display: flex;
+    margin-right: auto;
+  }
+  .mockNewTask {
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 9px;
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .mockNewTask span,
+  .mockNewTask kbd {
+    display: none;
+  }
+  .mockMain {
+    padding: 4px 16px 0;
+  }
+  .mockPlayer {
+    gap: 10px;
+    margin: 0 10px 8px;
+    padding: 8px 12px;
+  }
+  .mockPlayer .playerMain > strong {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+  }
+  .playerAction > span {
+    display: none;
+  }
+  .mockPlayer {
+    min-height: 56px;
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 0;
+  }
+  .playerState {
+    font-size: 11px;
+    gap: 5px;
+  }
+  .playerActions {
+    gap: 4px;
+  }
+  .playerAction {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+  .playerMore {
+    width: 20px;
+  }
+  .playerTime {
+    font-size: 15px;
+  }
+  .mockBottomNav {
+    display: flex;
+    flex: none;
+    border-top: 1px solid var(--divider);
+    background: var(--surface);
+  }
+  .bottomItem {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0;
+    height: 58px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  button.bottomItem {
+    cursor: pointer;
+  }
+  .bottomItem .navIcon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 26px;
+    border-radius: 13px;
+    transition: background var(--dur-panel);
+  }
+  .bottomItem .navLabel {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bottomItemActive {
+    color: var(--primary-text);
+  }
+  .bottomItemActive .navIcon {
+    background: var(--primary-soft);
+  }
+  .sceneTitle {
+    margin-bottom: 12px;
+  }
+  .dayBar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .dayBar strong {
+    font-size: 14px;
+  }
+  .dayBarEnd {
+    width: 100%;
+    justify-content: space-between;
+    margin: 2px 0 0;
+  }
+  .capacity {
+    margin-top: 14px;
+    font-size: 12px;
+  }
+  .planRow {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) 20px;
+    column-gap: 10px;
+    padding: 6px;
+  }
+  .planTime {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    font-size: 12px;
+  }
+  .planSummary {
+    display: grid;
+    gap: 0;
+  }
+  .planSummary .planTime {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .planBody {
+    grid-column: 2;
+  }
+  .planRow .chips {
+    display: none;
+  }
+  .planDuration {
+    display: none;
+  }
+  .planPlay {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .check {
+    grid-row: 1;
+  }
+  .planParent {
+    display: none;
+  }
+  .groupLabel {
+    margin-top: 8px;
+  }
+  .addRow {
+    height: 36px;
+    margin-top: 4px;
+  }
+  .calendarZoom {
+    zoom: 0.91;
+  }
+  .calHead {
+    min-height: 44px;
+  }
+  .calHead .segment > span {
+    height: 40px;
+  }
+  .calIcon {
+    width: 44px;
+    height: 44px;
+  }
+  .calNav strong {
+    min-width: 96px;
+  }
+  .calToday,
+  .calExtra {
+    display: none;
+  }
+  .month {
+    grid-template-rows: 28px repeat(6, 52px);
+  }
+  .weekday {
+    justify-content: center;
+    padding: 0;
+  }
+  .dayCell {
+    align-items: center;
+    padding: 4px 2px;
+  }
+  .dayLines {
+    display: none;
+  }
+  .dayDots {
+    display: flex;
+  }
+  .notesHead {
+    margin-bottom: 12px;
+  }
+  .notesAdd {
+    margin-left: auto;
+    height: 34px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .notesFilters {
+    gap: 6px;
+    padding-bottom: 12px;
+  }
+  .filter,
+  .filterOn {
+    height: 28px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+  .filter:nth-child(2),
+  .notesView {
+    display: none;
+  }
+  .noteGrid {
+    gap: 10px;
+  }
+  .note {
+    padding: 8px 12px;
+    gap: 4px;
+  }
+  .note:nth-child(n + 3) {
+    display: none;
+  }
+  .noteSections {
+    gap: 10px;
+  }
+  .note strong {
+    font-size: 14px;
+  }
+  .previewCaption {
+    min-height: 40px;
+    max-width: 34ch;
+    margin: 14px auto 0;
+    font-size: 13px;
+    line-height: 20px;
+  }
+  .workflow {
+    padding-inline: 20px;
+  }
+  .steps li {
+    padding: 20px;
+  }
+  .closing {
+    padding-block: 64px;
+  }
+}
+@media (max-width: 600px) {
+  .heroActions {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+  .heroActions > a {
+    justify-content: center;
+  }
+}
+@media (max-width: 360px) {
+  .noteSections {
+    gap: 6px;
+  }
+  .planRow {
+    padding-block: 4px;
+  }
+  .groupLabel {
+    margin: 3px 0;
+  }
+}
+@media (max-width: 640px) {
+  .daySpecial > span {
+    display: none;
+  }
+  .daySpecial {
+    padding: 0;
+    min-height: 12px;
+  }
+}

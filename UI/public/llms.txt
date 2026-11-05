@@ -1,0 +1,22 @@
+# Navortal
+
+> Navortal, görevlerini toparlamana, gününü gerçekçi biçimde planlamana ve gerçek çalışmanı takip etmene yardım eden ücretsiz, Türkçe bir kişisel planlayıcıdır.
+
+Web'de çalışır ve telefona uygulama olarak eklenebilir. Ücret, abonelik veya reklam yoktur. Bir planlama aracıdır; tanı veya tedavi hizmeti sunmaz.
+
+Başlıca özellikler: alt görevli görev ağacı, saatli ve saatsiz gün planı, çalışma sayacı, Pomodoro, takvim, rutinler, notlar, Eisenhower matrisi, hatırlatmalar ve plan ile gerçek çalışmayı karşılaştıran analizler.
+
+## Sayfalar
+
+- [Ana sayfa](https://www.navortal.com.tr/): Ürünün kısa tanıtımı
+- [Özellikler](https://www.navortal.com.tr/features): Uygulamanın yaptıkları
+- [Nasıl çalışır?](https://www.navortal.com.tr/how-it-works): İlk görevden gün sonuna kullanım akışı
+- [Kullanım yardımı](https://www.navortal.com.tr/help): Sık sorulan konular
+
+## Yasal
+
+- [Kullanım Koşulları](https://www.navortal.com.tr/terms)
+- [Gizlilik](https://www.navortal.com.tr/privacy)
+- [KVKK Aydınlatma Metni](https://www.navortal.com.tr/privacy-notice)
+- [Çerezler](https://www.navortal.com.tr/cookies)
+- [İletişim](https://www.navortal.com.tr/contact): info@navortal.com.tr
