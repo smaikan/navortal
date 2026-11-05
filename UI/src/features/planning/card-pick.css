@@ -1,0 +1,74 @@
+/* Kart seç penceresi: arkada iki sade kart kenarı, önde seçilen görev. */
+.card-pick {
+  display: grid;
+  gap: 16px;
+}
+.card-pick-deck {
+  position: relative;
+  padding-bottom: 14px;
+}
+.card-pick-deck::before,
+.card-pick-deck::after {
+  content: "";
+  position: absolute;
+  height: 48px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+}
+.card-pick-deck::before {
+  inset: auto 20px 0;
+  background: var(--raised);
+}
+.card-pick-deck::after {
+  inset: auto 10px 7px;
+  background: var(--page);
+}
+.card-pick-card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: 132px;
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+  animation: card-deal 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.card-pick-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.card-pick-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.card-pick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+.card-pick-actions button {
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+}
+@keyframes card-deal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) rotate(-3deg) scale(0.97);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-pick-card {
+    animation: none;
+  }
+}
