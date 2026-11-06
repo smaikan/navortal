@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PushEnvelope (UI-27)",
+  "type": "object",
+  "required": ["notificationId", "recipientUserId", "snoozeCount", "tag", "title", "body", "url", "silent"],
+  "properties": {
+    "notificationId": { "type": "string", "format": "uuid" },
+    "recipientUserId": { "type": "string", "format": "uuid" },
+    "snoozeCount": { "type": "integer", "minimum": 0, "maximum": 2147483647 },
+    "tag": { "type": "string", "pattern": "^notification:[0-9a-fA-F-]{36}$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "\\S" },
+    "body": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "\\S" },
+    "url": { "type": "string", "pattern": "^/notifications/[0-9a-fA-F-]{36}$" },
+    "silent": { "type": "boolean" }
+  },
+  "additionalProperties": false
+}

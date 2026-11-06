@@ -1,0 +1,2657 @@
+{
+  "openApiOperations": 217,
+  "concreteOperations": 222,
+  "sourceSha256": "be33fb0640e9dc262629a3256a41b97917df539ad4e51a4132562a41cefb5b10",
+  "operations": [
+    {
+      "method": "GET",
+      "openApiPath": "/api/matrix",
+      "path": "/api/matrix",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/matrix.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/matrix/candidates",
+      "path": "/api/matrix/candidates",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/matrix.md"
+    },
+    {
+      "method": "DELETE",
+      "openApiPath": "/api/matrix/items/{taskId}",
+      "path": "/api/matrix/items/{taskId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/matrix.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/matrix/items/{taskId}",
+      "path": "/api/matrix/items/{taskId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/matrix.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/matrix/items/{taskId}",
+      "path": "/api/matrix/items/{taskId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/matrix.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/account/profile",
+      "path": "/api/account/profile",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/account/profile",
+      "path": "/api/account/profile",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "DELETE",
+      "openApiPath": "/api/account/profile/photo",
+      "path": "/api/account/profile/photo",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/account/profile/photo",
+      "path": "/api/account/profile/photo",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/account/profile/photo",
+      "path": "/api/account/profile/photo",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/forgot-password",
+      "path": "/api/auth/forgot-password",
+      "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/google",
+      "path": "/api/auth/google",
+      "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/google/link",
+      "path": "/api/auth/google/link",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/login",
+      "path": "/api/auth/login",
+      "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/logout",
+      "path": "/api/auth/logout",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/logout-all",
+      "path": "/api/auth/logout-all",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/auth/me",
+      "path": "/api/auth/me",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/register",
+      "path": "/api/auth/register",
+      "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/reset-password",
+      "path": "/api/auth/reset-password",
+      "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/session/adopt",
+      "path": "/api/auth/session/adopt",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/preferences",
+      "path": "/api/preferences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/preferences.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/preferences",
+      "path": "/api/preferences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/preferences.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/preferences/working-hours",
+      "path": "/api/preferences/working-hours",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/preferences.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks",
+      "path": "/api/tasks",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks",
+      "path": "/api/tasks",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/batch",
+      "path": "/api/tasks/batch",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/children",
+      "path": "/api/tasks/children",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/picker",
+      "path": "/api/tasks/picker",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/tree",
+      "path": "/api/tasks/tree",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}",
+      "path": "/api/tasks/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tasks/{id}",
+      "path": "/api/tasks/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/ancestors",
+      "path": "/api/tasks/{id}/ancestors",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/archive",
+      "path": "/api/tasks/{id}/archive",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tasks/{id}/auto-complete",
+      "path": "/api/tasks/{id}/auto-complete",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/children",
+      "path": "/api/tasks/{id}/children",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "parentVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/classification",
+      "path": "/api/tasks/{id}/classification",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tasks/{id}/classification",
+      "path": "/api/tasks/{id}/classification",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version",
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/delete",
+      "path": "/api/tasks/{id}/delete",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/dependencies",
+      "path": "/api/tasks/{id}/dependencies",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/dependencies",
+      "path": "/api/tasks/{id}/dependencies",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "DELETE",
+      "openApiPath": "/api/tasks/{id}/dependencies/{sourceId}",
+      "path": "/api/tasks/{id}/dependencies/{sourceId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/detail-view",
+      "path": "/api/tasks/{id}/detail-view",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/move",
+      "path": "/api/tasks/{id}/move",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version",
+        "parentVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/ordering",
+      "path": "/api/tasks/{id}/ordering",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/ordering",
+      "path": "/api/tasks/{id}/ordering",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "DELETE",
+      "openApiPath": "/api/tasks/{id}/ordering/{sourceId}",
+      "path": "/api/tasks/{id}/ordering/{sourceId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tasks/{id}/planned-range",
+      "path": "/api/tasks/{id}/planned-range",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/progress",
+      "path": "/api/tasks/{id}/progress",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tasks/{id}/required",
+      "path": "/api/tasks/{id}/required",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/restore",
+      "path": "/api/tasks/{id}/restore",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/start-eligibility",
+      "path": "/api/tasks/{id}/start-eligibility",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tasks/{id}/state",
+      "path": "/api/tasks/{id}/state",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/subtree",
+      "path": "/api/tasks/{id}/subtree",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/summary",
+      "path": "/api/tasks/{id}/summary",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/work-components",
+      "path": "/api/tasks/{id}/work-components",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tasks/{id}/work-definition",
+      "path": "/api/tasks/{id}/work-definition",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/workload",
+      "path": "/api/tasks/{id}/workload",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/categories",
+      "path": "/api/categories",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/categories",
+      "path": "/api/categories",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/categories/{id}",
+      "path": "/api/categories/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/categories/{id}",
+      "path": "/api/categories/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/categories/{id}/archive",
+      "path": "/api/categories/{id}/archive",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/categories/{id}/workload",
+      "path": "/api/categories/{id}/workload",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/pools",
+      "path": "/api/pools",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/pools",
+      "path": "/api/pools",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/pools/{id}",
+      "path": "/api/pools/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/pools/{id}",
+      "path": "/api/pools/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/pools/{id}/archive",
+      "path": "/api/pools/{id}/archive",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/pools/{id}/workload",
+      "path": "/api/pools/{id}/workload",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/projects",
+      "path": "/api/projects",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/projects",
+      "path": "/api/projects",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/projects/{id}",
+      "path": "/api/projects/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/projects/{id}",
+      "path": "/api/projects/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/projects/{id}/archive",
+      "path": "/api/projects/{id}/archive",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/projects/{id}/workload",
+      "path": "/api/projects/{id}/workload",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tags",
+      "path": "/api/tags",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tags",
+      "path": "/api/tags",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tags/{id}",
+      "path": "/api/tags/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tags/{id}",
+      "path": "/api/tags/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/tags/{id}/archive",
+      "path": "/api/tags/{id}/archive",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tags/{id}/workload",
+      "path": "/api/tags/{id}/workload",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/collections.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/daily-plans/{date}",
+      "path": "/api/daily-plans/{date}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/daily-plans/{date}/entries",
+      "path": "/api/daily-plans/{date}/entries",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/daily-plans/{date}/glance",
+      "path": "/api/daily-plans/{date}/glance",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/daily-plans/{date}/items",
+      "path": "/api/daily-plans/{date}/items",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/daily-plans/{date}/items",
+      "path": "/api/daily-plans/{date}/items",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/daily-plans/{date}/items/move",
+      "path": "/api/daily-plans/{date}/items/move",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/daily-plans/{date}/overview",
+      "path": "/api/daily-plans/{date}/overview",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/daily-plans/{date}/revisions",
+      "path": "/api/daily-plans/{date}/revisions",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/daily-plans/{date}/signals",
+      "path": "/api/daily-plans/{date}/signals",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/day-items/undo",
+      "path": "/api/day-items/undo",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/day-items/{id}/complete",
+      "path": "/api/day-items/{id}/complete",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/day-items/{id}/move",
+      "path": "/api/day-items/{id}/move",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/day-items/{id}/remove",
+      "path": "/api/day-items/{id}/remove",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/day-items/{id}/reopen",
+      "path": "/api/day-items/{id}/reopen",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/day-items/{id}/time",
+      "path": "/api/day-items/{id}/time",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version",
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/plan-revisions/{id}",
+      "path": "/api/plan-revisions/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/plan-revisions/{id}/changes",
+      "path": "/api/plan-revisions/{id}/changes",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/plan-revisions/{id}/items",
+      "path": "/api/plan-revisions/{id}/items",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/schedules",
+      "path": "/api/schedules",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/schedules",
+      "path": "/api/schedules",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion",
+        "dayItemVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/schedules/{id}",
+      "path": "/api/schedules/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/schedules/{id}",
+      "path": "/api/schedules/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/schedules/{id}/complete",
+      "path": "/api/schedules/{id}/complete",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/schedules/{id}/move",
+      "path": "/api/schedules/{id}/move",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/schedules/{id}/remove",
+      "path": "/api/schedules/{id}/remove",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/schedules/{id}/reopen",
+      "path": "/api/schedules/{id}/reopen",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/apply",
+      "path": "/api/scheduling/apply",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/distribute-apply",
+      "path": "/api/scheduling/distribute-apply",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/distribute-plan",
+      "path": "/api/scheduling/distribute-plan",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/distribute-preview",
+      "path": "/api/scheduling/distribute-preview",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/scheduling/distribution-proposals/{id}",
+      "path": "/api/scheduling/distribution-proposals/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/plan",
+      "path": "/api/scheduling/plan",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/preview",
+      "path": "/api/scheduling/preview",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/scheduling/proposals/{id}",
+      "path": "/api/scheduling/proposals/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/undo-multi-preview",
+      "path": "/api/scheduling/undo-multi-preview",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/scheduling/undo-preview",
+      "path": "/api/scheduling/undo-preview",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/allocation",
+      "path": "/api/tasks/{id}/allocation",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/work-sessions/start-now",
+      "path": "/api/work-sessions/start-now",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion",
+        "expectedSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/planning.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/calendar",
+      "path": "/api/calendar",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/calendar/days/{date}",
+      "path": "/api/calendar/days/{date}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/calendar/days/{date}/carry",
+      "path": "/api/calendar/days/{date}/carry",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 100,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/calendar/days/{date}/defer",
+      "path": "/api/calendar/days/{date}/defer",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/calendar/days/{date}/defer-preview",
+      "path": "/api/calendar/days/{date}/defer-preview",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/calendar/days/{date}/defer-tasks",
+      "path": "/api/calendar/days/{date}/defer-tasks",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/calendar/days/{date}/pool-batch",
+      "path": "/api/calendar/days/{date}/pool-batch",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/calendar/days/{date}/tasks/{id}/pool",
+      "path": "/api/calendar/days/{date}/tasks/{id}/pool",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/calendar/items",
+      "path": "/api/calendar/items",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/calendar/overview",
+      "path": "/api/calendar/overview",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/calendar.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/focus-presets",
+      "path": "/api/focus-presets",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-presets",
+      "path": "/api/focus-presets",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/focus-presets/{id}",
+      "path": "/api/focus-presets/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/focus-sessions",
+      "path": "/api/focus-sessions",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-sessions",
+      "path": "/api/focus-sessions",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/focus-sessions/current",
+      "path": "/api/focus-sessions/current",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "read-current-state-no-store",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/focus-sessions/{id}",
+      "path": "/api/focus-sessions/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "read-current-state-no-store",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-sessions/{id}/{operation}",
+      "path": "/api/focus-sessions/{id}/pause",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-sessions/{id}/{operation}",
+      "path": "/api/focus-sessions/{id}/resume",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-sessions/{id}/{operation}",
+      "path": "/api/focus-sessions/{id}/break",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-sessions/{id}/{operation}",
+      "path": "/api/focus-sessions/{id}/next",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-sessions/{id}/{operation}",
+      "path": "/api/focus-sessions/{id}/finish",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/focus-sessions/{id}/{operation}",
+      "path": "/api/focus-sessions/{id}/cancel",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/time",
+      "path": "/api/tasks/{id}/time",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/work-sessions",
+      "path": "/api/work-sessions",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/work-sessions/current",
+      "path": "/api/work-sessions/current",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/work-sessions/manual",
+      "path": "/api/work-sessions/manual",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/work-sessions/start",
+      "path": "/api/work-sessions/start",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "scheduleVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/work-sessions/{id}",
+      "path": "/api/work-sessions/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/work-sessions/{id}/corrections",
+      "path": "/api/work-sessions/{id}/corrections",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/work-sessions/{id}/finish",
+      "path": "/api/work-sessions/{id}/finish",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/work-sessions/{id}/pause",
+      "path": "/api/work-sessions/{id}/pause",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/work-sessions/{id}/resume",
+      "path": "/api/work-sessions/{id}/resume",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/work-sessions/{id}/segments",
+      "path": "/api/work-sessions/{id}/segments",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/work-sessions/{id}/segments/{segmentId}/corrections",
+      "path": "/api/work-sessions/{id}/segments/{segmentId}/corrections",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version",
+        "segmentVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/work-focus.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/client-errors",
+      "path": "/api/client-errors",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/note-categories",
+      "path": "/api/note-categories",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/note-categories",
+      "path": "/api/note-categories",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/note-categories/{id}",
+      "path": "/api/note-categories/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/note-categories/{id}/move",
+      "path": "/api/note-categories/{id}/move",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/note-categories/{id}/remove",
+      "path": "/api/note-categories/{id}/remove",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/note-categories/{id}/restore",
+      "path": "/api/note-categories/{id}/restore",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notes",
+      "path": "/api/notes",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notes",
+      "path": "/api/notes",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/notes/view-modes",
+      "path": "/api/notes/view-modes",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/notes/{id}",
+      "path": "/api/notes/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notes/{id}/convert",
+      "path": "/api/notes/{id}/convert",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notes/{id}/delete",
+      "path": "/api/notes/{id}/delete",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notes/{id}/restore",
+      "path": "/api/notes/{id}/restore",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/support/days/{date}",
+      "path": "/api/support/days/{date}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/support/days/{date}",
+      "path": "/api/support/days/{date}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/support/days/{date}/end-preparation",
+      "path": "/api/support/days/{date}/end-preparation",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/support/quick-start",
+      "path": "/api/support/quick-start",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "workSessionVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/support/rescue",
+      "path": "/api/support/rescue",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 100,
+      "bodyVersionFields": [
+        "expectedPlanningVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/tasks/{id}/energy",
+      "path": "/api/tasks/{id}/energy",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/return-context",
+      "path": "/api/tasks/{id}/return-context",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/support.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/special-days",
+      "path": "/api/special-days",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/special-days.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/special-days",
+      "path": "/api/special-days",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/special-days.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/special-days/occurrences",
+      "path": "/api/special-days/occurrences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/special-days.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/special-days/{id}",
+      "path": "/api/special-days/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/special-days.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/special-days/{id}/delete",
+      "path": "/api/special-days/{id}/delete",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/special-days.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/special-days/{id}/restore",
+      "path": "/api/special-days/{id}/restore",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/special-days.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/recurrence-templates",
+      "path": "/api/recurrence-templates",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/recurrence-templates",
+      "path": "/api/recurrence-templates",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/recurrence-templates/projection",
+      "path": "/api/recurrence-templates/projection",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/recurrence-templates/{id}",
+      "path": "/api/recurrence-templates/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/recurrence-templates/{id}",
+      "path": "/api/recurrence-templates/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/recurrence-templates/{id}/definitions",
+      "path": "/api/recurrence-templates/{id}/definitions",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/recurrence-templates/{id}/enabled",
+      "path": "/api/recurrence-templates/{id}/enabled",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/recurrence-templates/{id}/materialize",
+      "path": "/api/recurrence-templates/{id}/materialize",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/recurrence-templates/{id}/occurrences",
+      "path": "/api/recurrence-templates/{id}/occurrences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/recurrence-templates/{id}/occurrences/{date}/cancel",
+      "path": "/api/recurrence-templates/{id}/occurrences/{date}/cancel",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "taskVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/recurrence-templates/{id}/occurrences/{date}/skip",
+      "path": "/api/recurrence-templates/{id}/occurrences/{date}/skip",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version",
+        "taskVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/tasks/{id}/recurrence",
+      "path": "/api/tasks/{id}/recurrence",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/recurrence.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/jobs/outbox",
+      "path": "/api/jobs/outbox",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/jobs/outbox/{id}/retry",
+      "path": "/api/jobs/outbox/{id}/retry",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/jobs/reminders",
+      "path": "/api/jobs/reminders",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications",
+      "path": "/api/notifications",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications/alerts",
+      "path": "/api/notifications/alerts",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications/preferences",
+      "path": "/api/notifications/preferences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/notifications/preferences",
+      "path": "/api/notifications/preferences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications/push-config",
+      "path": "/api/notifications/push-config",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/read-all",
+      "path": "/api/notifications/read-all",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications/reminders",
+      "path": "/api/notifications/reminders",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/reminders",
+      "path": "/api/notifications/reminders",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/notifications/reminders/{id}",
+      "path": "/api/notifications/reminders/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/reminders/{id}/cancel",
+      "path": "/api/notifications/reminders/{id}/cancel",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications/subscriptions",
+      "path": "/api/notifications/subscriptions",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/subscriptions",
+      "path": "/api/notifications/subscriptions",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/subscriptions/{id}/remove",
+      "path": "/api/notifications/subscriptions/{id}/remove",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications/{id}",
+      "path": "/api/notifications/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/{id}/read",
+      "path": "/api/notifications/{id}/read",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/{id}/snooze",
+      "path": "/api/notifications/{id}/snooze",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/sync",
+      "path": "/api/sync",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/workspace/snapshot",
+      "path": "/api/workspace/snapshot",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/actual",
+      "path": "/api/analytics/actual",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/actual/breakdown",
+      "path": "/api/analytics/actual/breakdown",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/days/{date}/review",
+      "path": "/api/analytics/days/{date}/review",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/estimate-accuracy",
+      "path": "/api/analytics/estimate-accuracy",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/estimate-suggestion",
+      "path": "/api/analytics/estimate-suggestion",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/plans",
+      "path": "/api/analytics/plans",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/recurrences",
+      "path": "/api/analytics/recurrences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/analytics/recurrences/{id}",
+      "path": "/api/analytics/recurrences/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/analytics.md"
+    }
+  ]
+}

@@ -1,0 +1,5723 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/account/profile",
+    "controller": "Profile",
+    "action": "Read",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ProfileView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/account/profile",
+    "controller": "Profile",
+    "action": "Name",
+    "authRequired": true,
+    "bodyType": "UpdateProfileRequest",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "firstName",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..50"
+        ]
+      },
+      {
+        "name": "lastName",
+        "type": "String",
+        "rules": [
+          "length:0..50"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ProfileView"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/account/profile/photo",
+    "controller": "Profile",
+    "action": "Remove",
+    "authRequired": true,
+    "bodyType": "ProfileVersionRequest",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ProfileView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/account/profile/photo",
+    "controller": "Profile",
+    "action": "Photo",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "Byte[]"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/account/profile/photo",
+    "controller": "Profile",
+    "action": "Upload",
+    "authRequired": true,
+    "bodyType": "UploadProfilePhotoRequest",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "uploadId",
+        "type": "Guid",
+        "rules": []
+      },
+      {
+        "name": "mediaType",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..20"
+        ]
+      },
+      {
+        "name": "contentBase64",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..2796204"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ProfileView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/actual",
+    "controller": "Analytics",
+    "action": "Actual",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ActualAnalyticsView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/actual/breakdown",
+    "controller": "Analytics",
+    "action": "Breakdown",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ActualBreakdownPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/days/{date}/review",
+    "controller": "PlanAnalytics",
+    "action": "Review",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanAnalyticsDay"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/estimate-accuracy",
+    "controller": "PlanAnalytics",
+    "action": "Accuracy",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "EstimateAccuracyView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/estimate-suggestion",
+    "controller": "PlanAnalytics",
+    "action": "Suggestion",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "EstimateSuggestionView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/plans",
+    "controller": "PlanAnalytics",
+    "action": "Plans",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanAnalyticsView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/recurrences",
+    "controller": "RecurrenceAnalytics",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceAnalyticsView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/analytics/recurrences/{id}",
+    "controller": "RecurrenceAnalytics",
+    "action": "Detail",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceAnalyticsDetail"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/forgot-password",
+    "controller": "PasswordReset",
+    "action": "Forgot",
+    "authRequired": false,
+    "bodyType": "ForgotPasswordRequest",
+    "fields": [
+      {
+        "name": "email",
+        "type": "String",
+        "rules": [
+          "required",
+          "email",
+          "length:0..320"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 202,
+        "type": "ForgotPasswordResponse"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/google",
+    "controller": "Auth",
+    "action": "Google",
+    "authRequired": false,
+    "bodyType": "GoogleRequest",
+    "fields": [
+      {
+        "name": "idToken",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..20000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "AuthResponse"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/google/link",
+    "controller": "Auth",
+    "action": "LinkGoogle",
+    "authRequired": true,
+    "bodyType": "GoogleRequest",
+    "fields": [
+      {
+        "name": "idToken",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..20000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/login",
+    "controller": "Auth",
+    "action": "Login",
+    "authRequired": false,
+    "bodyType": "LoginRequest",
+    "fields": [
+      {
+        "name": "email",
+        "type": "String",
+        "rules": [
+          "required",
+          "email",
+          "length:0..320"
+        ]
+      },
+      {
+        "name": "password",
+        "type": "String",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "AuthResponse"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/logout",
+    "controller": "Auth",
+    "action": "Logout",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/logout-all",
+    "controller": "Auth",
+    "action": "LogoutAll",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/auth/me",
+    "controller": "Auth",
+    "action": "Me",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "UserSummary"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/register",
+    "controller": "Auth",
+    "action": "Register",
+    "authRequired": false,
+    "bodyType": "RegisterRequest",
+    "fields": [
+      {
+        "name": "email",
+        "type": "String",
+        "rules": [
+          "required",
+          "email",
+          "length:0..320"
+        ]
+      },
+      {
+        "name": "password",
+        "type": "String",
+        "rules": [
+          "required",
+          "minLength:6"
+        ]
+      },
+      {
+        "name": "displayName",
+        "type": "String",
+        "rules": [
+          "length:0..100"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "AuthResponse"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/reset-password",
+    "controller": "PasswordReset",
+    "action": "Reset",
+    "authRequired": false,
+    "bodyType": "ResetPasswordRequest",
+    "fields": [
+      {
+        "name": "token",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:64..64"
+        ]
+      },
+      {
+        "name": "newPassword",
+        "type": "String",
+        "rules": [
+          "required",
+          "minLength:6"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/session/adopt",
+    "controller": "Auth",
+    "action": "Adopt",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "UserSummary"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/calendar",
+    "controller": "Calendar",
+    "action": "Range",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "CalendarRangeView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/calendar/days/{date}",
+    "controller": "Calendar",
+    "action": "Day",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "CalendarDayView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/calendar/days/{date}/carry",
+    "controller": "Calendar",
+    "action": "Carry",
+    "authRequired": true,
+    "bodyType": "DistributionRequestDto",
+    "fields": [
+      {
+        "name": "fromDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "toDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "taskIds",
+        "type": "Guid[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:1000"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DistributionPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/calendar/days/{date}/defer",
+    "controller": "Calendar",
+    "action": "Defer",
+    "authRequired": true,
+    "bodyType": "DeferDaySelectionRequest",
+    "fields": [
+      {
+        "name": "targetDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "schedules",
+        "type": "PlanEntryVersionRequest[]",
+        "rules": [
+          "required",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "items",
+        "type": "PlanEntryVersionRequest[]",
+        "rules": [
+          "required",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "maxLength:500"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayDeferralResult"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/calendar/days/{date}/defer-preview",
+    "controller": "Calendar",
+    "action": "PreviewDeferral",
+    "authRequired": true,
+    "bodyType": "DeferDaySelectionRequest",
+    "fields": [
+      {
+        "name": "targetDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "schedules",
+        "type": "PlanEntryVersionRequest[]",
+        "rules": [
+          "required",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "items",
+        "type": "PlanEntryVersionRequest[]",
+        "rules": [
+          "required",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "maxLength:500"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayDeferralPreview"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/calendar/days/{date}/defer-tasks",
+    "controller": "Calendar",
+    "action": "DeferTasks",
+    "authRequired": true,
+    "bodyType": "DeferTasksRequest",
+    "fields": [
+      {
+        "name": "tasks",
+        "type": "DeferTaskTargetRequest[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayDeferralResult"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/calendar/days/{date}/pool-batch",
+    "controller": "Calendar",
+    "action": "PoolMany",
+    "authRequired": true,
+    "bodyType": "ReturnManyToPoolRequest",
+    "fields": [
+      {
+        "name": "tasks",
+        "type": "PoolTaskVersionRequest[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "poolId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "maxLength:500"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanMutation"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/calendar/days/{date}/tasks/{id}/pool",
+    "controller": "Calendar",
+    "action": "Pool",
+    "authRequired": true,
+    "bodyType": "ReturnToPoolRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "poolId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "maxLength:2000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanMutation"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/calendar/items",
+    "controller": "Calendar",
+    "action": "Items",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "CalendarItemPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/calendar/overview",
+    "controller": "Calendar",
+    "action": "Overview",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "CalendarOverviewView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/categories",
+    "controller": "Categories",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourcePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/categories",
+    "controller": "Categories",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "ResourceFieldsRequest",
+    "fields": [
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/categories/{id}",
+    "controller": "Categories",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/categories/{id}",
+    "controller": "Categories",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "UpdateResourceRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/categories/{id}/archive",
+    "controller": "Categories",
+    "action": "Archive",
+    "authRequired": true,
+    "bodyType": "ResourceVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/categories/{id}/workload",
+    "controller": "Categories",
+    "action": "Workload",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceWorkload"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/client-errors",
+    "controller": "ClientErrors",
+    "action": "Report",
+    "authRequired": true,
+    "bodyType": "ClientErrorRequest",
+    "fields": [
+      {
+        "name": "message",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..500"
+        ]
+      },
+      {
+        "name": "kind",
+        "type": "ClientErrorKind?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "route",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..200"
+        ]
+      },
+      {
+        "name": "buildId",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..100"
+        ]
+      },
+      {
+        "name": "browserFamily",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..20"
+        ]
+      },
+      {
+        "name": "occurredAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 202,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/daily-plans/{date}",
+    "controller": "Planning",
+    "action": "Day",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "DailyPlanView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/daily-plans/{date}/entries",
+    "controller": "PlanEntries",
+    "action": "Add",
+    "authRequired": true,
+    "bodyType": "AddPlanEntryRequest",
+    "fields": [
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "length:0..300"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "isUrgent",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "priority",
+        "type": "TaskPriority",
+        "rules": []
+      },
+      {
+        "name": "energyDemand",
+        "type": "EnergyLevel?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanEntryResult"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/daily-plans/{date}/glance",
+    "controller": "Planning",
+    "action": "Glance",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "DayGlanceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/daily-plans/{date}/items",
+    "controller": "DayItems",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/daily-plans/{date}/items",
+    "controller": "DayItems",
+    "action": "Add",
+    "authRequired": true,
+    "bodyType": "AddDayItemRequest",
+    "fields": [
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "placement",
+        "type": "DayItemPlacement?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "DayItemView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/daily-plans/{date}/items/move",
+    "controller": "DayItems",
+    "action": "MoveMany",
+    "authRequired": true,
+    "bodyType": "MoveDayItemsRequest",
+    "fields": [
+      {
+        "name": "items",
+        "type": "DayItemMoveEntryRequest[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "targetDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemBatchResult"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/daily-plans/{date}/overview",
+    "controller": "Planning",
+    "action": "Overview",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "DayOverviewView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/daily-plans/{date}/revisions",
+    "controller": "Planning",
+    "action": "Revisions",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RevisionPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/daily-plans/{date}/signals",
+    "controller": "Planning",
+    "action": "Signals",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "DaySignalsView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/day-items/undo",
+    "controller": "DayItems",
+    "action": "Undo",
+    "authRequired": true,
+    "bodyType": "UndoDayItemsRequest",
+    "fields": [
+      {
+        "name": "changeSetId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemBatchResult"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/day-items/{id}/complete",
+    "controller": "DayItems",
+    "action": "Complete",
+    "authRequired": true,
+    "bodyType": "DayItemVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/day-items/{id}/move",
+    "controller": "DayItems",
+    "action": "Move",
+    "authRequired": true,
+    "bodyType": "MoveDayItemRequest",
+    "fields": [
+      {
+        "name": "targetDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/day-items/{id}/remove",
+    "controller": "DayItems",
+    "action": "Remove",
+    "authRequired": true,
+    "bodyType": "DayItemVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/day-items/{id}/reopen",
+    "controller": "DayItems",
+    "action": "Reopen",
+    "authRequired": true,
+    "bodyType": "DayItemVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/day-items/{id}/time",
+    "controller": "PlanEntries",
+    "action": "Time",
+    "authRequired": true,
+    "bodyType": "UpdateDayItemTimeRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "startsAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      },
+      {
+        "name": "endsAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DayItemView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/focus-presets",
+    "controller": "Focus",
+    "action": "Presets",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "FocusPresetPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/focus-presets",
+    "controller": "Focus",
+    "action": "CreatePreset",
+    "authRequired": true,
+    "bodyType": "FocusPresetRequest",
+    "fields": [
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..100"
+        ]
+      },
+      {
+        "name": "settings",
+        "type": "FocusSettings",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "FocusPresetView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/focus-presets/{id}",
+    "controller": "Focus",
+    "action": "UpdatePreset",
+    "authRequired": true,
+    "bodyType": "UpdateFocusPresetRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..100"
+        ]
+      },
+      {
+        "name": "settings",
+        "type": "FocusSettings",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "FocusPresetView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/focus-sessions",
+    "controller": "Focus",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "FocusPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/focus-sessions",
+    "controller": "Focus",
+    "action": "Start",
+    "authRequired": true,
+    "bodyType": "FocusStart",
+    "fields": [
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "workSessionId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "workSessionVersion",
+        "type": "Int64?",
+        "rules": []
+      },
+      {
+        "name": "presetId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "settings",
+        "type": "FocusSettings",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "FocusView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/focus-sessions/current",
+    "controller": "Focus",
+    "action": "Current",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "FocusCurrent"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/focus-sessions/{id}",
+    "controller": "Focus",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "FocusView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/focus-sessions/{id}/{operation}",
+    "controller": "Focus",
+    "action": "Change",
+    "authRequired": true,
+    "bodyType": "FocusCommand",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "workSessionVersion",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "skipBreak",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "FocusView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/jobs/outbox",
+    "controller": "Jobs",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "OutboxPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/jobs/outbox/{id}/retry",
+    "controller": "Jobs",
+    "action": "Retry",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "OutboxView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/jobs/reminders",
+    "controller": "Jobs",
+    "action": "Reminders",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ReminderPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/matrix",
+    "controller": "Matrix",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "MatrixView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/matrix/candidates",
+    "controller": "Matrix",
+    "action": "Candidates",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskPickerPage"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/matrix/items/{taskId}",
+    "controller": "Matrix",
+    "action": "Remove",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "MatrixWriteResult"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/matrix/items/{taskId}",
+    "controller": "Matrix",
+    "action": "Add",
+    "authRequired": true,
+    "bodyType": "MatrixRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "quadrant",
+        "type": "MatrixQuadrant",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "beforeTaskId",
+        "type": "Guid?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "MatrixWriteResult"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/matrix/items/{taskId}",
+    "controller": "Matrix",
+    "action": "Move",
+    "authRequired": true,
+    "bodyType": "MatrixRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "quadrant",
+        "type": "MatrixQuadrant",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "beforeTaskId",
+        "type": "Guid?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "MatrixWriteResult"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/note-categories",
+    "controller": "Support",
+    "action": "NoteCategories",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteCategoryList"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/note-categories",
+    "controller": "Support",
+    "action": "CreateNoteCategory",
+    "authRequired": true,
+    "bodyType": "NoteCategoryFields",
+    "fields": [
+      {
+        "name": "name",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "color",
+        "type": "NoteCategoryColor",
+        "rules": []
+      },
+      {
+        "name": "showInBar",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "pinInAll",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "NoteCategoryView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/note-categories/{id}",
+    "controller": "Support",
+    "action": "ChangeNoteCategory",
+    "authRequired": true,
+    "bodyType": "NoteCategoryChange",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "color",
+        "type": "NoteCategoryColor",
+        "rules": []
+      },
+      {
+        "name": "showInBar",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "pinInAll",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "viewMode",
+        "type": "NoteViewMode",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteCategoryView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/note-categories/{id}/move",
+    "controller": "Support",
+    "action": "MoveNoteCategory",
+    "authRequired": true,
+    "bodyType": "NoteCategoryMove",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "beforeCategoryId",
+        "type": "Guid?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteCategoryView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/note-categories/{id}/remove",
+    "controller": "Support",
+    "action": "RemoveNoteCategory",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteCategoryView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/note-categories/{id}/restore",
+    "controller": "Support",
+    "action": "RestoreNoteCategory",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteCategoryView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notes",
+    "controller": "Support",
+    "action": "Notes",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NotePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notes",
+    "controller": "Support",
+    "action": "CreateNote",
+    "authRequired": true,
+    "bodyType": "NoteFields",
+    "fields": [
+      {
+        "name": "kind",
+        "type": "NoteKind",
+        "rules": []
+      },
+      {
+        "name": "text",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "workSessionId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "localDate",
+        "type": "DateOnly?",
+        "rules": []
+      },
+      {
+        "name": "dueAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "categoryId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "display",
+        "type": "NoteDisplay",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "NoteView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/notes/view-modes",
+    "controller": "Support",
+    "action": "NoteViewModes",
+    "authRequired": true,
+    "bodyType": "NoteSystemViews",
+    "fields": [
+      {
+        "name": "allViewMode",
+        "type": "NoteViewMode",
+        "rules": []
+      },
+      {
+        "name": "taskViewMode",
+        "type": "NoteViewMode",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteSystemViews"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/notes/{id}",
+    "controller": "Support",
+    "action": "EditNote",
+    "authRequired": true,
+    "bodyType": "EditNoteRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "text",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..10000"
+        ]
+      },
+      {
+        "name": "dueAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      },
+      {
+        "name": "display",
+        "type": "NoteDisplay?",
+        "rules": []
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "categoryId",
+        "type": "Guid?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notes/{id}/convert",
+    "controller": "Support",
+    "action": "Convert",
+    "authRequired": true,
+    "bodyType": "NoteConversion",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "poolId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "deadlineAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ConvertedNote"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notes/{id}/delete",
+    "controller": "Support",
+    "action": "DeleteNote",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notes/{id}/restore",
+    "controller": "Support",
+    "action": "RestoreNote",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NoteView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications",
+    "controller": "Notifications",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/alerts",
+    "controller": "Notifications",
+    "action": "Alerts",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationAlertPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/preferences",
+    "controller": "Notifications",
+    "action": "Preferences",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationPreferencesView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/notifications/preferences",
+    "controller": "Notifications",
+    "action": "Preferences",
+    "authRequired": true,
+    "bodyType": "UpdateNotificationPreferences",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "settings",
+        "type": "NotificationSettings",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationPreferencesView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/push-config",
+    "controller": "Notifications",
+    "action": "PushConfig",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "PushConfiguration"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/read-all",
+    "controller": "Notifications",
+    "action": "ReadAll",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ReadAllNotificationsResult"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/reminders",
+    "controller": "Notifications",
+    "action": "Reminders",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "CustomReminderView[]"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/reminders",
+    "controller": "Notifications",
+    "action": "CreateReminder",
+    "authRequired": true,
+    "bodyType": "CustomReminderCommand",
+    "fields": [
+      {
+        "name": "title",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "dueAt",
+        "type": "DateTimeOffset",
+        "rules": []
+      },
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "version",
+        "type": "Int64?",
+        "rules": []
+      },
+      {
+        "name": "repeat",
+        "type": "ReminderRepeat",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "CustomReminderView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/notifications/reminders/{id}",
+    "controller": "Notifications",
+    "action": "UpdateReminder",
+    "authRequired": true,
+    "bodyType": "CustomReminderCommand",
+    "fields": [
+      {
+        "name": "title",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "dueAt",
+        "type": "DateTimeOffset",
+        "rules": []
+      },
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "version",
+        "type": "Int64?",
+        "rules": []
+      },
+      {
+        "name": "repeat",
+        "type": "ReminderRepeat",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "CustomReminderView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/reminders/{id}/cancel",
+    "controller": "Notifications",
+    "action": "CancelReminder",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "CustomReminderView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/subscriptions",
+    "controller": "Notifications",
+    "action": "Subscriptions",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SubscriptionView[]"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/subscriptions",
+    "controller": "Notifications",
+    "action": "Subscribe",
+    "authRequired": true,
+    "bodyType": "RegisterSubscription",
+    "fields": [
+      {
+        "name": "endpoint",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "p256dh",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "auth",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "label",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "expiresAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SubscriptionView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/subscriptions/{id}/remove",
+    "controller": "Notifications",
+    "action": "Unsubscribe",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/{id}",
+    "controller": "Notifications",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/{id}/read",
+    "controller": "Notifications",
+    "action": "Read",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/{id}/snooze",
+    "controller": "Notifications",
+    "action": "Snooze",
+    "authRequired": true,
+    "bodyType": "SnoozeNotification",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "seconds",
+        "type": "Int32?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/plan-revisions/{id}",
+    "controller": "Planning",
+    "action": "Revision",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RevisionView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/plan-revisions/{id}/changes",
+    "controller": "Planning",
+    "action": "Changes",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RevisionChangePage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/plan-revisions/{id}/items",
+    "controller": "Planning",
+    "action": "Items",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RevisionItemPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/pools",
+    "controller": "Pools",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourcePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/pools",
+    "controller": "Pools",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "ResourceFieldsRequest",
+    "fields": [
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/pools/{id}",
+    "controller": "Pools",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/pools/{id}",
+    "controller": "Pools",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "UpdateResourceRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/pools/{id}/archive",
+    "controller": "Pools",
+    "action": "Archive",
+    "authRequired": true,
+    "bodyType": "ResourceVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/pools/{id}/workload",
+    "controller": "Pools",
+    "action": "Workload",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceWorkload"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/preferences",
+    "controller": "Preferences",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "PreferencesSnapshot"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/preferences",
+    "controller": "Preferences",
+    "action": "Put",
+    "authRequired": true,
+    "bodyType": "UpdatePreferencesRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "values",
+        "type": "PlanningPreferences",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "PreferencesSnapshot"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/preferences/working-hours",
+    "controller": "Preferences",
+    "action": "Day",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkingDay"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/projects",
+    "controller": "Projects",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourcePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/projects",
+    "controller": "Projects",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "ResourceFieldsRequest",
+    "fields": [
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/projects/{id}",
+    "controller": "Projects",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/projects/{id}",
+    "controller": "Projects",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "UpdateResourceRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/projects/{id}/archive",
+    "controller": "Projects",
+    "action": "Archive",
+    "authRequired": true,
+    "bodyType": "ResourceVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/projects/{id}/workload",
+    "controller": "Projects",
+    "action": "Workload",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceWorkload"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/recurrence-templates",
+    "controller": "Recurrence",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceTemplatePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/recurrence-templates",
+    "controller": "Recurrence",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "RecurrenceCreate",
+    "fields": [
+      {
+        "name": "rule",
+        "type": "RecurrenceRule",
+        "rules": []
+      },
+      {
+        "name": "task",
+        "type": "RecurringTaskDefaults",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "RecurrenceEffect"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/recurrence-templates/projection",
+    "controller": "Recurrence",
+    "action": "Projection",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceProjectionView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/recurrence-templates/{id}",
+    "controller": "Recurrence",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceTemplateView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/recurrence-templates/{id}",
+    "controller": "Recurrence",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "RecurrenceUpdate",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "effectiveFrom",
+        "type": "DateOnly",
+        "rules": []
+      },
+      {
+        "name": "rule",
+        "type": "RecurrenceRule",
+        "rules": []
+      },
+      {
+        "name": "task",
+        "type": "RecurringTaskDefaults",
+        "rules": []
+      },
+      {
+        "name": "refreshExisting",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "refreshThrough",
+        "type": "DateOnly?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceEffect"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/recurrence-templates/{id}/definitions",
+    "controller": "Recurrence",
+    "action": "Definitions",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceDefinitionPage"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/recurrence-templates/{id}/enabled",
+    "controller": "Recurrence",
+    "action": "Enabled",
+    "authRequired": true,
+    "bodyType": "RecurrenceEnableRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "enabled",
+        "type": "Boolean?",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceEffect"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/recurrence-templates/{id}/materialize",
+    "controller": "Recurrence",
+    "action": "Materialize",
+    "authRequired": true,
+    "bodyType": "MaterializeRecurrence",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "fromDate",
+        "type": "DateOnly",
+        "rules": []
+      },
+      {
+        "name": "toDate",
+        "type": "DateOnly",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceEffect"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/recurrence-templates/{id}/occurrences",
+    "controller": "Recurrence",
+    "action": "Occurrences",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "OccurrencePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/recurrence-templates/{id}/occurrences/{date}/cancel",
+    "controller": "Recurrence",
+    "action": "Cancel",
+    "authRequired": true,
+    "bodyType": "ChangeOccurrence",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "taskVersion",
+        "type": "Int64?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceEffect"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/recurrence-templates/{id}/occurrences/{date}/skip",
+    "controller": "Recurrence",
+    "action": "Skip",
+    "authRequired": true,
+    "bodyType": "ChangeOccurrence",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "taskVersion",
+        "type": "Int64?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "RecurrenceEffect"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/schedules",
+    "controller": "Planning",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/schedules",
+    "controller": "Planning",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "CreateScheduleRequest",
+    "fields": [
+      {
+        "name": "localDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "kind",
+        "type": "ScheduleKind?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "startsAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "endsAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "isFixed",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "isLocked",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "allowConflicts",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "length:0..2000"
+        ]
+      },
+      {
+        "name": "dayItemId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "dayItemVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "PlanMutation"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/schedules/{id}",
+    "controller": "Planning",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ScheduleView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/schedules/{id}",
+    "controller": "Planning",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "UpdateScheduleRequest",
+    "fields": [
+      {
+        "name": "startsAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "endsAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "isFixed",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "isLocked",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "allowConflicts",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "length:0..2000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanMutation"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/schedules/{id}/complete",
+    "controller": "DayItems",
+    "action": "CompleteSchedule",
+    "authRequired": true,
+    "bodyType": "DayItemVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ScheduleCompletion"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/schedules/{id}/move",
+    "controller": "Planning",
+    "action": "Move",
+    "authRequired": true,
+    "bodyType": "MoveScheduleRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "targetDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "startsAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "endsAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "allowConflicts",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "length:0..2000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanMutation"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/schedules/{id}/remove",
+    "controller": "Planning",
+    "action": "Remove",
+    "authRequired": true,
+    "bodyType": "RemoveScheduleRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "length:0..2000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "PlanMutation"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/schedules/{id}/reopen",
+    "controller": "DayItems",
+    "action": "ReopenSchedule",
+    "authRequired": true,
+    "bodyType": "DayItemVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ScheduleCompletion"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/apply",
+    "controller": "Scheduling",
+    "action": "Apply",
+    "authRequired": true,
+    "bodyType": "ApplySchedulingRequest",
+    "fields": [
+      {
+        "name": "proposalId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulingApplyResult"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/distribute-apply",
+    "controller": "Distribution",
+    "action": "Apply",
+    "authRequired": true,
+    "bodyType": "ApplySchedulingRequest",
+    "fields": [
+      {
+        "name": "proposalId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulingApplyResult"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/distribute-plan",
+    "controller": "Distribution",
+    "action": "Plan",
+    "authRequired": true,
+    "bodyType": "DistributionRequestDto",
+    "fields": [
+      {
+        "name": "fromDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "toDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "taskIds",
+        "type": "Guid[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:1000"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DistributionPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/distribute-preview",
+    "controller": "Distribution",
+    "action": "Preview",
+    "authRequired": true,
+    "bodyType": "DistributionRequestDto",
+    "fields": [
+      {
+        "name": "fromDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "toDate",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "taskIds",
+        "type": "Guid[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:1000"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DistributionPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/scheduling/distribution-proposals/{id}",
+    "controller": "Distribution",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "DistributionPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/plan",
+    "controller": "Scheduling",
+    "action": "Plan",
+    "authRequired": true,
+    "bodyType": "SchedulingRequestDto",
+    "fields": [
+      {
+        "name": "date",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "taskIds",
+        "type": "Guid[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:1000"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "newWorkNotBefore",
+        "type": "DateTimeOffset?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulingPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/preview",
+    "controller": "Scheduling",
+    "action": "Preview",
+    "authRequired": true,
+    "bodyType": "SchedulingRequestDto",
+    "fields": [
+      {
+        "name": "date",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "taskIds",
+        "type": "Guid[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:1000"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "newWorkNotBefore",
+        "type": "DateTimeOffset?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulingPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/scheduling/proposals/{id}",
+    "controller": "Scheduling",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulingPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/undo-multi-preview",
+    "controller": "Distribution",
+    "action": "Undo",
+    "authRequired": true,
+    "bodyType": "UndoSchedulingRequest",
+    "fields": [
+      {
+        "name": "changeSetId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "DistributionPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/scheduling/undo-preview",
+    "controller": "Scheduling",
+    "action": "Undo",
+    "authRequired": true,
+    "bodyType": "UndoSchedulingRequest",
+    "fields": [
+      {
+        "name": "changeSetId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "allowProtectedChange",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulingPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/special-days",
+    "controller": "SpecialDays",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SpecialDayPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/special-days",
+    "controller": "SpecialDays",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "SpecialDayRequest",
+    "fields": [
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..120"
+        ]
+      },
+      {
+        "name": "kind",
+        "type": "SpecialDayKind?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "month",
+        "type": "Int32",
+        "rules": [
+          "range:1..12"
+        ]
+      },
+      {
+        "name": "day",
+        "type": "Int32",
+        "rules": [
+          "range:1..31"
+        ]
+      },
+      {
+        "name": "year",
+        "type": "Int32?",
+        "rules": [
+          "range:1..9998"
+        ]
+      },
+      {
+        "name": "recurrence",
+        "type": "SpecialDayRecurrence?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "nonWorking",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reminder",
+        "type": "SpecialDayReminder",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "SpecialDayView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/special-days/occurrences",
+    "controller": "SpecialDays",
+    "action": "Occurrences",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SpecialDayOccurrencePage"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/special-days/{id}",
+    "controller": "SpecialDays",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "UpdateSpecialDayRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..120"
+        ]
+      },
+      {
+        "name": "kind",
+        "type": "SpecialDayKind?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "month",
+        "type": "Int32",
+        "rules": [
+          "range:1..12"
+        ]
+      },
+      {
+        "name": "day",
+        "type": "Int32",
+        "rules": [
+          "range:1..31"
+        ]
+      },
+      {
+        "name": "year",
+        "type": "Int32?",
+        "rules": [
+          "range:1..9998"
+        ]
+      },
+      {
+        "name": "recurrence",
+        "type": "SpecialDayRecurrence?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "nonWorking",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "reminder",
+        "type": "SpecialDayReminder",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SpecialDayView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/special-days/{id}/delete",
+    "controller": "SpecialDays",
+    "action": "Delete",
+    "authRequired": true,
+    "bodyType": "SpecialDayVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SpecialDayView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/special-days/{id}/restore",
+    "controller": "SpecialDays",
+    "action": "Restore",
+    "authRequired": true,
+    "bodyType": "SpecialDayVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SpecialDayView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/support/days/{date}",
+    "controller": "Support",
+    "action": "Day",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SupportDayView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/support/days/{date}",
+    "controller": "Support",
+    "action": "ChangeDay",
+    "authRequired": true,
+    "bodyType": "SupportDayChange",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "availableEnergy",
+        "type": "EnergyLevel?",
+        "rules": []
+      },
+      {
+        "name": "criticalTaskIds",
+        "type": "Guid[]",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SupportDayView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/support/days/{date}/end-preparation",
+    "controller": "Support",
+    "action": "End",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "DayEndPreparation"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/support/quick-start",
+    "controller": "Support",
+    "action": "QuickStart",
+    "authRequired": true,
+    "bodyType": "QuickStartRequest",
+    "fields": [
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "workSessionId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "workSessionVersion",
+        "type": "Int64?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "FocusView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/support/rescue",
+    "controller": "Support",
+    "action": "Rescue",
+    "authRequired": true,
+    "bodyType": "SchedulingRequestDto",
+    "fields": [
+      {
+        "name": "date",
+        "type": "DateOnly?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "taskIds",
+        "type": "Guid[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:1000"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "newWorkNotBefore",
+        "type": "DateTimeOffset?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "SchedulingPreviewView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/sync",
+    "controller": "Sync",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SyncView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tags",
+    "controller": "Tags",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourcePage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tags",
+    "controller": "Tags",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "ResourceFieldsRequest",
+    "fields": [
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tags/{id}",
+    "controller": "Tags",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tags/{id}",
+    "controller": "Tags",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "UpdateResourceRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..200"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tags/{id}/archive",
+    "controller": "Tags",
+    "action": "Archive",
+    "authRequired": true,
+    "bodyType": "ResourceVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tags/{id}/workload",
+    "controller": "Tags",
+    "action": "Workload",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NamedResourceWorkload"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks",
+    "controller": "Tasks",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks",
+    "controller": "Tasks",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "TaskFieldsRequest",
+    "fields": [
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..300"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      },
+      {
+        "name": "priority",
+        "type": "TaskPriority",
+        "rules": []
+      },
+      {
+        "name": "deadlineAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      },
+      {
+        "name": "canSplit",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/batch",
+    "controller": "TaskBatch",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "TaskBatchRequest",
+    "fields": [
+      {
+        "name": "titles",
+        "type": "String[]",
+        "rules": [
+          "required",
+          "minLength:1",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "poolId",
+        "type": "Guid?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "TaskBatchResult"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/children",
+    "controller": "TaskTree",
+    "action": "Children",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TreePage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/picker",
+    "controller": "TaskRead",
+    "action": "Picker",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskPickerView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/tree",
+    "controller": "TaskTreeCreate",
+    "action": "Create",
+    "authRequired": true,
+    "bodyType": "TaskTreeRequest",
+    "fields": [
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..300"
+        ]
+      },
+      {
+        "name": "children",
+        "type": "TaskTreeRequest[]",
+        "rules": [
+          "maxLength:50"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "TaskTreeCreateResult"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}",
+    "controller": "Tasks",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tasks/{id}",
+    "controller": "Tasks",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "UpdateTaskRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..300"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      },
+      {
+        "name": "priority",
+        "type": "TaskPriority",
+        "rules": []
+      },
+      {
+        "name": "deadlineAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      },
+      {
+        "name": "canSplit",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/allocation",
+    "controller": "Planning",
+    "action": "Allocation",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskAllocation"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/ancestors",
+    "controller": "TaskRead",
+    "action": "Ancestors",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskAncestorPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/archive",
+    "controller": "Tasks",
+    "action": "Archive",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tasks/{id}/auto-complete",
+    "controller": "TaskLifecycle",
+    "action": "AutoComplete",
+    "authRequired": true,
+    "bodyType": "TaskAutoCompleteRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "autoCompleteFromChildren",
+        "type": "Boolean?",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/children",
+    "controller": "TaskTree",
+    "action": "CreateChild",
+    "authRequired": true,
+    "bodyType": "CreateChildRequest",
+    "fields": [
+      {
+        "name": "parentVersion",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "parentWorkDisposition",
+        "type": "ParentWorkDisposition?",
+        "rules": []
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..300"
+        ]
+      },
+      {
+        "name": "description",
+        "type": "String",
+        "rules": [
+          "length:0..10000"
+        ]
+      },
+      {
+        "name": "priority",
+        "type": "TaskPriority",
+        "rules": []
+      },
+      {
+        "name": "deadlineAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      },
+      {
+        "name": "canSplit",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/classification",
+    "controller": "TaskClassification",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ClassificationView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tasks/{id}/classification",
+    "controller": "TaskClassification",
+    "action": "Put",
+    "authRequired": true,
+    "bodyType": "ClassificationRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "projectId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "poolId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "categoryId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "tagIds",
+        "type": "Guid[]",
+        "rules": [
+          "required",
+          "maxLength:50"
+        ]
+      },
+      {
+        "name": "applyToSubtree",
+        "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ClassificationView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/delete",
+    "controller": "Tasks",
+    "action": "Delete",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/dependencies",
+    "controller": "TaskRelations",
+    "action": "Dependencies",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskRelationPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/dependencies",
+    "controller": "TaskRelations",
+    "action": "AddDependency",
+    "authRequired": true,
+    "bodyType": "DependencyRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "predecessorTaskId",
+        "type": "Guid",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "TaskRelationView"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/tasks/{id}/dependencies/{sourceId}",
+    "controller": "TaskRelations",
+    "action": "RemoveDependency",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/detail-view",
+    "controller": "TaskRead",
+    "action": "Detail",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskDetailView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tasks/{id}/energy",
+    "controller": "Support",
+    "action": "Energy",
+    "authRequired": true,
+    "bodyType": "EnergyRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "energyDemand",
+        "type": "EnergyLevel?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/move",
+    "controller": "TaskTree",
+    "action": "Move",
+    "authRequired": true,
+    "bodyType": "MoveTaskRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "parentTaskId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "parentVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "beforeSiblingId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "parentWorkDisposition",
+        "type": "ParentWorkDisposition?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/ordering",
+    "controller": "TaskRelations",
+    "action": "Ordering",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskRelationPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/ordering",
+    "controller": "TaskRelations",
+    "action": "AddOrdering",
+    "authRequired": true,
+    "bodyType": "OrderingRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "beforeTaskId",
+        "type": "Guid",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "TaskRelationView"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/tasks/{id}/ordering/{sourceId}",
+    "controller": "TaskRelations",
+    "action": "RemoveOrdering",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tasks/{id}/planned-range",
+    "controller": "Tasks",
+    "action": "PlannedRange",
+    "authRequired": true,
+    "bodyType": "TaskPlannedRangeRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "plannedFrom",
+        "type": "DateOnly?",
+        "rules": []
+      },
+      {
+        "name": "plannedTo",
+        "type": "DateOnly?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/progress",
+    "controller": "TaskLifecycle",
+    "action": "Progress",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskProgress"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/recurrence",
+    "controller": "Recurrence",
+    "action": "ForTask",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "OccurrenceView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tasks/{id}/required",
+    "controller": "TaskLifecycle",
+    "action": "Required",
+    "authRequired": true,
+    "bodyType": "TaskRequiredRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "requiredForParent",
+        "type": "Boolean?",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/restore",
+    "controller": "Tasks",
+    "action": "Restore",
+    "authRequired": true,
+    "bodyType": "TaskVersionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/return-context",
+    "controller": "Support",
+    "action": "Return",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "ReturnContext"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/start-eligibility",
+    "controller": "TaskRelations",
+    "action": "CanStart",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskStartDecision"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/tasks/{id}/state",
+    "controller": "TaskLifecycle",
+    "action": "State",
+    "authRequired": true,
+    "bodyType": "TaskStateRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "action",
+        "type": "TaskAction?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "parentCompletionChoice",
+        "type": "ParentCompletionChoice?",
+        "rules": []
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "length:0..2000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/subtree",
+    "controller": "TaskTree",
+    "action": "Subtree",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TreePage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/summary",
+    "controller": "Tasks",
+    "action": "Summary",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TreeRowSummary"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/time",
+    "controller": "Work",
+    "action": "TaskTime",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskTimeView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/work-components",
+    "controller": "TaskWorkload",
+    "action": "Components",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkComponentPage"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tasks/{id}/work-definition",
+    "controller": "TaskWorkload",
+    "action": "Update",
+    "authRequired": true,
+    "bodyType": "WorkDefinitionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "hasDirectWork",
+        "type": "Boolean?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "directEstimatedSeconds",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "targetBudgetSeconds",
+        "type": "Int64?",
+        "rules": [
+          "range:0..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "TaskView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/tasks/{id}/workload",
+    "controller": "TaskWorkload",
+    "action": "Summary",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkloadSummary"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/work-sessions",
+    "controller": "Work",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkPage"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/work-sessions/current",
+    "controller": "Work",
+    "action": "Current",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "CurrentWork"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/work-sessions/manual",
+    "controller": "WorkCorrections",
+    "action": "Manual",
+    "authRequired": true,
+    "bodyType": "ManualWorkRequest",
+    "fields": [
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "startedAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "endedAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..2000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "WorkView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/work-sessions/start",
+    "controller": "Work",
+    "action": "Start",
+    "authRequired": true,
+    "bodyType": "StartWorkRequest",
+    "fields": [
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "scheduleId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "scheduleVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
+        "type": "WorkView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/work-sessions/start-now",
+    "controller": "ImmediateWork",
+    "action": "Start",
+    "authRequired": true,
+    "bodyType": "ImmediateWorkRequest",
+    "fields": [
+      {
+        "name": "taskId",
+        "type": "Guid?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "expectedPlanningVersion",
+        "type": "Int64?",
+        "rules": [
+          "required",
+          "range:0..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "expectedSessionId",
+        "type": "Guid?",
+        "rules": []
+      },
+      {
+        "name": "expectedSessionVersion",
+        "type": "Int64?",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "remainingTaskIds",
+        "type": "Guid[]",
+        "rules": [
+          "maxLength:1000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "ImmediateWorkResult"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/work-sessions/{id}",
+    "controller": "Work",
+    "action": "Get",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/work-sessions/{id}/corrections",
+    "controller": "WorkCorrections",
+    "action": "List",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "CorrectionPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/work-sessions/{id}/finish",
+    "controller": "Work",
+    "action": "Finish",
+    "authRequired": true,
+    "bodyType": "WorkTransitionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/work-sessions/{id}/pause",
+    "controller": "Work",
+    "action": "Pause",
+    "authRequired": true,
+    "bodyType": "WorkTransitionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/work-sessions/{id}/resume",
+    "controller": "Work",
+    "action": "Resume",
+    "authRequired": true,
+    "bodyType": "WorkTransitionRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/work-sessions/{id}/segments",
+    "controller": "Work",
+    "action": "Segments",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "SegmentPage"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/work-sessions/{id}/segments/{segmentId}/corrections",
+    "controller": "WorkCorrections",
+    "action": "Correct",
+    "authRequired": true,
+    "bodyType": "CorrectWorkRequest",
+    "fields": [
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "segmentVersion",
+        "type": "Int64",
+        "rules": [
+          "range:1..9,223372036854776E+18"
+        ]
+      },
+      {
+        "name": "startedAt",
+        "type": "DateTimeOffset?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "endedAt",
+        "type": "DateTimeOffset?",
+        "rules": []
+      },
+      {
+        "name": "isVoided",
+        "type": "Boolean?",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "reason",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..2000"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/workspace/snapshot",
+    "controller": "Workspace",
+    "action": "Snapshot",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "WorkspaceSnapshotView"
+      }
+    ]
+  }
+]
