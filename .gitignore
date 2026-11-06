@@ -1,0 +1,50 @@
+# UI bağımlılıkları, derleme çıktısı, yerel ayarlar ve test dosyaları.
+/UI/**/node_modules/
+/UI/**/.next/
+/UI/**/.local/
+/UI/**/.env*
+!/UI/**/.env.example
+/UI/**/*.tsbuildinfo
+/UI/**/next-env.d.ts
+/UI/**/test-results/
+/UI/**/playwright-report/
+/UI/playwright/.auth/
+/UI/**/.playwright-mcp/
+/UI/**/__pycache__/
+
+# API derleme çıktısı, yerel ayarlar ve IDE dosyaları.
+/API/**/bin/
+/API/**/obj/
+/API/**/TestResults/
+/API/**/.local/
+/API/**/.env*
+!/API/**/.env.example
+/API/**/*.user
+/API/**/*.suo
+/API/**/.vs/
+/API/**/artifacts/
+
+# Asıl beceriler kökte, bunlar yalnız yerel keşif bağlantıları.
+/API/.codex/skills/
+/UI/.agents/skills/
+
+# Kökteki yerel çalışma dosyaları
+/.local/
+/.playwright-mcp/
+/.claude/settings.local.json
+
+# ai tooling and agent notes
+AGENTS.md
+*-AGENTS.md
+.agents/
+.claude/
+.codex/
+.playwright-mcp/
+API-skills/
+UI-skills/
+skills-lock.json
+UI-docs/
+*Uygulama Adımları.md
+docs/context/
+docs/verification/
+docs/*Planı.md
