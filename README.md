@@ -6,6 +6,8 @@ The interface is in Turkish, and so are most of the project docs. The code, rout
 
 It's a planning tool, not a medical one. It doesn't diagnose or treat anything.
 
+Live at **[www.navortal.com.tr](https://www.navortal.com.tr)**.
+
 ## What it does
 
 - **Tasks** nest as deep as you need. You can reorder them by dragging or from the keyboard, and estimates add up from the subtasks. An unknown estimate stays unknown instead of quietly counting as zero.
@@ -13,7 +15,7 @@ It's a planning tool, not a medical one. It doesn't diagnose or treat anything.
 - **Work tracking** runs a timer that survives closing the browser. Plans, actual work and estimates are stored separately, so past days stay accurate. Stopping the timer doesn't mark the task as done.
 - **Focus tools**: Pomodoro sessions, an Eisenhower matrix, a five-minute quick start and a calmer one-task view.
 - **Calendar and routines**: month views with history, recurring tasks that plan themselves ahead, and special days.
-- **Notes, projects, pools, categories and tags** for keeping things organized.
+- **Notes, projects, pools and categories** for keeping things organized.
 - **Reminders** show up in the app and, if you opt in, as web push notifications.
 - **Analytics** compare what you planned with what you did.
 
@@ -159,10 +161,8 @@ Real push delivery has its own opt-in test: `UI_REAL_PUSH=1` with local VAPID ke
 
 ## Status
 
-This is a work in progress and it hasn't been deployed anywhere yet. It runs locally, but real push delivery, a real domain, physical devices and screen readers still need proper testing, and the CI workflows in `.github/` haven't had a hosted run. Mobile performance is still being tuned. Google sign-in exists in the backend but is switched off, so accounts use email and password only.
+The app is live at [www.navortal.com.tr](https://www.navortal.com.tr) and still a work in progress. Physical devices and screen readers still need proper testing. Mobile performance is still being tuned. Google sign-in exists in the backend but is switched off, so accounts use email and password only.
 
 ## License
 
-There's no license file yet.
-
-Navortal is free to use. Questions: info@navortal.com.tr
+There's no license file yet, so the code isn't open for reuse. Questions: info@navortal.com.tr

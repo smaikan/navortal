@@ -20,8 +20,7 @@
     "test:e2e": "python tools/run-e2e.py",
     "test:browsers": "node tools/install-browsers.mjs",
     "api:generate": "npm --prefix tools/api-types run generate",
-    "api:check": "npm --prefix tools/api-types run check",
-    "check:plan": "python docs/validate-plan.py"
+    "api:check": "npm --prefix tools/api-types run check"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",
