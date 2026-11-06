@@ -1,0 +1,86 @@
+name: UI
+on:
+  push:
+    paths: ['UI/**', 'UI-docs/**', 'UI-skills/**', 'UI-*.md', 'API/**', 'API-skills/**', 'API-*.md', 'docs/openapi-v1.json', 'docs/operation-policies.json', '.github/workflows/ui.yml']
+  pull_request:
+    paths: ['UI/**', 'UI-docs/**', 'UI-skills/**', 'UI-*.md', 'API/**', 'API-skills/**', 'API-*.md', 'docs/openapi-v1.json', 'docs/operation-policies.json', '.github/workflows/ui.yml']
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: UI
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 3s --health-retries 15
+    env:
+      ADHD_UI_TEST_PG_EXTERNAL: '1'
+      ADHD_UI_TEST_PG_PORT: '5432'
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: UI/.node-version
+          cache: npm
+          cache-dependency-path: |
+            UI/package-lock.json
+            UI/tools/api-types/package-lock.json
+      - uses: actions/setup-dotnet@v6.0.0
+        with:
+          global-json-file: API/global.json
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+      - run: npm ci
+      - run: npm --prefix tools/api-types ci
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm --prefix tools/api-types audit --audit-level=high
+      - run: npm run api:check
+      - run: python docs/validate-plan.py
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: python -B -m unittest discover -s tests/tools -p "test_*.py"
+      - run: node --test tools/operation-audit.test.mjs
+      - run: npm test
+      - run: npm run test:browsers -- --with-deps
+      - run: dotnet restore AdhdPlanner.slnx --locked-mode
+        working-directory: API
+      # Araç kendi DB'sini açar, migration uygular, API ve Next hazır olunca
+      # production arayüzünü derler, tarayıcı/HTTP testini yapar, yalnız kendi DB'sini siler.
+      - name: Chromium and mobile product regression
+        run: |
+          EVIDENCE_ROOT=$(tr -d '\r\n' < tools/evidence-dir.txt)
+          UI_EVIDENCE_DIR="$EVIDENCE_ROOT/chromium-mobile" python -B tools/run-e2e.py --project chromium --project mobile-chromium
+      - name: WebKit critical journeys
+        run: |
+          EVIDENCE_ROOT=$(tr -d '\r\n' < tools/evidence-dir.txt)
+          UI_E2E_WORKERS=1 UI_EVIDENCE_DIR="$EVIDENCE_ROOT/webkit-critical" python -B tools/run-e2e.py --project webkit --cross-browser-focus auth --cross-browser-focus auth-isolation --cross-browser-focus pool-planning --cross-browser-focus history --cross-browser-focus focus-controls --cross-browser-focus realtime --cross-browser-focus pwa-panel --cross-browser-focus calendar --cross-browser-focus return-journey --cross-browser-focus work-refresh --cross-browser-focus tasks --cross-browser-focus work-player
+      - name: Firefox short critical check
+        run: |
+          EVIDENCE_ROOT=$(tr -d '\r\n' < tools/evidence-dir.txt)
+          UI_E2E_WORKERS=1 UI_EVIDENCE_DIR="$EVIDENCE_ROOT/firefox-critical" python -B tools/run-e2e.py --project firefox --cross-browser-focus auth --cross-browser-focus auth-isolation --cross-browser-focus pool-planning --cross-browser-focus work-player --cross-browser-focus return-journey --cross-browser-focus work-refresh --cross-browser-focus tasks --grep 'real register|auth-isolation|H/E:|committed lost keyless pool|logout keeps work|L: browser restart|J/L:|task completion during|local work transitions|search read recovery'
+      # Aktif kanıt klasörünün tek adresi UI/tools/evidence-dir.txt dosyasında.
+      - run: echo "EVIDENCE_DIR=$(tr -d '\r\n' < tools/evidence-dir.txt)" >> "$GITHUB_ENV"
+        if: always()
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: ui-quality
+          path: |
+            UI/${{ env.EVIDENCE_DIR }}/**/*.json
+            UI/${{ env.EVIDENCE_DIR }}/**/*.jsonl
+            UI/${{ env.EVIDENCE_DIR }}/**/*.png
+            UI/${{ env.EVIDENCE_DIR }}/completion/**
+            UI/test-results/**/*.png
+            UI/test-results/**/error-context.md
+          retention-days: 7
