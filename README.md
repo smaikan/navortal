@@ -44,6 +44,17 @@ docs/      Backend docs, OpenAPI file and the frontend API guide
 
 You'll need the .NET 10 SDK, Node 24.22 with npm 11, and PostgreSQL. On Windows the scripts below set up Node and PostgreSQL for you inside ignored `.local/` folders, so nothing gets installed system-wide.
 
+### Everything with Docker
+
+The compose file in the repo root runs the database, migrations, API and UI together:
+
+```bash
+cp .env.example .env   # set POSTGRES_PASSWORD and JWT_SIGNING_KEY
+docker compose up --build
+```
+
+Then open `http://localhost:3100` and register. The API isn't published to the host; the UI proxies `/api` to it inside the compose network.
+
 ### API on Windows
 
 From `API/`:

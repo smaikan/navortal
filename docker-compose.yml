@@ -1,0 +1,62 @@
+# whole app: database, migrations, api and the web ui
+# run: docker compose up --build   then open http://localhost:3100
+services:
+  db:
+    image: postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: adhd
+      POSTGRES_USER: adhd
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - planner-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adhd -d adhd"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+  migrate:
+    build:
+      context: ./API
+      target: build
+    entrypoint: ["dotnet", "ef", "database", "update", "--project", "src/Adhd.Infrastructure", "--startup-project", "src/Adhd.Api", "--configuration", "Release", "--no-build"]
+    environment:
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
+      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD}
+    depends_on:
+      db: {condition: service_healthy}
+  api:
+    build: ./API
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD}
+      ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:-172.30.81.1}
+      Cloudinary__Enabled: ${Cloudinary__Enabled:-false}
+      Cloudinary__CloudName: ${Cloudinary__CloudName:-}
+      Cloudinary__ApiKey: ${Cloudinary__ApiKey:-}
+      Cloudinary__ApiSecret: ${Cloudinary__ApiSecret:-}
+    depends_on:
+      db: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+  ui:
+    build:
+      context: ./UI
+      args:
+        API_ORIGIN: http://api:8080
+        SITE_URL: ${SITE_URL:-}
+        SITE_INDEXING: ${SITE_INDEXING:-false}
+    restart: unless-stopped
+    environment:
+      API_ORIGIN: http://api:8080
+    ports: ["127.0.0.1:${UI_PORT:-3100}:3100"]
+    depends_on: [api]
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${APP_SUBNET:-172.30.81.0/24}
+          gateway: ${APP_GATEWAY:-172.30.81.1}
+volumes:
+  planner-data:

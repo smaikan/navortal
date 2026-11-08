@@ -1,0 +1,13 @@
+**/node_modules
+**/__pycache__
+.next
+.local
+test-results
+tests
+docs
+tsconfig.tsbuildinfo
+playwright.config.ts
+vitest.config.ts
+.env*
+!.env.example
+AGENTS.md
