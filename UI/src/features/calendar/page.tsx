@@ -191,7 +191,7 @@ function Workspace({ zone, format, weekStartsOn }: { zone: string; format: strin
           <ChevronRight aria-hidden="true" size={16} />
         </button>
         <button type="button" className="r2-cal-today" onClick={() => go({ date: today })}>
-          Bugün
+          {view === "month" ? "Bu ay" : "Bu hafta"}
         </button>
         <Menu
           label="Takvim menüsü"

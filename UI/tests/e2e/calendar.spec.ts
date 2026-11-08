@@ -407,8 +407,13 @@ test("month is the default: one entry per root task per day, +N beyond three, do
   await expect(label).not.toHaveText(before!);
   await page.getByRole("button", { name: "Önceki ay" }).click();
   await expect(label).toHaveText(before!);
-  await page.getByRole("button", { name: "Bugün", exact: true }).click();
-  await expect(page).not.toHaveURL(/date=/);
+  const current = page.getByRole("button", { name: "Bu ay", exact: true });
+  if (page.viewportSize()!.width > 767) {
+    await current.click();
+    await expect(page).not.toHaveURL(/date=/);
+  } else {
+    await expect(current).toBeHidden();
+  }
   for (const width of info.project.name === "chromium" ? [1440, 768, 390] : [info.project.use.viewport!.width]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
