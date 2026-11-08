@@ -86,6 +86,8 @@ export JWT_SIGNING_KEY="$(openssl rand -base64 48)"
 docker compose up --build
 ```
 
+In production put an HTTPS reverse proxy on the same host in front of port 5080. The API trusts forwarded client addresses only from the compose network's gateway (`172.30.80.1` by default). If that subnet clashes with another network, or your proxy reaches the API from a different address, set `API_SUBNET`, `API_GATEWAY` or `REVERSE_PROXY_IP` (see `docs/operations.md`).
+
 ### Frontend
 
 From `UI/` on Windows:

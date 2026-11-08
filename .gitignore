@@ -49,3 +49,13 @@ docs/context/
 docs/verification/
 docs/*Planı.md
 /UI/docs/
+
+# Ortam, anahtar ve yedek dosyaları depoya hiçbir klasörden girmesin
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.dump

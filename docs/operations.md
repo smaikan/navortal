@@ -19,7 +19,7 @@ Testler shared Windows DLL çıktısını kullanırken build/publish başlatmay�
 
 `Dockerfile` çok aşamalıdır: SDK10.0.300 build ve ASP.NET10.0.13 runtime MCR SHA256 digest ile sabittir. Restore locked-mode, repo local `dotnet-ef10.0.13` manifest'i ile tool restore, Release publish yapılır. Runtime non-root APP_UID1654'tür. `.local`, test/tools/docs/script dosyaları ve build artıkları image context'inden çıkarılır. SDK migration target yalnız migration job'unda kullanılır.
 
-`docker-compose.yml` PostgreSQL18.6, ayrı `migrate` servisi ve API içerir. Kalıcı volume PostgreSQL18'in `/var/lib/postgresql` yoluna bağlıdır. DB health sonrası migration job tamamlanmadan API başlamaz. API startup `Migrate/EnsureCreated/EnsureDeleted` çalıştırmaz. Yeni schema ayrı kontrollü adımdır. PostgreSQL image tag'i bakım güncellemesinde bilinçli test edilerek yenilenmelidir.
+`docker-compose.yml` PostgreSQL18.6 (SHA256 digest ile sabit), ayrı `migrate` servisi ve API içerir. DB ve API `restart: unless-stopped` ile sunucu yeniden başlayınca kendiliğinden açılır; migration job'u yeniden başlamaz. Kalıcı volume PostgreSQL18'in `/var/lib/postgresql` yoluna bağlıdır. DB health sonrası migration job tamamlanmadan API başlamaz. API startup `Migrate/EnsureCreated/EnsureDeleted` çalıştırmaz. Yeni schema ayrı kontrollü adımdır. PostgreSQL image tag'i bakım güncellemesinde bilinçli test edilerek yenilenmelidir.
 
 İlk kurulum örneği, API kökünde Linux shell (secret değerlerini stdout'a basmadan sağlayın):
 
@@ -36,7 +36,17 @@ curl --fail http://127.0.0.1:5080/health/ready
 
 Güncellemede önce doğrulanmış backup alın, API ve worker yazımlarını durdurun; yeni image'ı build/pull edin, `docker compose run --rm migrate` çalıştırın, başarılıysa API'yi yeniden oluşturun. Schema breaking değişiminde eski uygulama image'ına tek başına dönmeyin; uyumluluk veya DB restore planını birlikte kullanın. Otomatik migration downgrade, geçmiş actual/revision silme veya startup seed yoktur. Quartz upstream destructive DDL kullanılmaz; create-only schema EF migration içindedir.
 
-Compose'un API8080 portu hostta yalnız `127.0.0.1:5080` yayınlanır; public uç HTTPS reverse proxy'dir. Mevcut compose içinde Next.js servisi henüz yoktur. Frontend gelince `/` Next.js upstream'e, `/api` ve hub ASP.NET'e yönlenir.
+Compose'un API8080 portu hostta yalnız `127.0.0.1:5080` yayınlanır; public uç HTTPS reverse proxy'dir.
+
+Hosttaki proxy API'ye compose ağının geçidinden bağlanır; API bağlantıyı loopback'ten değil bu IP'den görür. Compose bu yüzden ağı sabit bir alt ağla kurar ve geçidi `ReverseProxy__KnownProxies__0` olarak verir. Bu ayar olmadan bütün istekler aynı IP'den gelmiş sayılır ve giriş hız sınırı (5 dakikada 30 istek) bütün kullanıcılar için tek kova olur.
+
+| Değişken | Varsayılan | Ne zaman değişir |
+| --- | --- | --- |
+| `API_SUBNET` | `172.30.80.0/24` | Sunucudaki başka bir ağla çakışırsa. |
+| `API_GATEWAY` | `172.30.80.1` | `API_SUBNET` değişirse, onun geçidi. |
+| `REVERSE_PROXY_IP` | `API_GATEWAY` | Proxy API'ye geçitten değil başka bir IP'den bağlanıyorsa (ör. aynı ağdaki proxy konteyneri, Docker Desktop). |
+
+Proxy `X-Forwarded-For` başlığını gelen değere eklemez, istemcinin kendi adresiyle (`$remote_addr`) yazar; `X-Forwarded-Proto` da proxy tarafından yazılır. API yalnız tek hop kabul eder: önünde ikinci bir vekil (ör. nginx → Next.js → API) varsa, API'ye bağlanan son vekil gerçek istemci adresini iletmelidir. Mevcut compose içinde Next.js servisi henüz yoktur. Frontend gelince `/` Next.js upstream'e, `/api` ve hub ASP.NET'e yönlenir.
 
 ## Kalıcı ayarlar
 
@@ -57,11 +67,11 @@ Env, `.env`, JWT/VAPID private key, SMTP parola ve DB backup'larını repo/HTTP/
 
 ## HTTPS ve SignalR proxy
 
-`deploy/nginx.conf` çalışan TLS/proxy şablonudur; `/etc/nginx/tls/cert.pem` ve `key.pem` gerçek ortamda sertifika yönetiminden mount edilir. Lokal kabul testinde2günlük localhost sertifikası yalnız test istemcisi trust context'ine eklenir; OS trust store değiştirilmez.
+Gerçek ortamın proxy ayarı depoda tutulmaz. `scripts/container-smoke.py` çalışırken kendi nginx ayarını `.local/container-smoke/<id>/nginx.conf` dosyasına yazar; aşağıdaki kurallar o test ayarına göredir ve gerçek proxy'de de uygulanır. Sertifikalar gerçek ortamda sertifika yönetiminden mount edilir. Lokal kabul testinde2günlük localhost sertifikası yalnız test istemcisi trust context'ine eklenir; OS trust store değiştirilmez.
 
-Şablon8443'te TLS1.2/1.3, HTTP1.1 Upgrade/Connection ve buffering kapalı SignalR/SSE proxy'si kullanır. Docker DNS resolver ile API recreate sonrasında upstream IP yenilenir. UI mevcut olmadığı için `/`404'tür. `X-Forwarded-For/Proto` proxy tarafından yazılır; uygulama yalnız KnownProxies'den kabul eder. Gerçek ortamdaki proxy IP/servis isimleriyle template'i uyarlayın.
+Test ayarı 8443'te TLS1.2/1.3, HTTP1.1 Upgrade/Connection ve buffering kapalı SignalR/SSE proxy'si kullanır. Docker DNS resolver ile API recreate sonrasında upstream IP yenilenir. UI mevcut olmadığı için `/`404'tür. `X-Forwarded-For/Proto` proxy tarafından yazılır; uygulama yalnız KnownProxies'den kabul eder. Gerçek ortamda proxy IP'sini yukarıdaki `REVERSE_PROXY_IP` ile verin.
 
-JWT browser WebSocket/SSE query'sinde bulunabildiğinden access log `$uri` kullanır, `$request_uri/$request` veya Authorization loglamaz. Nginx error satırları raw request/query içerebildiği için örnek şablonda `error_log /dev/null`; operasyon görünürlüğü access status/request-id, uygulama safe error/traceId ve health'ten sağlanır. Kuruma ait farklı error logger eklenecekse query redaction kanıtlanmalıdır. Uygulama Hosting.Diagnostics query logging Warning'e filtrelidir. SensitiveDataLogging açılmaz.
+JWT browser WebSocket/SSE query'sinde bulunabildiğinden access log `$uri` kullanır, `$request_uri/$request` veya Authorization loglamaz. Nginx error satırları raw request/query içerebildiği için test ayarında `error_log /dev/null`; operasyon görünürlüğü access status/request-id, uygulama safe error/traceId ve health'ten sağlanır. Kuruma ait farklı error logger eklenecekse query redaction kanıtlanmalıdır. Uygulama Hosting.Diagnostics query logging Warning'e filtrelidir. SensitiveDataLogging açılmaz.
 
 WebSocket middleware auth'tan önce etkinleştirilir: gerçek Kestrel upgrade feature'ı JWT taşıma seçicisinde hazır olmalıdır. Salt TestServer WebSocket başarısı bu sırayı tek başına kanıtlamadı; gerçek TLS/Nginx/Kestrel kabul script'i regresyon olarak tutulur. [Resmî WebSockets middleware belgesi](https://learn.microsoft.com/aspnet/core/fundamentals/websockets?view=aspnetcore-10.0).
 

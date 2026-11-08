@@ -14,4 +14,7 @@ scripts/
 deploy/
 .codex/
 AGENTS.md
-Uygulama Adımları.md
+**/*.pem
+**/*.key
+**/*.pfx
+**/*.dump

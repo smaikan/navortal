@@ -87,11 +87,12 @@ def register():
     return ok('POST', '/api/auth/register', {'email': uuid.uuid4().hex + '@example.test', 'password': '123456'})
 
 def websocket(token):
-    """Aynı JWT ile gerçek TLS, nginx, Kestrel WebSocket ve SignalR JSON el sıkışması."""
+    """Aynı JWT ile gerçek TLS, nginx, Kestrel WebSocket ve SignalR JSON el sıkışması.
+    Tarayıcı gibi oturum cookie'siyle bağlanır. Hub token'ı URL'den kabul etmez."""
     with socket.create_connection(('127.0.0.1', 18443), timeout=10) as raw:
         with TLS.wrap_socket(raw, server_hostname='localhost') as ws:
             key = base64.b64encode(secrets.token_bytes(16)).decode()
-            wire = (f'GET /api/hubs/planner?access_token={token} HTTP/1.1\r\nHost: localhost\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n').encode()
+            wire = (f'GET /api/hubs/planner HTTP/1.1\r\nHost: localhost\r\nCookie: __Host-adhd_session={token}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n').encode()
             ws.sendall(wire)
             response = b''
             while b'\r\n\r\n' not in response:
@@ -102,6 +103,42 @@ def websocket(token):
             ws.sendall(bytes([0x81, 0x80 | len(payload)]) + mask + bytes(c ^ mask[i % 4] for i, c in enumerate(payload)))
             frame = ws.recv(4096)
             assert b'{}\x1e' in frame, 'SignalR handshake failed'
+
+# Yalnız bu testin TLS vekili. Gerçek ortamın vekil ayarı depoda tutulmaz
+NGINX_CONF = ROOT / 'nginx.conf'
+NGINX_CONF.write_text(r'''events {}
+http {
+    map $http_upgrade $connection_upgrade { default upgrade; '' ''; }
+    log_format safe '$request_id $remote_addr $request_method $uri $status $body_bytes_sent $request_time';
+    access_log /dev/stdout safe;
+    # Hata satırı ham istek satırını, yani sorgudaki JWT'yi içerebilir
+    error_log /dev/null;
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    server {
+        listen 8443 ssl;
+        server_name _;
+        ssl_certificate /etc/nginx/tls/cert.pem;
+        ssl_certificate_key /etc/nginx/tls/key.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        client_max_body_size 0;
+        location /api/ {
+            set $backend http://api:8080;
+            proxy_pass $backend;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $remote_addr;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Request-ID $request_id;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_buffering off;
+            proxy_read_timeout 70s;
+        }
+        location /health/ { set $backend http://api:8080; proxy_pass $backend; }
+        location / { return 404; }
+    }
+}
+''')
 
 write_env()
 OVERRIDE.write_text(f'''services:
@@ -121,7 +158,7 @@ OVERRIDE.write_text(f'''services:
     depends_on: [api]
     ports: ["127.0.0.1:18443:8443"]
     volumes:
-      - "{API / 'deploy/nginx.conf'}:/etc/nginx/nginx.conf:ro"
+      - "{NGINX_CONF}:/etc/nginx/nginx.conf:ro"
       - "{ROOT}:/etc/nginx/tls:ro"
 ''')
 execute(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '2', '-subj', '/CN=localhost', '-addext', 'subjectAltName=DNS:localhost,IP:127.0.0.1', '-keyout', str(ROOT / 'key.pem'), '-out', str(ROOT / 'cert.pem')])
@@ -157,6 +194,9 @@ try:
     assert request('GET', f'/api/tasks/{task["id"]}', token=foreign)[0] == 404
     uid = int(compose('exec', '-T', 'api', 'id', '-u').decode().strip())
     assert uid != 0
+    for service in ('db', 'api'):
+        policy = json.loads(execute([DOCKER, 'inspect', container(service)]))[0]['HostConfig']['RestartPolicy']['Name']
+        assert policy == 'unless-stopped', f'{service} restart policy is {policy}'
     websocket(token)
     proof['steps'].append('TLS, owner isolation, non-root runtime, same-JWT SignalR handshake and exp-free token passed')
     compose('restart', 'api')
@@ -197,7 +237,7 @@ try:
     assert ok('GET', f'/api/work-sessions/{short["workSessionId"]}', token=token)['state'] == 'Running'
     logs = compose('logs', '--no-color', 'api', 'proxy')
     assert token.encode() not in logs and foreign.encode() not in logs and JWT_KEY.encode() not in logs
-    proof['steps'].append('Linux PostgreSQL Quartz/outbox target alarm passed; actual continued; query JWT absent from API/proxy logs')
+    proof['steps'].append('Linux PostgreSQL Quartz/outbox target alarm passed; actual continued; JWT absent from API/proxy logs')
     proof.update({'passed': True, 'runtimeUserId': uid, 'backupBytes': dump.stat().st_size, 'restoredDatabase': database,
                   'apiImage': execute([DOCKER, 'image', 'inspect', 'adhd-api:mvp29', '--format', '{{.Id}}']).decode().strip(),
                   'postgresVersion': sql('SHOW server_version'), 'quartzJobs': int(sql('SELECT count(*) FROM qrtz_job_details'))})

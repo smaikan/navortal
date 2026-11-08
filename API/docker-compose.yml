@@ -1,6 +1,7 @@
 services:
   db:
-    image: postgres:18.6
+    image: postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42
+    restart: unless-stopped
     environment:
       POSTGRES_DB: adhd
       POSTGRES_USER: adhd
@@ -24,9 +25,12 @@ services:
       db: {condition: service_healthy}
   api:
     build: .
+    restart: unless-stopped
     environment:
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
       ASPNETCORE_ENVIRONMENT: Production
+      # Hosttaki ters vekil API'ye bu ağın geçidinden bağlanır. Gerçek istemci IP'si yalnız ondan kabul edilir
+      ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:-${API_GATEWAY:-172.30.80.1}}
       Cloudinary__Enabled: ${Cloudinary__Enabled:-false}
       Cloudinary__CloudName: ${Cloudinary__CloudName:-}
       Cloudinary__ApiKey: ${Cloudinary__ApiKey:-}
@@ -36,5 +40,11 @@ services:
     depends_on:
       db: {condition: service_healthy}
       migrate: {condition: service_completed_successfully}
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${API_SUBNET:-172.30.80.0/24}
+          gateway: ${API_GATEWAY:-172.30.80.1}
 volumes:
   planner-data:
