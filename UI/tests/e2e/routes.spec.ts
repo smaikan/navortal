@@ -11,7 +11,7 @@ const pages: Record<string, string> = {
   "/matrix": "Eisenhower Matrisi",
   "/tasks/completed": "Biten görevler",
   "/calendar": "Takvim",
-  "/focus": "Odak",
+  "/focus": "Pomodoro",
   "/pool": "Havuz",
   "/projects": "Projeler",
   "/notes": "Notlar",

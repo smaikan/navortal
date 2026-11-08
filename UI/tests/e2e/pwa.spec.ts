@@ -143,7 +143,7 @@ test("real IndexedDB serializes two-tab receipts, bounds history and rejects sta
   const owner = (await (await fx.api.get("/api/auth/me")).json()).id as string;
   const second = await context.newPage();
   await second.goto(base);
-  await expect(second.getByRole("heading", { name: "Uygulama ve cihaz bildirimleri", exact: true })).toBeVisible();
+  await expect(second.getByRole("heading", { name: "Bu cihazda bildirim", exact: true })).toBeVisible();
   const claim = (p: Page, key: string) =>
     p.evaluate(
       async ({ owner, key }) => {
@@ -252,14 +252,17 @@ test("offline logout clears the durable recipient and cold invalid auth cannot r
   await observer.close();
 });
 
-test("a waiting worker never reloads running or paused work; explicit activation waits until finish", async ({
-  page,
-}) => {
+test("a new worker activates silently and never reloads running or paused work", async ({ page }) => {
+  // 8 Kasım kullanıcı kararı: yeni sürüm sessizce devreye girer, sayfa yenilenmez ve açık çalışma bozulmaz.
   await prepare(page);
   const focus = await fx.start();
   await page.reload();
   const player = page.getByRole("region", { name: "Çalışma denetimleri" });
   await expect(player).toBeVisible();
+  let navigations = 0;
+  page.on("framenavigated", frame => {
+    if (frame === page.mainFrame()) navigations++;
+  });
   const revision = randomUUID();
   await page.evaluate(async suffix => {
     await navigator.serviceWorker.register(`/planner-sw.js?revision=${suffix}`, {
@@ -268,24 +271,18 @@ test("a waiting worker never reloads running or paused work; explicit activation
       updateViaCache: "none",
     });
   }, revision);
-  const update = page.getByRole("button", { name: "Yeni sürümü kullan", exact: true });
-  await expect(update).toBeVisible();
-  await expect(update).toBeDisabled();
-  await expect(player).toBeVisible();
-  await player.getByRole("button", { name: "Duraklat", exact: true }).click();
-  await expect(player).toContainText("Duraklatıldı");
-  await expect(update).toBeDisabled();
-  expect((await fx.current())?.id).toBe(focus.id);
-  await player.getByRole("button", { name: "Oturumu bitir", exact: true }).click();
-  await expect(update).toBeEnabled();
-  const reloaded = page.waitForEvent("framenavigated", { predicate: frame => frame === page.mainFrame() });
-  await update.click();
-  await reloaded;
-  await expect(page.getByRole("heading", { name: "Uygulama ve cihaz bildirimleri", exact: true })).toBeVisible();
-  expect((await fx.detail(focus.id)).state).toBe("Finished");
   await expect
     .poll(() => page.evaluate(async () => (await navigator.serviceWorker.getRegistration("/"))?.active?.scriptURL))
     .toContain(`revision=${revision}`);
+  await expect(page.getByRole("button", { name: "Yeni sürümü kullan", exact: true })).toHaveCount(0);
+  await expect(player).toBeVisible();
+  await player.getByRole("button", { name: "Duraklat", exact: true }).click();
+  await expect(player).toContainText("Duraklatıldı");
+  expect((await fx.current())?.id).toBe(focus.id);
+  await player.getByRole("button", { name: "Oturumu bitir", exact: true }).click();
+  await expect(player).toHaveCount(0);
+  expect((await fx.detail(focus.id)).state).toBe("Finished");
+  expect(navigations).toBe(0);
 });
 
 test("verified account switch replaces the durable recipient; old delivery and owner detail are denied", async ({

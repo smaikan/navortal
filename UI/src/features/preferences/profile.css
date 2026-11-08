@@ -31,6 +31,10 @@
   font-size: 13px;
   line-height: 1.7;
 }
+/* Bağlantı satır ortasında bölünmez; dokunma hedefi tek parça kalır. */
+.profile-privacy a {
+  display: inline-block;
+}
 @media (max-width: 480px) {
   .profile-photo-row {
     gap: 14px;

@@ -179,9 +179,9 @@ test("inbox hides pending records and marks existing notifications read on openi
   await expect(panel.getByRole("heading", { name: "Bildirimler", exact: true })).toBeFocused();
   await expect(panel.locator(".r2-inbox .r2-inbox-meta").filter({ hasText: "Bekliyor" })).toHaveCount(0);
   await expect.poll(async () => (await get(n.id)).readAt).not.toBeNull();
-  // Panel açılırken okunur, açık kaldığı sürece yeni vurgusu kontrol edilir.
-  await expect(panel.locator(`[data-notification-id="${n.id}"]`)).toHaveClass(/unread/);
-  await expect(panel.locator(".bell-panel-count")).toHaveText("1 yeni");
+  // Panel açılırken okunur; onaylanan okuma vurguyu kaldırır (vurgu yalnız sonradan gelenlerde, bkz. reminder-ux).
+  await expect(panel.locator(`[data-notification-id="${n.id}"]`)).not.toHaveClass(/unread/);
+  await expect(panel.locator(".bell-panel-count")).toHaveCount(0);
   expect(new URL(page.url()).pathname).toBe("/planning");
 
   // Panel sayfayı kısmen örter. Denetimi panelin kendi üzerinde yapıyoruz.

@@ -76,10 +76,12 @@ test("the same Ready unread schedule notification replaces a nudge; a preference
   await expect
     .poll(
       async () => {
-        notification = (await (await api.get("/api/notifications?limit=100")).json()).items.find(
+        // Saat bildirimleri gelen kutusunda listelenmez; günün sinyallerinde gelir.
+        const receipt = (await (await api.get(`/api/daily-plans/${d}/signals`)).json()).notifications.find(
           (n: { sourceId: string; kind: string; state: string }) =>
             n.sourceId === block.id && n.kind === "ScheduleStart" && n.state === "Ready",
         );
+        notification = receipt && (await (await api.get(`/api/notifications/${receipt.id}`)).json());
         return notification?.state;
       },
       { timeout: 15000 },
@@ -494,15 +496,22 @@ test("Ctrl+K palette navigates, Kafamı boşalt adds many tasks in one request a
 }) => {
   await page.goto("/tasks");
   await expect(page.getByRole("heading", { name: "Görevler", exact: true })).toBeVisible();
-  await page.keyboard.press("Control+k");
   const palette = page.getByRole("dialog", { name: "Komut paleti" });
+  // Kısayol dinleyicisi sayfa hazır olunca bağlanır; açık paletin üstüne ikinci basış yok sayılır.
+  await expect(async () => {
+    await page.keyboard.press("Control+k");
+    await expect(palette).toBeVisible({ timeout: 1000 });
+  }).toPass();
   await expect(palette.getByRole("combobox", { name: "Komut veya görev ara" })).toBeFocused();
   await page.keyboard.type("ozel gun");
   await expect(palette.getByRole("option", { name: "Özel günler" })).toBeVisible();
   await axe(page);
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/reminders\/special-days$/);
-  await expect(page.getByRole("heading", { name: "Özel günler", exact: true })).toBeVisible();
+  // Özel günler, Hatırlatmalar sayfasının sekmesidir.
+  await expect(
+    page.getByRole("navigation", { name: "Hatırlatma bölümleri" }).getByRole("link", { name: "Özel günler", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
   // Toplu girişte boş satır ve tekrarlar tek istekten önce ayıklanır.
   await page.getByRole("button", { name: "Görev", exact: true }).click();
   await page.getByRole("button", { name: "Kafamı boşalt", exact: true }).click();

@@ -23,14 +23,19 @@ test("task completion during an older work read retains a fresh authoritative re
       release = resolve;
     });
     let reads = 0;
-    await page.route(`**/api/work-sessions/${work.id}`, async route => {
+    // Çalışma durumu ortak çalışma alanı okumasından gelir. İlk okumayı diğer sekmenin sinyali başlatır.
+    await page.route("**/api/workspace/snapshot**", async route => {
       if (route.request().method() !== "GET" || ++reads !== 1) return route.continue();
       const response = await route.fetch();
-      expect((await response.json()).state).toBe("Running");
+      expect((await response.json()).activeWork?.state).toBe("Running");
       await gate;
       await route.fulfill({ response }).catch(() => {});
     });
-    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await page.evaluate(() => {
+      const sender = new BroadcastChannel("adhd.work.changes.v1");
+      sender.postMessage({ version: 1, kind: "work-changed" });
+      sender.close();
+    });
     await expect.poll(() => reads).toBe(1);
     await page.getByRole("button", { name: "Görevi bitir", exact: true }).click();
     await expect(page.getByRole("button", { name: "Yeniden aç", exact: true })).toBeVisible();
@@ -81,11 +86,8 @@ test("local work transitions cannot be replaced by an older read while the live 
     await page.goto("/planning");
     await expect(player(page)).toContainText("Çalışılıyor");
     await page.waitForLoadState("networkidle");
-    let syncReads = 0;
-    page.on("request", request => {
-      if (new URL(request.url()).pathname === "/api/workspace/snapshot") syncReads++;
-    });
-    const url = `**/api/work-sessions/${work.id}`;
+    // Çalışma durumu ortak çalışma alanı okumasından gelir; eski okuma onu ezmemeli.
+    const url = "**/api/workspace/snapshot**";
     for (const [label, state] of [
       ["Duraklat", "Duraklatıldı"],
       ["Devam et", "Çalışılıyor"],
@@ -106,11 +108,9 @@ test("local work transitions cannot be replaced by an older read while the live 
       try {
         await page.evaluate(() => window.dispatchEvent(new Event("focus")));
         await expect.poll(() => reads).toBe(1);
-        const syncBefore = syncReads;
         await player(page).getByRole("button", { name: label, exact: true }).click();
         release();
-        await expect.poll(() => syncReads).toBeGreaterThan(syncBefore);
-        if (state !== "Finished") await expect.poll(() => reads).toBeGreaterThanOrEqual(2);
+        await expect.poll(() => reads).toBeGreaterThanOrEqual(2);
         if (state === "Finished") {
           expect((await fx.work(work.id)).state).toBe("Finished");
           await expect(player(page).getByRole("button", { name: "Duraklat", exact: true })).toHaveCount(0);

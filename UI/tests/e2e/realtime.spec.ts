@@ -204,7 +204,8 @@ test("duplicate/out-of-order event storm coalesces reads and never overwrites au
   page.on("request", r => {
     if (r.method() !== "GET") return;
     const path = new URL(r.url()).pathname;
-    if (path === `/api/tasks/${t.id}`) taskReads++;
+    // Görev paneli tam görünümü tek okumayla alır.
+    if (path === `/api/tasks/${t.id}` || path === `/api/tasks/${t.id}/detail-view`) taskReads++;
     if (path === "/api/tasks") listReads++;
   });
   const values = Array.from({ length: 1000 }, (_, i) => ({

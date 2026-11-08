@@ -217,16 +217,17 @@ test("pool stale rebase is explicit; an uncertain pool command is locked and rep
       await route.continue();
     }
   });
-  await page.route("**/api/daily-plans/*/items*", route =>
-    fail && route.request().method() === "GET"
+  // Onaydan sonraki görünüm okumaları hangi uçtan gelirse gelsin düşer.
+  await page.route("**/api/**", route =>
+    fail && route.request().method() === "GET" && !new URL(route.request().url()).pathname.startsWith("/api/hubs/")
       ? route.fulfill({ status: 503, json: { status: 503, title: "Fixture", code: "fixture_unavailable" } })
-      : route.continue(),
+      : route.fallback(),
   );
   await f.getByRole("button", { name: "Seçili havuzda beklet" }).click();
   await expect(f.getByRole("region", { name: "Belirsiz havuz sonucu" })).toBeVisible();
   await f.getByRole("button", { name: "Aynı havuz isteğini yeniden dene" }).press("Enter");
   await expect(f.getByRole("region", { name: "Havuzda bekletme onayı" })).toBeVisible();
-  await expect(f.getByRole("alert")).toContainText("Onay korunuyor");
+  await expect(f.getByRole("alert").filter({ hasText: "Onay korunuyor" })).toBeVisible();
   expect(keys).toHaveLength(2);
   expect(keys[0]).toBe(keys[1]);
   fail = false;
@@ -503,7 +504,8 @@ test("week plan rows keep a visible divider on the blue today column in light an
       head: getComputedStyle(section.querySelector(".r2-week-head")!).borderBottomWidth,
     }));
     expect(colors.line).not.toBe(colors.column);
-    expect(colors.head).toBe("2px");
+    // 1024–1299px masaüstü ölçeği (0.9) 2px çizgiyi cihaz pikseline yuvarlar; çizgi görünür kalmalı.
+    expect(parseFloat(colors.head)).toBeGreaterThanOrEqual(1);
     await auditTask(page, `calendar-week-today-${theme}`, "calendar");
     await page.screenshot({
       path: `${EVIDENCE}/calendar-week-today-${theme}-${info.project.name}.png`,

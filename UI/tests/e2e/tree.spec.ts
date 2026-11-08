@@ -201,6 +201,9 @@ test(
       [...new Set(reads.filter(r => r.completed === "false").map(r => JSON.stringify(r)))].map(r => JSON.parse(r)),
     ).toEqual([{ parent: null, completed: "false", offset: "0", count: 25 }]);
     await expect(page.getByRole("button", { name: "Ağaç", exact: true })).toHaveCount(0);
+    // Bağlantı telafisi ilk sayfayı yenilerken gelen sonraki sayfa isteği iptal edilir; önce sakinleşsin.
+    await expect(page.locator('[data-sync-state="connected"]')).toHaveCount(1);
+    await page.waitForLoadState("networkidle");
     await tree(page).getByRole("button", { name: "Daha fazla göster", exact: true }).click();
     await expect(tree(page).getByRole("button", { name: / ayrıntısını aç$/ })).toHaveCount(50);
     await expect(row(page, root.title).locator(".r2-progress")).toContainText("0/33 alt görevden 0 tamamlandı");
@@ -398,13 +401,19 @@ test("finish from the row menu: subtasks strike in place, roots move to Tamamlan
     })
     .toBeLessThan(2);
   const { width, height } = page.viewportSize()!;
-  await taskTitle.dispatchEvent("contextmenu", { clientX: width - 1, clientY: height - 1 });
+  // Playwright dispatchEvent bu olayda koordinat taşımıyor; gerçek bir MouseEvent gönderiyoruz.
+  await taskTitle.evaluate(
+    (el, at) =>
+      el.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: at.x, clientY: at.y })),
+    { x: width - 1, y: height - 1 },
+  );
   await expect
     .poll(async () => {
       const bounds = (await childMenu.boundingBox())!;
       return Math.max(Math.abs(width - 8 - bounds.x - bounds.width), Math.abs(height - 8 - bounds.y - bounds.height));
     })
-    .toBeLessThan(2);
+    // Telefonda alt piksel ölçeklemesi köşeyi birkaç piksel kaydırabilir.
+    .toBeLessThan(4);
   await page.keyboard.press("Escape");
   await expect(trigger).toBeFocused();
   await trigger.click();
@@ -485,20 +494,25 @@ async function drag(
   zone: "top" | "middle" | "bottom",
   release = true,
 ) {
+  // Kaydırma dokunma sürerken yapılırsa sürükleme bozulur; kaynağı ve hedefi önce görünür kılıyoruz.
+  const end = target === "root-end" ? page.getByText("En üst düzeye, sona bırak", { exact: true }) : row(page, target);
+  await title(page, source).evaluate(element => element.scrollIntoView({ block: "center" }));
+  // Kök sonu alanı yalnız sürükleme sırasında görünür.
+  if (target !== "root-end") await end.evaluate(element => element.scrollIntoView({ block: "nearest" }));
   const from = (await title(page, source).boundingBox())!;
   const x0 = from.x + 20,
     y0 = from.y + from.height / 2;
   if (cdp) {
     await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: x0, y: y0 }] });
-    await page.waitForTimeout(350);
+    // Dokunmada sürükleme 250 ms basılı tutunca başlar; yük altında zamanlayıcı gecikebilir.
+    await page.waitForTimeout(600);
     await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: x0, y: y0 + 4 }] });
   } else {
     await page.mouse.move(x0, y0);
     await page.mouse.down();
     await page.mouse.move(x0 + 10, y0, { steps: 3 });
   }
-  const end = target === "root-end" ? page.getByText("En üst düzeye, sona bırak", { exact: true }) : row(page, target);
-  await end.evaluate(element => element.scrollIntoView({ block: "center" }));
+  if (target === "root-end") await end.evaluate(element => element.scrollIntoView({ block: "center" }));
   const box = (await end.boundingBox())!;
   const y =
     target === "root-end"

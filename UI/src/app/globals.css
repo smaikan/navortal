@@ -18,7 +18,7 @@
   --primary-soft: #ebf4ff;
   --sun: #f5a524;
   --sky-dawn: #dff5f4;
-  --teal: #0a7a68;
+  --teal: #097364;
   --teal-soft: #e6f6f2;
   --amber: #a35200;
   --amber-soft: #fff4e5;
@@ -5568,10 +5568,18 @@ label:has(> .temporal-control) {
   .workspace-main {
     padding-inline: 28px;
   }
-  .workspace-main > * {
-    zoom: 0.9;
-  }
   .has-player #work-player-slot {
     left: 216px;
   }
+}
+/* Küçültme yalnız farede; dokunmatik tablette 44px hedefler korunur. */
+@media (min-width: 1024px) and (max-width: 1299px) and (pointer: fine) {
+  .workspace-main > * {
+    zoom: 0.9;
+  }
+}
+
+/* Yeni sekmede açılan bilgi bağlantısı satır ortasında bölünmez; dokunma hedefi tek parça kalır. */
+.r2-hint a[target="_blank"] {
+  display: inline-block;
 }

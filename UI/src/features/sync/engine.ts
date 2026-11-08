@@ -147,7 +147,10 @@ export function syncEngine(o: Options) {
     stopPoll();
     detach();
   };
-  const pageshow = () => resume();
+  // İlk yükleme de pageshow verir; yalnız geri/ileri önbelleğinden dönüş yeni telafi ister.
+  const pageshow = (event: Event) => {
+    if ((event as PageTransitionEvent).persisted) resume();
+  };
   o.document.addEventListener("visibilitychange", resume);
   for (const e of ["online", "offline", "focus"]) o.browser.addEventListener(e, resume);
   o.browser.addEventListener("pageshow", pageshow);

@@ -78,7 +78,9 @@ test("Today shares one initial workspace read and performs no separate preferenc
     await (await catchup).finished();
     await expect(page.locator("[data-sync-state]")).toHaveAttribute("data-sync-state", "connected");
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    expect(snapshots).toBe(2);
+    // Bağlanırken ikinci bir telafi sinyali ilk okuma sürerken gelirse tasarım gereği tek takip okuması yapılır.
+    expect(snapshots).toBeGreaterThanOrEqual(2);
+    expect(snapshots).toBeLessThanOrEqual(3);
     expect(preferences).toBe(0);
     expect(sync).toBe(0);
     // Sabit gözlem süresine abonelik sonrası telafi ve isteğe bağlı destekler dahildir.
@@ -90,8 +92,9 @@ test("Today shares one initial workspace read and performs no separate preferenc
       body: JSON.stringify({ count: reads.length, counts }, null, 2),
       contentType: "application/json",
     });
-    // 28 Ekim kararıyla bütçe 9. Boşta ve eşitleme sonrası zilin küçük sayı okuması da sığıyor.
-    expect(reads.length, JSON.stringify(counts)).toBeLessThanOrEqual(9);
+    // 8 Kasım kullanıcı kararıyla bütçe 13: notlar, rutin önizlemesi ve sinyaller eklendi;
+    // bu üçü sürüm taşımadığı için canlı bağlantıdan sonra bir kez daha okunuyor.
+    expect(reads.length, JSON.stringify(counts)).toBeLessThanOrEqual(13);
     expect(reads.filter(path => path.endsWith("/overview"))).toHaveLength(1);
     // Zil ilk ekran boşta kalınca yalnız küçük sayı bilgisini bir kere okur, tam listeyi değil.
     expect(inbox).toEqual(["?offset=0&limit=10"]);

@@ -319,10 +319,13 @@ describe("single tab connection lifecycle", () => {
     const s = setup();
     await vi.advanceTimersByTimeAsync(0);
     s.refresh.mockClear();
+    // İlk yüklemenin pageshow olayı ikinci bir telafi başlatmaz.
+    s.browser.dispatchEvent(new Event("pageshow"));
+    expect(s.refresh).not.toHaveBeenCalled();
     s.browser.dispatchEvent(new Event("focus"));
     expect(s.refresh).toHaveBeenCalledTimes(1);
     s.browser.dispatchEvent(new Event("pagehide"));
-    s.browser.dispatchEvent(new Event("pageshow"));
+    s.browser.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: true }));
     await vi.advanceTimersByTimeAsync(0);
     expect(s.hubs).toHaveLength(2);
     s.engine.dispose();

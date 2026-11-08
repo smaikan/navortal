@@ -143,7 +143,9 @@ export function NotificationPanel({ id, close }: { id: string; close: (restoreFo
             <button type="button" disabled={!offset} onClick={() => setOffset(Math.max(0, offset - pageSize))}>
               Daha yeni
             </button>
-            <span>{data.items.length ? `${offset + data.items.length} / ${data.total}` : ""}</span>
+            <span>
+              {data.items.length ? `${offset ? `${offset + 1}–` : ""}${offset + data.items.length} / ${data.total}` : ""}
+            </span>
             <button
               type="button"
               disabled={offset + pageSize >= Number(data.total) || offset + pageSize > 100000}

@@ -297,10 +297,13 @@ test("the row menu moves an untimed item to another day, removes with undo and o
 
 test("?date opens that day, arrows keep the URL in step and the plan menu holds the planning tools", async ({
   page,
-}) => {
+}, info) => {
   const d = future(45);
   await openDay(page, d);
-  expect((await page.getByLabel("Plan günü", { exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  // Dokunmada 44px; farede 1024–1299px ölçeği (0.9) hedefi küçültür, en az 32px yeter.
+  expect((await page.getByLabel("Plan günü", { exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(
+    info.project.name.startsWith("mobile") ? 44 : 32,
+  );
   await page.getByRole("button", { name: "Sonraki gün" }).click();
   await expect(page).toHaveURL(new RegExp(`date=${future(46)}`));
   await page.getByRole("button", { name: "Önceki gün" }).click();
@@ -385,7 +388,7 @@ test("a timed row starts planned work with its block; long titles fit and touch 
   }
   await page.screenshot({ path: `${EVIDENCE}/today-now-${info.project.name}.png`, fullPage: true });
   await row(page, t.title)
-    .getByRole("button", { name: `Başlat: ${t.title}` })
+    .getByRole("button", { name: `Başlat: ${t.title}`, exact: true })
     .click();
   await expect
     .poll(

@@ -45,12 +45,19 @@ test("temporal fields: labelled task day range saves on close, clears and fits i
     const controls = await page.locator(".temporal-control:not(.temporal-navigation) input").evaluateAll(inputs =>
       inputs.map(input => {
         const rect = input.getBoundingClientRect();
-        return { width: rect.width, height: rect.height, font: parseFloat(getComputedStyle(input).fontSize) };
+        return {
+          width: rect.width,
+          height: rect.height,
+          font: parseFloat(getComputedStyle(input).fontSize),
+          fits: input.scrollWidth <= input.clientWidth + 1,
+        };
       }),
     );
     expect(controls.length).toBeGreaterThanOrEqual(2);
     for (const control of controls) {
-      expect(control.width).toBeGreaterThanOrEqual(200);
+      // Tarih tam görünmeli; yan yana iki alan panelde 200px'in altına inebilir.
+      expect(control.fits).toBe(true);
+      expect(control.width).toBeGreaterThanOrEqual(150);
       expect(control.height).toBeGreaterThanOrEqual(44);
       expect(control.font).toBeGreaterThanOrEqual(16);
     }

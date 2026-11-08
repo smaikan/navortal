@@ -25,8 +25,7 @@ import { useFirstData } from "../../lib/first-data";
 import { phaseOf, useMinute } from "./agenda-blocks";
 import { useDayActions, type DayActions } from "./day-actions";
 import { AddToPlan, AssignedList } from "./add-to-plan";
-import { ProjectedDay } from "../recurrence/projection";
-import { DayNotes, type DayNoteEditor } from "../notes/day-section";
+import type { DayNoteEditor } from "../notes/day-section";
 import { entryFacts, orderEntries, PlanRow } from "./day-plan";
 import { useOverviewDay, useOverviewItems, useOverviewSchedules, useOverviewSupport } from "./overview-queries";
 import { hintsByTask, useDayHints } from "./glance";
@@ -45,6 +44,9 @@ const SpecialToday = lazy(() => import("../special-days/today").then(m => ({ def
 const TaskDeferralDialog = lazy(() => import("./task-deferral-dialog").then(m => ({ default: m.TaskDeferralDialog })));
 const DayReview = lazy(() => import("../support/end-preparation").then(m => ({ default: m.EndPreparationDialog })));
 const CardPick = lazy(() => import("./card-pick").then(m => ({ default: m.CardPick })));
+// Notlar ve rutin önizlemesi tarih kitaplığını çeker; plan listesi onları beklemeden açılır.
+const DayNotes = lazy(() => import("../notes/day-section").then(m => ({ default: m.DayNotes })));
+const ProjectedDay = lazy(() => import("../recurrence/projection").then(m => ({ default: m.ProjectedDay })));
 const FocusStart = lazy(() => import("../focus/start-dialog").then(m => ({ default: m.StartDialog })));
 
 export function TodayAgenda() {
@@ -168,14 +170,16 @@ function Agenda({ zone, format, setupDone }: { zone: string; format: string; set
         />
       </div>
       {valid && (
-        <DayNotes
-          key={`notes-${date}`}
-          date={date}
-          zone={zone}
-          editor={noteEditor}
-          setEditor={setNoteEditor}
-          onDirty={setNoteDirty}
-        />
+        <Suspense fallback={null}>
+          <DayNotes
+            key={`notes-${date}`}
+            date={date}
+            zone={zone}
+            editor={noteEditor}
+            setEditor={setNoteEditor}
+            onDirty={setNoteDirty}
+          />
+        </Suspense>
       )}
       {!valid ? (
         <p role="alert">Geçerli bir plan günü seç.</p>
@@ -503,7 +507,11 @@ function DayContent({
                   Kalan saatsiz öğeleri yükle
                 </button>
               )}
-              {date >= today && <ProjectedDay date={date} />}
+              {date >= today && (
+                <Suspense fallback={null}>
+                  <ProjectedDay date={date} />
+                </Suspense>
+              )}
               <AddToPlan date={date} planned={planned} plannedTitles={plannedTitles} actions={actions} />
             </>
           )}

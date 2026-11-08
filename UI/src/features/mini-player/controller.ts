@@ -3,8 +3,13 @@ import { readLocal } from "../../lib/local-preference";
 
 export const miniPlayerKey = (owner: string) => `adhd.mini-player.v1:${owner}`;
 type PictureInPicture = { requestWindow: (options: { width: number; height: number }) => Promise<Window> };
+/** Telefonda mini sayaç yok: dokunmatik, fare imleci olmayan ve kısa kenarı 768px'ten dar ekran. */
+export const isPhone = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(hover: none) and (pointer: coarse)").matches &&
+  Math.min(screen.width, screen.height) < 768;
 export const pictureInPicture = () =>
-  typeof window === "undefined"
+  typeof window === "undefined" || isPhone()
     ? undefined
     : (window as Window & { documentPictureInPicture?: PictureInPicture }).documentPictureInPicture;
 

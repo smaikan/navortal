@@ -26,7 +26,12 @@ async function enable(page: Page) {
   await page.goto("/tasks?settings=appearance");
   const toggle = page.getByRole("checkbox", { name: "Mini sayaç", exact: true });
   await expect(toggle).toBeVisible();
-  const supported = await page.evaluate(() => !!(window as PipParent).documentPictureInPicture);
+  // Telefonda mini sayaç kapalıdır (8 Kasım kullanıcı kararı).
+  const supported = await page.evaluate(
+    () =>
+      !!(window as PipParent).documentPictureInPicture &&
+      !(matchMedia("(hover: none) and (pointer: coarse)").matches && Math.min(screen.width, screen.height) < 768),
+  );
   if (!supported) {
     await expect(toggle).toBeDisabled();
     return false;
@@ -114,7 +119,8 @@ test("mini player: opt-in only, real native task timer, themes, pause and logout
     return;
   }
   await expect.poll(() => text(page)).toContain(task.title);
-  await expect.poll(() => text(page)).toContain("Geçen süre");
+  await expect.poll(() => text(page)).toContain("Çalışma");
+  await expect.poll(() => text(page)).toMatch(/\d+:\d{2}/);
   await auditMini(page, "work-light");
   await page.evaluate(() => (document.documentElement.dataset.theme = "dark"));
   await auditMini(page, "work-dark");
@@ -136,8 +142,8 @@ test("mini player: opt-in only, real native task timer, themes, pause and logout
 test("mini player: native Pomodoro, running break, close preference and no unsolicited reopen", async ({ page }) => {
   const supported = await enable(page);
   await page.goto("/focus");
-  await page.getByRole("button", { name: /^15\/5/ }).click();
-  const start = page.getByRole("dialog", { name: "Pomodoro başlat", exact: true });
+  await page.locator("button.focus-rhythm").filter({ hasText: "Kısa adım" }).click();
+  const start = page.getByRole("region", { name: "Pomodoro başlat", exact: true });
   await start.getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
   await expect(start).toBeHidden();
   await expect(page.locator(".focus-state")).toContainText("Odaklanılıyor");
@@ -145,11 +151,13 @@ test("mini player: native Pomodoro, running break, close preference and no unsol
     expect(await opened(page)).toBe(false);
     return;
   }
-  await expect.poll(() => text(page)).toContain("Hedefe kalan");
+  await expect.poll(() => text(page)).toContain("Pomodoro");
   await auditMini(page, "focus");
-  await page.getByRole("button", { name: "Odak işlemleri", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Molaya geç", exact: true }).click();
-  await expect.poll(() => text(page)).toContain("Molada kalan");
+  await page
+    .getByRole("region", { name: "Güncel pomodoro", exact: true })
+    .getByRole("button", { name: "Molaya geç", exact: true })
+    .click();
+  await expect.poll(() => text(page)).toContain("Mola");
   await openAccountMenu(page);
   await page.getByRole("menuitem", { name: "Ayarlar", exact: true }).click();
   await page
@@ -164,13 +172,17 @@ test("mini player: native Pomodoro, running break, close preference and no unsol
   await expect.poll(() => opened(page)).toBe(false);
 });
 
-test("mini player unsupported: setting explains absence and work still starts", async ({ page }) => {
+test("mini player unsupported: setting explains absence and work still starts", async ({ page }, info) => {
   await page.addInitScript(() =>
     Object.defineProperty(window, "documentPictureInPicture", { value: undefined, configurable: true }),
   );
   await page.goto("/tasks?settings=appearance");
   await expect(page.getByRole("checkbox", { name: "Mini sayaç", exact: true })).toBeDisabled();
-  await expect(page.getByText("Bu tarayıcı mini pencereyi desteklemiyor.", { exact: false })).toBeVisible();
+  // Telefonda neden farklıdır: mini sayaç orada hiç sunulmaz.
+  const reason = info.project.name.startsWith("mobile")
+    ? "Mini sayaç telefonda kullanılmıyor."
+    : "Bu tarayıcı mini pencereyi desteklemiyor.";
+  await expect(page.getByText(reason, { exact: false })).toBeVisible();
   const task = await fx.task();
   await page.goto(`/tasks?taskId=${task.id}`);
   await page.getByRole("button", { name: "Çalışmayı başlat", exact: true }).click();

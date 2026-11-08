@@ -241,16 +241,14 @@ function ownedSql(owner: string, work: string, sql: string) {
         ),
       )
       .toBe(owner);
+    // Sekme mesajı yanıtlamaz; yalnız bildirim ve gün sinyali okumalarını yeniler.
     const observed = page.waitForResponse(
-      r => r.url().endsWith(`/api/notifications/${ready!.id}`) && r.request().method() === "GET",
+      r => new URL(r.url()).pathname.endsWith("/signals") && r.request().method() === "GET",
     );
     await page.evaluate(
       async ({ owner, ready }) => {
         const reg = await navigator.serviceWorker.ready;
         const channel = new MessageChannel();
-        const reply = new Promise(resolve => {
-          channel.port2.onmessage = e => resolve(e.data);
-        });
         navigator.serviceWorker.dispatchEvent(
           new MessageEvent("message", {
             source: reg.active,
@@ -270,7 +268,6 @@ function ownedSql(owner: string, work: string, sql: string) {
             },
           }),
         );
-        await reply;
       },
       { owner, ready: ready! },
     );

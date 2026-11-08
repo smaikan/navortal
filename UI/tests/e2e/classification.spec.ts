@@ -376,7 +376,8 @@ test("categories reuse the shared page; the saved choice survives panel layout s
     await noOverflow(page);
     const change = await page.getByRole("button", { name: "Havuz seçimini değiştir" }).boundingBox();
     expect(change!.height).toBeGreaterThanOrEqual(info.project.name.startsWith("mobile") ? 44 : 24);
-    expect(change!.x + change!.width).toBeLessThanOrEqual(width);
+    // Alt piksel yuvarlaması taşma sayılmaz.
+    expect(change!.x + change!.width).toBeLessThanOrEqual(width + 1);
   }
   await page.screenshot({ path: `${evidence}/classification-draft-${info.project.name}.png`, fullPage: true });
   await page.getByRole("button", { name: "Görev ayrıntısı panelini kapat" }).click();

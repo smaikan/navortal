@@ -46,7 +46,7 @@ test("light by default; dark and system persist on this device without a light f
   for (const [path, heading] of [
     ["/tasks", "Görevler"],
     ["/calendar", "Takvim"],
-    ["/focus", "Odak"],
+    ["/focus", "Pomodoro"],
     ["/notes", "Notlar"],
     ["/projects", "Projeler"],
   ]) {
@@ -140,12 +140,13 @@ test("plan menu is a keyboard menu: first item focused, arrows wrap, Escape and 
   const menu = page.getByRole("menu", { name: "Plan menüsü", exact: true });
   await expect(menu).toBeVisible();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
-  await expect(menu.getByRole("menuitem", { name: "Görev Ertele", exact: true })).toBeFocused();
+  // Menü sakin görünüm anahtarıyla başlar, çalışma saatleriyle biter.
+  await expect(menu.getByRole("menuitem", { name: "Sakin görünüm: kapalı, aç", exact: true })).toBeFocused();
   await page.keyboard.press("ArrowDown");
-  await expect(menu.getByRole("menuitem", { name: "Gün sonunu gözden geçir", exact: true })).toBeFocused();
+  await expect(menu.getByRole("menuitem", { name: "Görev Ertele", exact: true })).toBeFocused();
   await page.keyboard.press("ArrowUp");
   await page.keyboard.press("ArrowUp");
-  await expect(menu.getByRole("menuitem", { name: "Acil işe geç", exact: true })).toBeFocused();
+  await expect(menu.getByRole("menuitem", { name: "Çalışma saatleri", exact: true })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(menu).toBeHidden();
   await expect(trigger).toBeFocused();

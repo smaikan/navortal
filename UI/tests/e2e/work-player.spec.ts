@@ -206,7 +206,8 @@ test("60 active / 90 covered minutes are shown from real segments and the sessio
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await player(page).getByRole("button", { name: "Oturumu bitir", exact: true }).click();
-  await expect(player(page)).toContainText("Görev tamamlanmadı");
+  // Bitince çubuk kapanır; görev açık kalır.
+  await expect(player(page)).toHaveCount(0);
   const after = await getTask(item.id);
   expect(after.state).not.toBe("Completed");
   expect(Number((await work(session.id)).activeSeconds)).toBe(3600);
