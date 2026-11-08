@@ -10,8 +10,19 @@ import { continueQuick, quickContinued } from "./quick-intent";
 import { actionLabels, availableActions, primaryFocusAction, type Focus, type FocusAction } from "./model";
 import { useMiniPlayerItem } from "../mini-player/bridge";
 
-/** Hedefe ulaşınca mola öne çıkıyor. Sayaç kuralı değişmeden diğer işlemler açık kalıyor. */
-const visible: FocusAction[] = ["pause", "resume", "next", "finish"];
+/** Hedefe ulaşınca mola öne çıkıyor. Sık kullanılan geçişler sahnede, iptal ve diğerleri menüde. */
+const visible: FocusAction[] = ["pause", "resume", "break", "next", "finish"];
+function moveFocus(trigger: HTMLElement) {
+  const active = document.activeElement;
+  // Kullanıcı odağı başka bir yere taşıdıysa dokunmuyoruz.
+  if (active && active !== document.body && active !== trigger) return;
+  requestAnimationFrame(() => {
+    const next =
+      document.querySelector<HTMLElement>('.focus-controls [role="group"] button.primary:not(:disabled)') ??
+      document.getElementById("focus-presets-title");
+    next?.focus({ preventScroll: true });
+  });
+}
 export function FocusControls({
   focus,
   refresh,
@@ -29,16 +40,32 @@ export function FocusControls({
   useEffect(() => {
     hold?.(held);
   }, [held, hold]);
+  // Geçişten sonra klavye odağı yeni ana düğmeye geçiyor. Yeni durum çizilmeden taşımıyoruz; eski düğme kaybolunca odak boşa düşerdi.
+  const key = focus ? `${focus.id}:${focus.version}` : "none";
+  const shown$ = useRef(key);
+  const pendingFocus = useRef<{ trigger: HTMLElement; key: string } | null>(null);
+  useEffect(() => {
+    shown$.current = key;
+    const pending = pendingFocus.current;
+    if (pending && pending.key !== key) {
+      pendingFocus.current = null;
+      moveFocus(pending.trigger);
+    }
+  }, [key]);
+  useEffect(
+    () => () => {
+      // Oturum bitince sahne kalkıyor; odak ritim başlığına geçiyor.
+      if (pendingFocus.current) moveFocus(pendingFocus.current.trigger);
+    },
+    [],
+  );
   async function send(action: FocusAction, trigger: HTMLElement) {
     if (!focus) return;
+    const before = key;
     const ok = await command.run(focus, action);
-    if (ok && (document.activeElement === trigger || document.activeElement === document.body))
-      requestAnimationFrame(() => {
-        const next =
-          root.current?.querySelector<HTMLElement>('[role="group"] button.primary:not(:disabled)') ??
-          document.getElementById("focus-presets-title");
-        next?.focus({ preventScroll: true });
-      });
+    if (!ok) return;
+    if (shown$.current !== before) moveFocus(trigger);
+    else pendingFocus.current = { trigger, key: before };
   }
   const work = useWork();
   const miniPlayerItem = useMiniPlayerItem(focus?.state === "Working" || focus?.state === "Break");

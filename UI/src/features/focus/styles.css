@@ -1,215 +1,762 @@
 .focus-page {
   display: grid;
   gap: 2rem;
+  --focus-work: var(--primary);
+  --focus-short: color-mix(in srgb, var(--teal) 42%, var(--surface));
+  --focus-long: var(--teal);
 }
-.focus-layout {
+
+/* Ritim seçimi: kartlar, altında başlatma veya özel ritim alanı. */
+.focus-presets {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(19rem, 1fr);
-  gap: 2rem;
-  align-items: start;
+  gap: 12px;
+  min-width: 0;
 }
-.focus-stage {
-  padding: clamp(1rem, 2vw, 1.75rem);
-  width: min(100%, 760px);
-  margin-inline: auto;
+.focus-presets-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.focus-presets-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.focus-rhythms {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.focus-rhythms > li {
+  display: grid;
+  min-width: 0;
+}
+.focus-rhythm {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-height: 150px;
+  padding: 14px 16px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 400;
+  text-align: left;
+  overflow-wrap: anywhere;
+  transition:
+    border-color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease;
+}
+.focus-rhythm:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+.focus-rhythm[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.focus-rhythm-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-right: 22px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.focus-rhythm-tag {
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+}
+.focus-rhythm-work {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+}
+.focus-rhythm-work strong {
+  color: var(--text);
+  font-size: 30px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.focus-rhythm-break {
+  color: var(--muted);
+  font-size: 13px;
+}
+.focus-rhythm-foot {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.focus-rhythm .focus-strip {
+  margin-top: auto;
+}
+.focus-rhythm-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.focus-rhythm-new {
+  justify-content: center;
+  align-items: flex-start;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--divider));
+  color: var(--primary-text);
+}
+.focus-rhythm-new .focus-rhythm-title {
+  padding-right: 0;
+  font-size: 14px;
+}
+.focus-rhythm-plus {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+}
+
+/* Bir turun şeridi: çalışma mavi, kısa mola açık, uzun mola koyu yeşil. */
+.focus-strip {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.focus-strip i,
+.focus-legend li::before {
+  background: var(--focus-work);
+}
+.focus-strip i {
+  flex: 1 1 0;
+  min-width: 2px;
+}
+.focus-strip [data-kind="short"],
+.focus-legend [data-kind="short"]::before {
+  background: var(--focus-short);
+}
+.focus-strip [data-kind="long"],
+.focus-legend [data-kind="long"]::before {
+  background: var(--focus-long);
+}
+.focus-strip-large {
+  height: 14px;
+  gap: 3px;
+  border-radius: 5px;
+}
+
+.focus-composer {
+  display: grid;
+  gap: 18px;
+  padding: 20px 24px;
   background: var(--surface);
   border: 1px solid var(--divider);
   border-radius: var(--radius-lg);
   min-width: 0;
 }
-.focus-stage h2 {
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-  margin-block: 10px;
-  line-height: 1.2;
+.focus-composer-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
-.focus-state {
+.focus-composer-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.focus-composer-head p {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+.focus-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.focus-saved {
+  margin: -6px 0 0;
   color: var(--teal);
+  font-size: 13px;
+}
+.deferred-inline {
+  display: grid;
+  gap: 8px;
+  min-height: 120px;
+  align-content: start;
+}
+.focus-start {
+  display: grid;
+  gap: 16px;
+}
+.focus-target {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.focus-target legend {
+  padding: 0;
+  margin-bottom: 10px;
+  font-size: 13px;
   font-weight: 600;
 }
-.focus-number,
-.focus-stage .muted {
-  margin-block: 0.75rem;
+.focus-target .segmented,
+.focus-unit {
+  justify-self: start;
+  margin: 0;
 }
-.focus-metrics {
-  display: grid;
-  gap: 1.25rem;
-  margin-block: 1rem;
+.focus-target > .muted {
+  margin: 0;
+  font-size: 13px;
 }
-.focus-metrics dt {
-  color: var(--muted);
-}
-.focus-metrics dd {
-  margin: 0.25rem 0 0;
-  font-size: 1.125rem;
-  font-variant-numeric: tabular-nums;
-}
-.focus-section-heading {
+.focus-start-footer {
   display: flex;
-  gap: 0.75rem;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-}
-.focus-preset-list,
-.focus-history-list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-}
-.focus-preset-list li {
-  display: flex;
-  gap: 0.5rem;
-  min-width: 0;
-}
-.focus-preset-list li > button:first-child {
-  display: grid;
-  justify-content: start;
-  justify-items: start;
-  text-align: start;
-  gap: 0.2rem;
-  flex: 1;
-  padding: 12px 16px;
-  overflow-wrap: anywhere;
-}
-.focus-preset-list strong {
-  font-size: 1.125rem;
-}
-.focus-preset-list span {
-  font-weight: 400;
-}
-.focus-presets h3 {
-  margin-top: 1.5rem;
-}
-.focus-history {
+  gap: 12px 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--divider);
-  padding-top: 1.5rem;
 }
-.focus-history-list li {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  padding-block: 0.75rem;
-  border-bottom: 1px solid var(--divider);
-}
-.focus-form {
-  display: grid;
-  gap: 1rem;
-}
-.focus-form fieldset {
-  display: grid;
-  gap: 1rem;
+.focus-start-footer > div {
+  flex: 1 1 220px;
   min-width: 0;
-  border: 0;
-  padding: 0;
+}
+.focus-start-footer p {
   margin: 0;
 }
-.focus-form legend {
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-.focus-form label:not(.check) {
-  display: grid;
-  gap: 0.4rem;
-}
-.focus-form input:not([type="checkbox"]),
-.focus-form select {
-  width: 100%;
-  min-width: 0;
-}
-.focus-form form {
-  display: grid;
-  gap: 0.5rem;
-}
-.focus-clock {
-  margin-block: 0.75rem;
-}
-.focus-countdown {
-  font-size: clamp(3.5rem, 7vw, 5rem);
-  font-weight: 600;
-  color: var(--primary-text);
-  margin-block: 4px 16px;
+.focus-start-footer strong {
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
 }
-.focus-clock .focus-metrics {
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+.focus-start-footer .muted {
+  font-size: 12px;
 }
-.focus-controls {
+.focus-start-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+.focus-uncertain {
   display: grid;
-  gap: 1rem;
-  margin-block: 0.75rem;
+  gap: 8px;
 }
-.focus-sound {
-  margin-block: 1rem;
-}
-.focus-stage:fullscreen {
-  background: var(--surface);
-  overflow-y: auto;
-  padding: clamp(1rem, 5vw, 4rem);
-  border-radius: 0;
-}
-.focus-stage:fullscreen > * {
-  max-width: 60rem;
-  margin-inline: auto;
-}
-.focus-stage:fullscreen .focus-countdown {
-  font-size: clamp(4rem, 12vw, 9rem);
-}
-@media (max-width: 900px) {
-  .focus-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
-  }
+.focus-uncertain p {
+  margin: 0;
 }
 
-.focus-form input:not([type="checkbox"]),
-.focus-form select {
+/* Özel ritim formu: solda süreler, sağda tur önizlemesi ve davranış. */
+.focus-preset-form {
+  display: grid;
+  gap: 16px;
+}
+.focus-preset-form > fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.focus-preset-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px 32px;
+}
+.focus-preset-column {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+}
+.focus-field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.focus-field input,
+.focus-stepper input {
   min-height: 44px;
-  padding: 10px 12px;
+  padding: 0 12px;
   border: 1px solid var(--control);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
+  font-size: 15px;
+  font-weight: 400;
+}
+.focus-durations-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.focus-unit {
+  padding: 2px;
+}
+.focus-unit label {
+  min-height: 30px;
+  padding: 2px 10px;
+  font-size: 12px;
+}
+.focus-stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  min-height: 52px;
+  border-bottom: 1px solid var(--divider);
+}
+.focus-stepper > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.focus-stepper input {
+  width: 68px;
+  min-height: 38px;
+  padding: 0 6px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.focus-stepper .muted {
+  width: 84px;
+  font-size: 13px;
+}
+.focus-step {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  min-height: 38px;
+  padding: 0;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  background: var(--page);
+}
+.focus-step:hover:not(:disabled) {
+  background: var(--hover);
+}
+.focus-round {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--page);
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+}
+.focus-round-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.focus-round-head .muted {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.focus-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 12px;
+}
+.focus-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.focus-legend li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.focus-choice {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.focus-choice legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.focus-choice label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.focus-choice label:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.focus-choice input,
+.focus-checks input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: var(--primary);
+}
+.focus-choice span {
+  display: grid;
+  line-height: 1.35;
+}
+.focus-choice small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.focus-checks {
+  display: grid;
+  gap: 2px;
+}
+.focus-checks label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  cursor: pointer;
+}
+.focus-checks input {
+  margin: 0;
+}
+.focus-preset-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
+}
+.focus-preset-footer .muted {
+  margin: 0;
+  font-size: 12px;
+}
+.focus-preset-footer .actions,
+.focus-preset-footer .actions button {
+  margin: 0;
 }
 
-.focus-info {
+/* Sayaç: halka, döngü noktaları, tek ana eylem ve sakin ölçü şeridi. */
+.focus-stage {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: min(100%, 820px);
+  margin-inline: auto;
+  padding: 24px 32px 28px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  min-width: 0;
+}
+.focus-stage > * {
+  max-width: 100%;
 }
 .focus-state {
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
   margin: 0;
+  padding: 4px 12px 4px 10px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: 13px;
+  font-weight: 600;
 }
 .focus-state::before {
   content: "";
   width: 8px;
   height: 8px;
-  background: currentColor;
   border-radius: 50%;
+  background: currentColor;
   flex-shrink: 0;
 }
-.focus-clock {
+.focus-state[data-tone="paused"] {
+  background: var(--raised);
+  color: var(--muted);
+}
+.focus-state[data-tone="break"],
+.focus-state[data-tone="reached"] {
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+.focus-title {
+  display: grid;
+  gap: 4px;
+  margin-top: -6px;
   text-align: center;
-  padding-block: 12px;
 }
-.focus-clock > .muted {
-  margin-block: 0 4px;
+.focus-title h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
-.focus-clock .focus-metrics {
-  border-top: 1px solid var(--divider);
-  padding-top: 16px;
-  gap: 12px;
+.focus-title p {
+  margin: 0;
+  font-size: 13px;
+}
+.focus-clock {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+}
+@property --focus-progress {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+.focus-ring {
+  --focus-ring-color: var(--primary);
+  position: relative;
+  width: min(300px, 100%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(var(--focus-ring-color) calc(var(--focus-progress) * 1turn), var(--raised) 0);
+  transition:
+    --focus-progress 900ms linear,
+    background-color 300ms ease;
+}
+.focus-stage:has(.focus-state[data-tone="paused"]) .focus-ring {
+  --focus-ring-color: var(--control);
+}
+.focus-stage:has(.focus-state[data-tone="break"]) .focus-ring {
+  --focus-ring-color: var(--teal);
+}
+.focus-ring-center {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 36px;
+  text-align: center;
+}
+.focus-ring-center p {
+  margin: 0;
+}
+.focus-ring-center .muted,
+.focus-ring-sub {
+  font-size: 13px;
+}
+.focus-ring-sub {
+  margin-top: 4px !important;
+  color: var(--muted);
+}
+.focus-ring-sub[data-over] {
+  color: var(--teal);
+  font-weight: 600;
+}
+.focus-countdown {
+  font-size: clamp(3rem, 9vw, 4rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.focus-stage:has(.focus-state[data-tone="paused"]) .focus-countdown {
+  color: var(--muted);
+}
+.focus-cycle {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font-size: 13px;
+  text-align: center;
+}
+.focus-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.focus-dots i {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--control);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+.focus-dots i[data-state="now"] {
+  border-color: var(--primary);
+  opacity: 1;
+}
+.focus-dots i[data-state="done"] {
+  border-color: var(--primary);
+  background: var(--primary);
+  opacity: 1;
+}
+.focus-dots i[data-state="long"] {
+  width: 14px;
+  margin-left: 2px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--focus-long);
+  opacity: 0.85;
+}
+.focus-notice {
+  align-self: stretch;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--teal-soft);
+  color: var(--text);
+  font-size: 14px;
+  text-align: center;
+}
+.focus-controls {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
 }
 .focus-controls > .actions {
   justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.focus-controls > .actions > button {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+}
+.focus-controls > .actions > button.primary {
+  min-height: 52px;
+  padding: 0 30px;
+  font-size: 16px;
+}
+.focus-stage:has(.focus-state[data-tone="break"]) .focus-controls > .actions > button.primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--surface);
+}
+.focus-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  align-self: stretch;
+  margin: 0;
+  overflow: hidden;
+  background: var(--divider);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-lg);
+}
+/* Molada dört ölçü var; dar ekranda boş hücre kalmasın diye ikişer diziliyor. */
+.focus-metrics:has(> :nth-child(4)) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.focus-metrics > div {
+  display: grid;
+  gap: 2px;
+  padding: 12px 16px;
+  background: var(--page);
+  text-align: center;
+}
+.focus-metrics dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.focus-metrics dd {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.focus-command-feedback,
+.focus-quick-choice {
+  text-align: center;
+}
+.focus-command-feedback .actions,
+.focus-quick-choice .actions {
+  justify-content: center;
+}
+.focus-stage:fullscreen {
+  justify-content: center;
+  width: 100%;
+  overflow-y: auto;
+  padding: clamp(1rem, 5vw, 4rem);
+  border-radius: 0;
+}
+.focus-stage:fullscreen > * {
+  width: min(100%, 60rem);
+}
+.focus-stage:fullscreen .focus-ring {
+  width: min(420px, 60vh, 100%);
+}
+.focus-stage:fullscreen .focus-countdown {
+  font-size: clamp(4rem, 9vw, 6rem);
+}
+
+/* Pencereden başlatma (Gün Planlama ve Beş dakika başla). */
+.focus-form {
+  display: grid;
+  gap: 1rem;
+}
+.focus-form > p {
+  margin: 0;
 }
 .focus-task-choices {
-  max-height: 320px;
+  max-height: 280px;
   overflow-y: auto;
   overscroll-behavior: contain;
   border: 1px solid var(--divider);
@@ -245,35 +792,69 @@
 .focus-task-choices p {
   padding: 12px;
 }
-@media (min-width: 600px) {
-  .focus-clock {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    align-items: center;
-    column-gap: 24px;
-    padding-block: 4px;
+
+.focus-history {
+  border-top: 1px solid var(--divider);
+  padding-top: 1.5rem;
+}
+.focus-history-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+.focus-history-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--divider);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-ring,
+  .focus-rhythm {
+    transition: none;
   }
-  .focus-clock > .muted {
-    grid-column: 1;
-    align-self: end;
+}
+@media (max-width: 600px) {
+  .focus-composer {
+    padding: 16px;
   }
-  .focus-countdown {
-    grid-column: 1;
-    align-self: start;
-    margin-bottom: 0;
+  .focus-stage {
+    padding: 18px 16px 20px;
   }
-  .focus-clock .focus-metrics {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    grid-template-columns: minmax(0, 1fr);
-    text-align: left;
-    border-top: 0;
-    border-left: 1px solid var(--divider);
-    padding: 0 0 0 24px;
-    margin-block: 4px;
-    gap: 10px;
+  .focus-ring {
+    width: min(248px, 100%);
   }
-  .focus-clock .focus-metrics dd {
-    font-size: 18px;
+  .focus-start-button {
+    flex: 1 1 100%;
+  }
+  .focus-controls > .actions > button {
+    flex: 1 1 0;
+    padding-inline: 12px;
+  }
+  .focus-controls > .actions > button.primary {
+    flex: 1 1 100%;
+  }
+  .focus-controls > .actions > .menu {
+    flex: none;
+  }
+  .focus-stepper .muted {
+    width: auto;
+  }
+  .focus-metrics:has(> :nth-child(4)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .focus-metrics > div {
+    padding: 10px 8px;
+  }
+  .focus-metrics dd {
+    font-size: 16px;
+  }
+}
+@media (forced-colors: active) {
+  .focus-rhythm[aria-pressed="true"] {
+    outline: 2px solid Highlight;
   }
 }

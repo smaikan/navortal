@@ -59,24 +59,20 @@ test("real 3-second ContinueTracking reaches target once, keeps actual/overtime 
   const task = await fx.task();
   await page.goto("/focus");
   await page.getByRole("button", { name: "Özel ritim" }).click();
-  const presetForm = page.getByRole("dialog", { name: "Özel odak ayarı", exact: true });
+  const presetForm = page.getByRole("region", { name: "Özel ritim", exact: true });
   const name = `Kısa döngü ${info.project.name}`;
-  await presetForm.getByLabel("Ayar adı").fill(name);
-  await presetForm.getByLabel("Süre birimi").selectOption("1");
+  await presetForm.getByLabel("Ritmin adı").fill(name);
+  await presetForm.getByRole("radio", { name: "Saniye", exact: true }).check();
   await presetForm.getByLabel("Çalışma süresi", { exact: true }).fill("3");
   await presetForm.getByLabel("Kısa mola süresi", { exact: true }).fill("1");
   await presetForm.getByLabel("Uzun mola süresi", { exact: true }).fill("2");
   await presetForm.getByLabel("Kaç döngüde bir uzun mola?").fill("2");
-  await presetForm.getByRole("button", { name: "Ayarı kaydet", exact: true }).click();
-  await expect(presetForm.getByRole("status")).toContainText("kaydedildi");
-  await presetForm.getByRole("button", { name: "Kapat", exact: true }).click();
-  await page
-    .locator(".r2-rhythms li")
-    .filter({ has: page.getByText(name, { exact: true }) })
-    .locator("button.r2-rhythm")
-    .click();
-  const start = page.getByRole("dialog", { name: "Pomodoro başlat", exact: true });
-  await start.getByLabel("Başlatma türü").selectOption("task");
+  await presetForm.getByRole("button", { name: "Kaydet ve seç", exact: true }).click();
+  // Kaydedilen ritim seçili geliyor; başlatma aynı yerde.
+  const start = page.getByRole("region", { name: "Pomodoro başlat", exact: true });
+  await expect(start.getByRole("status")).toContainText("kaydedildi");
+  await expect(start.getByRole("heading", { name, exact: true })).toBeVisible();
+  await start.getByRole("radio", { name: "Bir görev seç", exact: true }).check();
   await start.getByRole("radio", { name: task.title, exact: true }).check();
   await start.getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
   await expect(start).toBeHidden();
@@ -104,8 +100,9 @@ test("real 3-second ContinueTracking reaches target once, keeps actual/overtime 
   expect(Number((await fx.work(f.workSessionId)).activeSeconds)).toBe(frozen);
   await expect(stage(page).locator("[data-focus-active]")).toHaveText(text!);
   await page.reload();
-  await expect(stage(page).locator(".focus-state")).toHaveText(
-    "Odak duraklatıldı · Hedefe ulaştın. Görev tamamlanmadı.",
+  await expect(stage(page).locator(".focus-state")).toHaveText("Odak duraklatıldı");
+  await expect(stage(page).locator(".focus-notice")).toHaveText(
+    "Hedefe ulaştın. Görev tamamlanmadı; hazır olduğunda molaya geç.",
   );
   expect((await fx.current())!.id).toBe(f.id);
   await expect(controls.locator("button.primary")).toHaveText("Molaya geç");
@@ -219,7 +216,7 @@ test("finish and cancel act immediately and their ACK survives a held current GE
     });
     try {
       await command(page, action);
-      await expect(page.getByRole("heading", { name: "Ritim", exact: true })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Ritmini seç", exact: true })).toBeVisible();
     } finally {
       release();
     }
@@ -357,7 +354,7 @@ test("malformed committed start is recoverable by reading current; no new start 
   page,
 }) => {
   await page.goto("/focus");
-  await page.getByRole("button", { name: "25/5", exact: false }).click();
+  await page.locator("button.focus-rhythm").filter({ hasText: "Klasik" }).click();
   let posts = 0;
   await page.route("**/api/focus-sessions", async route => {
     if (route.request().method() !== "POST") return route.continue();
@@ -365,12 +362,13 @@ test("malformed committed start is recoverable by reading current; no new start 
     await route.fetch();
     await route.fulfill({ status: 201, contentType: "application/json", body: "{}" });
   });
-  const dialog = page.getByRole("dialog", { name: "Pomodoro başlat", exact: true });
+  const dialog = page.getByRole("region", { name: "Pomodoro başlat", exact: true });
   await dialog.getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("eksik veya geçersiz");
   await dialog.getByRole("button", { name: "Başlatma sonucunu kontrol et" }).click();
-  await expect(dialog.getByRole("status")).toContainText("Başlatma tekrarlanmadı");
-  await dialog.getByRole("button", { name: "Pomodoroya dön" }).click();
+  // Okunan güncel odak sayaçta görünüyor; başlatma tekrarlanmıyor.
+  await expect(stage(page).getByRole("timer")).toBeVisible();
+  await expect(dialog).toHaveCount(0);
   expect(posts).toBe(1);
   expect((await fx.current())!.taskId).toBeNull();
   await expect(stage(page)).toContainText("Genel odak");

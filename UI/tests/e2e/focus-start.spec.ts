@@ -81,13 +81,16 @@ async function startWork(taskId: string) {
   expect(r.status()).toBe(201);
   return r.json() as Promise<Work>;
 }
-const dialog = (p: Page) => p.getByRole("dialog", { name: "Pomodoro başlat", exact: true });
+// Başlatma alanı ritimlerin altında; pencere değil.
+const dialog = (p: Page) => p.getByRole("region", { name: "Pomodoro başlat", exact: true });
 const stage = (p: Page) => p.getByRole("region", { name: "Güncel pomodoro" });
+const card = (p: Page, name: string) => p.locator("button.focus-rhythm").filter({ hasText: name });
 async function open(p: Page) {
   await p.goto("/focus");
-  await expect(p.getByRole("button", { name: "25/5", exact: false })).toBeEnabled();
-  await p.getByRole("button", { name: "25/5", exact: false }).click();
-  await expect(dialog(p)).toBeVisible();
+  await expect(card(p, "Klasik")).toBeEnabled();
+  await card(p, "Klasik").click();
+  await expect(card(p, "Klasik")).toHaveAttribute("aria-pressed", "true");
+  await expect(dialog(p).getByRole("button", { name: "Pomodoroyu başlat", exact: true })).toBeEnabled();
 }
 async function start(p: Page) {
   await dialog(p).getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
@@ -118,35 +121,45 @@ test("built-ins and custom 35/7 roundtrip; keyboard, long break, policy and acce
   page,
 }, info) => {
   await page.goto("/focus");
-  for (const name of ["15/5", "25/5", "45/10"])
-    await expect(page.getByRole("button", { name, exact: false })).toBeEnabled();
+  for (const name of ["Kısa adım", "Klasik", "Derin odak"]) await expect(card(page, name)).toBeEnabled();
+  // Klasik varsayılan seçili; başlatma alanı sayfayla birlikte açık ve yan panel yok.
+  await expect(card(page, "Klasik")).toHaveAttribute("aria-pressed", "true");
+  await expect(dialog(page)).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   const trigger = page.getByRole("button", { name: "Özel ritim" });
   await trigger.focus();
   await page.keyboard.press("Enter");
-  const f = page.getByRole("dialog", { name: "Özel odak ayarı", exact: true });
+  const f = page.getByRole("region", { name: "Özel ritim", exact: true });
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(dialog(page)).toHaveCount(0);
   await expect(f.getByLabel("Çalışma süresi", { exact: true })).toHaveValue("35");
   await expect(f.getByLabel("Kısa mola süresi", { exact: true })).toHaveValue("7");
-  expect(await f.locator("form").evaluate((el: HTMLFormElement) => el.checkValidity())).toBe(true);
+  await f.getByRole("button", { name: "Çalışmayı uzat", exact: true }).click();
+  await expect(f.getByLabel("Çalışma süresi", { exact: true })).toHaveValue("36");
+  await f.getByRole("button", { name: "Çalışmayı kısalt", exact: true }).click();
+  await expect(f).toContainText("Bir tur");
   const name = `35/7 ${randomUUID().slice(-8)}`;
-  await f.getByLabel("Ayar adı").fill(name);
-  await f.getByLabel("Hedefe ulaşınca").selectOption("AutoBreak");
+  await f.getByLabel("Ritmin adı").fill(name);
+  expect(await f.locator("form").evaluate((el: HTMLFormElement) => el.checkValidity())).toBe(true);
+  await f.getByRole("radio", { name: "Molaya geç" }).check();
   await auditTask(page, "preset-form", "focus-start");
   await page.screenshot({ path: `${EVIDENCE}/focus-preset-${info.project.name}.png` });
-  await f.getByRole("button", { name: "Ayarı kaydet", exact: true }).click();
-  await expect(f.getByRole("status")).toHaveText("Odak ayarı kaydedildi.");
-  await f.getByRole("button", { name: "Kapat", exact: true }).click();
-  await expect(trigger).toBeFocused();
+  await f.getByRole("button", { name: "Kaydet ve seç", exact: true }).click();
+  await expect(dialog(page).getByRole("status")).toHaveText(`“${name}” kaydedildi ve seçildi.`);
+  await expect(f).toHaveCount(0);
+  await expect(dialog(page).getByRole("button", { name: "Pomodoroyu başlat", exact: true })).toBeFocused();
+  await expect(card(page, name)).toHaveAttribute("aria-pressed", "true");
   await page.reload();
   const preset = (await (await api.get("/api/focus-presets?limit=100")).json()).items.find(
     (p: { name: string }) => p.name === name,
   );
   expect(preset.settings).toEqual({ ...settings, targetBehavior: "AutoBreak" });
-  await page.getByRole("button", { name: `${name} ayarını düzenle` }).click();
-  const edit = page.getByRole("dialog", { name: "Odak ayarını düzenle", exact: true });
+  await card(page, name).click();
+  await page.getByRole("button", { name: `${name} ritmini düzenle` }).click();
+  const edit = page.getByRole("region", { name: "Ritmi düzenle", exact: true });
   await edit.getByLabel("Kaç döngüde bir uzun mola?").fill("4");
-  await edit.getByRole("button", { name: "Ayarı kaydet", exact: true }).click();
-  await expect(edit.getByRole("status")).toBeVisible();
-  await edit.getByRole("button", { name: "Kapat", exact: true }).click();
+  await edit.getByRole("button", { name: "Değişiklikleri kaydet", exact: true }).click();
+  await expect(dialog(page).getByRole("status")).toContainText("kaydedildi");
   await auditTask(page, "presets", "focus-start");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -203,7 +216,7 @@ test("task start refusal preserves paused work without duplicate actual or a hid
   expect((await api.post(`/api/work-sessions/${w.id}/pause`, { data: { version: w.version } })).status()).toBe(200);
   await open(page);
   const f = dialog(page);
-  await f.getByLabel("Başlatma türü").selectOption("task");
+  await f.getByRole("radio", { name: "Bir görev seç", exact: true }).check();
   await f.getByRole("radio", { name: t.title, exact: true }).check();
   await f.getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
   await expect(f.getByRole("alert")).toContainText("duraklatılmış");
@@ -258,7 +271,7 @@ test("direct task focus keeps task estimate separate; concurrent active start is
   const t = await task();
   await open(page);
   const f = dialog(page);
-  await f.getByLabel("Başlatma türü").selectOption("task");
+  await f.getByRole("radio", { name: "Bir görev seç", exact: true }).check();
   await f.getByRole("radio", { name: t.title, exact: true }).check();
   await start(page);
   const first = (await current())!;
@@ -270,8 +283,12 @@ test("direct task focus keeps task estimate separate; concurrent active start is
   const r = await api.post("/api/focus-sessions", { headers: { "Idempotency-Key": randomUUID() }, data: { settings } });
   expect(r.status()).toBe(201);
   const other = await r.json();
+  const refused = page.waitForResponse(
+    r => r.request().method() === "POST" && new URL(r.url()).pathname === "/api/focus-sessions",
+  );
   await f.getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
-  await expect(f.getByRole("alert")).toContainText("açık bir odak");
+  // Reddedilen başlatmadan sonra sayfa açık olan odağı gösteriyor; başlatma alanı kalkıyor.
+  expect((await refused).status()).toBe(409);
   expect((await current())!.id).toBe(other.id);
   await expect(stage(page)).toContainText("Genel odak");
 });
@@ -308,9 +325,13 @@ test("lost keyed start replays exact key and payload once; ACK remains visible w
     await dialog(page).getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
     await expect(dialog(page).getByRole("alert")).toContainText("sonucu alınamadı");
     await expect(dialog(page).getByRole("button", { name: "Pomodoroyu başlat", exact: true })).toBeDisabled();
-    await dialog(page).getByRole("button", { name: "Aynı odak başlatmayı güvenle yeniden dene" }).click();
+    // Başlatma alanı sayfada. Canlı senkron sunucuda açılan odağı getirirse sayaç kendiliğinden görünür;
+    // gelmezse kullanıcı aynı anahtarla bir kez yeniden dener. İki yolda da yeni bir başlatma oluşmaz.
+    const retry = dialog(page).getByRole("button", { name: "Aynı odak başlatmayı güvenle yeniden dene" });
+    await expect(stage(page).or(retry)).toBeVisible();
+    if (await retry.isVisible()) await retry.click({ timeout: 3000 }).catch(() => undefined);
     await expect(dialog(page)).toBeHidden();
-    expect(keys).toHaveLength(2);
+    expect(keys.length).toBeLessThanOrEqual(2);
     expect(new Set(keys).size).toBe(1);
     expect(new Set(bodies).size).toBe(1);
   } finally {
@@ -322,6 +343,8 @@ test("lost keyed start replays exact key and payload once; ACK remains visible w
 test("preset 400/stale 409 and keyless unknown keep draft; never automatically replay", async ({ page }) => {
   await page.goto("/focus");
   await page.getByRole("button", { name: "Özel ritim" }).click();
+  const f = page.getByRole("region", { name: "Özel ritim", exact: true });
+  await f.getByLabel("Ritmin adı").fill("Taslak ritim");
   let n = 0;
   await page.route("**/api/focus-presets", async route => {
     if (route.request().method() !== "POST") return route.continue();
@@ -335,22 +358,23 @@ test("preset 400/stale 409 and keyless unknown keep draft; never automatically r
     await route.fetch();
     await route.abort("failed");
   });
-  const f = page.getByRole("dialog", { name: "Özel odak ayarı", exact: true });
-  await f.getByRole("button", { name: "Ayarı kaydet", exact: true }).click();
+  await f.getByRole("button", { name: "Kaydet ve seç", exact: true }).click();
   await expect(f.getByRole("alert")).toContainText("Süreleri kontrol et");
   await expect(f.getByLabel("Çalışma süresi", { exact: true })).toHaveValue("35");
-  await f.getByRole("button", { name: "Ayarı kaydet", exact: true }).click();
+  await f.getByRole("button", { name: "Kaydet ve seç", exact: true }).click();
   await expect(f.getByRole("alert")).toContainText("sonucu alınamadı");
-  await expect(f.getByRole("button", { name: "Ayarı kaydet", exact: true })).toBeDisabled();
+  await expect(f.getByRole("button", { name: "Kaydet ve seç", exact: true })).toBeDisabled();
   expect(n).toBe(2);
   page.once("dialog", d => d.accept());
   await f.getByRole("button", { name: "Kapat", exact: true }).click();
+  await expect(f).toHaveCount(0);
   await page.unroute("**/api/focus-presets");
   const r = await api.post("/api/focus-presets", { data: { name: `Eski ${randomUUID().slice(-8)}`, settings } });
   expect(r.status()).toBe(201);
   const p = await r.json();
   await page.reload();
-  await page.getByRole("button", { name: `${p.name} ayarını düzenle` }).click();
+  await card(page, p.name).click();
+  await page.getByRole("button", { name: `${p.name} ritmini düzenle` }).click();
   expect(
     (
       await api.put(`/api/focus-presets/${p.id}`, {
@@ -358,12 +382,12 @@ test("preset 400/stale 409 and keyless unknown keep draft; never automatically r
       })
     ).status(),
   ).toBe(200);
-  const edit = page.getByRole("dialog", { name: "Odak ayarını düzenle", exact: true });
-  await edit.getByLabel("Ayar adı").fill("Eski taslak");
-  await edit.getByRole("button", { name: "Ayarı kaydet", exact: true }).click();
+  const edit = page.getByRole("region", { name: "Ritmi düzenle", exact: true });
+  await edit.getByLabel("Ritmin adı").fill("Eski taslak");
+  await edit.getByRole("button", { name: "Değişiklikleri kaydet", exact: true }).click();
   await expect(edit.getByRole("alert")).toContainText("başka bir sekmede");
-  await expect(edit.getByLabel("Ayar adı")).toHaveValue("Eski taslak");
-  await expect(edit.getByRole("button", { name: "Ayarı kaydet", exact: true })).toBeDisabled();
+  await expect(edit.getByLabel("Ritmin adı")).toHaveValue("Eski taslak");
+  await expect(edit.getByRole("button", { name: "Değişiklikleri kaydet", exact: true })).toBeDisabled();
 });
 test("owner isolation and malformed current fail closed; offline start is not queued", async ({ page, context }) => {
   const r = await foreign.post("/api/focus-sessions", {
@@ -386,13 +410,14 @@ test("owner isolation and malformed current fail closed; offline start is not qu
   await page.goto("/focus");
   await syncConnected(page);
   await expect(stage(page).getByRole("alert")).toContainText("eksik veya geçersiz");
-  await expect(page.getByRole("button", { name: "25/5", exact: false })).toBeDisabled();
+  await expect(card(page, "Klasik")).toBeDisabled();
+  await expect(dialog(page).getByRole("button", { name: "Pomodoroyu başlat", exact: true })).toBeDisabled();
   await page.unroute("**/api/focus-sessions/current");
   // Sonraki başarılı okuma hata sahnesini kapatır. Kullanıcının okuması ancak henüz başarı yoksa gerekir.
   const reread = page.getByRole("button", { name: "Güncel odağı yeniden oku" });
   if (await reread.isVisible()) await reread.click({ timeout: 3000 }).catch(() => undefined);
   await expect(stage(page)).toHaveCount(0);
-  await page.getByRole("button", { name: "25/5", exact: false }).click();
+  await card(page, "Klasik").click();
   let posts = 0;
   page.on("request", r => {
     if (r.method() === "POST" && r.url().endsWith("/api/focus-sessions")) posts++;

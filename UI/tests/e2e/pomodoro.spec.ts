@@ -10,7 +10,8 @@ import { rewriteExtensionText } from "./helpers/extension-text";
 
 let fx: FocusFixture;
 const stage = (page: Page) => page.getByRole("region", { name: "Güncel pomodoro", exact: true });
-const start = (page: Page) => page.getByRole("dialog", { name: "Pomodoro başlat", exact: true });
+const start = (page: Page) => page.getByRole("region", { name: "Pomodoro başlat", exact: true });
+const card = (page: Page, name: string) => page.locator("button.focus-rhythm").filter({ hasText: name });
 
 test("pomodoro: extension text replacement cannot crash bottom bar pause and resume", async ({ page }) => {
   const errors: string[] = [];
@@ -93,9 +94,6 @@ test("pomodoro: failed cold form chunk stays local, sends no start and can recov
 }) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
-  await page.goto("/focus");
-  await expect(page.getByRole("button", { name: "25/5", exact: false })).toBeEnabled();
-  await syncConnected(page);
   const directory = resolve(process.env.UI_E2E_BUILD_DIR ?? ".local/next-e2e", "static/chunks");
   const chunks = new Set(
     readdirSync(directory).filter(
@@ -115,7 +113,10 @@ test("pomodoro: failed cold form chunk stays local, sends no start and can recov
       await route.abort("failed");
     } else await route.continue();
   });
-  await page.getByRole("button", { name: "25/5", exact: false }).click();
+  // Başlatma alanı sayfayla birlikte açılıyor; modülü yüklenemezse yalnız bu alan hata gösteriyor.
+  await page.goto("/focus");
+  await expect(card(page, "Klasik")).toBeEnabled();
+  await syncConnected(page);
   await expect(start(page).getByRole("alert")).toContainText("Form yüklenemedi");
   await expect(page.getByRole("heading", { name: "Pomodoro", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Bu ekran açılamadı", exact: true })).toHaveCount(0);
@@ -145,8 +146,9 @@ test("pomodoro: compact stage, two start types, automatic close and repeated pau
   await expect(help).toBeVisible();
   await backdrop(page);
   await expect(help).toBeHidden();
-  await page.getByRole("button", { name: "25/5", exact: false }).click();
-  await expect(start(page).getByLabel("Başlatma türü").locator("option")).toHaveText(["Genel odak", "Görev seç"]);
+  await card(page, "Klasik").click();
+  await expect(start(page).getByRole("radio", { name: "Genel odak", exact: true })).toBeChecked();
+  await expect(start(page).getByRole("radio", { name: "Bir görev seç", exact: true })).not.toBeChecked();
   await start(page).getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
   await expect(start(page)).toBeHidden();
   await expect(stage(page).getByRole("timer")).toBeVisible();
@@ -184,9 +186,9 @@ test("pomodoro: task list scrolls past 25 without search/pages; unknown start re
   const tasks: { id: string; title: string }[] = [];
   for (let i = 0; i < 28; i++) tasks.push(await fx.task());
   await page.goto("/focus");
-  await page.getByRole("button", { name: "25/5", exact: false }).click();
+  await card(page, "Klasik").click();
   const dialog = start(page);
-  await dialog.getByLabel("Başlatma türü").selectOption("task");
+  await dialog.getByRole("radio", { name: "Bir görev seç", exact: true }).check();
   await expect(dialog.getByRole("searchbox")).toHaveCount(0);
   await expect(dialog.getByRole("button", { name: /^(Önceki|Sonraki) sayfa$/ })).toHaveCount(0);
   const choices = dialog.getByRole("group", { name: "Görev seç", exact: true });
@@ -210,7 +212,7 @@ test("pomodoro: task list scrolls past 25 without search/pages; unknown start re
   });
   await dialog.getByRole("button", { name: "Pomodoroyu başlat", exact: true }).click();
   await expect(dialog.getByRole("alert")).toContainText("sonucu alınamadı");
-  await backdrop(page);
+  await expect(card(page, "Kısa adım")).toBeDisabled();
   await expect(dialog).toBeVisible();
   await dialog.getByRole("button", { name: "Aynı odak başlatmayı güvenle yeniden dene" }).click();
   await expect(dialog).toBeHidden();
