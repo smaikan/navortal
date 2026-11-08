@@ -34,11 +34,11 @@ const dragCloseSpeed = 0.5;
 function isSheet(element: HTMLElement | null): element is HTMLElement {
   return !!element?.matches(sheetSelector) && window.matchMedia("(max-width: 767px)").matches;
 }
-function slide(element: HTMLElement, from: number, to: string) {
+function slide(element: HTMLElement, from: string, to: string, entering = false) {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
-  return element.animate([{ transform: `translateY(${from}px)` }, { transform: `translateY(${to})` }], {
+  return element.animate([{ transform: from }, { transform: `translateY(${to})` }], {
     duration: sheetDuration,
-    easing: "cubic-bezier(0.3, 0, 0.8, 0.4)",
+    easing: entering ? "cubic-bezier(0.2, 0.8, 0.2, 1)" : "cubic-bezier(0.3, 0, 0.8, 0.4)",
     fill: "forwards",
   });
 }
@@ -60,6 +60,7 @@ export function Surface({
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const closing = useRef(false);
+  const opening = useRef<Animation | null>(null);
   const outsideDown = useRef(false);
   const titleId = useId();
   const requestClose = useCallback(
@@ -67,7 +68,10 @@ export function Surface({
       if (closing.current || closeDisabled) return;
       closing.current = true;
       const element = dialog.current;
-      const animation = modal && isSheet(element) ? slide(element, from, "100%") : null;
+      const transform = element && opening.current ? getComputedStyle(element).transform : `translateY(${from}px)`;
+      opening.current?.cancel();
+      opening.current = null;
+      const animation = modal && isSheet(element) ? slide(element, transform, "100%") : null;
       if (element) element.style.transform = "";
       const finish = () => {
         if (onClose() !== false) return;
@@ -117,6 +121,8 @@ export function Surface({
     const move = (event: TouchEvent) => {
       if (!drag) return;
       event.preventDefault();
+      opening.current?.cancel();
+      opening.current = null;
       drag.distance = Math.max(0, event.touches[0].clientY - drag.y);
       element.style.transform = `translateY(${drag.distance}px)`;
     };
@@ -131,7 +137,7 @@ export function Surface({
         requestClose(distance);
         return;
       }
-      const back = slide(element, distance, "0");
+      const back = slide(element, `translateY(${distance}px)`, "0");
       element.style.transform = "";
       void back?.finished.then(
         () => back.cancel(),
@@ -214,7 +220,17 @@ export function Surface({
           element?.querySelector<HTMLElement>("input:not(:disabled), textarea:not(:disabled)")) ||
         heading.current
       )?.focus();
+    const animation = modal && isSheet(element) ? slide(element, "translateY(100%)", "0", true) : null;
+    opening.current = animation;
+    void animation?.finished.then(
+      () => {
+        animation.cancel();
+        if (opening.current === animation) opening.current = null;
+      },
+      () => undefined,
+    );
     return () => {
+      animation?.cancel();
       element?.close();
       if (modal && element) {
         modalLocks.delete(element);

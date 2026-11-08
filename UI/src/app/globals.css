@@ -6102,7 +6102,7 @@ label:has(> .temporal-control) {
     border-radius: 18px 18px 0 0;
   }
   .modal-surface:not(.modal-center, .modal-full, .modal-confirm)[open] {
-    animation: sheet-in 120ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+    animation: none;
   }
   .modal-surface:not(.modal-center, .modal-full, .modal-confirm)::before {
     content: "";
@@ -6131,12 +6131,17 @@ label:has(> .temporal-control) {
     display: none;
   }
 }
-@keyframes sheet-in {
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .modal-surface:not(.modal-center, .modal-full, .modal-confirm)[open]::backdrop {
+    animation: sheet-backdrop-in 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+@keyframes sheet-backdrop-in {
   from {
-    transform: translateY(100%);
+    opacity: 0;
   }
   to {
-    transform: none;
+    opacity: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {
