@@ -10,7 +10,19 @@ $oldPushEnabled = $env:Push__Enabled
 $cloudinaryKeys = @('Cloudinary__Enabled','Cloudinary__CloudName','Cloudinary__ApiKey','Cloudinary__ApiSecret')
 $oldCloudinary = @{}
 foreach ($cloudinaryKey in $cloudinaryKeys) { $oldCloudinary[$cloudinaryKey] = [Environment]::GetEnvironmentVariable($cloudinaryKey, 'Process') }
+$smtpKeys = @('Smtp__Enabled','Smtp__Host','Smtp__Port','Smtp__Security','Smtp__Username','Smtp__Password','Smtp__From','Smtp__ResetPageUrl')
+$oldSmtp = @{}
+foreach ($smtpKey in $smtpKeys) { $oldSmtp[$smtpKey] = [Environment]::GetEnvironmentVariable($smtpKey, 'Process') }
 try {
+    $smtpEnvPath = Join-Path $apiRoot '.local/smtp.env'
+    if (Test-Path -LiteralPath $smtpEnvPath) {
+        foreach ($smtpLine in [IO.File]::ReadAllLines($smtpEnvPath)) {
+            if ([string]::IsNullOrWhiteSpace($smtpLine) -or $smtpLine.TrimStart().StartsWith('#')) { continue }
+            $smtpPair = $smtpLine.Split('=', 2)
+            if ($smtpPair.Length -ne 2 -or $smtpKeys -notcontains $smtpPair[0]) { throw 'Invalid SMTP environment file entry.' }
+            if (-not [Environment]::GetEnvironmentVariable($smtpPair[0], 'Process')) { [Environment]::SetEnvironmentVariable($smtpPair[0], $smtpPair[1], 'Process') }
+        }
+    }
     # Bu dosyada düz değerler var. Çalıştırmadan ve ekrana basmadan oku.
     $cloudinaryEnvPath = Join-Path $apiRoot '.local/cloudinary.env'
     if (Test-Path -LiteralPath $cloudinaryEnvPath) {
@@ -49,4 +61,5 @@ try {
     $env:Push__PrivateKey = $oldPushPrivateKey
     $env:Push__Enabled = $oldPushEnabled
     foreach ($cloudinaryKey in $cloudinaryKeys) { [Environment]::SetEnvironmentVariable($cloudinaryKey, $oldCloudinary[$cloudinaryKey], 'Process') }
+    foreach ($smtpKey in $smtpKeys) { [Environment]::SetEnvironmentVariable($smtpKey, $oldSmtp[$smtpKey], 'Process') }
 }

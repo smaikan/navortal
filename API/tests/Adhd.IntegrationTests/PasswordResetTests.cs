@@ -17,7 +17,7 @@ public sealed class PasswordResetTests(DatabaseFixture fixture) : IClassFixture<
         services.PostConfigure<SmtpSettings>(s =>
         {
             s.Enabled = true; s.Host = "127.0.0.1"; s.Port = smtp.Port; s.Security = SecureSocketOptions.None;
-            s.From = "planner@example.test"; s.ResetPageUrl = resetPageUrl;
+            s.From = "Navortal <planner@example.test>"; s.ResetPageUrl = resetPageUrl;
         }));
     private static async Task<AuthResponse> Register(HttpClient client, string email)
     {
@@ -31,8 +31,14 @@ public sealed class PasswordResetTests(DatabaseFixture fixture) : IClassFixture<
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
         var mail = await smtp.ReceiveAsync();
         Assert.Equal(email, mail.To.Mailboxes.Single().Address);
-        var link = Regex.Match(mail.TextBody ?? "", @"https://planner\.example\.test/reset-password\?token=([A-F0-9]{64})");
+        Assert.Equal("Navortal", mail.From.Mailboxes.Single().Name);
+        Assert.Equal("Navortal · Parolanı sıfırla", mail.Subject);
+        Assert.Contains("30 dakika", mail.TextBody);
+        Assert.Contains("Yeni parola belirle", mail.HtmlBody);
+        var link = Regex.Match(mail.TextBody ?? "", @"https://planner\.example\.test/reset-password#\?token=([A-F0-9]{64})");
         Assert.True(link.Success, "SMTP message must carry the configured reset link.");
+        Assert.True(new Uri(link.Value).Query.Length == 0, "Reset codes must not enter HTTP queries.");
+        Assert.True((mail.HtmlBody ?? "").Contains(System.Net.WebUtility.HtmlEncode(link.Value), StringComparison.Ordinal), "Both mail alternatives must carry the same link.");
         return link.Groups[1].Value;
     }
     [Fact]
