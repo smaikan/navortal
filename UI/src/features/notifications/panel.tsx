@@ -144,7 +144,9 @@ export function NotificationPanel({ id, close }: { id: string; close: (restoreFo
               Daha yeni
             </button>
             <span>
-              {data.items.length ? `${offset ? `${offset + 1}–` : ""}${offset + data.items.length} / ${data.total}` : ""}
+              {data.items.length
+                ? `${offset ? `${offset + 1}–` : ""}${offset + data.items.length} / ${data.total}`
+                : ""}
             </span>
             <button
               type="button"

@@ -510,7 +510,9 @@ test("Ctrl+K palette navigates, Kafamı boşalt adds many tasks in one request a
   await expect(page).toHaveURL(/\/reminders\/special-days$/);
   // Özel günler, Hatırlatmalar sayfasının sekmesidir.
   await expect(
-    page.getByRole("navigation", { name: "Hatırlatma bölümleri" }).getByRole("link", { name: "Özel günler", exact: true }),
+    page
+      .getByRole("navigation", { name: "Hatırlatma bölümleri" })
+      .getByRole("link", { name: "Özel günler", exact: true }),
   ).toHaveAttribute("aria-current", "page");
   // Toplu girişte boş satır ve tekrarlar tek istekten önce ayıklanır.
   await page.getByRole("button", { name: "Görev", exact: true }).click();

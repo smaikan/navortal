@@ -79,7 +79,9 @@ test("J/L: reopening yesterday's actual child reaches its same task and next-ste
       const link = reopened.getByRole("link", { name: `Görevi aç: ${title}`, exact: true });
       await expect(link).toBeVisible();
       // Dokunmada 44px; farede 1024–1299px ölçeği (0.9) hedefi küçültür, en az 32px yeter.
-      expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(info.project.name.startsWith("mobile") ? 44 : 32);
+      expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(
+        info.project.name.startsWith("mobile") ? 44 : 32,
+      );
       await link.focus();
       await reopened.keyboard.press("Enter");
       await expect(reopened.getByLabel("Görev başlığı", { exact: true })).toHaveValue(renamed);

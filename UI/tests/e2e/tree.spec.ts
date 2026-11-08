@@ -404,7 +404,9 @@ test("finish from the row menu: subtasks strike in place, roots move to Tamamlan
   // Playwright dispatchEvent bu olayda koordinat taşımıyor; gerçek bir MouseEvent gönderiyoruz.
   await taskTitle.evaluate(
     (el, at) =>
-      el.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: at.x, clientY: at.y })),
+      el.dispatchEvent(
+        new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: at.x, clientY: at.y }),
+      ),
     { x: width - 1, y: height - 1 },
   );
   await expect
