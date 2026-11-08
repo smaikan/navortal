@@ -34,7 +34,8 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:-172.30.81.1}
+      # API'ye dogrudan UI baglanir; X-Forwarded-For yalniz ondan kabul edilir.
+      ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:-${UI_IP:-172.30.81.10}}
     depends_on:
       db: {condition: service_healthy}
       migrate: {condition: service_completed_successfully}
@@ -51,6 +52,9 @@ services:
     environment:
       API_ORIGIN: http://api:8080
     ports: ["127.0.0.1:${UI_PORT:-3100}:3100"]
+    networks:
+      default:
+        ipv4_address: ${UI_IP:-172.30.81.10}
     depends_on: [api]
 networks:
   default:
