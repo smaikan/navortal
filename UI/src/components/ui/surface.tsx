@@ -297,6 +297,10 @@ export function Surface({
             event.clientX > rect.right ||
             event.clientY < rect.top ||
             event.clientY > rect.bottom);
+        if (outsideDown.current && isSheet(event.currentTarget)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
       }}
       onPointerUp={event => {
         const rect = event.currentTarget.getBoundingClientRect();
@@ -306,8 +310,34 @@ export function Surface({
             event.clientX > rect.right ||
             event.clientY < rect.top ||
             event.clientY > rect.bottom);
+        if (isSheet(event.currentTarget) && (outsideDown.current || outside)) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
         if (outsideDown.current && outside) requestClose();
         outsideDown.current = false;
+      }}
+      onPointerCancel={() => {
+        outsideDown.current = false;
+      }}
+      onClick={event => {
+        if (!isSheet(event.currentTarget)) return;
+        const down = outsideDown.current;
+        outsideDown.current = false;
+        const rect = event.currentTarget.getBoundingClientRect();
+        const outside =
+          event.target === event.currentTarget &&
+          (event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom);
+        if (down || outside) {
+          // Dokunmanın click olayı da tüketilmeden pencereyi kaldırma.
+          event.preventDefault();
+          event.stopPropagation();
+          if (down && outside) requestClose();
+        }
       }}
       onCancel={event => {
         // React içteki modalın cancel olayını üst pencerelere de taşıyor. Yalnız en üstteki kapanmalı.
