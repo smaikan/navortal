@@ -4,7 +4,7 @@ $taskUiRoot = Split-Path $PSScriptRoot -Parent
 $taskNodeVersion = (Get-Content -LiteralPath (Join-Path $taskUiRoot '.node-version') -Raw).Trim()
 $taskNodeDir = Join-Path $taskUiRoot ".local/node-v$taskNodeVersion-win-x64"
 if (-not (Test-Path -LiteralPath (Join-Path $taskNodeDir 'node.exe'))) {
-    throw "Node $taskNodeVersion is required. Install this version or prepare the project-local runtime described in ../UI-README.md."
+    throw "Node $taskNodeVersion is required. Install this version or prepare the project-local runtime described in ../README.md."
 }
 $taskPreviousPath = $env:PATH
 try {

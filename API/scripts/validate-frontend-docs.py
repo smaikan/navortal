@@ -10,6 +10,10 @@ from urllib.parse import unquote, urlsplit
 import datetime
 import uuid
 
+# Türkçe hata iletileri, Windows dahil UTF-8 olarak okunur.
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
+
 API = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--docs-root', type=Path, default=API.parent / 'docs')
@@ -173,7 +177,7 @@ for filename in ('SchedulingEngine.cs', 'SchedulingAdvanced.cs', 'PlanUndoEngine
 for code in message_codes | set(schemas['UnplacedReason']['enum']) - {None}:
     require(f'| {code} |' in plan_messages, f'Plan message meaning missing: {code}')
 
-files = sorted(ROOT.rglob('*.md')) + [API.parent / 'API-README.md', API.parent / 'API-AGENTS.md', API.parent / 'AGENTS.md']
+files = sorted(ROOT.rglob('*.md')) + [API.parent / 'README.md', API.parent / 'API-AGENTS.md', API.parent / 'AGENTS.md']
 for file in files:
     text = read_text(file)
     for block in re.findall(r'```json\n(.*?)\n```', text, re.S):
