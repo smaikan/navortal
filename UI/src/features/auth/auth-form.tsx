@@ -10,7 +10,7 @@ import { useSession } from "./provider";
 import type { Credentials } from "./session";
 import { safeReturnPath } from "./return-path";
 import { validateCredentials } from "./credentials";
-import { OFFLINE_LOGOUT_NOTICE } from "./logout-notice";
+import { takeLogoutNotice } from "./logout-notice";
 
 type AuthFields = Credentials & { acceptTerms: boolean };
 
@@ -26,17 +26,10 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const summary = useRef<HTMLParagraphElement>(null);
   const submitting = useRef(false);
-  // Çıkış sunucuya ulaşmamış olsa da bu cihazdaki oturum kapanır. Bunu bir kere, sakin şekilde söylüyoruz.
-  const [offlineLogout, setOfflineLogout] = useState(false);
+  const [logoutNotice, setLogoutNotice] = useState<"all" | "current" | null>(null);
   useEffect(() => {
-    try {
-      if (sessionStorage.getItem(OFFLINE_LOGOUT_NOTICE)) {
-        sessionStorage.removeItem(OFFLINE_LOGOUT_NOTICE);
-        queueMicrotask(() => setOfflineLogout(true));
-      }
-    } catch {
-      /* Depolama yoksa bildirim de yok. */
-    }
+    const notice = takeLogoutNotice();
+    if (notice) queueMicrotask(() => setLogoutNotice(notice));
   }, []);
   const {
     register,
@@ -132,10 +125,11 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           {signup ? "Görevlerini toparla, gününü adım adım planla." : "Planına kaldığın yerden devam et."}
         </p>
       </header>
-      {offlineLogout && (
+      {logoutNotice && (
         <p className="form-notice" role="status">
-          Bu cihazda çıkış yapıldı. Sunucuya ulaşılamadı; diğer cihazlardaki oturumları Ayarlar › Hesap bölümünden
-          kapatabilirsin.
+          Sunucudaki oturumun kapatıldığı doğrulanamadı.
+          {logoutNotice === "all" && " Diğer cihazlardaki oturumlar açık kalmış olabilir."} Bağlantın düzeldiğinde giriş
+          yapıp Ayarlar › Hesap bölümünden tüm cihazlardan çıkabilirsin.
         </p>
       )}
       <form

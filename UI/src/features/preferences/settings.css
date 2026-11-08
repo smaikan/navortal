@@ -143,6 +143,40 @@
   color: var(--muted);
   overflow-wrap: anywhere;
 }
+.account-password-form {
+  max-width: 480px;
+  margin-top: 24px;
+}
+.account-section h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.account-password-form > p,
+.account-sessions > p {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.account-password-form .password-control input {
+  width: 100%;
+  min-width: 0;
+}
+.account-password-note {
+  max-width: 48ch;
+  margin-block: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.account-password-form > .account-password-success {
+  margin-top: 16px;
+  color: var(--primary-text);
+}
+.account-sessions {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--divider);
+}
 @media (max-width: 640px) {
   .settings-content .r2-master {
     display: grid;

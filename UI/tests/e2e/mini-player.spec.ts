@@ -52,10 +52,13 @@ async function auditMini(page: Page, name: string) {
   const result = await page.evaluate(async script => {
     const pip = (window as PipParent).documentPictureInPicture!.window!;
     const child = pip as Window & {
-      eval: (code: string) => void;
       axe: { run: (root: Document, options: unknown) => Promise<{ violations: unknown[]; incomplete: unknown[] }> };
     };
-    child.eval(script);
+    const injected = child.document.createElement("script");
+    injected.nonce = document.querySelector<HTMLScriptElement>("script[nonce]")?.nonce ?? "";
+    injected.textContent = script;
+    child.document.head.append(injected);
+    injected.remove();
     const audit = await child.axe.run(child.document, {
       runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] },
     });

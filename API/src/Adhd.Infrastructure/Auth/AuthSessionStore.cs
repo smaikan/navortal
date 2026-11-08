@@ -12,9 +12,13 @@ public sealed class AuthSessionStore(PlannerDbContext db, IMemoryCache cache) : 
 {
     public static readonly TimeSpan CacheFor = TimeSpan.FromSeconds(15);
     private static string Key(Guid sessionId) => $"auth-session:{sessionId:N}";
+    internal static void Invalidate(IMemoryCache cache, Guid sessionId) => cache.Remove(Key(sessionId));
 
-    public async Task<Guid?> CreateAsync(Guid userId, string userAgentFamily, string? adoptedTokenHash, DateTimeOffset now, CancellationToken ct)
+    public async Task<Guid?> CreateAsync(Guid userId, string userAgentFamily, string? adoptedTokenHash, DateTimeOffset now, CancellationToken ct, string? expectedPasswordHash = null)
     {
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        var user = await db.Users.FromSqlInterpolated($"SELECT * FROM users WHERE \"Id\" = {userId} FOR UPDATE").AsNoTracking().SingleOrDefaultAsync(ct);
+        if (user is null || user.PasswordHash != expectedPasswordHash) return null;
         var session = new AuthSession
         {
             Id = Guid.CreateVersion7(), UserId = userId, CreatedAt = now, LastSeenAt = now,
@@ -24,6 +28,7 @@ public sealed class AuthSessionStore(PlannerDbContext db, IMemoryCache cache) : 
         try { await db.SaveChangesAsync(ct); }
         catch (DbUpdateException e) when (e.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         { db.ChangeTracker.Clear(); return null; }
+        await tx.CommitAsync(ct);
         return session.Id;
     }
 

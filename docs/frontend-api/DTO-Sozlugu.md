@@ -3016,3 +3016,11 @@ Bu şema operation response içinde inline bulunur;200named schema sayısına ek
 | `errors` | Record<string,string[]>/null | Model-binding/alan doğrulama hataları; her domain400de yok. Alan key casing normalize edilir. |
 
 Bilinen şema kısıtı: CreateScheduleRequest.kind,TaskStateRequest.action,FocusPresetRequest.settings,UpdateFocusPresetRequest.settings required olmasına rağmen nullable union gösterebilir. Runtime Required doğrulaması nullı400reddeder; ilgili alan açıklaması/entegrasyon kuralları uygulanır.
+
+## ChangePasswordRequest
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse409 account_changed. Yazı hedefini seçmez. |
+| `currentPassword` | string | evet | — | Mevcut parola; sunucudaki hash ile doğrulanır, hatalıysa400 current_password_invalid. Sırdır, log/URL/storage'a yazılmaz. |
+| `newPassword` | string | evet | minLength=6 | Yeni parola; trim/ek karmaşıklık yoktur, mevcut paroladan farklıdır. Bütün eski oturumlar ve reset bağlantıları kapanır; yeni HttpOnly oturum cookie'si verilir. |

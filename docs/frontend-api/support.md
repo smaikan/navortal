@@ -90,63 +90,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a184dc-ce89-74bb-9656-ab9897efe11d",
-      "name": "Uyarı",
-      "color": "Red",
-      "showInBar": true,
-      "pinInAll": true,
-      "viewMode": "Cards",
-      "createdAt": "2026-10-28T06:00:00+00:00",
-      "updatedAt": "2026-10-28T06:00:00+00:00",
-      "removedAt": null,
-      "version": 1
-    },
-    {
-      "id": "01a184dc-d5b2-722a-9670-b3c04bf9c27a",
-      "name": "Ders",
-      "color": "Green",
-      "showInBar": false,
-      "pinInAll": true,
-      "viewMode": "List",
-      "createdAt": "2026-10-28T06:00:00+00:00",
-      "updatedAt": "2026-10-28T06:00:00+00:00",
-      "removedAt": null,
-      "version": 2
-    },
-    {
-      "id": "01a184dc-d795-7e0b-b205-8119c9222c7f",
-      "name": "Ev",
-      "color": "Blue",
-      "showInBar": true,
-      "pinInAll": false,
-      "viewMode": "Cards",
-      "createdAt": "2026-10-28T06:00:00+00:00",
-      "updatedAt": "2026-10-28T06:00:00+00:00",
-      "removedAt": null,
-      "version": 1
-    },
-    {
-      "id": "01a184dc-d7a0-7abc-91f5-be8810487501",
-      "name": "Kitaplar",
-      "color": "Blue",
-      "showInBar": true,
-      "pinInAll": false,
-      "viewMode": "Cards",
-      "createdAt": "2026-10-28T06:00:00+00:00",
-      "updatedAt": "2026-10-28T06:00:00+00:00",
-      "removedAt": null,
-      "version": 1
-    }
-  ],
+  "items": [],
   "allViewMode": "Cards",
-  "taskViewMode": "List",
-  "notesVersion": 4
+  "taskViewMode": "Cards",
+  "notesVersion": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -173,8 +124,8 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "name": "İstatistik",
-  "color": "Teal",
+  "name": "Çalışma",
+  "color": "Gray",
   "showInBar": true,
   "pinInAll": false
 }
@@ -194,34 +145,22 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-d5b2-722a-9670-b3c04bf9c27a",
-  "name": "İstatistik",
-  "color": "Teal",
-  "showInBar": true,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "name": "Çalışma",
+  "color": "Gray",
+  "showInBar": false,
   "pinInAll": false,
   "viewMode": "Cards",
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
-  "removedAt": null,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "removedAt": "2026-10-16T06:00:00Z",
   "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Bu adla etkin bir kategori var.",
-  "status": 409,
-  "code": "note_category_name_taken",
-  "traceId": "00-8cbbf63c31a8b6ff93483fd639cee925-3a9a31f046217125-00"
-}
-```
 
 ## PUT /api/note-categories/{id}
 
@@ -253,18 +192,18 @@ Gerçek test hata örneği — HTTP 409:
 ```json
 {
   "version": 1,
-  "name": "Ders",
-  "color": "Green",
+  "name": "Çalışma",
+  "color": "Gray",
   "showInBar": false,
-  "pinInAll": true,
-  "viewMode": "List"
+  "pinInAll": false,
+  "viewMode": "Cards"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/note-categories/01a184dc-d5b2-722a-9670-b3c04bf9c27a
+PUT /api/note-categories/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -275,34 +214,22 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-d5b2-722a-9670-b3c04bf9c27a",
-  "name": "Ders",
-  "color": "Green",
+  "id": "11111111-1111-4111-8111-111111111111",
+  "name": "Çalışma",
+  "color": "Gray",
   "showInBar": false,
-  "pinInAll": true,
-  "viewMode": "List",
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
-  "removedAt": null,
-  "version": 2
+  "pinInAll": false,
+  "viewMode": "Cards",
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "removedAt": "2026-10-16T06:00:00Z",
+  "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Kayıt değişmiş; güncel değerleri alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-cbc2afa5a867645358bbeee27dd9bccb-92d32982e59e6721-00"
-}
-```
 
 ## POST /api/note-categories/{id}/move
 
@@ -330,14 +257,14 @@ Gerçek test hata örneği — HTTP 409:
 ```json
 {
   "version": 1,
-  "beforeCategoryId": "01a184dc-ce89-74bb-9656-ab9897efe11d"
+  "beforeCategoryId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/note-categories/01a184dc-d7a0-7abc-91f5-be8810487501/move
+POST /api/note-categories/11111111-1111-4111-8111-111111111111/move
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -348,34 +275,22 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-d7a0-7abc-91f5-be8810487501",
-  "name": "Kitaplar",
-  "color": "Blue",
-  "showInBar": true,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "name": "Çalışma",
+  "color": "Gray",
+  "showInBar": false,
   "pinInAll": false,
   "viewMode": "Cards",
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
-  "removedAt": null,
-  "version": 2
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "removedAt": "2026-10-16T06:00:00Z",
+  "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 400:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "Kategori kendi önüne taşınamaz.",
-  "status": 400,
-  "code": "note_category_move_invalid",
-  "traceId": "00-ed928d640647545cfa4918432c5416d3-483b566d5474b134-00"
-}
-```
 
 ## POST /api/note-categories/{id}/remove
 
@@ -408,7 +323,7 @@ Gerçek test hata örneği — HTTP 400:
 **Örnek HTTP:**
 
 ```http
-POST /api/note-categories/01a184dc-eb14-7814-a548-bcc36f637d44/remove
+POST /api/note-categories/11111111-1111-4111-8111-111111111111/remove
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -419,34 +334,22 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-eb14-7814-a548-bcc36f637d44",
-  "name": "Ev",
-  "color": "Purple",
-  "showInBar": true,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "name": "Çalışma",
+  "color": "Gray",
+  "showInBar": false,
   "pinInAll": false,
   "viewMode": "Cards",
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
-  "removedAt": "2026-10-28T06:00:00+00:00",
-  "version": 2
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "removedAt": "2026-10-16T06:00:00Z",
+  "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Kategori zaten kaldırılmış; güncel listeyi alın.",
-  "status": 409,
-  "code": "note_category_removed",
-  "traceId": "00-0c5befd2ddaecb070a79f311d08a5c0f-35ffbc4c2f8a14b8-00"
-}
-```
 
 ## POST /api/note-categories/{id}/restore
 
@@ -472,14 +375,14 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "version": 2
+  "version": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/note-categories/01a184dc-eb14-7814-a548-bcc36f637d44/restore
+POST /api/note-categories/11111111-1111-4111-8111-111111111111/restore
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -490,34 +393,22 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-eb14-7814-a548-bcc36f637d44",
-  "name": "Ev",
-  "color": "Purple",
-  "showInBar": true,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "name": "Çalışma",
+  "color": "Gray",
+  "showInBar": false,
   "pinInAll": false,
   "viewMode": "Cards",
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
-  "removedAt": null,
-  "version": 3
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "removedAt": "2026-10-16T06:00:00Z",
+  "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Bu adla etkin bir kategori var.",
-  "status": 409,
-  "code": "note_category_name_taken",
-  "traceId": "00-993a2630c1495ecf0ceedba88112ba95-39fc61997833a69f-00"
-}
-```
 
 ## GET /api/notes
 
@@ -546,7 +437,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/notes
+GET /api/notes?date=2026-10-15&limit=1
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -558,66 +449,24 @@ Authorization: Bearer <APPLICATION_JWT>
 {
   "items": [
     {
-      "id": "01a184dc-de85-70a9-9dda-5f34424b5b3f",
-      "kind": "General",
-      "text": "Kira otomatik değil",
+      "id": "01a16bfb-28f8-74b9-9d03-645c98a53906",
+      "kind": "Daily",
+      "text": "Bugün iyi gidenler",
       "taskId": null,
       "workSessionId": null,
-      "localDate": null,
+      "localDate": "2026-10-15",
       "timeZoneId": "Europe/Istanbul",
       "dueAt": null,
-      "createdAt": "2026-10-28T06:00:00+00:00",
-      "updatedAt": "2026-10-28T06:00:00+00:00",
+      "createdAt": "2026-10-15T06:00:00+00:00",
+      "updatedAt": "2026-10-15T06:00:00+00:00",
       "deletedAt": null,
       "convertedTaskId": null,
-      "version": 1,
-      "title": null,
-      "categoryId": "01a184dc-da94-7b18-9666-5a8d07e93fff",
-      "display": "Short",
-      "taskTitle": null
-    },
-    {
-      "id": "01a184dc-de6b-7c39-98a3-74d7ca2c9e64",
-      "kind": "General",
-      "text": "Adaptör\nSu",
-      "taskId": "01a184dc-dc3d-7d15-9d91-9c48a3d36179",
-      "workSessionId": null,
-      "localDate": null,
-      "timeZoneId": "Europe/Istanbul",
-      "dueAt": null,
-      "createdAt": "2026-10-28T06:00:00+00:00",
-      "updatedAt": "2026-10-28T06:00:00+00:00",
-      "deletedAt": null,
-      "convertedTaskId": null,
-      "version": 1,
-      "title": "Kontrol listesi",
-      "categoryId": null,
-      "display": "Toggle",
-      "taskTitle": "Kargo iadesi"
-    },
-    {
-      "id": "01a184dc-dddf-7dcb-8fc0-08642ca08c36",
-      "kind": "General",
-      "text": "H0: fark yok.\nH1: fark var.",
-      "taskId": null,
-      "workSessionId": null,
-      "localDate": null,
-      "timeZoneId": "Europe/Istanbul",
-      "dueAt": null,
-      "createdAt": "2026-10-28T06:00:00+00:00",
-      "updatedAt": "2026-10-28T06:00:00+00:00",
-      "deletedAt": null,
-      "convertedTaskId": null,
-      "version": 1,
-      "title": "Hipotez testleri",
-      "categoryId": "01a184dc-dc0e-7cc0-9be0-36b9f948a20f",
-      "display": "Detailed",
-      "taskTitle": null
+      "version": 1
     }
   ],
   "offset": 0,
-  "limit": 50,
-  "total": 3
+  "limit": 1,
+  "total": 1
 }
 ```
 
@@ -630,10 +479,10 @@ Gerçek test hata örneği — HTTP 400:
 ```json
 {
   "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "Arama en çok 200 karakter olmalı.",
+  "title": "Offset0..100000, limit1..100 olmalı.",
   "status": 400,
-  "code": "note_search_invalid",
-  "traceId": "00-e257e3d8d692bd00344981d9bd441f90-d132755e59b8b1e1-00"
+  "code": "pagination_invalid",
+  "traceId": "00-e719c806da359a5aa78145dcbeb02cb2-bd966410dd4118e3-00"
 }
 ```
 
@@ -665,15 +514,12 @@ Gerçek test hata örneği — HTTP 400:
 
 ```json
 {
-  "kind": "General",
-  "text": "H0: fark yok.\nH1: fark var.",
+  "kind": "Distraction",
+  "text": "Dönünce örneği kontrol et",
   "taskId": null,
-  "workSessionId": null,
+  "workSessionId": "01a16bfb-20c0-7a0e-baf7-f35bd8b8991d",
   "localDate": null,
-  "dueAt": null,
-  "title": "Hipotez testleri",
-  "categoryId": "01a184dc-dc0e-7cc0-9be0-36b9f948a20f",
-  "display": "Detailed"
+  "dueAt": null
 }
 ```
 
@@ -691,23 +537,19 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-dddf-7dcb-8fc0-08642ca08c36",
-  "kind": "General",
-  "text": "H0: fark yok.\nH1: fark var.",
-  "taskId": null,
-  "workSessionId": null,
+  "id": "01a16bfb-217d-7018-bb93-0ea66f12bd84",
+  "kind": "Distraction",
+  "text": "Dönünce örneği kontrol et",
+  "taskId": "01a16bfb-1fa6-790b-b026-9ed02248e14c",
+  "workSessionId": "01a16bfb-20c0-7a0e-baf7-f35bd8b8991d",
   "localDate": null,
   "timeZoneId": "Europe/Istanbul",
   "dueAt": null,
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
+  "createdAt": "2026-10-15T06:00:00+00:00",
+  "updatedAt": "2026-10-15T06:00:00+00:00",
   "deletedAt": null,
   "convertedTaskId": null,
-  "version": 1,
-  "title": "Hipotez testleri",
-  "categoryId": "01a184dc-dc0e-7cc0-9be0-36b9f948a20f",
-  "display": "Detailed",
-  "taskTitle": null
+  "version": 1
 }
 ```
 
@@ -715,15 +557,15 @@ Content-Type: application/json
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
-Gerçek test hata örneği — HTTP 409:
+Gerçek test hata örneği — HTTP 400:
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Kategori kaldırılmış; başka bir kategori seçin.",
-  "status": 409,
-  "code": "note_category_removed",
-  "traceId": "00-ee8d727686b7739fd0d9a9925332b1bb-fbf661ad20753c48-00"
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "Çalışma ve görev bağlamları eşleşmiyor.",
+  "status": 400,
+  "code": "note_context_mismatch",
+  "traceId": "00-f4aad15b286b51045e4ef9d542524410-b715b7241686eb66-00"
 }
 ```
 
@@ -748,7 +590,7 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "allViewMode": "List",
+  "allViewMode": "Cards",
   "taskViewMode": "Cards"
 }
 ```
@@ -767,12 +609,12 @@ Content-Type: application/json
 
 ```json
 {
-  "allViewMode": "List",
+  "allViewMode": "Cards",
   "taskViewMode": "Cards"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -806,16 +648,15 @@ Content-Type: application/json
 ```json
 {
   "version": 1,
-  "text": "Wi-Fi şifresi kartta (güncel)",
-  "display": "Short",
-  "categoryId": "01a184dc-eb14-7814-a548-bcc36f637d44"
+  "text": "Güncel bağlam",
+  "dueAt": "2026-10-16T06:00:00+00:00"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/notes/01a184dc-eb71-70be-9429-33425ab89a7a
+PUT /api/notes/01a16bfb-27dd-7ac8-8a41-8c49384ab357
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -826,29 +667,37 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-eb71-70be-9429-33425ab89a7a",
-  "kind": "General",
-  "text": "Wi-Fi şifresi kartta (güncel)",
-  "taskId": null,
+  "id": "01a16bfb-27dd-7ac8-8a41-8c49384ab357",
+  "kind": "Distraction",
+  "text": "Güncel bağlam",
+  "taskId": "01a16bfb-2796-7a1c-b81e-7da84f1f25b0",
   "workSessionId": null,
   "localDate": null,
   "timeZoneId": "Europe/Istanbul",
-  "dueAt": null,
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
+  "dueAt": "2026-10-16T06:00:00+00:00",
+  "createdAt": "2026-10-15T06:00:00+00:00",
+  "updatedAt": "2026-10-15T06:00:00+00:00",
   "deletedAt": null,
   "convertedTaskId": null,
-  "version": 2,
-  "title": null,
-  "categoryId": "01a184dc-eb14-7814-a548-bcc36f637d44",
-  "display": "Short",
-  "taskTitle": null
+  "version": 2
 }
 ```
 
 Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
+
+Gerçek test hata örneği — HTTP 409:
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+  "title": "Kayıt değişmiş; güncel değerleri alın.",
+  "status": 409,
+  "code": "version_conflict",
+  "traceId": "00-38515e4fba01d7675670f891d2cfe726-3f7c084757385a80-00"
+}
+```
 
 ## POST /api/notes/{id}/convert
 
@@ -877,16 +726,16 @@ Content-Type: application/json
 ```json
 {
   "version": 1,
-  "title": "Raporu yaz",
-  "poolId": "11111111-1111-4111-8111-111111111111",
-  "deadlineAt": "2026-10-16T06:00:00Z"
+  "title": "Araştır",
+  "poolId": "01a16bfa-c8b1-78d0-a216-79c727eeec4e",
+  "deadlineAt": "2026-10-17T06:00:00+00:00"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/notes/11111111-1111-4111-8111-111111111111/convert
+POST /api/notes/01a16bfa-c79e-7190-9dcc-5307c1df63fc/convert
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -898,17 +747,29 @@ Content-Type: application/json
 
 ```json
 {
-  "noteId": "11111111-1111-4111-8111-111111111111",
-  "taskId": "11111111-1111-4111-8111-111111111111",
-  "noteVersion": 1,
-  "planningVersion": 0,
+  "noteId": "01a16bfa-c79e-7190-9dcc-5307c1df63fc",
+  "taskId": "01a16bfa-c93c-7c03-a877-6ee3850a09ac",
+  "noteVersion": 2,
+  "planningVersion": 2,
   "replayed": false
 }
 ```
 
-Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
+
+Gerçek test hata örneği — HTTP 409:
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+  "title": "Not başka bir görev dönüşümüne bağlanmış.",
+  "status": 409,
+  "code": "note_already_converted",
+  "traceId": "00-bc9519ac0fc31f4c8ddd092c4602102b-b33174b856fc4113-00"
+}
+```
 
 ## POST /api/notes/{id}/delete
 
@@ -932,14 +793,14 @@ Content-Type: application/json
 
 ```json
 {
-  "version": 1
+  "version": 2
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/notes/01a184dc-de85-70a9-9dda-5f34424b5b3f/delete
+POST /api/notes/01a16bfb-27dd-7ac8-8a41-8c49384ab357/delete
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -950,23 +811,19 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-de85-70a9-9dda-5f34424b5b3f",
-  "kind": "General",
-  "text": "Kira otomatik değil",
-  "taskId": null,
+  "id": "01a16bfb-27dd-7ac8-8a41-8c49384ab357",
+  "kind": "Distraction",
+  "text": "Güncel bağlam",
+  "taskId": "01a16bfb-2796-7a1c-b81e-7da84f1f25b0",
   "workSessionId": null,
   "localDate": null,
   "timeZoneId": "Europe/Istanbul",
-  "dueAt": null,
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
-  "deletedAt": "2026-10-28T06:00:00+00:00",
+  "dueAt": "2026-10-16T06:00:00+00:00",
+  "createdAt": "2026-10-15T06:00:00+00:00",
+  "updatedAt": "2026-10-15T06:00:00+00:00",
+  "deletedAt": "2026-10-15T06:00:00+00:00",
   "convertedTaskId": null,
-  "version": 2,
-  "title": null,
-  "categoryId": "01a184dc-da94-7b18-9666-5a8d07e93fff",
-  "display": "Short",
-  "taskTitle": null
+  "version": 3
 }
 ```
 
@@ -998,14 +855,14 @@ Content-Type: application/json
 
 ```json
 {
-  "version": 2
+  "version": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/notes/01a184dc-de85-70a9-9dda-5f34424b5b3f/restore
+POST /api/notes/11111111-1111-4111-8111-111111111111/restore
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1016,41 +873,29 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a184dc-de85-70a9-9dda-5f34424b5b3f",
-  "kind": "General",
-  "text": "Kira otomatik değil",
-  "taskId": null,
-  "workSessionId": null,
-  "localDate": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "kind": "Task",
+  "text": "Bir sonraki küçük adım",
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "workSessionId": "11111111-1111-4111-8111-111111111111",
+  "localDate": "2026-10-16",
   "timeZoneId": "Europe/Istanbul",
-  "dueAt": null,
-  "createdAt": "2026-10-28T06:00:00+00:00",
-  "updatedAt": "2026-10-28T06:00:00+00:00",
-  "deletedAt": null,
-  "convertedTaskId": null,
-  "version": 3,
-  "title": null,
-  "categoryId": "01a184dc-da94-7b18-9666-5a8d07e93fff",
+  "dueAt": "2026-10-16T06:00:00Z",
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "deletedAt": "2026-10-16T06:00:00Z",
+  "convertedTaskId": "11111111-1111-4111-8111-111111111111",
+  "version": 1,
+  "title": "Raporu yaz",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
   "display": "Short",
-  "taskTitle": null
+  "taskTitle": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Kayıt değişmiş; güncel değerleri alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-1a1428e12f83b49b947b9972fe739d74-04c7fec148146cc8-00"
-}
-```
 
 ## GET /api/support/days/{date}
 
@@ -1716,7 +1561,7 @@ Content-Type: application/json
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a184dc-dc3d-7d15-9d91-9c48a3d36179/return-context
+GET /api/tasks/01a16bfa-e95e-7386-9cd7-8e4334111910/return-context
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -1726,63 +1571,65 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "taskId": "01a184dc-dc3d-7d15-9d91-9c48a3d36179",
-  "planningVersion": 1,
-  "lastWork": null,
+  "taskId": "01a16bfa-e95e-7386-9cd7-8e4334111910",
+  "planningVersion": 7,
+  "lastWork": {
+    "workSessionId": "01a16bfa-ed6c-7209-9f5f-c57dc00814a2",
+    "taskId": "01a16bfa-eb9b-7bce-b7a0-b295fd2d8337",
+    "segmentId": "01a16bfa-edb9-799c-addd-ba89f1f16747",
+    "startedAt": "2026-10-15T06:00:00+00:00",
+    "endedAt": "2026-10-15T06:05:00+00:00"
+  },
   "lastNote": {
-    "id": "01a184dc-dea1-7cdb-b0eb-05de0fc179b8",
+    "id": "01a16bfa-f046-7eb6-bcdb-5c470a7b8f1e",
     "kind": "NextStep",
-    "text": "Dosyayı aç",
-    "taskId": "01a184dc-dc3d-7d15-9d91-9c48a3d36179",
+    "text": "İkinci adımda örneği aç",
+    "taskId": "01a16bfa-ec0c-74e4-976d-de763d8959aa",
     "workSessionId": null,
     "localDate": null,
     "timeZoneId": "Europe/Istanbul",
     "dueAt": null,
-    "createdAt": "2026-10-28T06:00:00+00:00",
-    "updatedAt": "2026-10-28T06:00:00+00:00",
+    "createdAt": "2026-10-15T06:05:00+00:00",
+    "updatedAt": "2026-10-15T06:05:00+00:00",
     "deletedAt": null,
     "convertedTaskId": null,
-    "version": 1,
-    "title": null,
-    "categoryId": null,
-    "display": "Short",
-    "taskTitle": "Kargo iadesi"
+    "version": 1
   },
   "nextStepNote": {
-    "id": "01a184dc-dea1-7cdb-b0eb-05de0fc179b8",
+    "id": "01a16bfa-f046-7eb6-bcdb-5c470a7b8f1e",
     "kind": "NextStep",
-    "text": "Dosyayı aç",
-    "taskId": "01a184dc-dc3d-7d15-9d91-9c48a3d36179",
+    "text": "İkinci adımda örneği aç",
+    "taskId": "01a16bfa-ec0c-74e4-976d-de763d8959aa",
     "workSessionId": null,
     "localDate": null,
     "timeZoneId": "Europe/Istanbul",
     "dueAt": null,
-    "createdAt": "2026-10-28T06:00:00+00:00",
-    "updatedAt": "2026-10-28T06:00:00+00:00",
+    "createdAt": "2026-10-15T06:05:00+00:00",
+    "updatedAt": "2026-10-15T06:05:00+00:00",
     "deletedAt": null,
     "convertedTaskId": null,
-    "version": 1,
-    "title": null,
-    "categoryId": null,
-    "display": "Short",
-    "taskTitle": "Kargo iadesi"
+    "version": 1
   },
-  "lastCompletion": null,
+  "lastCompletion": {
+    "taskId": "01a16bfa-eb9b-7bce-b7a0-b295fd2d8337",
+    "completedAt": "2026-10-15T06:05:00+00:00",
+    "eventSequence": 4
+  },
   "suggestedStep": {
-    "id": "01a184dc-dc3d-7d15-9d91-9c48a3d36179",
-    "title": "Kargo iadesi",
+    "id": "01a16bfa-ec0c-74e4-976d-de763d8959aa",
+    "title": "Sonraki",
     "description": null,
     "state": "Pending",
     "priority": "Normal",
     "deadlineAt": null,
     "canSplit": true,
-    "directEstimatedSeconds": null,
-    "createdAt": "2026-10-28T06:00:00+00:00",
-    "updatedAt": "2026-10-28T06:00:00+00:00",
+    "directEstimatedSeconds": 300,
+    "createdAt": "2026-10-15T06:00:00+00:00",
+    "updatedAt": "2026-10-15T06:00:00+00:00",
     "archivedAt": null,
-    "version": 1,
-    "parentTaskId": null,
-    "sortOrder": 1024.0,
+    "version": 2,
+    "parentTaskId": "01a16bfa-e95e-7386-9cd7-8e4334111910",
+    "sortOrder": 2048.0,
     "hasDirectWork": true,
     "targetBudgetSeconds": null,
     "directWorkCompleted": false,
@@ -1798,10 +1645,22 @@ Authorization: Bearer <APPLICATION_JWT>
     "plannedTo": null
   },
   "openDirectTaskCount": 1,
-  "serverNow": "2026-10-28T06:00:00+00:00"
+  "serverNow": "2026-10-15T06:05:00+00:00"
 }
 ```
 
 Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
+
+Gerçek test hata örneği — HTTP 404:
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Görev bulunamadı.",
+  "status": 404,
+  "code": "task_not_found",
+  "traceId": "00-6e55807d40ca60cafc00d7002f8e3854-84676638ef4810b1-00"
+}
+```

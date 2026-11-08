@@ -18,7 +18,7 @@ public sealed class BackendReleaseTests
     [Fact]
     public void DocumentationRedactionPreservesValidationArraysWhileRemovingCredentialValues()
     {
-        var request = ApiTranscriptStartupFilter.Clean("""{"password":"private-value","accessToken":"private-token","keys":{"auth":"private-auth"}}""")!;
+        var request = ApiTranscriptStartupFilter.Clean("""{"password":"private-value","currentPassword":"private-current","newPassword":"private-new","accessToken":"private-token","keys":{"auth":"private-auth"}}""")!;
         Assert.DoesNotContain("private-", request.ToJsonString()); Assert.Equal("123456", request["password"]!.GetValue<string>());
         var problem = ApiTranscriptStartupFilter.Clean("""{"code":"validation_failed","errors":{"NewPassword":["Minimum 6 characters."],"Email":["Invalid email."]}}""")!;
         Assert.Equal("Minimum 6 characters.", problem["errors"]!["NewPassword"]![0]!.GetValue<string>());

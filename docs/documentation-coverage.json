@@ -1,10 +1,10 @@
 {
-  "openApiOperations": 217,
-  "documentedConcreteOperations": 222,
-  "schemas": 306,
-  "httpExampleOperations": 193,
-  "schemaExampleOperations": 29,
-  "openApiSha256": "be33fb0640e9dc262629a3256a41b97917df539ad4e51a4132562a41cefb5b10",
+  "openApiOperations": 220,
+  "documentedConcreteOperations": 225,
+  "schemas": 307,
+  "httpExampleOperations": 183,
+  "schemaExampleOperations": 42,
+  "openApiSha256": "409f39a9a6a4c283b73fb522d64beb8132f419f1c5ce84133426abd4f37ded33",
   "coverage": [
     {
       "method": "GET",
@@ -222,6 +222,28 @@
       "file": "frontend-api/auth.md",
       "successStatus": 200,
       "exampleSource": "synthetic-http",
+      "requestBodyDocumented": true,
+      "responseBodyDocumented": true,
+      "authDocumented": true
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/session/login",
+      "documentedPath": "/api/auth/session/login",
+      "file": "frontend-api/auth.md",
+      "successStatus": 200,
+      "exampleSource": "schema",
+      "requestBodyDocumented": true,
+      "responseBodyDocumented": true,
+      "authDocumented": true
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/session/register",
+      "documentedPath": "/api/auth/session/register",
+      "file": "frontend-api/auth.md",
+      "successStatus": 201,
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1354,7 +1376,7 @@
       "documentedPath": "/api/calendar/days/{date}/defer",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1365,7 +1387,7 @@
       "documentedPath": "/api/calendar/days/{date}/defer-preview",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1387,7 +1409,7 @@
       "documentedPath": "/api/calendar/days/{date}/pool-batch",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1717,7 +1739,7 @@
       "documentedPath": "/api/note-categories",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1728,7 +1750,7 @@
       "documentedPath": "/api/note-categories",
       "file": "frontend-api/support.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1739,7 +1761,7 @@
       "documentedPath": "/api/note-categories/{id}",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1750,7 +1772,7 @@
       "documentedPath": "/api/note-categories/{id}/move",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1761,7 +1783,7 @@
       "documentedPath": "/api/note-categories/{id}/remove",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1772,7 +1794,7 @@
       "documentedPath": "/api/note-categories/{id}/restore",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1805,7 +1827,7 @@
       "documentedPath": "/api/notes/view-modes",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1827,7 +1849,7 @@
       "documentedPath": "/api/notes/{id}/convert",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "schema",
+      "exampleSource": "synthetic-http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1849,7 +1871,7 @@
       "documentedPath": "/api/notes/{id}/restore",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2442,6 +2464,17 @@
       "openApiPath": "/api/analytics/recurrences/{id}",
       "documentedPath": "/api/analytics/recurrences/{id}",
       "file": "frontend-api/analytics.md",
+      "successStatus": 200,
+      "exampleSource": "schema",
+      "requestBodyDocumented": true,
+      "responseBodyDocumented": true,
+      "authDocumented": true
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/change-password",
+      "documentedPath": "/api/auth/change-password",
+      "file": "frontend-api/auth.md",
       "successStatus": 200,
       "exampleSource": "schema",
       "requestBodyDocumented": true,

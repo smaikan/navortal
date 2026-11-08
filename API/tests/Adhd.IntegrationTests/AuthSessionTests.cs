@@ -39,6 +39,34 @@ public sealed class AuthSessionTests(DatabaseFixture fixture) : IClassFixture<Da
         return request;
     }
 
+    [Fact]
+    public async Task BrowserSessionEndpointsReturnOnlyUserAndKeepCookieCsrfAndBearerCompatibility()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString);
+        var browser = Browser(app);
+        var email = Email();
+        var created = await browser.PostAsJsonAsync("/api/auth/session/register", new { email, password = "123456" });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        using var body = System.Text.Json.JsonDocument.Parse(await created.Content.ReadAsStringAsync());
+        Assert.Equal(new[] { "displayName", "email", "id", "photoVersion", "profileVersion" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order().ToArray());
+        var owner = (await browser.GetFromJsonAsync<UserSummary>("/api/auth/me"))!;
+        Assert.Equal(email, owner.Email);
+        Assert.Contains("httponly", created.Headers.GetValues("Set-Cookie").Single(), StringComparison.OrdinalIgnoreCase);
+        Assert.True(created.Headers.CacheControl!.NoStore);
+        var loginBrowser = Browser(app);
+        var login = await loginBrowser.PostAsJsonAsync("/api/auth/session/login", new { email, password = "123456" });
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+        using var loginBody = System.Text.Json.JsonDocument.Parse(await login.Content.ReadAsStringAsync());
+        Assert.Equal(body.RootElement.EnumerateObject().Select(x => x.Name).Order(), loginBody.RootElement.EnumerateObject().Select(x => x.Name).Order());
+        Assert.Equal(owner.Id, (await loginBrowser.GetFromJsonAsync<UserSummary>("/api/auth/me"))!.Id);
+        Assert.Equal(HttpStatusCode.Forbidden, (await loginBrowser.SendAsync(Unsafe("/api/tasks", new { title = "browser csrf" }, csrf: false))).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await app.CreateClient().SendAsync(Unsafe("/api/auth/session/login", new { email, password = "123456" }, origin: "https://evil.example.test"))).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await app.CreateClient().SendAsync(Unsafe("/api/auth/session/register", new { email = Email(), password = "123456" }, origin: "null"))).StatusCode);
+        var bearer = await Register(app.CreateClient());
+        var bearerClient = app.CreateClient(); bearerClient.DefaultRequestHeaders.Authorization = new("Bearer", bearer.AccessToken);
+        Assert.Equal(bearer.User.Id, (await bearerClient.GetFromJsonAsync<UserSummary>("/api/auth/me"))!.Id);
+    }
+
     [Theory]
     [InlineData("Testing", "adhd_session", false)]
     [InlineData("Development", "adhd_session", false)]

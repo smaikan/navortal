@@ -4,12 +4,13 @@ import { createContext, useContext, useEffect, useState, useSyncExternalStore } 
 import { createSession, INITIAL_SESSION, type Session } from "./session";
 import { prepareTraversalGuard } from "../../lib/navigation/traversal";
 import { getRecipient, clearRecipient } from "../../../public/recipient-store.js";
+import { rememberLogout } from "./logout-notice";
 
 prepareTraversalGuard();
 
 const Context = createContext<Session | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session] = useState(() => createSession({ storage: () => window.localStorage }));
+  const [session] = useState(() => createSession({ storage: () => window.localStorage, onLogout: rememberLogout }));
   useEffect(() => {
     // Başlangıç doğrulanmadıysa eski push alıcısını da kapatıyoruz.
     const clearUnverified = () => {

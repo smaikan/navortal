@@ -4,12 +4,6 @@ In-app kaynak NotificationIntent Ready kayıtlarıdır; SignalR değişiklik iş
 
 [Ana rehber](../Frontend%20API%20Rehberi.md) · [DTO sözlüğü](DTO-Sozlugu.md) · [Hata kodları](Hata-Kodlari.md) · [Koşullar ve state akışları](Entegrasyon-Kurallari.md) · [Plan mesajları](Plan-Mesajlari.md) · [İşlem bazlı tekrar politikası](Islem-Politikalari.md)
 
-## Bildirim ses seçimi — 28 Ekim 2026
-
-`NotificationSettings` içinde `pomodoroSound`, `reminderSound`, `taskEndSound` hesaba kalıcı kaydedilir; varsayılanları sırasıyla `bell`, `marimba`, `digital` olur. Geçerli kimlikler `bell`, `marimba`, `digital`, `glass`, `pulse`, `soft`; geçersiz seçim mevcut tercih doğrulamasında reddedilir. Güncelleme mevcut `PUT /api/notifications/preferences` ve version kontrolünü kullanır; yeni endpoint/migration yoktur.
-
-Sunucu `FocusTarget`/`BreakEnd` için Pomodoro sesini, `ScheduleEnd` için görev bitiş sesini, diğer türler için hatırlatma sesini seçer. `NotificationView.sound` ve şifreli push payload `sound` alanı bu seçimdir; global ses kapalı, odak oturum sesi kapalı veya sessiz saatler nedeniyle kapatılan alarmı ses seçimi açmaz. Önizleme açık kullanıcı eylemidir ve tercih yazmaz. Açık sekme/push ortak owner + notificationId + snoozeCount atomik claim'i ile tek ses üretir. Ses çalabilecek hazır sekme yoksa cihazın native sesi kullanılır; işletim sisteminde özel tını garantisi verilmez. HTTP dışı push sözleşmesi [buradadır](../web-push-envelope.schema.json).
-
 ## GET /api/jobs/outbox
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.

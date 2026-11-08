@@ -141,10 +141,9 @@ describe("auth bootstrap and ownership (UI-R3 cookie session)", () => {
   it("register preserves the exact password, never stores the token and verifies me", async () => {
     const f = fixture();
     await f.session.initialize();
-    f.fetch
-      .mockResolvedValueOnce(json({ accessToken: "new-access", tokenType: "Bearer", user }, 201))
-      .mockResolvedValueOnce(json(user));
+    f.fetch.mockResolvedValueOnce(json(user, 201)).mockResolvedValueOnce(json(user));
     await f.session.authenticate("register", { email: user.email, password: " 1234 " });
+    expect(f.fetch.mock.calls[0][0]).toBe("/api/auth/session/register");
     expect(JSON.parse(f.fetch.mock.calls[0][1]!.body as string).password).toBe(" 1234 ");
     expect(new Headers(f.fetch.mock.calls[0][1]!.headers).get("X-ADHD-CSRF")).toBe("1");
     expect(f.fetch.mock.calls[1][0]).toBe("/api/auth/me");
@@ -200,15 +199,12 @@ describe("auth bootstrap and ownership (UI-R3 cookie session)", () => {
     );
     const login = f.session.authenticate("login", { email: user.email, password: "123456" });
     f.session.forget();
-    finish(json({ accessToken: "stale-access", tokenType: "Bearer", user }));
+    finish(json(user));
     await expect(login).rejects.toMatchObject({ kind: "identity-changed" });
     expect(f.data.size).toBe(0);
   });
   it("storage failure is explicit and does not masquerade as a remembered login", async () => {
-    const fetch = vi
-      .fn<typeof globalThis.fetch>()
-      .mockResolvedValueOnce(json({ accessToken: "memory-access", tokenType: "Bearer", user }))
-      .mockResolvedValueOnce(json(user));
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValueOnce(json(user)).mockResolvedValueOnce(json(user));
     const session = createSession({
       storage: () => {
         throw new Error("denied");
@@ -298,7 +294,7 @@ describe("auth bootstrap and ownership (UI-R3 cookie session)", () => {
     const f = fixture(true);
     f.fetch.mockResolvedValueOnce(json(user)).mockResolvedValueOnce(new Response(null, { status: 204 }));
     await f.session.initialize();
-    expect(await f.session.logout()).toBe(true);
+    expect(await f.session.logout()).toEqual({ status: "confirmed", allDevices: false });
     const [url, init] = f.fetch.mock.calls[1];
     expect(url).toBe("/api/auth/logout");
     expect(init!.method).toBe("POST");
@@ -308,7 +304,7 @@ describe("auth bootstrap and ownership (UI-R3 cookie session)", () => {
     const g = fixture(true);
     g.fetch.mockResolvedValueOnce(json(user)).mockRejectedValueOnce(new TypeError("offline"));
     await g.session.initialize();
-    expect(await g.session.logoutEverywhere()).toBe(false);
+    expect(await g.session.logoutEverywhere()).toEqual({ status: "unconfirmed", allDevices: true });
     expect(g.fetch.mock.calls[1][0]).toBe("/api/auth/logout-all");
     expect(g.session.getSnapshot().phase).toBe("anonymous");
   });

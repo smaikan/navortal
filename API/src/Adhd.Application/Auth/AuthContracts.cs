@@ -22,7 +22,7 @@ public interface IAccessTokenIssuer { string Issue(AppUser user, Guid sessionId)
 public interface IAuthSessionStore
 {
     // Sadece adoptedTokenHash daha önce taşındıysa null döner. Bkz. adoptedTokenHash
-    Task<Guid?> CreateAsync(Guid userId, string userAgentFamily, string? adoptedTokenHash, DateTimeOffset now, CancellationToken ct);
+    Task<Guid?> CreateAsync(Guid userId, string userAgentFamily, string? adoptedTokenHash, DateTimeOffset now, CancellationToken ct, string? expectedPasswordHash = null);
     // Sahiplik kontrol edilir, süreçte kısa önbellek var. Buradaki iptal önbelleği hemen temizler.
     Task<SessionState?> FindAsync(Guid userId, Guid sessionId, CancellationToken ct);
     Task TouchAsync(Guid sessionId, DateTimeOffset now, CancellationToken ct);

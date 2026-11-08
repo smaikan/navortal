@@ -1,3 +1,4 @@
+import { assertSignedInAccount } from "./helpers/session";
 import { createHash, randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -111,7 +112,7 @@ test("real SMTP reset is private, single-use, expires, and ends existing access 
   await expect(page.getByRole("main").getByRole("alert")).toContainText("E-posta veya parola hatalı");
   await page.getByLabel("Parola", { exact: true }).fill(replacement);
   await page.getByRole("button", { name: "Giriş yap", exact: true }).click();
-  await expect(page.getByText(email, { exact: true })).toBeVisible();
+  await assertSignedInAccount(page, email);
 
   await page.goto("/forgot-password");
   await page.getByLabel("E-posta", { exact: true }).fill(email);

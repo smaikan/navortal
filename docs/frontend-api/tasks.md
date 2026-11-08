@@ -36,10 +36,10 @@ Yalnız title ile task oluşturulur; tahmin null kalabilir. PUT task alan belges
 | `assignedOn` | query | hayır | string (date); — |
 | `energyDemand` | query | hayır | [EnergyLevel](DTO-Sozlugu.md#energylevel); — |
 | `excludeRecurring` | query | hayır | boolean; default=false |
-| `minEstimateSeconds` | query | hayır | int64; görevin kendi tahmini en az |
-| `maxEstimateSeconds` | query | hayır | int64; görevin kendi tahmini en çok |
-| `dateFrom` | query | hayır | date; dateTo ile birlikte, atanmış aralık, son tarih veya plan öğesi kesişimi |
-| `dateTo` | query | hayır | date; dateFrom ile birlikte, en çok 366 gün |
+| `minEstimateSeconds` | query | hayır | integer\|string (int64); pattern="^-?(?:0\|[1-9]\\d*)$" |
+| `maxEstimateSeconds` | query | hayır | integer\|string (int64); pattern="^-?(?:0\|[1-9]\\d*)$" |
+| `dateFrom` | query | hayır | string (date); — |
+| `dateTo` | query | hayır | string (date); — |
 
 **Request body:** yok.
 
@@ -500,89 +500,6 @@ Gerçek test hata örneği — HTTP 409:
 }
 ```
 
-## POST /api/tasks/tree
-
-**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
-
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
-
-**Tekrar gönderim:** Sözleşmede key zorunlu; aynı normalize edilmiş payload + aynı key. Replay özgün yanıtı döndürebilir; ardından güncel kaydı okuyun.
-
-**Ek entegrasyon kuralı:** F7 satır içi ekleme: yeni kök görev ve iç içe alt görevleri tek transaction ile açar. Kök dahil en çok50 görev, en çok5 seviye; başlıklar kırpılır ve1..300 olmalı, boş satır gönderilmez. Alt görevi olan görev kapsayıcıdır (doğrudan iş yok), yapraklar doğrudan iştir; sıra gönderilen sıradır. Geçersiz ağaç400 task_tree_invalid ve hiçbir kayıt oluşmaz. Idempotency-Key zorunlu: aynı key + aynı ağaç özgün sonucu Idempotent-Replay ile döndürür, farklı ağaç409 idempotency_conflict. Yanıt root, oluşturulma sırasıyla created ve planningVersion içerir; ağaç okumaları sonra yenilenir. Alt görevsiz tek başlık için POST /api/tasks yeterlidir.
-
-| Parametre | Yer | Zorunlu | Tip / sınır |
-| --- | --- | --- | --- |
-| `Idempotency-Key` | header | evet | string; —; aynı niyet için değişmeyen benzersiz key; genel üst sınır128 (carry/rescue prefix bağlamında100 olabilir) |
-
-| Request alanı | C# tip karşılığı | Ek annotation |
-| --- | --- | --- |
-| `title` | String | required; maxLength:300 |
-| `children` | TaskTreeRequest[]? | maxLength:50 |
-
-**Request şeması:** [TaskTreeRequest](DTO-Sozlugu.md#tasktreerequest).
-
-**Örnek request body:**
-
-```json
-{
-  "title": "Raporu yaz",
-  "children": null
-}
-```
-
-**Örnek HTTP:**
-
-```http
-POST /api/tasks/tree
-Accept: application/json
-Authorization: Bearer <APPLICATION_JWT>
-Idempotency-Key: <SAME_INTENT_KEY>
-Content-Type: application/json
-```
-
-**Başarılı response:** HTTP 201.
-Şema: [TaskTreeCreateResult](DTO-Sozlugu.md#tasktreecreateresult).
-
-```json
-{
-  "root": {
-    "id": "11111111-1111-4111-8111-111111111111",
-    "title": "Raporu yaz",
-    "description": "örnek",
-    "state": "Pending",
-    "priority": "Low",
-    "deadlineAt": "2026-10-16T06:00:00Z",
-    "canSplit": false,
-    "directEstimatedSeconds": 1,
-    "createdAt": "2026-10-16T06:00:00Z",
-    "updatedAt": "2026-10-16T06:00:00Z",
-    "archivedAt": "2026-10-16T06:00:00Z",
-    "version": 1,
-    "parentTaskId": "11111111-1111-4111-8111-111111111111",
-    "sortOrder": 1,
-    "hasDirectWork": false,
-    "targetBudgetSeconds": 1,
-    "directWorkCompleted": false,
-    "requiredForParent": false,
-    "completionOrigin": "Manual",
-    "completedAt": "2026-10-16T06:00:00Z",
-    "projectId": "11111111-1111-4111-8111-111111111111",
-    "poolId": "11111111-1111-4111-8111-111111111111",
-    "categoryId": "11111111-1111-4111-8111-111111111111",
-    "energyDemand": "Low",
-    "autoCompleteFromChildren": true,
-    "plannedFrom": "2026-10-16",
-    "plannedTo": "2026-10-16"
-  },
-  "created": [],
-  "planningVersion": 0
-}
-```
-
-Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
-
-**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
 ## GET /api/tasks/children
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
@@ -816,6 +733,89 @@ Authorization: Bearer <APPLICATION_JWT>
     },
     "serverNow": "2026-10-16T06:00:00Z"
   }
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
+
+## POST /api/tasks/tree
+
+**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
+
+**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+
+**Tekrar gönderim:** Sözleşmede key zorunlu; aynı normalize edilmiş payload + aynı key. Replay özgün yanıtı döndürebilir; ardından güncel kaydı okuyun.
+
+**Ek entegrasyon kuralı:** F7 satır içi ekleme: yeni kök görev ve iç içe alt görevleri tek transaction ile açar. Kök dahil en çok50 görev, en çok5 seviye; başlıklar kırpılır ve1..300 olmalı, boş satır gönderilmez. Alt görevi olan görev kapsayıcıdır (doğrudan iş yok), yapraklar doğrudan iştir; sıra gönderilen sıradır. Geçersiz ağaç400 task_tree_invalid ve hiçbir kayıt oluşmaz. Idempotency-Key zorunlu: aynı key + aynı ağaç özgün sonucu Idempotent-Replay ile döndürür, farklı ağaç409 idempotency_conflict. Yanıt root, oluşturulma sırasıyla created ve planningVersion içerir; ağaç okumaları sonra yenilenir. Alt görevsiz tek başlık için POST /api/tasks yeterlidir.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `Idempotency-Key` | header | evet | string; —; aynı niyet için değişmeyen benzersiz key; genel üst sınır128 (carry/rescue prefix bağlamında100 olabilir) |
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `title` | String | required; length:0..300 |
+| `children` | TaskTreeRequest[] | maxLength:50 |
+
+**Request şeması:** [TaskTreeRequest](DTO-Sozlugu.md#tasktreerequest).
+
+**Örnek request body:**
+
+```json
+{
+  "title": "Raporu yaz",
+  "children": null
+}
+```
+
+**Örnek HTTP:**
+
+```http
+POST /api/tasks/tree
+Accept: application/json
+Authorization: Bearer <APPLICATION_JWT>
+Idempotency-Key: <SAME_INTENT_KEY>
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 201.
+Şema: [TaskTreeCreateResult](DTO-Sozlugu.md#tasktreecreateresult).
+
+```json
+{
+  "root": {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "title": "Raporu yaz",
+    "description": "örnek",
+    "state": "Pending",
+    "priority": "Low",
+    "deadlineAt": "2026-10-16T06:00:00Z",
+    "canSplit": false,
+    "directEstimatedSeconds": 1,
+    "createdAt": "2026-10-16T06:00:00Z",
+    "updatedAt": "2026-10-16T06:00:00Z",
+    "archivedAt": "2026-10-16T06:00:00Z",
+    "version": 1,
+    "parentTaskId": "11111111-1111-4111-8111-111111111111",
+    "sortOrder": 1,
+    "hasDirectWork": false,
+    "targetBudgetSeconds": 1,
+    "directWorkCompleted": false,
+    "requiredForParent": false,
+    "completionOrigin": "Manual",
+    "completedAt": "2026-10-16T06:00:00Z",
+    "projectId": "11111111-1111-4111-8111-111111111111",
+    "poolId": "11111111-1111-4111-8111-111111111111",
+    "categoryId": "11111111-1111-4111-8111-111111111111",
+    "energyDemand": "Low",
+    "autoCompleteFromChildren": true,
+    "plannedFrom": "2026-10-16",
+    "plannedTo": "2026-10-16"
+  },
+  "created": [],
+  "planningVersion": 0
 }
 ```
 

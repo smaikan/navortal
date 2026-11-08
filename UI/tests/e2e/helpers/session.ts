@@ -87,3 +87,16 @@ export async function signOutFromMenu(page: Page) {
   await openAccountMenu(page);
   await page.getByRole("menuitem", { name: "Çıkış yap", exact: true }).click();
 }
+
+export async function assertSignedInAccount(page: Page, email: string) {
+  await openAccountMenu(page);
+  await expect(page.getByRole("menuitem", { name: `Giriş yapılan hesap: ${email}`, exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("menu", { name: "Hesap menüsü", exact: true })).toHaveCount(0);
+  const closeMore = page.getByRole("button", { name: "Daha fazla panelini kapat", exact: true });
+  if (await closeMore.isVisible()) {
+    await closeMore.click();
+    await expect(closeMore).not.toBeVisible();
+    await expect.poll(() => new URL(page.url()).searchParams.get("menu")).toBeNull();
+  }
+}

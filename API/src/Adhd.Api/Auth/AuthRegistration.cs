@@ -39,6 +39,8 @@ public static class AuthRegistration
         services.AddScoped<IPasswordResetStore, PasswordResetStore>();
         services.AddScoped<IResetMailSender, SmtpResetMailSender>();
         services.AddScoped<PasswordResetService>();
+        services.AddScoped<IPasswordChangeStore, PasswordChangeStore>();
+        services.AddScoped<PasswordChangeService>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<IOptions<JwtSettings>, TimeProvider>((options, settings, clock) =>

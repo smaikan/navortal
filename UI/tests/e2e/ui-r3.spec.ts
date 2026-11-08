@@ -446,7 +446,9 @@ test("Nerede kalmıştım? resumes the displayed paused session when another pau
   );
 });
 
-test("day bar, first step from the row menu and Tek görev with Sonra bak and Küçültelim mi", async ({ page }, info) => {
+test("day bar, first step from the row menu and Tek görev with Sonra bak and Önemli not ekle", async ({
+  page,
+}, info) => {
   const d = future(60);
   const a = await task("Rapor taslağı");
   const b = await task("Fatura öde");
@@ -475,12 +477,12 @@ test("day bar, first step from the row menu and Tek görev with Sonra bak and K�
   // Hepsi sonraya atılınca ilk görev geri gelir. İkinci Sonra bak, küçültmeyi nazikçe önerir.
   await card.getByRole("button", { name: "Sonra bak", exact: true }).click();
   await expect(card.getByRole("heading", { level: 2 })).toHaveText(a.title);
-  await expect(card).not.toContainText("Bu iş büyük mü geliyor?");
+  await expect(card).not.toContainText("Aklında kalması gereken bir şey var mı?");
   await card.getByRole("button", { name: "Sonra bak", exact: true }).click();
   await expect(card.getByRole("heading", { level: 2 })).toHaveText(a.title);
-  await expect(card).toContainText("Bu iş büyük mü geliyor?");
-  await card.getByRole("button", { name: "Küçültelim mi?", exact: true }).click();
-  await card.getByLabel("En küçük adım ne?", { exact: true }).fill("Faturayı bul");
+  await expect(card).toContainText("Aklında kalması gereken bir şey var mı?");
+  await card.getByRole("button", { name: "Önemli not ekle", exact: true }).click();
+  await card.getByLabel("Önemli not", { exact: true }).fill("Faturayı bul");
   await card.getByRole("button", { name: "Kaydet", exact: true }).click();
   await expect(card).toContainText("Faturayı bul");
   await axe(page);

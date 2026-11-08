@@ -2,6 +2,7 @@ import http from 'node:http';
 import next from 'next';
 import { apiOrigin, hubPath, hubProxy, nextServerBoundary } from './hub-proxy.mjs';
 import { ownedOperationAudit } from './operation-audit.mjs';
+import { securityHeaders } from './security-headers.mjs';
 const args = process.argv.slice(2), dev = args.includes('--dev');
 const at = args.indexOf('--port'), port = at < 0 ? 3100 : Number(args[at + 1]);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid port.');
@@ -11,6 +12,7 @@ const proxy = hubProxy(origin.origin, entry => process.stdout.write(JSON.stringi
 let handle;
 const audit = ownedOperationAudit();
 const server = http.createServer((req, res) => {
+  for (const [key, value] of Object.entries(securityHeaders)) res.setHeader(key, value);
   audit(req, res);
   // Hub sorgusundaki kimlik bilgisi Next yönlendirme/hata kayıtçısına gitmeden yakalıyoruz.
   if (proxy.web(req, res)) return;

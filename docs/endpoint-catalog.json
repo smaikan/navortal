@@ -277,6 +277,44 @@
   },
   {
     "method": "POST",
+    "path": "/api/auth/change-password",
+    "controller": "Auth",
+    "action": "ChangePassword",
+    "authRequired": true,
+    "bodyType": "ChangePasswordRequest",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "currentPassword",
+        "type": "String",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "newPassword",
+        "type": "String",
+        "rules": [
+          "required",
+          "minLength:6"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "UserSummary"
+      }
+    ]
+  },
+  {
+    "method": "POST",
     "path": "/api/auth/forgot-password",
     "controller": "PasswordReset",
     "action": "Forgot",
@@ -508,6 +546,78 @@
     "success": [
       {
         "status": 200,
+        "type": "UserSummary"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/session/login",
+    "controller": "Auth",
+    "action": "LoginSession",
+    "authRequired": false,
+    "bodyType": "LoginRequest",
+    "fields": [
+      {
+        "name": "email",
+        "type": "String",
+        "rules": [
+          "required",
+          "email",
+          "length:0..320"
+        ]
+      },
+      {
+        "name": "password",
+        "type": "String",
+        "rules": [
+          "required"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "UserSummary"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/session/register",
+    "controller": "Auth",
+    "action": "RegisterSession",
+    "authRequired": false,
+    "bodyType": "RegisterRequest",
+    "fields": [
+      {
+        "name": "email",
+        "type": "String",
+        "rules": [
+          "required",
+          "email",
+          "length:0..320"
+        ]
+      },
+      {
+        "name": "password",
+        "type": "String",
+        "rules": [
+          "required",
+          "minLength:6"
+        ]
+      },
+      {
+        "name": "displayName",
+        "type": "String",
+        "rules": [
+          "length:0..100"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 201,
         "type": "UserSummary"
       }
     ]

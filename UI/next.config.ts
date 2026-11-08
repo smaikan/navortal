@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { securityHeaders } from "./tools/security-headers.mjs";
 
 const apiOrigin = new URL(process.env.API_ORIGIN ?? "http://127.0.0.1:5080");
 if (
@@ -34,6 +35,7 @@ const config: NextConfig = {
   },
   async headers() {
     return [
+      { source: "/:path*", headers: Object.entries(securityHeaders).map(([key, value]) => ({ key, value })) },
       {
         source: "/api/:path*",
         headers: [

@@ -5,6 +5,7 @@ import { WorkspaceShell } from "../../components/layout/workspace-shell";
 import { ShellSkeleton } from "../../components/ui/skeleton";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
+export const dynamic = "force-dynamic";
 
 export default function WorkspaceLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

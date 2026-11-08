@@ -19,7 +19,7 @@ if (policies.sourceSha256 !== hashes[0]) throw new Error("Operation policies do 
 const operations = Object.values(spec.paths).flatMap(value =>
   Object.keys(value).filter(method => ["get", "post", "put", "patch", "delete"].includes(method)),
 );
-if (operations.length !== policies.openApiOperations || Object.keys(spec.components.schemas).length !== 306)
+if (operations.length !== policies.openApiOperations || Object.keys(spec.components.schemas).length !== 307)
   throw new Error("API inventory changed; review the UI contract map before generating");
 const types = astToString(await openapiTS(spec));
 const table = Object.fromEntries(
@@ -68,7 +68,7 @@ console.log(
   JSON.stringify({
     operations: operations.length,
     concrete: Object.keys(table).length,
-    schemas: 306,
+    schemas: 307,
     sourceSha256: hashes[0],
     check: process.argv.includes("--check"),
   }),

@@ -9,8 +9,34 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace Adhd.Api.Controllers;
 
 [ApiController, Route("api/auth")]
-public sealed class AuthController(AuthService auth, IUserStore users, GoogleAuthService google, TimeProvider clock) : ControllerBase
+public sealed class AuthController(AuthService auth, IUserStore users, GoogleAuthService google, PasswordChangeService passwordChange, TimeProvider clock) : ControllerBase
 {
+    [Authorize, HttpPost("change-password"), EnableRateLimiting("auth")]
+    [ProducesResponseType(typeof(UserSummary), 200)]
+    public async Task<UserSummary> ChangePassword(ChangePasswordRequest request, CancellationToken ct)
+    {
+        var sid = SessionId ?? throw new Adhd.Application.Common.UseCaseException(Adhd.Application.Common.ErrorKind.Unauthenticated, "unauthorized", "Yeniden giriş yap.");
+        var signIn = await passwordChange.ChangeAsync(UserId, sid, request.ExpectedUserId, request.CurrentPassword, request.NewPassword, Family(), ct);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return signIn.Response.User;
+    }
+    // Tarayıcı yanıtı yalnız kullanıcı özeti taşır. Token HttpOnly cookie dışına çıkmaz.
+    [HttpPost("session/register"), EnableRateLimiting("auth")]
+    [ProducesResponseType(typeof(UserSummary), 201)]
+    public async Task<ActionResult<UserSummary>> RegisterSession(RegisterRequest request, CancellationToken ct)
+    {
+        var signIn = await auth.RegisterAsync(request.Email, request.Password, request.DisplayName, Family(), ct);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return Created("/api/auth/me", signIn.Response.User);
+    }
+    [HttpPost("session/login"), EnableRateLimiting("auth")]
+    public async Task<UserSummary> LoginSession(LoginRequest request, CancellationToken ct)
+    {
+        var signIn = await auth.LoginAsync(request.Email, request.Password, Family(), ct);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return signIn.Response.User;
+    }
+
     [HttpPost("register"), EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(AuthResponse), 201)]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request, CancellationToken ct)
@@ -103,4 +129,10 @@ public sealed class LoginRequest
 public sealed class GoogleRequest
 {
     [Required, StringLength(20000)] public string IdToken { get; set; } = "";
+}
+public sealed class ChangePasswordRequest
+{
+    [Required] public Guid ExpectedUserId { get; set; }
+    [Required(AllowEmptyStrings = true)] public string CurrentPassword { get; set; } = "";
+    [Required(AllowEmptyStrings = true), MinLength(6)] public string NewPassword { get; set; } = "";
 }

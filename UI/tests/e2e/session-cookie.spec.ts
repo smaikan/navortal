@@ -36,10 +36,16 @@ test(
   async ({ page, context, browserName }) => {
     const faults: string[] = [];
     trackFaults(page, faults);
-    const issued = page.waitForResponse(r => new URL(r.url()).pathname === "/api/auth/register");
+    const issued = page.waitForResponse(r => new URL(r.url()).pathname === "/api/auth/session/register");
     await register(page);
     // Cookie özelliklerinde sunucunun Set-Cookie başlığı esas alınır.
-    const header = ((await (await issued).headerValue("set-cookie")) ?? "").toLowerCase();
+    const issuedResponse = await issued;
+    const responseBody: unknown = await issuedResponse.json();
+    expect(Object.keys(responseBody as object).sort()).toEqual(
+      ["displayName", "email", "id", "photoVersion", "profileVersion"].sort(),
+    );
+    expect(JSON.stringify(responseBody)).not.toMatch(jwtShape);
+    const header = ((await issuedResponse.headerValue("set-cookie")) ?? "").toLowerCase();
     expect(header).toContain("httponly");
     expect(header).toContain("samesite=strict");
     const dump = await storageDump(page);

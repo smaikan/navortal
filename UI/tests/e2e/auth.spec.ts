@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { SESSION_MARKER_KEY } from "../../src/features/auth/session";
-import { openAccountMenu, sessionCookie, signIn, signOutFromMenu } from "./helpers/session";
+import { assertSignedInAccount, sessionCookie, signIn, signOutFromMenu } from "./helpers/session";
 import { EVIDENCE } from "./helpers/evidence";
 import { expectDecorOnly } from "./helpers/decor-contrast";
 
@@ -32,19 +32,6 @@ async function axe(page: Page) {
   const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
   expect(result.violations.map(x => ({ id: x.id, impact: x.impact, nodes: x.nodes.map(n => n.target) }))).toEqual([]);
   await expectDecorOnly(page, result.incomplete);
-}
-
-async function assertSignedInAccount(page: Page, email: string) {
-  await openAccountMenu(page);
-  await expect(page.getByRole("menuitem", { name: `Giriş yapılan hesap: ${email}`, exact: true })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("menu", { name: "Hesap menüsü", exact: true })).toHaveCount(0);
-  const closeMore = page.getByRole("button", { name: "Daha fazla panelini kapat", exact: true });
-  if (await closeMore.isVisible()) {
-    await closeMore.click();
-    await expect(closeMore).not.toBeVisible();
-    await expect.poll(() => new URL(page.url()).searchParams.get("menu")).toBeNull();
-  }
 }
 
 test("auth form validation, keyboard, mobile reflow and noindex", { tag: "@smoke" }, async ({ page }, info) => {
@@ -193,7 +180,7 @@ test("invalid session cookie 401 clears locally and retains safe app return cont
 test("offline mutation and unknown register result never queue or silently retry", async ({ page, context }) => {
   let posts = 0;
   await page.goto("/register");
-  await page.route("**/api/auth/register", async route => {
+  await page.route("**/api/auth/session/register", async route => {
     posts++;
     await route.abort("failed");
   });
@@ -217,7 +204,7 @@ test("offline mutation and unknown register result never queue or silently retry
 
 test("400 field errors and429 waiting remain actionable without exposing raw errors", async ({ page }) => {
   await page.goto("/login");
-  await page.route("**/api/auth/login", route =>
+  await page.route("**/api/auth/session/login", route =>
     route.fulfill({
       status: 400,
       contentType: "application/problem+json",
@@ -231,14 +218,15 @@ test("400 field errors and429 waiting remain actionable without exposing raw err
   await expect(page.getByLabel("E-posta", { exact: true })).toHaveAttribute("aria-invalid", "true");
   await expect(page.locator("main form")).toHaveAttribute("aria-busy", "false");
   await expect(page.getByLabel("Parola", { exact: true })).toHaveValue("");
-  await page.unroute("**/api/auth/login");
-  await page.route("**/api/auth/login", route =>
+  await page.unroute("**/api/auth/session/login");
+  await page.route("**/api/auth/session/login", route =>
     route.fulfill({ status: 429, headers: { "Retry-After": "120" }, body: "" }),
   );
   await page.getByLabel("Parola", { exact: true }).fill("123456");
   await expect(page.getByLabel("Parola", { exact: true })).toHaveValue("123456");
   const throttled = page.waitForResponse(
-    response => new URL(response.url()).pathname === "/api/auth/login" && response.request().method() === "POST",
+    response =>
+      new URL(response.url()).pathname === "/api/auth/session/login" && response.request().method() === "POST",
   );
   await page.getByRole("button", { name: "Giriş yap", exact: true }).click();
   expect((await throttled).status()).toBe(429);

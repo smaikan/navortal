@@ -43,6 +43,9 @@ export function styleMiniPlayer(target: Window) {
   document.body.style.removeProperty("color");
   document.body.style.removeProperty("font-family");
   const style = document.createElement("style");
+  // PiP belgesi açan sayfanın CSP'sini devralır. Yalnız güvenilir style metnine nonce aktarılır.
+  const nonce = window.document.querySelector<HTMLScriptElement>("script[nonce]")?.nonce;
+  if (nonce) style.nonce = nonce;
   style.textContent = miniPlayerStyles;
   document.head.append(style);
   const copy = () => {

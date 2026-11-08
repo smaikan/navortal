@@ -49,7 +49,7 @@ test("registration separates terms from notice, keeps drafts when reading and se
 }, info) => {
   let posts = 0;
   let sent: unknown;
-  await page.route("**/api/auth/register", async route => {
+  await page.route("**/api/auth/session/register", async route => {
     posts++;
     sent = route.request().postDataJSON();
     await route.abort("failed");

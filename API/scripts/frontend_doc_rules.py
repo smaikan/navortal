@@ -415,6 +415,11 @@ EXTRA_FIELD_NOTES = {
 }
 
 SCHEMA_FIELD_NOTES = {
+    'ChangePasswordRequest': {
+        'expectedUserId': 'me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse409 account_changed. Yazı hedefini seçmez.',
+        'currentPassword': 'Mevcut parola; sunucudaki hash ile doğrulanır, hatalıysa400 current_password_invalid. Sırdır, log/URL/storage alanına yazılmaz.',
+        'newPassword': 'En az6 karakter, trim/ek karmaşıklık yoktur; mevcut paroladan farklıdır. Eski oturumlar/reset bağlantıları iptal edilir, yeni HttpOnly cookie verilir.',
+    },
     'NamedResourcePage': {'summaries': 'includeSummary=true ise sayfadaki her kayıt için özet; aksi halde null. Etiketlerde boş dizidir.'},
     'NamedResourceSummary': {'resourceId': 'Özetin ait olduğu kayıt.', 'taskCount': 'Arşivlenmemiş bağlı görev sayısı; iş yükü ucuyla aynıdır.', 'completedCount': 'Bu görevlerden tamamlananların sayısı.', 'openComponentCount': 'Açık iş bileşeni sayısı; iş yükü ucuyla aynıdır.', 'knownEstimatedSeconds': 'Bilinen tahmin toplamı, saniye.', 'unknownEstimateCount': 'Tahmini olmayan iş sayısı; süre sıfır sayılmaz.'},
     'RecurrenceCounts': {'onTime': 'Görev, oluşum gününün sonunda tamamlanmıştı; sonradan yeniden açılması bunu değiştirmez.', 'late': 'Gün sonunda açıktı, serverNow anına kadar tamamlandı.', 'notDone': 'Günü geçti, görev açık veya ertelenmiş.', 'todayPending': 'Bugünkü açık görev; orana girmez.', 'skipped': 'Kullanıcı atladı/iptal etti veya görev silindi; orana girmez.', 'notGenerated': 'Kurala göre rutin günü, kullanıcıya görev oluşmadı; orana girmez.', 'completed': 'onTime + late.', 'total': 'completed + notDone; yalnız sonucu belli görevler.', 'consistency': 'completed / total; payda0 ise null. Örnek sınırı minimumSamples ile UI tarafından uygulanır.'},
@@ -497,6 +502,8 @@ SCHEMA_FIELD_NOTES = {
 
 
 def operation_notes(method, path):
+    if method == 'POST' and path == '/api/auth/change-password':
+        return ['Mevcut parola ve expectedUserId doğrulanır. En az6 karakter yeni parola trim edilmez; mevcut paroladan farklıdır. Hash/version, reset bağlantıları, bütün eski sid iptalleri ve yeni sid tek transaction içindedir. Response yalnız UserSummary; yeni JWT HttpOnly cookie içindedir. Eski cookie/Bearer kopyaları ve diğer cihazlar kapanır. Cookie CSRF/Origin ve auth rate limit geçerlidir. Key/otomatik retry yok; belirsiz sonuçta yeni parolayla giriş yap. GET me parola değişikliğini kanıtlamaz.']
     if path.startswith('/api/analytics/recurrences'):
         return ['Rutin tamamlama analizi; salt okunur, owner JWT sub. Oluşum, görev geçmişi ve o günün değişmez tanımından sınıflanır; gelecek günler sayılmaz. Bütün oranlar sunucudadır. Formüller statistics-definitions.md içindedir.']
     if method == 'POST' and path == '/api/calendar/days/{date}/defer-tasks':

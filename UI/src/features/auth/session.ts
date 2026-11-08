@@ -4,7 +4,10 @@ import { ApiError } from "../../lib/api/errors";
 
 export type User = components["schemas"]["UserSummary"];
 export type Credentials = components["schemas"]["LoginRequest"];
-type AuthResponse = components["schemas"]["AuthResponse"];
+export type LogoutResult = Readonly<{
+  status: "confirmed" | "already-ended" | "unconfirmed" | "superseded";
+  allDevices: boolean;
+}>;
 /** Oturum JavaScript'in göremediği HttpOnly cookie'de. Bu anahtar yalnız burada giriş olabilir işareti, sır içermiyor. Gereksiz me isteğini azaltıyor ve sekmelere giriş/çıkış değişikliğini duyuruyor. */
 export const SESSION_MARKER_KEY = "adhd.session.v1";
 /** Eski token kaydını bir kere cookie oturumuna taşımak için okuyup siliyoruz. */
@@ -31,19 +34,19 @@ function validUser(value: unknown): value is User {
   );
 }
 
-function validAuth(value: unknown): value is AuthResponse {
-  if (!value || typeof value !== "object") return false;
-  const auth = value as Record<string, unknown>;
-  return auth.tokenType === "Bearer" && validUser(auth.user);
-}
-
 /** Her tarayıcı kendi sağlayıcısını kullanıyor. Sunucu istekleri arasında değişebilir token veya kullanıcı nesnesi paylaşılmıyor. */
-export function createSession(options: { storage: () => TokenStorage; fetch?: typeof fetch; online?: () => boolean }) {
+export function createSession(options: {
+  storage: () => TokenStorage;
+  fetch?: typeof fetch;
+  online?: () => boolean;
+  onLogout?: (result: LogoutResult) => void;
+}) {
   let identity: ApiIdentity = { epoch: 0, active: false, verified: false };
   let snapshot = INITIAL_SESSION;
   let initialized = false;
   let verification: Promise<void> | undefined;
   let requests = new AbortController();
+  let logoutPending = false;
   const listeners = new Set<() => void>();
   const ownerCleanups = new Set<() => void>();
   const publish = (next: Snapshot) => {
@@ -236,25 +239,42 @@ export function createSession(options: { storage: () => TokenStorage; fetch?: ty
     return rechecking;
   }
 
-  async function signOut(path: "/api/auth/logout" | "/api/auth/logout-all") {
+  async function signOut(path: "/api/auth/logout" | "/api/auth/logout-all"): Promise<LogoutResult> {
+    const allDevices = path === "/api/auth/logout-all";
+    if (logoutPending) return { status: "unconfirmed", allDevices };
+    logoutPending = true;
     const epoch = identity.epoch;
-    let reached = true;
-    if (identity.active) {
-      try {
-        await fetcher(path, {
+    let status: LogoutResult["status"] = !identity.active && !allDevices ? "already-ended" : "unconfirmed";
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000);
+    try {
+      if (identity.active) {
+        const response = await fetcher(path, {
           method: "POST",
           headers: { Accept: "application/json, application/problem+json", [CSRF_HEADER]: "1" },
           credentials: "same-origin",
           cache: "no-store",
           redirect: "error",
+          signal: AbortSignal.any([controller.signal, requests.signal]),
         });
-      } catch {
-        reached = false;
+        if (response.status === 204) status = "confirmed";
+        else if (response.status === 401 && !allDevices) status = "already-ended";
       }
+    } catch {
+      // Sunucu iptali doğrulanmadı; yazı kendiliğinden tekrarlanmaz.
+    } finally {
+      clearTimeout(timeout);
+      logoutPending = false;
     }
-    // Yerel durum her durumda siliniyor. Sunucuya ulaşılamadıysa çağıran yer kullanıcıya söylüyor.
-    forget(epoch);
-    return reached;
+    if (identity.epoch !== epoch) return { status: "superseded", allDevices };
+    const result = { status, allDevices };
+    // Uyarı yönlendirmeden önce hazır olmalı; başarısız sonuçta da özel görünüm temizlenir.
+    try {
+      options.onLogout?.(result);
+    } finally {
+      forget(epoch);
+    }
+    return result;
   }
 
   return {
@@ -294,14 +314,14 @@ export function createSession(options: { storage: () => TokenStorage; fetch?: ty
       await verify();
     },
     async authenticate(mode: "login" | "register", credentials: Credentials) {
+      if (logoutPending) throw new ApiError("policy", "Çıkış işlemi sürüyor. Birazdan yeniden dene.");
       const epoch = identity.epoch;
       const response =
         mode === "register"
-          ? await api.mutation("/api/auth/register", "post", { body: credentials }).execute()
-          : await api.mutation("/api/auth/login", "post", { body: credentials }).execute();
+          ? await api.mutation("/api/auth/session/register", "post", { body: credentials }).execute()
+          : await api.mutation("/api/auth/session/login", "post", { body: credentials }).execute();
       if (identity.epoch !== epoch) throw new ApiError("identity-changed", "Giriş durumu değişti. Yeniden dene.");
-      if (!validAuth(response)) throw new ApiError("protocol", "Giriş yanıtı doğrulanamadı.");
-      // Yanıtta tarayıcı dışı istemciler için token da var. Tarayıcı onu saklamıyor.
+      if (!validUser(response)) throw new ApiError("protocol", "Giriş yanıtı doğrulanamadı.");
       replaceIdentity(true, mark());
       await verify();
     },

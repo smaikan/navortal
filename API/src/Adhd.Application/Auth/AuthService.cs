@@ -31,8 +31,8 @@ public sealed class AuthService(IUserStore users, IPasswordService passwords, IA
     }
     public async Task<SignIn> StartAsync(AppUser user, string userAgentFamily, CancellationToken ct)
     {
-        var sid = await sessions.CreateAsync(user.Id, userAgentFamily, null, clock.GetUtcNow(), ct)
-            ?? throw new InvalidOperationException("A new session cannot collide with an adopted token.");
+        var sid = await sessions.CreateAsync(user.Id, userAgentFamily, null, clock.GetUtcNow(), ct, user.PasswordHash)
+            ?? throw new UseCaseException(ErrorKind.Validation, "credentials_changed", "Parolan değişti. Yeniden giriş yap.");
         return new(new(tokens.Issue(user, sid), "Bearer", Summary(user)), sid);
     }
     // Mevcut aktif oturumun tokenını kaydırılan cookie için yeniden üretir.
@@ -49,7 +49,7 @@ public sealed class AuthService(IUserStore users, IPasswordService passwords, IA
             ?? throw new UseCaseException(ErrorKind.Unauthenticated, "adopt_refused", "Oturum taşınamadı. Yeniden giriş yap.");
         if (await sessions.ValidAfterAsync(user.Id, ct) is { } after && issuedAt < after)
             throw new UseCaseException(ErrorKind.Unauthenticated, "adopt_refused", "Oturum taşınamadı. Yeniden giriş yap.");
-        var sid = await sessions.CreateAsync(user.Id, userAgentFamily, TokenHash(legacyToken), clock.GetUtcNow(), ct)
+        var sid = await sessions.CreateAsync(user.Id, userAgentFamily, TokenHash(legacyToken), clock.GetUtcNow(), ct, user.PasswordHash)
             ?? throw new UseCaseException(ErrorKind.Unauthenticated, "adopt_refused", "Oturum taşınamadı. Yeniden giriş yap.");
         return new(new(tokens.Issue(user, sid), "Bearer", Summary(user)), sid);
     }

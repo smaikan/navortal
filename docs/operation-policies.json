@@ -1,7 +1,7 @@
 {
-  "openApiOperations": 217,
-  "concreteOperations": 222,
-  "sourceSha256": "be33fb0640e9dc262629a3256a41b97917df539ad4e51a4132562a41cefb5b10",
+  "openApiOperations": 220,
+  "concreteOperations": 225,
+  "sourceSha256": "409f39a9a6a4c283b73fb522d64beb8132f419f1c5ce84133426abd4f37ded33",
   "operations": [
     {
       "method": "GET",
@@ -227,6 +227,28 @@
       "openApiPath": "/api/auth/session/adopt",
       "path": "/api/auth/session/adopt",
       "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/session/login",
+      "path": "/api/auth/session/login",
+      "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/session/register",
+      "path": "/api/auth/session/register",
+      "authRequired": false,
       "idempotencyKeyRequired": false,
       "maxKeyLength": null,
       "bodyVersionFields": [],
@@ -2652,6 +2674,17 @@
       "bodyVersionFields": [],
       "retryPolicy": "bounded-read",
       "contract": "frontend-api/analytics.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/change-password",
+      "path": "/api/auth/change-password",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
     }
   ]
 }

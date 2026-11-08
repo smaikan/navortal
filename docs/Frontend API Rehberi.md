@@ -1,5 +1,7 @@
 # Frontend geliştirici API rehberi
 
+7 Kasım parola değiştirme ekiyle güncel makine sözleşmesi **220 controller işlemi / 225 somut işlem / 307 DTO ve enum şeması** içerir. Hesap ayarları `POST /api/auth/change-password` ile mevcut parolayı doğrular; yeni HttpOnly oturum oluştururken eski oturumları ve reset bağlantılarını tek transaction içinde kapatır. [Auth sözleşmesi](frontend-api/auth.md#post-apiauthchange-password), [tasarım ve test planı](../UI-docs/design/Parola%20Değiştirme%20Planı.md). Aşağıdaki tarihli envanterler kendi teslim dönemlerini gösterir.
+
 Temel sözleşme: **16 Ekim 2026** · Son ek: **29 Ekim 2026**. Backend kökü `API/`, frontend kökü `UI/`. Bu rehber çalışan ASP.NET Core uygulamasının sözleşmesini anlatır. Türkçe, masaüstü öncelikli, çevrimiçi ürün geliştirin. API, görev/plan/gerçek çalışma hesaplarının otoritesidir.
 
 29 Ekim profil ekleriyle **213 controller işlemi /218 somut işlem /292 DTO ve enum şeması** vardır. Ad-soyad ve korumalı Cloudinary fotoğrafı için [profil notları](profile.md) ve [auth modülü](frontend-api/auth.md) güncel kaynaktır. Saat iptaliyle saatsiz erteleme, toplu havuz ve aynı ChangeSet'in geri alınması [takvim](frontend-api/calendar.md) ve [planlama](frontend-api/planning.md) modüllerindedir. Aşağıdaki modül dosyalarında her işlem için yetki, route/query/header parametreleri, request alanları, örnek HTTP, örnek request/response body, durum kodları ve koşullar bulunur. Body taşımayan istekler ve204yanıtları ayrıca belirtilir. Health, OpenAPI ve SignalR taşıma endpoint'leri bu ana rehberde ayrıca açıklanır.

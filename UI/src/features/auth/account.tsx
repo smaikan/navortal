@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { Menu } from "../../components/ui/menu";
 import { useSession } from "./provider";
 import { allowLocalLogout } from "../../lib/navigation/unsaved";
-import { OFFLINE_LOGOUT_NOTICE } from "./logout-notice";
 import Link from "next/link";
 import { Check, ChevronDown, CircleHelp, LogOut, Settings, ShieldCheck } from "lucide-react";
 import { ProfileAvatar } from "./avatar";
@@ -71,14 +70,7 @@ export function Account() {
             ),
             onSelect: () => {
               if (!allowLocalLogout()) return;
-              void session.logout().then(reached => {
-                if (reached) return;
-                try {
-                  sessionStorage.setItem(OFFLINE_LOGOUT_NOTICE, "1");
-                } catch {
-                  /* Giriş ekranında fazladan not göstermiyoruz. */
-                }
-              });
+              void session.logout();
             },
           },
         ]}

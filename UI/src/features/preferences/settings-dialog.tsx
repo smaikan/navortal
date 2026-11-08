@@ -114,7 +114,7 @@ function SectionContent({ section, onDirty }: { section: SettingsSection; onDirt
         </section>
       );
     case "account":
-      return <AccountSection />;
+      return <AccountSection onDirty={onDirty} />;
     case "privacy":
       return (
         <section className="preferences-section" aria-labelledby="settings-privacy">

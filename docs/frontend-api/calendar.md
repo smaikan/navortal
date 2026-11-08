@@ -765,31 +765,18 @@ Gerçek test hata örneği — HTTP 409:
 ```json
 {
   "targetDate": "2026-10-16",
-  "schedules": [
-    {
-      "id": "01a170c2-ebd5-7ac8-9791-9ae16e122483",
-      "version": 1
-    },
-    {
-      "id": "01a170c2-ece6-72fb-b197-8443b2ec184d",
-      "version": 1
-    }
-  ],
-  "items": [
-    {
-      "id": "01a170c2-e91d-7950-b4eb-6ba65bcc29ae",
-      "version": 1
-    }
-  ],
-  "expectedPlanningVersion": 12,
-  "allowProtectedChange": false
+  "schedules": [],
+  "items": [],
+  "expectedPlanningVersion": 0,
+  "allowProtectedChange": false,
+  "reason": "Takvim düzenlendi"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/calendar/days/2026-10-15/defer
+POST /api/calendar/days/11111111-1111-4111-8111-111111111111/defer
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -801,124 +788,15 @@ Content-Type: application/json
 
 ```json
 {
-  "changeSetId": "01a170c2-efad-7055-8660-b0bb426a09f8",
-  "planningVersion": 13,
-  "schedules": [
-    {
-      "id": "01a170c2-ebd5-7ac8-9791-9ae16e122483",
-      "dailyPlanId": "01a170c2-e8ee-726e-aed5-67551d358848",
-      "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-      "kind": "Work",
-      "state": "Removed",
-      "startsAt": "2026-10-15T07:00:00+00:00",
-      "endsAt": "2026-10-15T07:20:00+00:00",
-      "isFixed": false,
-      "isLocked": false,
-      "splitGroupId": null,
-      "originScheduleId": null,
-      "version": 2,
-      "taskSnapshot": {
-        "task": {
-          "schemaVersion": 2,
-          "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-          "taskVersion": 2,
-          "title": "Saatli tahminsiz",
-          "ancestors": [],
-          "project": null,
-          "pool": null,
-          "category": null,
-          "tags": [],
-          "inputPlanningVersion": 8,
-          "capturedAt": "2026-10-15T06:00:00+00:00"
-        },
-        "state": "Pending",
-        "hasDirectWork": true,
-        "directWorkCompleted": false,
-        "requiredForParent": true,
-        "directEstimatedSeconds": null,
-        "targetBudgetSeconds": null
-      },
-      "isAutomatic": false,
-      "completedAt": null
-    },
-    {
-      "id": "01a170c2-ece6-72fb-b197-8443b2ec184d",
-      "dailyPlanId": "01a170c2-e8ee-726e-aed5-67551d358848",
-      "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-      "kind": "Work",
-      "state": "Removed",
-      "startsAt": "2026-10-15T08:00:00+00:00",
-      "endsAt": "2026-10-15T08:20:00+00:00",
-      "isFixed": false,
-      "isLocked": false,
-      "splitGroupId": null,
-      "originScheduleId": null,
-      "version": 2,
-      "taskSnapshot": {
-        "task": {
-          "schemaVersion": 2,
-          "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-          "taskVersion": 2,
-          "title": "Saatli tahminsiz",
-          "ancestors": [],
-          "project": null,
-          "pool": null,
-          "category": null,
-          "tags": [],
-          "inputPlanningVersion": 9,
-          "capturedAt": "2026-10-15T06:00:00+00:00"
-        },
-        "state": "Pending",
-        "hasDirectWork": true,
-        "directWorkCompleted": false,
-        "requiredForParent": true,
-        "directEstimatedSeconds": null,
-        "targetBudgetSeconds": null
-      },
-      "isAutomatic": false,
-      "completedAt": null
-    }
-  ],
-  "items": [
-    {
-      "id": "01a170c2-eaf7-7a1b-a460-2861df681c1b",
-      "localDate": "2026-10-16",
-      "taskId": "01a170c2-e7ae-7313-b577-5ce9743dfb26",
-      "sortOrder": 0,
-      "completedAt": null,
-      "version": 1,
-      "taskTitle": "Saatsiz",
-      "parentTaskId": null,
-      "parentTitle": null,
-      "directEstimatedSeconds": 600,
-      "taskState": "Pending",
-      "changeSetId": null,
-      "planningVersion": null
-    },
-    {
-      "id": "01a170c2-efad-7945-8af0-bec5495b54ef",
-      "localDate": "2026-10-16",
-      "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-      "sortOrder": 1,
-      "completedAt": null,
-      "version": 1,
-      "taskTitle": "Saatli tahminsiz",
-      "parentTaskId": null,
-      "parentTitle": null,
-      "directEstimatedSeconds": null,
-      "taskState": "Pending",
-      "changeSetId": null,
-      "planningVersion": null
-    }
-  ],
-  "revisionIds": [
-    "01a170c2-efb4-725b-8d03-d5137d9fc82b",
-    "01a170c2-efb5-749a-b185-a64fe424ad7a"
-  ]
+  "changeSetId": "11111111-1111-4111-8111-111111111111",
+  "planningVersion": 0,
+  "schedules": [],
+  "items": [],
+  "revisionIds": []
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -952,31 +830,18 @@ Content-Type: application/json
 ```json
 {
   "targetDate": "2026-10-16",
-  "schedules": [
-    {
-      "id": "01a170c2-ebd5-7ac8-9791-9ae16e122483",
-      "version": 1
-    },
-    {
-      "id": "01a170c2-ece6-72fb-b197-8443b2ec184d",
-      "version": 1
-    }
-  ],
-  "items": [
-    {
-      "id": "01a170c2-e91d-7950-b4eb-6ba65bcc29ae",
-      "version": 1
-    }
-  ],
-  "expectedPlanningVersion": 12,
-  "allowProtectedChange": false
+  "schedules": [],
+  "items": [],
+  "expectedPlanningVersion": 0,
+  "allowProtectedChange": false,
+  "reason": "Takvim düzenlendi"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/calendar/days/2026-10-15/defer-preview
+POST /api/calendar/days/11111111-1111-4111-8111-111111111111/defer-preview
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -987,120 +852,18 @@ Content-Type: application/json
 
 ```json
 {
-  "sourceDate": "2026-10-15",
+  "sourceDate": "2026-10-16",
   "targetDate": "2026-10-16",
-  "planningVersion": 12,
-  "schedules": [
-    {
-      "id": "01a170c2-ebd5-7ac8-9791-9ae16e122483",
-      "dailyPlanId": "01a170c2-e8ee-726e-aed5-67551d358848",
-      "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-      "kind": "Work",
-      "state": "Planned",
-      "startsAt": "2026-10-15T07:00:00+00:00",
-      "endsAt": "2026-10-15T07:20:00+00:00",
-      "isFixed": false,
-      "isLocked": false,
-      "splitGroupId": null,
-      "originScheduleId": null,
-      "version": 1,
-      "taskSnapshot": {
-        "task": {
-          "schemaVersion": 2,
-          "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-          "taskVersion": 2,
-          "title": "Saatli tahminsiz",
-          "ancestors": [],
-          "project": null,
-          "pool": null,
-          "category": null,
-          "tags": [],
-          "inputPlanningVersion": 8,
-          "capturedAt": "2026-10-15T06:00:00+00:00"
-        },
-        "state": "Pending",
-        "hasDirectWork": true,
-        "directWorkCompleted": false,
-        "requiredForParent": true,
-        "directEstimatedSeconds": null,
-        "targetBudgetSeconds": null
-      },
-      "isAutomatic": false,
-      "completedAt": null
-    },
-    {
-      "id": "01a170c2-ece6-72fb-b197-8443b2ec184d",
-      "dailyPlanId": "01a170c2-e8ee-726e-aed5-67551d358848",
-      "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-      "kind": "Work",
-      "state": "Planned",
-      "startsAt": "2026-10-15T08:00:00+00:00",
-      "endsAt": "2026-10-15T08:20:00+00:00",
-      "isFixed": false,
-      "isLocked": false,
-      "splitGroupId": null,
-      "originScheduleId": null,
-      "version": 1,
-      "taskSnapshot": {
-        "task": {
-          "schemaVersion": 2,
-          "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-          "taskVersion": 2,
-          "title": "Saatli tahminsiz",
-          "ancestors": [],
-          "project": null,
-          "pool": null,
-          "category": null,
-          "tags": [],
-          "inputPlanningVersion": 9,
-          "capturedAt": "2026-10-15T06:00:00+00:00"
-        },
-        "state": "Pending",
-        "hasDirectWork": true,
-        "directWorkCompleted": false,
-        "requiredForParent": true,
-        "directEstimatedSeconds": null,
-        "targetBudgetSeconds": null
-      },
-      "isAutomatic": false,
-      "completedAt": null
-    }
-  ],
-  "items": [
-    {
-      "id": "01a170c2-e91d-7950-b4eb-6ba65bcc29ae",
-      "localDate": "2026-10-15",
-      "taskId": "01a170c2-e7ae-7313-b577-5ce9743dfb26",
-      "sortOrder": 0,
-      "completedAt": null,
-      "version": 1,
-      "taskTitle": "Saatsiz",
-      "parentTaskId": null,
-      "parentTitle": null,
-      "directEstimatedSeconds": 600,
-      "taskState": "Pending",
-      "changeSetId": null,
-      "planningVersion": null
-    }
-  ],
-  "tasks": [
-    {
-      "taskId": "01a170c2-e5d9-763c-a0a1-f662c4b95bd9",
-      "title": "Saatli tahminsiz",
-      "alreadyPlanned": false
-    },
-    {
-      "taskId": "01a170c2-e7ae-7313-b577-5ce9743dfb26",
-      "title": "Saatsiz",
-      "alreadyPlanned": true
-    }
-  ],
+  "planningVersion": 0,
+  "schedules": [],
+  "items": [],
+  "tasks": [],
   "issues": [],
-  "canApply": true
+  "canApply": false
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -1196,25 +959,23 @@ Content-Type: application/json
 
 ```json
 {
-  "poolId": "01a170c2-ee2a-7067-a43e-a1f6c1524de9",
-  "expectedPlanningVersion": 11,
   "tasks": [
     {
-      "id": "01a170c2-e5da-7c53-a23b-c554b25c55ab",
-      "version": 3
-    },
-    {
-      "id": "01a170c2-e7ae-7c2a-9ea0-db7f0e668ded",
-      "version": 2
+      "id": "11111111-1111-4111-8111-111111111111",
+      "version": 1
     }
-  ]
+  ],
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "expectedPlanningVersion": 0,
+  "allowProtectedChange": false,
+  "reason": "Takvim düzenlendi"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/calendar/days/2026-10-15/pool-batch
+POST /api/calendar/days/11111111-1111-4111-8111-111111111111/pool-batch
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -1226,56 +987,15 @@ Content-Type: application/json
 
 ```json
 {
-  "changeSetId": "01a170c2-eedf-77ce-a1e5-6af548e4fcc2",
-  "planningVersion": 12,
-  "schedules": [
-    {
-      "id": "01a170c2-ebd5-7668-80b7-2c41cb3b6d90",
-      "dailyPlanId": "01a170c2-eb8a-7955-90ed-0349eb1afd49",
-      "taskId": "01a170c2-e7ae-7c2a-9ea0-db7f0e668ded",
-      "kind": "Work",
-      "state": "Removed",
-      "startsAt": "2026-10-16T06:00:00+00:00",
-      "endsAt": "2026-10-16T07:00:00+00:00",
-      "isFixed": false,
-      "isLocked": false,
-      "splitGroupId": null,
-      "originScheduleId": null,
-      "version": 2,
-      "taskSnapshot": {
-        "task": {
-          "schemaVersion": 2,
-          "taskId": "01a170c2-e7ae-7c2a-9ea0-db7f0e668ded",
-          "taskVersion": 2,
-          "title": "Saatli",
-          "ancestors": [],
-          "project": null,
-          "pool": null,
-          "category": null,
-          "tags": [],
-          "inputPlanningVersion": 7,
-          "capturedAt": "2026-10-15T06:00:00+00:00"
-        },
-        "state": "Pending",
-        "hasDirectWork": true,
-        "directWorkCompleted": false,
-        "requiredForParent": true,
-        "directEstimatedSeconds": 3600,
-        "targetBudgetSeconds": null
-      },
-      "isAutomatic": false,
-      "completedAt": null
-    }
-  ],
-  "revisionIds": [
-    "01a170c2-eef3-7bb4-865d-45ed074220dc",
-    "01a170c2-eef3-77fc-b379-a63a55f3d339"
-  ],
+  "changeSetId": "11111111-1111-4111-8111-111111111111",
+  "planningVersion": 0,
+  "schedules": [],
+  "revisionIds": [],
   "warnings": []
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 

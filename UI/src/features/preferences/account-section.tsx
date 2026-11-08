@@ -3,10 +3,10 @@ import { useState } from "react";
 import { Surface } from "../../components/ui/surface";
 import { useSession } from "../auth/provider";
 import { allowLocalLogout } from "../../lib/navigation/unsaved";
-import { OFFLINE_LOGOUT_NOTICE } from "../auth/logout-notice";
+import { PasswordChange } from "./password-change";
 
 /** Hesap bölümünde mevcut hesap ve bütün cihazlardan onaylı çıkış var. */
-export function AccountSection() {
+export function AccountSection({ onDirty }: { onDirty?: (dirty: boolean) => void }) {
   const { state, session } = useSession();
   const [confirm, setConfirm] = useState<HTMLButtonElement | null>(null);
   const [busy, setBusy] = useState(false);
@@ -17,9 +17,14 @@ export function AccountSection() {
       <p className="muted">
         Giriş yapılan hesap: <span>{state.user.email}</span>
       </p>
-      <button type="button" className="danger" onClick={event => setConfirm(event.currentTarget)}>
-        Tüm cihazlardan çık
-      </button>
+      <PasswordChange key={`${state.user.id}:${session.getIdentity().epoch}`} owner={state.user.id} onDirty={onDirty} />
+      <div className="account-sessions">
+        <h3>Oturumlar</h3>
+        <p className="muted">Bu hesapla açık olan bütün cihazlardan çıkış yapabilirsin.</p>
+        <button type="button" className="danger" onClick={event => setConfirm(event.currentTarget)}>
+          Tüm cihazlardan çık
+        </button>
+      </div>
       {confirm && (
         <Surface
           title="Tüm cihazlardan çıkılsın mı?"
@@ -38,14 +43,7 @@ export function AccountSection() {
               onClick={() => {
                 if (!allowLocalLogout()) return;
                 setBusy(true);
-                void session.logoutEverywhere().then(reached => {
-                  if (reached) return;
-                  try {
-                    sessionStorage.setItem(OFFLINE_LOGOUT_NOTICE, "1");
-                  } catch {
-                    /* Ek not yok. */
-                  }
-                });
+                void session.logoutEverywhere();
               }}
             >
               Tüm cihazlardan çık
