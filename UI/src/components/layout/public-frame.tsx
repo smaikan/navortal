@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { BrandMark } from "../ui/brand-mark";
 import styles from "./public-frame.module.css";
 import { legalLinks } from "../../features/legal/links";
@@ -35,6 +36,7 @@ export function PublicFrame({
   landing?: boolean;
 }) {
   const Intro = landing ? "section" : "header";
+  const legal = legalProfile();
   return (
     <div className={styles.frame + (landing ? " landing-page " + styles.landing : "")}>
       <header className={styles.navigation}>
@@ -65,32 +67,39 @@ export function PublicFrame({
         {children}
       </main>
       <footer className={styles.footer}>
-        <div className={styles.footerMain}>
-          <div className={styles.footerBrand}>
-            <strong>
-              <BrandMark size={22} />
-              Navortal
-            </strong>
-            <p>Kendine ait bir alan. Kendi hızında bir gün.</p>
+        <div className={styles.footerPanel}>
+          <div className={styles.footerMain}>
+            <div className={styles.footerBrand}>
+              <strong>
+                <BrandMark size={24} />
+                Navortal
+              </strong>
+              <p>Kendine ait bir alan. Kendi hızında bir gün.</p>
+              {legal.email && (
+                <a className={styles.footerMail} href={`mailto:${legal.email}`}>
+                  <Mail aria-hidden="true" size={15} />
+                  {legal.email}
+                </a>
+              )}
+            </div>
+            <nav className={styles.footerNav} aria-label="Alt bilgi">
+              {footerGroups.map(group => (
+                <div key={group.id} className={styles.footerGroup} role="group" aria-labelledby={group.id}>
+                  <p id={group.id}>{group.title}</p>
+                  {group.links.map(link => (
+                    <Link key={link.href} href={link.href}>
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              ))}
+            </nav>
           </div>
-          <nav className={styles.footerNav} aria-label="Alt bilgi">
-            {footerGroups.map(group => (
-              <div key={group.id} className={styles.footerGroup} role="group" aria-labelledby={group.id}>
-                <p id={group.id}>{group.title}</p>
-                {group.links.map(link => (
-                  <Link key={link.href} href={link.href}>
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            ))}
-          </nav>
-        </div>
-        <div className={styles.footerBottom}>
-          <span>Navortal · Ücretsiz kişisel planlayıcı</span>
-          {!legalProfile().ready && (
-            <span>Yasal metinler taslaktır; işletmeci bilgileri tamamlanınca güncellenecek.</span>
-          )}
+          <div className={styles.footerBottom}>
+            <span>© {new Date().getFullYear()} Navortal</span>
+            <span>Ücretsiz kişisel planlayıcı</span>
+            {!legal.ready && <span>Yasal metinler taslaktır; işletmeci bilgileri tamamlanınca güncellenecek.</span>}
+          </div>
         </div>
       </footer>
     </div>

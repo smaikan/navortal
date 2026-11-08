@@ -77,22 +77,36 @@
 }
 .footer {
   margin-top: 96px;
-  border-top: 1px solid var(--divider);
-  background: var(--surface);
+  padding: 0 24px 24px;
   color: var(--muted);
   font-size: 14px;
 }
+.footerPanel {
+  position: relative;
+  width: min(100%, 1232px);
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  border-radius: 20px;
+  background: radial-gradient(420px 220px at 0 0, var(--amber-soft), transparent 72%), var(--surface);
+  box-shadow: var(--shadow);
+}
+.footerPanel::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--sun), var(--primary));
+  content: "";
+}
 .footerMain,
 .footerBottom {
-  width: min(100%, 1280px);
-  margin-inline: auto;
   padding-inline: 40px;
 }
 .footerMain {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 3fr);
-  gap: 40px;
-  padding-block: 48px 24px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 3fr);
+  gap: 48px;
+  padding-block: 48px 32px;
 }
 .footerNav {
   display: grid;
@@ -104,16 +118,24 @@
   align-items: center;
   gap: 10px;
   color: var(--text);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
 }
 .footerBrand svg {
   color: var(--amber);
 }
 .footerBrand p {
-  max-width: 30ch;
-  margin: 12px 0 0;
+  max-width: 28ch;
+  margin: 12px 0 8px;
   line-height: 1.6;
+}
+.footerBrand .footerMail {
+  gap: 8px;
+  font-weight: 500;
+}
+.footerBrand .footerMail svg {
+  color: currentColor;
 }
 .footerGroup {
   display: flex;
@@ -121,25 +143,28 @@
   align-items: flex-start;
 }
 .footerGroup > p {
-  margin: 0 0 4px;
+  margin: 0 0 8px;
   color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 .footer a {
   min-height: 36px;
   color: var(--muted);
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 .footer a:hover {
   color: var(--primary-text);
 }
 .footerBottom {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: 8px 24px;
-  padding-block: 16px 28px;
+  padding-block: 16px 20px;
   border-top: 1px solid var(--divider);
   font-size: 13px;
 }
@@ -206,14 +231,17 @@
   line-height: 1.65;
 }
 @media (max-width: 900px) {
-  .navigation,
+  .navigation {
+    padding-inline: 24px;
+  }
   .footerMain,
   .footerBottom {
-    padding-inline: 24px;
+    padding-inline: 28px;
   }
   .footerMain {
     grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
+    gap: 32px;
+    padding-block: 40px 24px;
   }
   .footerNav {
     gap: 24px;
@@ -229,10 +257,12 @@
   }
 }
 @media (max-width: 600px) {
-  .navigation,
+  .navigation {
+    padding-inline: 20px;
+  }
   .footerMain,
   .footerBottom {
-    padding-inline: 20px;
+    padding-inline: 22px;
   }
   .footerMain {
     gap: 24px;
@@ -277,6 +307,10 @@
   }
   .footer {
     margin-top: 56px;
+    padding: 0 12px 12px;
+  }
+  .footerPanel {
+    border-radius: 16px;
   }
   .hero {
     padding: 44px 20px 24px;
