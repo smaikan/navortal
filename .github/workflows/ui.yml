@@ -26,6 +26,7 @@ jobs:
       ADHD_UI_TEST_PG_EXTERNAL: '1'
       ADHD_UI_TEST_PG_PORT: '5432'
       NEXT_TELEMETRY_DISABLED: '1'
+      UI_EVIDENCE_DIR: .local/ci-evidence
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -49,7 +50,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: python -B -m unittest discover -s tests/tools -p "test_*.py"
-      - run: node --test tools/operation-audit.test.mjs
+      - run: node --test tools/operation-audit.test.mjs tools/ci-evidence.test.mjs
       - run: npm test
       - run: npm run test:browsers -- --with-deps
       - run: dotnet restore AdhdPlanner.slnx --locked-mode
@@ -58,28 +59,29 @@ jobs:
       # production arayüzünü derler, tarayıcı/HTTP testini yapar, yalnız kendi DB'sini siler.
       - name: Chromium and mobile product regression
         run: |
-          EVIDENCE_ROOT=$(tr -d '\r\n' < tools/evidence-dir.txt)
+          EVIDENCE_ROOT="$UI_EVIDENCE_DIR"
           UI_EVIDENCE_DIR="$EVIDENCE_ROOT/chromium-mobile" python -B tools/run-e2e.py --project chromium --project mobile-chromium
       - name: WebKit critical journeys
         run: |
-          EVIDENCE_ROOT=$(tr -d '\r\n' < tools/evidence-dir.txt)
+          EVIDENCE_ROOT="$UI_EVIDENCE_DIR"
           UI_E2E_WORKERS=1 UI_EVIDENCE_DIR="$EVIDENCE_ROOT/webkit-critical" python -B tools/run-e2e.py --project webkit --cross-browser-focus auth --cross-browser-focus auth-isolation --cross-browser-focus pool-planning --cross-browser-focus history --cross-browser-focus focus-controls --cross-browser-focus realtime --cross-browser-focus pwa-panel --cross-browser-focus calendar --cross-browser-focus return-journey --cross-browser-focus work-refresh --cross-browser-focus tasks --cross-browser-focus work-player
       - name: Firefox short critical check
         run: |
-          EVIDENCE_ROOT=$(tr -d '\r\n' < tools/evidence-dir.txt)
+          EVIDENCE_ROOT="$UI_EVIDENCE_DIR"
           UI_E2E_WORKERS=1 UI_EVIDENCE_DIR="$EVIDENCE_ROOT/firefox-critical" python -B tools/run-e2e.py --project firefox --cross-browser-focus auth --cross-browser-focus auth-isolation --cross-browser-focus pool-planning --cross-browser-focus work-player --cross-browser-focus return-journey --cross-browser-focus work-refresh --cross-browser-focus tasks --grep 'real register|auth-isolation|H/E:|committed lost keyless pool|logout keeps work|L: browser restart|J/L:|task completion during|local work transitions|search read recovery'
-      # Aktif kanıt klasörünün tek adresi UI/tools/evidence-dir.txt dosyasında.
-      - run: echo "EVIDENCE_DIR=$(tr -d '\r\n' < tools/evidence-dir.txt)" >> "$GITHUB_ENV"
+      # upload-artifact parent-segment içeren yolları reddeder; checkout içindeki mutlak yolu kullan.
+      - run: node tools/ci-evidence.mjs
         if: always()
       - uses: actions/upload-artifact@v7.0.2
-        if: always()
+        if: ${{ always() && env.EVIDENCE_DIR != '' }}
         with:
           name: ui-quality
           path: |
-            UI/${{ env.EVIDENCE_DIR }}/**/*.json
-            UI/${{ env.EVIDENCE_DIR }}/**/*.jsonl
-            UI/${{ env.EVIDENCE_DIR }}/**/*.png
-            UI/${{ env.EVIDENCE_DIR }}/completion/**
+            ${{ env.EVIDENCE_DIR }}/**/*.json
+            ${{ env.EVIDENCE_DIR }}/**/*.jsonl
+            ${{ env.EVIDENCE_DIR }}/**/*.png
+            ${{ env.EVIDENCE_DIR }}/**/completion/**
             UI/test-results/**/*.png
             UI/test-results/**/error-context.md
           retention-days: 7
+          include-hidden-files: true

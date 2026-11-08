@@ -278,7 +278,7 @@ test("routine: create closes on confirmed receipt and pending writes resist back
   await backdrop(page);
   await expect(dialog).toBeHidden();
   await page.getByRole("button", { name: "Rutin oluştur", exact: true }).click();
-  await dialog.getByLabel("Şablon başlığı", { exact: true }).fill("Sabah okuması");
+  await dialog.getByLabel("Rutin adı", { exact: true }).fill("Sabah okuması");
   let release!: () => void;
   const gate = new Promise<void>(resolve => {
     release = resolve;

@@ -120,9 +120,7 @@ export function WorkLogPage() {
       {data && (
         <>
           <p role="status" className="task-count">
-            {data.items.length
-              ? `${offset + data.items.length} / ${data.total} oturum`
-              : `${data.total} oturum`}
+            {data.items.length ? `${offset + data.items.length} / ${data.total} oturum` : `${data.total} oturum`}
             {list.isFetching && " · Yenileniyor"}
           </p>
           {data.items.length ? (

@@ -46,7 +46,9 @@ public sealed class ReadApiCostTests(DatabaseFixture fixture) : IClassFixture<Da
     public async Task ThirtyPairedReadSamplesPreserveTotalsAndRecordApiSqlAllocationAndPayloadCost()
     {
         var path=Environment.GetEnvironmentVariable("ADHD_READ_COST_PATH");
-        Assert.False(string.IsNullOrWhiteSpace(path));Assert.Contains(".local",path);
+        if(string.IsNullOrWhiteSpace(path)) path=Path.Combine(AppContext.BaseDirectory,".local",$"read-api-cost-{fixture.DatabaseName}.json");
+        path=Path.GetFullPath(path);Assert.Contains(".local",path);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         var counter=new Counter();
         await using var app=new PlannerFactory(fixture.ConnectionString,services=>services.AddDbContext<PlannerDbContext>(o=>o.AddInterceptors(counter)));
         app.Clock.Now=new DateTimeOffset(2026,10,25,9,0,0,TimeSpan.Zero);var s=await TaskScenario.User(app);var root=await s.Root("Cost fixture root");

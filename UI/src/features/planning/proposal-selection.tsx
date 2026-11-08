@@ -89,9 +89,7 @@ export function ProposalSelection({
               Önceki
             </button>
             <span>
-              {tasks.data.items.length
-                ? `${offset + tasks.data.items.length} / ${tasks.data.total}`
-                : "Görev yok"}
+              {tasks.data.items.length ? `${offset + tasks.data.items.length} / ${tasks.data.total}` : "Görev yok"}
             </span>
             <button
               disabled={

@@ -122,11 +122,7 @@ describe("resource kinds share one contract", () => {
   it("maps every classification field to a resource kind with its own route and task filter", () => {
     expect(resourceOrder).toEqual(["projects", "pools", "categories"]);
     expect(Object.values(fieldKinds).sort()).toEqual([...resourceOrder, "tags"].sort());
-    expect(resourceOrder.map(kind => resourceKinds[kind].taskFilter)).toEqual([
-      "projectId",
-      "poolId",
-      "categoryId",
-    ]);
+    expect(resourceOrder.map(kind => resourceKinds[kind].taskFilter)).toEqual(["projectId", "poolId", "categoryId"]);
     expect(new Set(resourceOrder.map(kind => resourceKinds[kind].route)).size).toBe(3);
   });
 });

@@ -189,9 +189,7 @@ export function ResourcePage({ kind }: { kind: ResourceKind }) {
               </form>
               {data && (
                 <p role="status" className="task-count">
-                  {count
-                    ? `${offset + count} / ${data.total} ${meta.lower}`
-                    : `${data.total} ${meta.lower}`}
+                  {count ? `${offset + count} / ${data.total} ${meta.lower}` : `${data.total} ${meta.lower}`}
                   {list.isFetching && " · Yenileniyor…"}
                 </p>
               )}
