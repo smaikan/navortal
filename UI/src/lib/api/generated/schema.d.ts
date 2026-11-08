@@ -1,4 +1,4 @@
-// Generated from canonical OpenAPI SHA256 409f39a9a6a4c283b73fb522d64beb8132f419f1c5ce84133426abd4f37ded33. Do not edit.
+// Generated from canonical OpenAPI SHA256 7ce40382b361828819e7864d039572d5ee039388bf2683dbe6c820cd63f7bb16. Do not edit.
 export interface paths {
     "/api/analytics/actual": {
         parameters: {
