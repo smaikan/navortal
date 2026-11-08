@@ -26,6 +26,22 @@ const placementClass = {
 export function surfaceClass(placement: keyof typeof placementClass) {
   return `workspace-surface modal-surface${placementClass[placement]}`;
 }
+const sheetSelector = ".modal-surface:not(.modal-center, .modal-full, .modal-confirm)";
+const sheetDuration = 120;
+const dragCloseDistance = 80;
+const dragCloseSpeed = 0.5;
+/** Telefonda alttan açılan pencere mi? Görünüm CSS'teki aynı seçici ve kırılımla belirleniyor. */
+function isSheet(element: HTMLElement | null): element is HTMLElement {
+  return !!element?.matches(sheetSelector) && window.matchMedia("(max-width: 767px)").matches;
+}
+function slide(element: HTMLElement, from: number, to: string) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
+  return element.animate([{ transform: `translateY(${from}px)` }, { transform: `translateY(${to})` }], {
+    duration: sheetDuration,
+    easing: "cubic-bezier(0.3, 0, 0.8, 0.4)",
+    fill: "forwards",
+  });
+}
 const modalLocks = new Set<HTMLDialogElement>();
 let bodyOverflow = "";
 
@@ -46,12 +62,23 @@ export function Surface({
   const closing = useRef(false);
   const outsideDown = useRef(false);
   const titleId = useId();
-  const requestClose = useCallback(() => {
-    if (!closing.current && !closeDisabled) {
+  const requestClose = useCallback(
+    (from = 0) => {
+      if (closing.current || closeDisabled) return;
       closing.current = true;
-      if (onClose() === false) closing.current = false;
-    }
-  }, [closeDisabled, onClose]);
+      const element = dialog.current;
+      const animation = modal && isSheet(element) ? slide(element, from, "100%") : null;
+      if (element) element.style.transform = "";
+      const finish = () => {
+        if (onClose() !== false) return;
+        closing.current = false;
+        animation?.cancel();
+      };
+      if (animation) void animation.finished.then(finish, () => undefined);
+      else finish();
+    },
+    [closeDisabled, modal, onClose],
+  );
   function containTab(event: ReactKeyboardEvent<HTMLDialogElement>) {
     if (event.key !== "Tab") return;
     const controls = [
@@ -72,6 +99,56 @@ export function Surface({
       first.focus();
     }
   }
+  useEffect(() => {
+    const element = dialog.current;
+    if (!modal || !element) return;
+    // Yalnız üst tutamak ve başlıktan başlayan parmak hareketi pencereyi taşır; içerik kaydırması aynı kalır.
+    let drag: { y: number; at: number; distance: number } | null = null;
+    const start = (event: TouchEvent) => {
+      drag = null;
+      if (event.touches.length !== 1 || closing.current || closeDisabled || !isSheet(element)) return;
+      const target = event.target as Element;
+      const header = element.querySelector(":scope > .surface-header");
+      if (!header || target.closest("button, a, input, textarea, select")) return;
+      const touch = event.touches[0];
+      if (touch.clientY <= header.getBoundingClientRect().bottom)
+        drag = { y: touch.clientY, at: event.timeStamp, distance: 0 };
+    };
+    const move = (event: TouchEvent) => {
+      if (!drag) return;
+      event.preventDefault();
+      drag.distance = Math.max(0, event.touches[0].clientY - drag.y);
+      element.style.transform = `translateY(${drag.distance}px)`;
+    };
+    const end = (event: TouchEvent) => {
+      if (!drag) return;
+      const { distance, at } = drag;
+      drag = null;
+      if (
+        event.type === "touchend" &&
+        (distance >= dragCloseDistance || distance / Math.max(1, event.timeStamp - at) >= dragCloseSpeed)
+      ) {
+        requestClose(distance);
+        return;
+      }
+      const back = slide(element, distance, "0");
+      element.style.transform = "";
+      void back?.finished.then(
+        () => back.cancel(),
+        () => undefined,
+      );
+    };
+    element.addEventListener("touchstart", start, { passive: true });
+    element.addEventListener("touchmove", move, { passive: false });
+    element.addEventListener("touchend", end);
+    element.addEventListener("touchcancel", end);
+    return () => {
+      element.removeEventListener("touchstart", start);
+      element.removeEventListener("touchmove", move);
+      element.removeEventListener("touchend", end);
+      element.removeEventListener("touchcancel", end);
+    };
+  }, [closeDisabled, modal, requestClose]);
   useEffect(() => {
     if (modal) return;
     const escape = (event: KeyboardEvent) => {
@@ -180,7 +257,7 @@ export function Surface({
         <h2 id={titleId} ref={heading} tabIndex={-1}>
           {title}
         </h2>
-        <button aria-label={`${title} panelini kapat`} disabled={closeDisabled} onClick={requestClose}>
+        <button aria-label={`${title} panelini kapat`} disabled={closeDisabled} onClick={() => requestClose()}>
           <X size={20} aria-hidden="true" />
         </button>
       </header>
