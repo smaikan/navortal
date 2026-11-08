@@ -1,5 +1,5 @@
 "use client";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, LayoutGrid, Link2, List, Plus, Search, SlidersHorizontal } from "lucide-react";
@@ -39,6 +39,14 @@ function viewOf(param: string | null, list: CategoryList | undefined): View {
   const category = param && uuid.test(param) ? list?.items.find(c => c.id === param) : undefined;
   return category ? { kind: "category", category } : { kind: "all" };
 }
+
+const phoneQuery = "(max-width: 640px)";
+function watchPhone(change: () => void) {
+  const query = window.matchMedia(phoneQuery);
+  query.addEventListener("change", change);
+  return () => query.removeEventListener("change", change);
+}
+const isPhone = () => window.matchMedia(phoneQuery).matches;
 
 /** Kullanıcının renkli kategorileri, görev notları ve üstte sakin uyarıları olan not kütüphanesi. */
 export function NotesPage() {
@@ -171,7 +179,9 @@ function Library({ zone, list }: { zone: string; list: CategoryList }) {
   const bar = active.filter(c => c.showInBar || (view.kind === "category" && view.category.id === c.id));
   const others = active.filter(c => !bar.includes(c));
   const pinned = active.filter(c => c.pinInAll);
-  const common = { mode, zone, categories: list, menu, open };
+  // Telefonda kart ve liste aynı görünüyor; kayıtlı seçim masaüstü için korunur.
+  const phone = useSyncExternalStore(watchPhone, isPhone, () => false);
+  const common = { mode: phone ? ("List" as const) : mode, zone, categories: list, menu, open };
   const addFirst = (
     <>
       <p>{query ? `“${query}” için not bulunamadı.` : "Henüz not yok."}</p>

@@ -246,6 +246,7 @@ test("Görev notları group by task; category bar, Diğer menu and search live i
 });
 
 test("Kartlar/Liste is saved per view and survives a reload", async ({ page }) => {
+  test.skip(page.viewportSize()!.width <= 640, "Telefonda görünüm seçimi yok.");
   const c = await createCategory(`Görünüm ${tag()}`);
   await visit(page, "/notes");
   const mode = page.getByRole("group", { name: "Görünüm", exact: true });

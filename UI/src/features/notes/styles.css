@@ -997,6 +997,9 @@
   background: var(--note-fg);
 }
 @media (max-width: 640px) {
+  .notes-mode {
+    display: none;
+  }
   .notes-search {
     flex: 1 1 100%;
     order: 3;
