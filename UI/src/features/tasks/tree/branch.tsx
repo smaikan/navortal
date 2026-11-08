@@ -1,4 +1,5 @@
 "use client";
+import { useRunningTaskId } from "../../work/running";
 import { lazy, Suspense, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { Calendar, Check, ChevronRight, Clock, Plus } from "lucide-react";
@@ -172,11 +173,13 @@ function Node({ task, summary, depth, index, parent, prevId, nextId, nextNextId,
     if (!saved) tree.unlinger(task.id);
   }
   const pop = useDonePop(done);
+  const running = useRunningTaskId() === task.id && !done;
   const classes = [
     "r2-row",
     done && "done",
     pop && "r2-done-pop",
     busy && "busy",
+    running && "running",
     tree.dragging === task.id && "lifted",
     over && `over-${over}`,
   ]
@@ -224,6 +227,12 @@ function Node({ task, summary, depth, index, parent, prevId, nextId, nextNextId,
         >
           {hasKids && done && <Check className="r2-check" aria-hidden="true" size={14} />}
           <span className="r2-text">{task.title}</span>
+          {running && (
+            <span className="r2-chip running-chip">
+              <span className="running-dot" aria-hidden="true" />
+              Sürüyor
+            </span>
+          )}
           {done && <span className="sr-only"> (tamamlandı)</span>}
         </button>
         <span className="r2-meta">

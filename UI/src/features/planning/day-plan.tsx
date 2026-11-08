@@ -1,4 +1,5 @@
 "use client";
+import { useRunningTaskId } from "../work/running";
 import { lazy, Suspense, useEffect, useId, useState, type ComponentProps } from "react";
 import { ArrowRight, Play } from "lucide-react";
 import { Menu, openRowMenu } from "../../components/ui/menu";
@@ -119,6 +120,8 @@ export function PlanRow({
   const pop = useDonePop(done);
   const block = entry.kind === "block" ? entry.block : null;
   const work = !block || block.kind === "Work";
+  const runningId = useRunningTaskId();
+  const running = !!facts.taskId && facts.taskId === runningId && !facts.done;
   const current = phase === "current" && !facts.done;
   const left = block && current ? Math.max(0, Math.ceil((Date.parse(block.endsAt) - now) / 60000)) : 0;
   const progress =
@@ -133,7 +136,7 @@ export function PlanRow({
       : 0;
   return (
     <li
-      className={`r2-plan-row${timing.urgent ? " urgent" : ""}${done ? " done" : ""}${pop ? " r2-done-pop" : ""}${dim ? " dim" : ""}${current ? " now" : ""}${next ? " next" : ""}${phase === "past" && !facts.done ? " past" : ""}`}
+      className={`r2-plan-row${timing.urgent ? " urgent" : ""}${done ? " done" : ""}${pop ? " r2-done-pop" : ""}${dim ? " dim" : ""}${current ? " now" : ""}${running ? " running" : ""}${next ? " next" : ""}${phase === "past" && !facts.done ? " past" : ""}`}
       aria-current={current ? "time" : undefined}
       aria-busy={busy || undefined}
     >
@@ -166,6 +169,12 @@ export function PlanRow({
           <span className="r2-plan-title">
             {facts.title}
             {facts.parent && <span className="r2-plan-parent"> · {facts.parent}</span>}
+            {running && (
+              <span className="r2-chip running-chip">
+                <span className="running-dot" aria-hidden="true" />
+                Sürüyor
+              </span>
+            )}
             {timing.urgent && <span className="r2-chip urgent-chip">Acil iş</span>}
           </span>
           {timing.startsAt && (

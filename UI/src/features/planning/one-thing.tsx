@@ -55,7 +55,7 @@ export function OneThing({
 }) {
   const [later, setLater] = useState<Record<string, number>>(() => readLater(date));
   const [skipped, setSkipped] = useState<string[]>([]);
-  const [editing, setEditing] = useState<"first" | "stuck" | null>(null);
+  const [editing, setEditing] = useState<"first" | "important" | null>(null);
   const keyOf = (entry: Entry) => `${entry.kind}:${entry.kind === "block" ? entry.block.id : entry.item.id}`;
   const open = entries.filter(entry => !entryFacts(entry).done);
   const ordered = [
@@ -110,9 +110,9 @@ export function OneThing({
       ) : null}
       {laterCount >= 2 && !editing && facts.taskId && (
         <p className="one-thing-hint">
-          Bu iş büyük mü geliyor?{" "}
-          <button type="button" className="r2-quiet-link" onClick={() => setEditing("stuck")}>
-            Küçültelim mi?
+          Aklında kalması gereken bir şey var mı?{" "}
+          <button type="button" className="r2-quiet-link" onClick={() => setEditing("important")}>
+            Önemli not ekle
           </button>
         </p>
       )}

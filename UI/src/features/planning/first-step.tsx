@@ -6,14 +6,14 @@ import { queryKeys } from "../../lib/api/query-client";
 import { noteFailure, noteFields, readNote } from "../notes/model";
 import { useNotesCache } from "../notes/queries";
 
-/** İlk adımı yaz/Önemli not ekle/Küçültelim mi? tek satırla görev altında görünen kısa notu sorar, mevcut API'de NextStep notu olarak kaydeder. Not önbelleği ve gün özeti yenilenir. */
+/** İlk adımı yaz/Önemli not ekle tek satırla görev altında görünen kısa notu sorar, mevcut API'de NextStep notu olarak kaydeder. Not önbelleği ve gün özeti yenilenir. */
 export function FirstStepEditor({
   taskId,
   prompt,
   close,
 }: {
   taskId: string;
-  prompt: "first" | "stuck" | "important";
+  prompt: "first" | "important";
   close: () => void;
 }) {
   const { session, state } = useSession();
@@ -62,19 +62,13 @@ export function FirstStepEditor({
       }}
     >
       <label>
-        {prompt === "important" ? "Önemli not" : prompt === "stuck" ? "En küçük adım ne?" : "İlk adım"}
+        {prompt === "important" ? "Önemli not" : "İlk adım"}
         <input
           ref={field}
           value={text}
           maxLength={2000}
           readOnly={busy}
-          placeholder={
-            prompt === "important"
-              ? "Aklında kalması gereken kısa not"
-              : prompt === "stuck"
-                ? "Örneğin: dosyayı açmak"
-                : "Başlamak için ilk küçük hareket"
-          }
+          placeholder={prompt === "important" ? "Aklında kalması gereken kısa not" : "Başlamak için ilk küçük hareket"}
           onChange={event => setText(event.target.value)}
         />
       </label>
