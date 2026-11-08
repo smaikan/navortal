@@ -5,12 +5,6 @@ import styles from "./landing.module.css";
 
 /* Gerçek Analiz sayfasının işaretlemesi ve stilleri, uydurma verilerle. Veri okumaz, kontrol içermez. */
 
-const duration = (minutes: number) => {
-  const h = Math.floor(minutes / 60),
-    m = minutes % 60;
-  return [h && `${h} sa`, m && `${m} dk`].filter(Boolean).join(" ");
-};
-
 function Header({ period = "Geçen hafta", range = "26 Eki – 1 Kas 2026" }: { period?: string; range?: string }) {
   return (
     <>
@@ -35,90 +29,6 @@ function Tile({ label, value, note }: { label: string; value: string; note: stri
       <span className={report.label}>{label}</span>
       <strong className={report.value}>{value}</strong>
       <span className={report.note}>{note}</span>
-    </div>
-  );
-}
-
-const days = [
-  { label: "Pzt", minutes: 190 },
-  { label: "Sal", minutes: 145 },
-  { label: "Çar", minutes: 180 },
-  { label: "Per", minutes: 220 },
-  { label: "Cum", minutes: 170 },
-  { label: "Cmt", minutes: 215 },
-  { label: "Paz", minutes: 0 },
-];
-const peak = Math.max(...days.map(day => day.minutes));
-const projects = [
-  { name: "Tez çalışması", minutes: 440 },
-  { name: "Ürün sunumu", minutes: 310 },
-  { name: "Ev taşınması", minutes: 210 },
-  { name: "Kişisel site", minutes: 100 },
-  { name: "Vergi hazırlığı", minutes: 60 },
-];
-
-export function AnalyticsScene() {
-  return (
-    <div className={report.page}>
-      <div>
-        <Header />
-      </div>
-      <section className={report.section}>
-        <p className={report.lead}>Geçen hafta 18 sa 40 dk çalıştın; önceki haftaya göre 2 sa 15 dk fazla.</p>
-        <div className={report.tiles}>
-          <Tile label="Çalışma süresi" value="18 sa 40 dk" note="Önceki hafta: 16 sa 25 dk" />
-          <Tile label="Çalışılan gün" value="6 / 7" note="Kayıtlı çalışma olan gün" />
-          <Tile label="Odak süresi" value="9 sa 50 dk" note="23 odak döngüsü" />
-        </div>
-      </section>
-      <section className={report.section}>
-        <h2>Ritim</h2>
-        <p className={report.sub}>Günlük çalışma süresi</p>
-        <div className={report.card}>
-          <div className={report.columns} role="img" aria-label="Örnek hafta için günlük çalışma süresi">
-            {days.map(day => (
-              <div key={day.label} className={report.column} data-peak={day.minutes === peak || undefined}>
-                <span className={report.area}>
-                  <span
-                    className={report.bar}
-                    data-empty={day.minutes === 0 || undefined}
-                    style={{ height: `${Math.max(1.5, (day.minutes / peak) * 100)}%` }}
-                  >
-                    {day.minutes > 0 && <span className={report.columnValue}>{duration(day.minutes)}</span>}
-                  </span>
-                </span>
-                <span className={report.axis}>{day.label}</span>
-              </div>
-            ))}
-          </div>
-          <p className={report.note}>En yoğun gün: 29 Ekim Perşembe (3 sa 40 dk).</p>
-        </div>
-      </section>
-      <section className={report.section}>
-        <h2>Zaman nereye gidiyor</h2>
-        <p className={report.sub}>Çalışmanın proje bazında dağılımı.</p>
-        <div className={report.card}>
-          <div className={report.chips}>
-            {["Proje", "Kategori", "Görev"].map(label => (
-              <span key={label} className={report.chip} aria-current={label === "Proje" ? "page" : undefined}>
-                {label}
-              </span>
-            ))}
-          </div>
-          <ul className={report.rows}>
-            {projects.map(project => (
-              <li key={project.name} className={report.row}>
-                <span className={report.rowName}>{project.name}</span>
-                <span className={report.track} aria-hidden="true">
-                  <span style={{ width: `${(project.minutes / projects[0].minutes) * 100}%` }} />
-                </span>
-                <span className={report.rowValue}>{duration(project.minutes)}</span>
-              </li>
-            ))}
-          </ul>
-          <p className={report.note}>En çok zaman alanlar önce. Aralığın toplamı 18 sa 40 dk.</p>
-        </div>
-      </section>
     </div>
   );
 }
@@ -190,13 +100,6 @@ const routines: Routine[] = [
     total: 1,
     weeks: [null, null, 100, null, null, null, 100, null, null, null, 100, null],
   },
-  {
-    title: "Diş hekimi kontrolü",
-    summary: "Ayın 15. günü · 6 ayda bir",
-    done: 0,
-    total: 0,
-    weeks: [null, null, null, null, null, null, null, null, null, null, null, null],
-  },
 ];
 // Haftalar 17 Ağustos'tan başlıyor; Ekim'e değenler 6–10. sıradakiler.
 const inPeriod = (index: number) => index >= 6 && index <= 10;
@@ -209,7 +112,7 @@ export function RoutineAnalyticsScene() {
       </div>
       <section className={report.section}>
         <h2>Rutinler</h2>
-        <p className={report.lead}>Geçen ay 8 rutinde 89 görevden 68 tanesi yapıldı. Önceki ay: 59/85.</p>
+        <p className={report.lead}>Geçen ay 7 rutinde 89 görevden 68 tanesi yapıldı. Önceki ay: 59/85.</p>
         <div className={report.tiles}>
           <Tile label="Tutarlılık" value="%76" note="Önceki ay: %69" />
           <Tile label="Yapılan" value="68/89" note="9 tanesi sonradan" />

@@ -386,7 +386,6 @@ const routines: { title: string; summary: string; days?: string }[] = [
   { title: "Çamaşırları yıka", summary: "Cumartesi · 10:00", days: "0000010" },
   { title: "Ev temizliği", summary: "Pazar · 11:00", days: "0000001" },
   { title: "Faturaları kontrol et", summary: "Ayın 1. günü · 10:00" },
-  { title: "Diş hekimi kontrolü", summary: "Ayın 15. günü · 6 ayda bir" },
 ];
 
 export function RoutinesScene() {

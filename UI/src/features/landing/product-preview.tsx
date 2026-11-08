@@ -2,7 +2,7 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { BrandMark } from "../../components/ui/brand-mark";
 import { PreviewIcon, type PreviewIconName } from "./preview-icons";
-import { AnalyticsScene, RoutineAnalyticsScene } from "./preview-analytics";
+import { RoutineAnalyticsScene } from "./preview-analytics";
 import { CalendarScene, NotesScene, PlanScene, ProjectsScene, RoutinesScene } from "./preview-scenes";
 import styles from "./landing.module.css";
 
@@ -12,8 +12,7 @@ const pages = [
   { label: "Notlar", caption: "Notlar: aklındakini bırak, renkli kategorilerle bul." },
   { label: "Rutin", caption: "Rutin: tekrar eden işlerini bir kez kur, günlerine kendisi gelsin." },
   { label: "Projeler", caption: "Projeler: uzun soluklu işlerini topla, ilerlemeyi tek yerden izle." },
-  { label: "Analiz", caption: "Analiz: çalışmanın ritmini ve zamanının nereye gittiğini gör." },
-  { label: "Rutin analizi", caption: "Rutin analizi: bütün rutinlerinin haftalar içinde nasıl gittiğini izle." },
+  { label: "Analiz", caption: "Analiz: bütün rutinlerinin haftalar içinde nasıl gittiğini izle." },
 ] as const;
 // Yan menü sırası gerçek uygulamayla aynı.
 const sidebar: { label: string; icon: PreviewIconName; page?: number }[] = [
@@ -63,7 +62,6 @@ export function ProductPreview() {
     <NotesScene key="notes" />,
     <RoutinesScene key="routines" />,
     <ProjectsScene key="projects" />,
-    <AnalyticsScene key="analytics" />,
     <RoutineAnalyticsScene key="routine-analytics" />,
   ];
   const [selected, setSelected] = useState(0);
@@ -103,8 +101,7 @@ export function ProductPreview() {
         key={item.label}
         type="button"
         tabIndex={-1}
-        // Rutin analizi de Analiz sayfasının bir bölümü; menüde aynı öğe seçili kalır.
-        className={className + ((selected === 6 ? 5 : selected) === item.page ? " " + active : "")}
+        className={className + (selected === item.page ? " " + active : "")}
         onClick={() => setSelected(item.page!)}
       >
         {content}
@@ -176,7 +173,7 @@ export function ProductPreview() {
                 hidden={selected !== index}
                 tabIndex={0}
                 // Rutin listesi pencereden uzun; bu sahne kendi içinde kayar.
-                className={styles.scene + (index === 6 ? " " + styles.sceneScroll : "")}
+                className={styles.scene + (index === 5 ? " " + styles.sceneScroll : "")}
               >
                 {scene}
               </div>

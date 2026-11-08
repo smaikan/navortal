@@ -104,8 +104,8 @@ for (const [path, title, meaningful] of pages) {
       expect(rows.heights).toHaveLength(1);
       expect(rows.spill).toBe(false);
       await page.keyboard.press("End");
-      await expect(tablist.getByRole("tab", { name: "Rutin analizi", exact: true })).toBeFocused();
-      for (let step = 0; step < 4; step++) await page.keyboard.press("ArrowLeft");
+      await expect(tablist.getByRole("tab", { name: "Analiz", exact: true })).toBeFocused();
+      for (let step = 0; step < 3; step++) await page.keyboard.press("ArrowLeft");
       await expect(page.getByRole("tabpanel", { name: "Notlar", exact: true })).toContainText("Sunum için fikirler");
       // Seçim değişince örnek menü genişlikten veya basma hareketinden kaymamalı.
       const navBoxes = () =>
@@ -117,7 +117,7 @@ for (const [path, title, meaningful] of pages) {
       await expect(page.getByRole("tabpanel", { name: "Gün Planlama", exact: true })).toBeVisible();
       expect(await navBoxes()).toEqual(before);
       await page.keyboard.press("End");
-      for (let step = 0; step < 4; step++) await page.keyboard.press("ArrowLeft");
+      for (let step = 0; step < 3; step++) await page.keyboard.press("ArrowLeft");
       await expect(page.getByRole("tabpanel", { name: "Notlar", exact: true })).toBeVisible();
       // 180ms sahne geçişi bilinçli. Yarım saydam kareyi değil oturmuş renkleri ölçüyoruz.
       await page.waitForFunction(() =>
@@ -248,8 +248,7 @@ for (const [label, stem] of [
   ["Notlar", "notes"],
   ["Rutin", "routines"],
   ["Projeler", "projects"],
-  ["Analiz", "analytics"],
-  ["Rutin analizi", "routine-analytics"],
+  ["Analiz", "routine-analytics"],
 ]) {
   test(`landing preview screen: ${stem}`, async ({ page }, info) => {
     const privateReads: string[] = [];
@@ -284,18 +283,11 @@ for (const [label, stem] of [
       await expect(panel.locator('[data-special-kind="Birthday"] svg.lucide-gift')).toBeVisible();
       await expect(panel.locator('[data-special-kind="Anniversary"] svg.lucide-calendar-heart')).toBeVisible();
     }
-    if (stem === "analytics") {
-      await expect(preview.getByRole("tab", { name: /analiz/i })).toHaveText(["Analiz", "Rutin analizi"]);
-      await expect(panel).toContainText("Geçen hafta 18 sa 40 dk çalıştın");
-      await expect(panel.getByRole("heading", { name: "Ritim" })).toBeVisible();
-      // Menüde Analiz iki sekmede de seçili kalır.
-      await expect(preview.locator("[class*='mockNavActive']")).toHaveText("Analiz");
-    }
     if (stem === "routine-analytics") {
       // Bütün rutinler listelenir, hiçbiri açık değil; liste sahnenin içinde kayar.
-      await expect(panel.locator("li [class*='routineRow']")).toHaveCount(8);
+      await expect(panel.locator("li [class*='routineRow']")).toHaveCount(7);
       await expect(panel.locator("[aria-expanded]")).toHaveCount(0);
-      await expect(panel).toContainText("Geçen ay 8 rutinde 89 görevden 68 tanesi yapıldı.");
+      await expect(panel).toContainText("Geçen ay 7 rutinde 89 görevden 68 tanesi yapıldı.");
       expect(
         await panel.evaluate(el => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === "auto"),
       ).toBe(true);
