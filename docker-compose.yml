@@ -7,7 +7,8 @@ services:
     environment:
       POSTGRES_DB: adhd
       POSTGRES_USER: adhd
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    env_file:
+      - ./API/.local/postgres.env
     volumes:
       - planner-data:/var/lib/postgresql
     healthcheck:
@@ -20,23 +21,20 @@ services:
       context: ./API
       target: build
     entrypoint: ["dotnet", "ef", "database", "update", "--project", "src/Adhd.Infrastructure", "--startup-project", "src/Adhd.Api", "--configuration", "Release", "--no-build"]
-    environment:
-      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
-      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD}
+    env_file:
+      - ./API/.local/api.env
     depends_on:
       db: {condition: service_healthy}
   api:
     build: ./API
+    env_file:
+      - ./API/.local/api.env
+      - {path: ./API/.local/smtp.env, required: false}
+      - {path: ./API/.local/cloudinary.env, required: false}
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      Jwt__SigningKey: ${JWT_SIGNING_KEY}
-      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD}
       ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:-172.30.81.1}
-      Cloudinary__Enabled: ${Cloudinary__Enabled:-false}
-      Cloudinary__CloudName: ${Cloudinary__CloudName:-}
-      Cloudinary__ApiKey: ${Cloudinary__ApiKey:-}
-      Cloudinary__ApiSecret: ${Cloudinary__ApiSecret:-}
     depends_on:
       db: {condition: service_healthy}
       migrate: {condition: service_completed_successfully}

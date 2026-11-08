@@ -5,7 +5,8 @@ services:
     environment:
       POSTGRES_DB: adhd
       POSTGRES_USER: adhd
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    env_file:
+      - ./.local/postgres.env
     volumes:
       - planner-data:/var/lib/postgresql
     healthcheck:
@@ -18,24 +19,21 @@ services:
       context: .
       target: build
     entrypoint: ["dotnet", "ef", "database", "update", "--project", "src/Adhd.Infrastructure", "--startup-project", "src/Adhd.Api", "--configuration", "Release", "--no-build"]
-    environment:
-      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
-      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    env_file:
+      - ./.local/api.env
     depends_on:
       db: {condition: service_healthy}
   api:
     build: .
+    env_file:
+      - ./.local/api.env
+      - {path: ./.local/smtp.env, required: false}
+      - {path: ./.local/cloudinary.env, required: false}
     restart: unless-stopped
     environment:
-      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY}
       ASPNETCORE_ENVIRONMENT: Production
       # Hosttaki ters vekil API'ye bu ağın geçidinden bağlanır. Gerçek istemci IP'si yalnız ondan kabul edilir
       ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:-${API_GATEWAY:-172.30.80.1}}
-      Cloudinary__Enabled: ${Cloudinary__Enabled:-false}
-      Cloudinary__CloudName: ${Cloudinary__CloudName:-}
-      Cloudinary__ApiKey: ${Cloudinary__ApiKey:-}
-      Cloudinary__ApiSecret: ${Cloudinary__ApiSecret:-}
-      ConnectionStrings__Planner: Host=db;Database=adhd;Username=adhd;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     ports: ["127.0.0.1:5080:8080"]
     depends_on:
       db: {condition: service_healthy}
