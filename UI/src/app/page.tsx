@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { PublicFrame } from "../components/layout/public-frame";
-import { publicMetadata, structuredData } from "../lib/seo";
+import { publicMetadata, structuredData, websiteData } from "../lib/seo";
 import { ProductPreview } from "../features/landing/product-preview";
 import styles from "../features/landing/landing.module.css";
 
 const description =
-  "Türkçe kişisel planlayıcı. Görevlerini toparla, gününe yer aç ve sıradaki işe kendi ritminde başla.";
+  "Navortal, Türkçe kişisel görev ve gün planlayıcısı. Görevlerini toparla, gününe yer aç ve sıradaki işe kendi ritminde başla.";
 export const metadata = publicMetadata("/", "Navortal", description);
 export default function HomePage() {
   const data = structuredData(description);
+  const website = websiteData();
   return (
     <PublicFrame
       landing
@@ -27,6 +28,7 @@ export default function HomePage() {
       }
     >
       {data && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: data }} />}
+      {website && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: website }} />}
       {/* Sayfa kaydıkça güneş yayda ilerler. Yalnız CSS; ek JavaScript yok. */}
       <div className={styles.sky} aria-hidden="true">
         <div>

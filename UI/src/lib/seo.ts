@@ -71,10 +71,30 @@ export function structuredData(description: string, env: Environment = process.e
     inLanguage: "tr",
     isAccessibleForFree: true,
     offers: { "@type": "Offer", price: "0", priceCurrency: "TRY" },
-    publisher: { "@type": "Organization", name: "Navortal", url: `${origin}/`, email: "info@navortal.com.tr" },
+    publisher: {
+      "@type": "Organization",
+      name: "Navortal",
+      url: `${origin}/`,
+      logo: `${origin}/icon-512.png`,
+      email: "info@navortal.com.tr",
+    },
   };
   // Metin kapanış etiketi gibi yorumlanamasın.
   return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+/** Google'ın arama sonucunda site adını "Navortal" göstermesi için ana sayfada kullanılır. */
+export function websiteData(env: Environment = process.env) {
+  const { origin } = siteSettings(env);
+  if (!origin) return null;
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Navortal",
+    alternateName: ["navortal.com.tr", "Navortal Planlayıcı"],
+    url: `${origin}/`,
+    inLanguage: "tr",
+  });
 }
 
 export function publicMetadata(

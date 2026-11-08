@@ -67,7 +67,7 @@ for (const [path, title, meaningful] of pages) {
       await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", /Navortal/);
       if (path === "/") {
-        const data = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent())!);
+        const data = JSON.parse((await page.locator('script[type="application/ld+json"]').first().textContent())!);
         expect(data).toMatchObject({ "@type": "WebApplication", name: "Navortal", isAccessibleForFree: true });
       }
     } else {
