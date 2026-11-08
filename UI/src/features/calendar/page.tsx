@@ -193,10 +193,12 @@ function Workspace({ zone, format, weekStartsOn }: { zone: string; format: strin
         <button type="button" className="r2-cal-today" onClick={() => go({ date: today })}>
           {view === "month" ? "Bu ay" : "Bu hafta"}
         </button>
-        <Menu
-          label="Takvim menüsü"
-          items={[{ label: "Özel günler", onSelect: () => router.push("/reminders/special-days") }]}
-        />
+        <span className="r2-cal-menu">
+          <Menu
+            label="Takvim menüsü"
+            items={[{ label: "Özel günler", onSelect: () => router.push("/reminders/special-days") }]}
+          />
+        </span>
       </div>
       {items.isError && (
         <div role="alert" className="form-error">

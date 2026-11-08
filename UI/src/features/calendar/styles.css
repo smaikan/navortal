@@ -434,7 +434,8 @@
 }
 /* Telefonda ay satırları daha kısa. Masaüstünün 96px alt sınırını kullanmıyoruz. */
 @media (max-width: 767px) {
-  .r2-cal-today {
+  .r2-cal-today,
+  .r2-cal-menu {
     display: none;
   }
   .r2-month {
