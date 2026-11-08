@@ -44,8 +44,10 @@ services:
       args:
         API_ORIGIN: http://api:8080
         SITE_URL: ${SITE_URL:-}
-        SITE_INDEXING: ${SITE_INDEXING:-false}
+        SITE_INDEXING: ${SITE_INDEXING:-}
     restart: unless-stopped
+    env_file:
+      - {path: ./UI/.env.production, required: false}
     environment:
       API_ORIGIN: http://api:8080
     ports: ["127.0.0.1:${UI_PORT:-3100}:3100"]

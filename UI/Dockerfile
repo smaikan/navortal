@@ -6,9 +6,10 @@ COPY . .
 # rewrites are baked in at build time, so the api address has to be known here
 ARG API_ORIGIN=http://api:8080
 ARG SITE_URL
-ARG SITE_INDEXING=false
-ENV API_ORIGIN=$API_ORIGIN SITE_URL=$SITE_URL SITE_INDEXING=$SITE_INDEXING NEXT_TELEMETRY_DISABLED=1
-RUN npm run build && npm prune --omit=dev
+ARG SITE_INDEXING
+ENV API_ORIGIN=$API_ORIGIN NEXT_TELEMETRY_DISABLED=1
+# Bos build argumanlari .env.production degerlerini ezmesin.
+RUN [ -n "$SITE_URL" ] || unset SITE_URL; [ -n "$SITE_INDEXING" ] || unset SITE_INDEXING; npm run build && npm prune --omit=dev
 
 FROM node:24.22.0-bookworm-slim
 WORKDIR /app
