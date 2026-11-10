@@ -26,6 +26,7 @@ export function noteWhen(note: Note, zone: string, now = Date.now()) {
 
 /** Kategori rozeti nokta ve addan oluşuyor. Renk kategori tokenından; Kategorisiz nötr kalıyor. */
 export function CategoryBadge({ category }: { category: Category | null }) {
+  if (!category) return null;
   return (
     <span className="note-badge" data-note-color={category?.color ?? "Gray"}>
       <CategoryDot category={category} />

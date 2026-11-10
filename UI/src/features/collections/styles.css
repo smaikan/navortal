@@ -226,3 +226,49 @@
     min-height: 44px;
   }
 }
+
+/* Tamamlanma renk dışında da okunur; açık görevlerin görünümü korunur. */
+.resource-task-list .task-row.completed .task-row-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: currentColor;
+  color: var(--muted);
+}
+.resource-task-list .task-row.completed .task-row-meta {
+  color: var(--muted);
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .workspace-columns.has-task-panel {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+}
+
+.resource-tree-children {
+  list-style: none;
+  margin: 0 0 0 12px;
+  padding: 0 0 0 18px;
+  border-left: 1px solid var(--divider);
+}
+.resource-tree-children > li {
+  border-top: 1px solid var(--divider);
+}
+.resource-tree-toggle {
+  flex-shrink: 0;
+  min-width: 24px;
+  padding-inline: 2px;
+}
+.resource-tree-start {
+  color: var(--primary-text);
+  flex-shrink: 0;
+}
+.resource-tree-completed {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--divider);
+}
+.resource-tree-completed h4 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}

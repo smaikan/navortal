@@ -70,6 +70,11 @@ export function NewTaskDraft() {
     const row = next();
     change(addRow(rows, row), row);
   }
+  function discardRow(rowId: string) {
+    const i = rows.findIndex(row => row.id === rowId);
+    if (busy || i < 0) return;
+    change(removeRow(rows, rowId), rows[i - 1]?.id ?? rows[i + 1]?.id ?? "title");
+  }
 
   async function saveSingle() {
     if (busy) return;
@@ -119,7 +124,7 @@ export function NewTaskDraft() {
   }
 
   function common(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.nativeEvent.isComposing) return true;
+    if (busy || event.nativeEvent.isComposing) return true;
     if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
       void saveTree();
@@ -149,10 +154,9 @@ export function NewTaskDraft() {
       if (!moved) return;
       event.preventDefault();
       change(moved, row.id);
-    } else if (event.key === "Backspace" && !row.text && rows.length > 1) {
+    } else if (event.key === "Backspace" && !row.text) {
       event.preventDefault();
-      const i = rows.findIndex(x => x.id === row.id);
-      change(removeRow(rows, row.id), rows[i - 1]?.id ?? rows[i + 1]?.id ?? "title");
+      discardRow(row.id);
     }
   }
 
@@ -162,7 +166,7 @@ export function NewTaskDraft() {
       aria-busy={busy || undefined}
       onKeyDown={event => {
         // Taslağın herhangi bir yerinde Esc vazgeçer; açık menü kendi Esc'ini önce kullanır.
-        if (event.key !== "Escape" || event.defaultPrevented) return;
+        if (busy || event.key !== "Escape" || event.defaultPrevented) return;
         event.preventDefault();
         event.stopPropagation();
         close();
@@ -239,11 +243,13 @@ export function NewTaskDraft() {
                 items={[
                   row.depth > 1 && {
                     label: "Bir seviye yukarı al",
+                    disabled: busy,
                     onSelect: () => change(outdent(rows, row.id) ?? rows, row.id),
                   },
                   {
                     label: "Kaldır",
-                    onSelect: () => change(removeRow(rows, row.id), rows[i - 1]?.id ?? rows[i + 1]?.id ?? "title"),
+                    disabled: busy,
+                    onSelect: () => discardRow(row.id),
                   },
                 ]}
               />
@@ -260,7 +266,7 @@ export function NewTaskDraft() {
             Vazgeç
           </button>
           <span id={`${id}-hint`} className="r2-draft-hint muted">
-            Tab alt görev yapar, Shift+Tab geri alır, Ctrl+Enter ekler.
+            Tab alt görev yapar, Shift+Tab geri alır. Boş satırda Backspace kaldırır, Ctrl+Enter ekler.
           </span>
         </div>
       )}

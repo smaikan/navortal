@@ -254,7 +254,9 @@ function RevisionDetail({
         />
       </div>
       <RevisionChanges key={`changes-${id}`} id={id} zone={day.timeZoneId} format={format} />
-      {revision.trigger === "DayItem" || revision.trigger === "Pool" || revision.trigger === "Defer" ? (
+      {revision.trigger === "TaskState" ? (
+        <p className="muted">Görevi yeniden açmak için görevdeki tamamlanma kutusunu kullanabilirsin.</p>
+      ) : revision.trigger === "DayItem" || revision.trigger === "Pool" || revision.trigger === "Defer" ? (
         <DayItemUndo key={`undo-${revision.id}`} revision={revision} day={day} lock={lock} />
       ) : (
         <UndoPanel key={`undo-${revision.id}`} revision={revision} day={day} format={format} lock={lock} />

@@ -3,7 +3,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { ChevronRight, ListPlus, MoreHorizontal, Plus } from "lucide-react";
 import { Account } from "../../features/auth/account";
 import { BrandMark } from "../ui/brand-mark";
 import { Surface } from "../ui/surface";
@@ -18,6 +18,7 @@ import { PushBridge } from "../../features/push/runtime";
 import { AlertBridge } from "../../features/notifications/alert-bridge";
 import { NotificationBell } from "../../features/notifications/bell";
 import { MiniPlayerBridge } from "../../features/mini-player/bridge";
+import "../../features/tasks/brain-dump.css";
 const CommandPalette = lazy(() => import("./command-palette").then(m => ({ default: m.CommandPalette })));
 const BrainDump = lazy(() => import("../../features/tasks/brain-dump").then(m => ({ default: m.BrainDump })));
 const QuickAdd = lazy(() => import("../../features/tasks/quick-add").then(m => ({ default: m.QuickAdd })));
@@ -185,20 +186,25 @@ function ShellFrame({ children, player }: { children: React.ReactNode; player?: 
         <Suspense fallback={<p role="status">Hızlı ekleme açılıyor…</p>}>
           <Surface title="Hızlı görev ekle" modal initialFocus="field" onClose={() => setQuick(null)} returnTo={quick}>
             <QuickAdd />
-            <p className="quick-dump">
-              Aklında çok şey mi var?{" "}
-              <button
-                type="button"
-                className="r2-quiet-link"
-                onClick={() => {
-                  const from = quick;
-                  setQuick(null);
-                  setDump(from);
-                }}
-              >
-                Kafamı boşalt
-              </button>
-            </p>
+            <button
+              type="button"
+              className="quick-dump-entry"
+              aria-label="Kafamı boşalt"
+              onClick={() => {
+                const from = quick;
+                setQuick(null);
+                setDump(from);
+              }}
+            >
+              <span className="quick-dump-icon">
+                <ListPlus size={20} aria-hidden="true" />
+              </span>
+              <span className="quick-dump-copy">
+                <strong>Kafamı boşalt</strong>
+                <span>Aklındaki işleri alt alta yaz, birlikte ekle.</span>
+              </span>
+              <ChevronRight className="quick-dump-arrow" size={18} aria-hidden="true" />
+            </button>
           </Surface>
         </Suspense>
       )}

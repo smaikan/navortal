@@ -43,7 +43,7 @@ function Board({ zone }: { zone: string }) {
   const empty = q.isSuccess && Number(q.data.total) === 0 && !offset && !selected;
   return (
     <div className="recurrence-wrap">
-      <div className="recurrence-board">
+      <div className={`recurrence-board${empty ? " is-empty" : ""}`}>
         <section aria-label="Tekrar şablonları">
           {!empty && (
             <div className="actions recurrence-top">

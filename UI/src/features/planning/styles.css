@@ -947,3 +947,59 @@
     min-height: 44px;
   }
 }
+
+/* Açılan ana görev, mevcut plan satırlarını aynı biçimde gruplar. */
+.r2-plan-task-group {
+  list-style: none;
+  min-width: 0;
+}
+.r2-plan-group-head {
+  display: flex;
+  align-items: start;
+  gap: 2px;
+  min-width: 0;
+}
+.r2-plan-group-head > .r2-plan-list {
+  flex: 1;
+  min-width: 0;
+}
+.r2-plan-group-toggle {
+  min-width: 20px;
+  padding-inline: 2px;
+  margin-top: 5px;
+}
+.r2-plan-group-children {
+  list-style: none;
+  margin: 0 0 0 8px;
+  padding-left: 16px;
+  border-left: 1px solid var(--divider);
+}
+.r2-plan-group-context {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 12px 6px;
+}
+.r2-picker-tree-line {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+.r2-picker-tree-line .r2-option {
+  flex: 1;
+  min-width: 0;
+}
+.r2-picker-tree-line > button {
+  flex-shrink: 0;
+  padding: 2px;
+  min-width: 24px;
+  background: transparent;
+}
+.r2-picker-tree-line [aria-disabled="true"] {
+  color: var(--muted);
+  cursor: default;
+}
+.r2-option-planned {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}

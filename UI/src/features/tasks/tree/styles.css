@@ -166,7 +166,8 @@
   color: var(--text);
 }
 .r2-draft-menu {
-  display: none;
+  display: inline-flex;
+  flex: none;
 }
 .r2-draft-actions {
   display: flex;
@@ -180,9 +181,6 @@
   font-size: 12px;
 }
 @media (max-width: 640px), (pointer: coarse) {
-  .r2-draft-menu {
-    display: inline-flex;
-  }
   .r2-draft-hint {
     display: none;
   }

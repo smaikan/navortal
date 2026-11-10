@@ -1,5 +1,9 @@
 "use client";
 import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { GoogleSignInButton } from "../auth/google-sign-in-button";
+import { readProfile } from "./profile-model";
+import { queryKeys } from "../../lib/api/query-client";
 import { Surface } from "../../components/ui/surface";
 import { useSession } from "../auth/provider";
 import { allowLocalLogout } from "../../lib/navigation/unsaved";
@@ -8,6 +12,12 @@ import { PasswordChange } from "./password-change";
 /** Hesap bölümünde mevcut hesap ve bütün cihazlardan onaylı çıkış var. */
 export function AccountSection({ onDirty }: { onDirty?: (dirty: boolean) => void }) {
   const { state, session } = useSession();
+  const client = useQueryClient();
+  const profile = useQuery({
+    queryKey: queryKeys.resource(state.user?.id ?? "", "profile"),
+    enabled: !!state.user,
+    queryFn: async ({ signal }) => readProfile(await session.api.read("/api/account/profile", { signal })),
+  });
   const [confirm, setConfirm] = useState<HTMLButtonElement | null>(null);
   const [busy, setBusy] = useState(false);
   if (!state.user) return null;
@@ -17,7 +27,58 @@ export function AccountSection({ onDirty }: { onDirty?: (dirty: boolean) => void
       <p className="muted">
         Giriş yapılan hesap: <span>{state.user.email}</span>
       </p>
-      <PasswordChange key={`${state.user.id}:${session.getIdentity().epoch}`} owner={state.user.id} onDirty={onDirty} />
+      <section className="account-methods" aria-label="Giriş yöntemleri">
+        <h3>Giriş yöntemleri</h3>
+        {profile.isPending ? (
+          <p role="status">Giriş yöntemleri okunuyor…</p>
+        ) : profile.isError ? (
+          <p role="alert">
+            Hesap bilgileri alınamadı. <button onClick={() => void profile.refetch()}>Yeniden dene</button>
+          </p>
+        ) : (
+          <>
+            {profile.data.hasPassword && (
+              <div className="account-method">
+                <div>
+                  <strong>E-posta ve parola</strong>
+                  <p className="muted">{state.user.email}</p>
+                </div>
+                <span>Etkin</span>
+              </div>
+            )}
+            <div className="account-method">
+              <div>
+                <strong>Google</strong>
+                <p className="muted">
+                  {profile.data.googleLinked ? state.user.email : "Google hesabınla da giriş yapabilirsin."}
+                </p>
+              </div>
+              {profile.data.googleLinked && <span>Bağlı</span>}
+            </div>
+            {!profile.data.googleLinked && (
+              <GoogleSignInButton
+                mode="link"
+                onLinked={() => {
+                  void client.invalidateQueries({ queryKey: queryKeys.resource(state.user!.id, "profile") });
+                }}
+              />
+            )}
+            {profile.data.googleLinked && (
+              <p className="muted form-hint">Google ile giriş yaptığında aynı hesabın açılır.</p>
+            )}
+          </>
+        )}
+      </section>
+      {profile.data?.hasPassword && (
+        <PasswordChange
+          key={`${state.user.id}:${session.getIdentity().epoch}`}
+          owner={state.user.id}
+          onDirty={onDirty}
+        />
+      )}
+      {profile.data && !profile.data.hasPassword && (
+        <p className="muted account-password-note">Bu hesaba Google ile giriş yapıyorsun. Parola tanımlı değil.</p>
+      )}
       <div className="account-sessions">
         <h3>Oturumlar</h3>
         <p className="muted">Bu hesapla açık olan bütün cihazlardan çıkış yapabilirsin.</p>

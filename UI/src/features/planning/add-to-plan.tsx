@@ -25,7 +25,8 @@ export function AddToPlan({
         date={date}
         excluded={planned}
         excludedTitles={plannedTitles}
-        choose={row => actions.add(row.id)}
+        hierarchical
+        choose={(row, scope) => actions.add(row.id, scope)}
         create={(title, fields) => actions.create(title, fields)}
         disabled={!!actions.pending || actions.uncertainCreate}
       />

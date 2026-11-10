@@ -56,6 +56,12 @@ export function useDayActions(date: string, zone: string) {
         "day-items",
         "plan-allocation",
         "tasks",
+        "task",
+        "task-detail",
+        "task-tree",
+        "collection-task-tree",
+        "collection-workload",
+        "analytics",
         "task-picker",
         "plan-glance",
         "calendar-day",
@@ -90,14 +96,20 @@ export function useDayActions(date: string, zone: string) {
     }
   }
   const fresh = async () => readDay(await session.api.read("/api/daily-plans/{date}", { path: { date } }), date);
-  const add = (taskId: string) =>
+  const add = (taskId: string, scope: "Single" | "Subtree" = "Single") =>
     run(`add:${taskId}`, async () => {
-      readDayItem(
-        await session.api
-          .mutation("/api/daily-plans/{date}/items", "post", { path: { date }, body: { taskId } })
-          .execute(),
-        date,
-      );
+      const day = await fresh();
+      const command = session.api.mutation("/api/daily-plans/{date}/entries", "post", {
+        path: { date },
+        body: { taskId, scope, expectedPlanningVersion: day.planningVersion },
+      });
+      try {
+        readDayItem((await command.execute()).item, date);
+      } catch (error) {
+        if (current() && error instanceof ApiError && (error.outcomeUnknown || error.kind === "protocol"))
+          setUncertainCreate(command);
+        throw error;
+      }
     });
   return {
     pending,
@@ -131,7 +143,7 @@ export function useDayActions(date: string, zone: string) {
     toggle(entry: Entry) {
       return run(entryId(entry), async () => {
         if (entry.kind === "item") {
-          const options = { path: { id: entry.item.id }, body: { version: entry.item.version } };
+          const options = { path: { id: entry.item.id }, body: { version: entry.item.version, completeTask: true } };
           readDayItem(
             await (
               entry.item.completedAt
@@ -140,7 +152,7 @@ export function useDayActions(date: string, zone: string) {
             ).execute(),
           );
         } else {
-          const options = { path: { id: entry.block.id }, body: { version: entry.block.version } };
+          const options = { path: { id: entry.block.id }, body: { version: entry.block.version, completeTask: true } };
           const result = await (
             entry.block.completedAt
               ? session.api.mutation("/api/schedules/{id}/reopen", "post", options)
@@ -159,7 +171,7 @@ export function useDayActions(date: string, zone: string) {
             await session.api
               .mutation("/api/day-items/{id}/remove", "post", {
                 path: { id: entry.item.id },
-                body: { version: entry.item.version },
+                body: { version: entry.item.version, completeTask: true },
               })
               .execute(),
           );

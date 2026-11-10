@@ -738,8 +738,8 @@
 }
 .note-detail {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
-  gap: 14px;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 6px;
   min-width: 0;
 }
 .note-detail-head {
@@ -1014,6 +1014,24 @@
     min-height: 40px;
   }
 }
+.notes-form .note-convert-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+.note-convert-options > legend,
+.note-convert-options > p {
+  grid-column: 1 / -1;
+}
+.note-convert-options > label {
+  min-width: 0;
+}
+@media (max-width: 380px) {
+  .notes-form .note-convert-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .note-undo:not(:empty) {
   display: flex;
   flex-wrap: wrap;
@@ -1031,4 +1049,28 @@
   background: transparent;
   color: var(--primary-text);
   font-weight: 600;
+}
+
+/* Aynı pencere ölçülerinde metne daha çok alan: meta ve işlem satırları sıkı, metin esnek. */
+.note-detail:has(.note-task-link) {
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+}
+.modal-center:has(.note-detail) > .surface-header {
+  padding-bottom: 4px;
+}
+.note-detail-head {
+  min-height: 28px;
+}
+.note-detail-head .menu-trigger {
+  min-height: 28px;
+}
+.note-detail > .note-detail-scroll {
+  grid-row: -2 / -1;
+}
+
+@media (pointer: coarse) {
+  .note-detail-head .menu-trigger {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "../auth/provider";
 import { queryKeys } from "../../lib/api/query-client";
@@ -114,6 +114,24 @@ function useOverviewRows<K extends "timed" | "untimed">(date: string, kind: K) {
   }
   const failure = pages.find(p => p.isError);
   const loadingMore = pages.some(p => p.isFetching);
+  const grouped = !!initial.data?.untimed.groups?.length;
+  const total = Number(first?.total ?? 0);
+  const hasFirst = !!first;
+  const failed = !!failure;
+  // A saved group is loaded fully, one page at a time; a child cannot disappear at a page boundary.
+  useEffect(() => {
+    if (!grouped || !hasFirst || rows.length >= total || loadingMore || failed) return;
+    // Let the loaded page render before requesting the next one; never fan out all group pages.
+    const frame = requestAnimationFrame(() =>
+      setRequest(previous => ({
+        date,
+        owner,
+        count: previous.date === date && previous.owner === owner ? previous.count + 1 : 1,
+      })),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [grouped, hasFirst, rows.length, total, loadingMore, failed, date, owner]);
+
   return {
     ...initial,
     recurringTaskIds,
@@ -122,6 +140,7 @@ function useOverviewRows<K extends "timed" | "untimed">(date: string, kind: K) {
           items: rows as DayOverview[K]["items"],
           total: first.total,
           completedItemCount: initial.data!.glance.completedItemCount,
+          groups: initial.data?.untimed.groups ?? [],
         }
       : undefined,
     isError: initial.isError || !!failure,

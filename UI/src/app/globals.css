@@ -6448,3 +6448,43 @@ label:has(> .temporal-control) {
 .r2-hint a[target="_blank"] {
   display: inline-block;
 }
+
+/* Hesapta yeni giriş yöntemi mevcut bölüm aralıklarıyla gösterilir. */
+.account-methods {
+  margin-block: 24px;
+  padding-block: 20px;
+  border-block: 1px solid var(--divider);
+}
+.account-methods h3 {
+  margin: 0 0 16px;
+  font-size: 15px;
+}
+.account-method {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-block: 14px;
+}
+.account-method strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+.account-method p {
+  font-size: 13px;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+}
+.account-method > span {
+  color: var(--primary-text);
+  font-size: 12px;
+}
+.account-methods .google-auth {
+  margin-top: 12px;
+}
+.account-methods .google-auth-caption {
+  display: none;
+}
+.account-methods .google-auth-control {
+  max-width: 358px;
+}

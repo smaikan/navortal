@@ -26,6 +26,7 @@ import { phaseOf, useMinute } from "./agenda-blocks";
 import { useDayActions, type DayActions } from "./day-actions";
 import { AddToPlan, AssignedList } from "./add-to-plan";
 import type { DayNoteEditor } from "../notes/day-section";
+import { groupEntries, PlanTaskGroup } from "./task-groups";
 import { entryFacts, orderEntries, PlanRow } from "./day-plan";
 import { useOverviewDay, useOverviewItems, useOverviewSchedules, useOverviewSupport } from "./overview-queries";
 import { hintsByTask, useDayHints } from "./glance";
@@ -315,7 +316,21 @@ function DayContent({
   );
   const total = Number(blockData?.total ?? 0) + Number(itemData?.total ?? 0);
   const all = [...timed, ...untimed];
-  const nextEntry = all.find(entry => !entryFacts(entry).done);
+  const groups = itemData?.groups ?? [];
+  const grouped = groupEntries(all, groups);
+  const groupedRow = ({ entry, group }: (typeof grouped)[number]) =>
+    group ? (
+      <PlanTaskGroup key={group.taskId} group={group} entries={all} row={entry => row(entry, true)} />
+    ) : (
+      row(entry)
+    );
+  const visibleTimed = grouped.filter(
+    x =>
+      timed.includes(x.entry) ||
+      (!!x.group && timed.some(e => x.group!.members.some(m => m.taskId === entryFacts(e).taskId))),
+  );
+  const visibleUntimed = grouped.filter(x => !visibleTimed.includes(x));
+  const nextEntry = timed.find(entry => !!entryFacts(entry).taskId && !entryFacts(entry).done);
   const cards = untimed.flatMap(entry => {
     const facts = entryFacts(entry);
     if (!facts.taskId || facts.done) return [];
@@ -329,11 +344,12 @@ function DayContent({
         .find(block => !!block && !block.completedAt && phaseOf(block, now) === "current")
     : undefined;
   const { state: auth } = useSession();
-  const row = (entry: (typeof timed)[number]) => {
+  const row = (entry: (typeof timed)[number], hideParent = false) => {
     const facts = entryFacts(entry);
     const block = entry.kind === "block" ? entry.block : null;
     return (
       <PlanRow
+        hideParent={hideParent}
         hint={facts.taskId ? hints.get(facts.taskId) : undefined}
         ratio={ratio}
         onEdit={() => setWantRatio(true)}
@@ -474,12 +490,12 @@ function DayContent({
                   {all.length}/{total} öğe yüklendi.
                 </p>
               )}
-              {timed.length > 0 && (
+              {visibleTimed.length > 0 && (
                 <ol className="r2-plan-list" aria-label="Saatli plan öğeleri">
-                  {timed.map(row)}
+                  {visibleTimed.map(groupedRow)}
                 </ol>
               )}
-              {untimed.length > 0 && (
+              {visibleUntimed.length > 0 && (
                 <>
                   <div className="r2-plan-group-row">
                     <h2 className="r2-plan-group" id="r2-untimed">
@@ -493,7 +509,7 @@ function DayContent({
                     )}
                   </div>
                   <ol className="r2-plan-list" aria-labelledby="r2-untimed">
-                    {untimed.map(row)}
+                    {visibleUntimed.map(groupedRow)}
                   </ol>
                 </>
               )}

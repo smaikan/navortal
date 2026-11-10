@@ -334,7 +334,7 @@ test("an unknown create is never resent; reading unblocks a new explicit save", 
   expect(await notesNamed(text)).toHaveLength(1);
 });
 
-test("conversion keeps the note, pool and date; a lost response retries the same key and body once", async ({
+test("conversion saves range, effort and urgency; a lost response retries the same key and body once", async ({
   page,
 }) => {
   const n = await createNote(`Dönüşüm ${tag()}\n<img src=x onerror=alert(1)>`, {
@@ -350,6 +350,13 @@ test("conversion keeps the note, pool and date; a lost response retries the same
   await f.getByLabel("Görevin havuzu").selectOption(pool.id);
   const title = `Tek görev ${tag()}`;
   await f.getByLabel("Yeni görev başlığı").fill(title);
+  await expect(f.locator('input[type="datetime-local"]')).toHaveCount(0);
+  await f.getByLabel("Başlangıç tarihi", { exact: true }).fill("2031-10-23");
+  await f.getByLabel("Bitiş tarihi", { exact: true }).fill("2031-10-25");
+  await f.getByLabel("Efor (isteğe bağlı)").selectOption("High");
+  await f.getByLabel("Aciliyet (isteğe bağlı)").selectOption("Urgent");
+  await expect(f).toHaveJSProperty("scrollWidth", await f.evaluate(el => el.clientWidth));
+  await test.info().attach("note-conversion-options", { body: await f.screenshot(), contentType: "image/png" });
   let lose = true;
   const keys: string[] = [],
     bodies: string[] = [];
@@ -369,14 +376,70 @@ test("conversion keeps the note, pool and date; a lost response retries the same
   expect(keys).toHaveLength(2);
   expect(new Set(keys).size).toBe(1);
   expect(new Set(bodies).size).toBe(1);
+  expect(JSON.parse(bodies[0])).toMatchObject({
+    plannedFrom: "2031-10-23",
+    plannedTo: "2031-10-25",
+    energyDemand: "High",
+    priority: "Urgent",
+    inheritNoteDueAt: false,
+  });
   await f.getByRole("button", { name: "Kapat", exact: true }).last().click();
   const after = (await find(n.id))!;
   const task = await (await fx.api.get(`/api/tasks/${after.convertedTaskId}`)).json();
   expect(task.poolId).toBe(pool.id);
-  expect(task.deadlineAt).toBe(n.dueAt);
+  expect(task.deadlineAt).toBeNull();
+  expect(after.dueAt).toBe(n.dueAt);
+  expect(task).toMatchObject({
+    plannedFrom: "2031-10-23",
+    plannedTo: "2031-10-25",
+    energyDemand: "High",
+    priority: "Urgent",
+  });
   expect(
     (await (await fx.api.get(`/api/tasks?search=${encodeURIComponent(title)}&limit=100`)).json()).items,
   ).toHaveLength(1);
+});
+
+test("conversion allows every planning option to stay empty without copying the note date", async ({ page }) => {
+  const n = await createNote(`Opsiyonel dönüşüm ${tag()}`, { dueAt: "2031-10-22T09:00:00Z" });
+  await visit(page, "/notes");
+  await act(page, n.text, "Göreve dönüştür");
+  const f = page.getByRole("dialog", { name: "Notu göreve dönüştür", exact: true });
+  for (const label of ["Başlangıç tarihi", "Bitiş tarihi", "Efor (isteğe bağlı)", "Aciliyet (isteğe bağlı)"]) {
+    await expect(f.getByLabel(label)).toHaveValue("");
+    await expect(f.getByLabel(label)).not.toHaveAttribute("required");
+  }
+  await f.getByRole("button", { name: "Göreve dönüştür", exact: true }).click();
+  await expect(f.getByRole("status")).toHaveText("Göreve dönüşüm kaydedildi.");
+  const after = (await find(n.id))!;
+  const task = await (await fx.api.get(`/api/tasks/${after.convertedTaskId}`)).json();
+  expect(task).toMatchObject({
+    plannedFrom: null,
+    plannedTo: null,
+    deadlineAt: null,
+    energyDemand: null,
+    priority: "Normal",
+  });
+  expect(after.dueAt).toBe(n.dueAt);
+});
+
+test("conversion normalizes a single selected date to a one-day range", async ({ page }) => {
+  const title = `Ayrıntılı dönüşüm ${tag()}`;
+  const n = await createNote(`Tek gün dönüşüm ${tag()}`, { display: "Detailed", title });
+  await visit(page, "/notes");
+  await card(page, title).getByRole("button", { name: title, exact: true }).click();
+  await page
+    .getByRole("dialog", { name: title, exact: true })
+    .getByRole("button", { name: "Not işlemleri", exact: true })
+    .click();
+  await page.getByRole("menuitem", { name: "Göreve dönüştür", exact: true }).click();
+  const f = page.getByRole("dialog", { name: "Notu göreve dönüştür", exact: true });
+  await f.getByLabel("Bitiş tarihi", { exact: true }).fill("2031-10-24");
+  await f.getByRole("button", { name: "Göreve dönüştür", exact: true }).click();
+  await expect(f.getByRole("status")).toHaveText("Göreve dönüşüm kaydedildi.");
+  const after = (await find(n.id))!;
+  const task = await (await fx.api.get(`/api/tasks/${after.convertedTaskId}`)).json();
+  expect(task).toMatchObject({ plannedFrom: "2031-10-24", plannedTo: "2031-10-24", deadlineAt: null });
 });
 
 test("lists page 25 at a time; an empty category offers to add there with the category chosen", async ({ page }) => {

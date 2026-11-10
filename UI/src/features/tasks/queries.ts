@@ -34,6 +34,9 @@ export function useTaskCache() {
     // Durum, ağaç veya ilişki değişikliği başka görevin başlayabilmesini de etkileyebilir.
     await Promise.all(
       [
+        "collection-task-tree",
+        "analytics",
+        "day-items",
         "matrix",
         "matrix-candidates",
         "tasks",

@@ -35,6 +35,7 @@ export function Details({ view, actual }: { view: View; actual: UseQueryResult<A
                 <tr>
                   <th scope="col">Dönem</th>
                   <th scope="col">Gerçek çalışma</th>
+                  <th scope="col">Tahmini tamamlanan</th>
                   <th scope="col">Göreve bağlı</th>
                   <th scope="col">Bağımsız çalışma</th>
                   <th scope="col">Manuel kayıt</th>
@@ -47,6 +48,7 @@ export function Details({ view, actual }: { view: View; actual: UseQueryResult<A
                   <tr key={b.bucketStart}>
                     <th scope="row">{b.fromDate === b.toDate ? b.fromDate : `${b.fromDate} – ${b.toDate}`}</th>
                     <td>{duration(b.metrics.workSeconds)}</td>
+                    <td>{duration(b.metrics.estimatedCompletedSeconds ?? 0)}</td>
                     <td>{duration(b.metrics.taskWorkSeconds)}</td>
                     <td>{duration(b.metrics.generalWorkSeconds)}</td>
                     <td>{duration(b.metrics.manualWorkSeconds)}</td>
@@ -66,6 +68,7 @@ export function Details({ view, actual }: { view: View; actual: UseQueryResult<A
             {(
               [
                 ["Gerçek çalışma", duration(r.totals.workSeconds)],
+                ["Tahmini tamamlanan iş", duration(r.totals.estimatedCompletedSeconds ?? 0)],
                 ["Göreve bağlı", duration(r.totals.taskWorkSeconds)],
                 ["Bağımsız çalışma", duration(r.totals.generalWorkSeconds)],
                 ["Manuel kayıt", duration(r.totals.manualWorkSeconds)],

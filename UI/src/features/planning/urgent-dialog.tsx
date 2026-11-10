@@ -128,7 +128,7 @@ export function UrgentDialog({
         <TaskPicker
           date={date}
           placeholder="Görev ara veya yeni görev yaz"
-          choose={add}
+          choose={row => add(row)}
           create={add}
           createLabel={title => `“${title}” görevine başla`}
           disabled={pending || !!unknown}

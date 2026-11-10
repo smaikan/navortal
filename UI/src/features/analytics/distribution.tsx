@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { UseQueryResult } from "@tanstack/react-query";
-import { dimensions, pageSize, type Actual } from "./model";
+import { accountedSeconds, dimensions, pageSize, type Actual } from "./model";
 import { roughDuration, viewUrl, type View } from "./period";
 import { useBreakdown } from "./queries";
 import { Failure } from "./failure";
@@ -14,12 +14,14 @@ export function Distribution({ view, actual }: { view: View; actual: UseQueryRes
     breakdown = useBreakdown(view, view.dimension, offset),
     page = breakdown.data,
     items = page ? (all ? page.items : page.items.slice(0, preview)) : [],
-    max = Math.max(0, ...items.map(i => Number(i.workSeconds))),
+    max = Math.max(0, ...items.map(i => accountedSeconds(i))),
     totals = actual.data?.totals;
   return (
     <section aria-labelledby="distribution-title" className={styles.section}>
       <h2 id="distribution-title">Zaman nereye gidiyor</h2>
-      <p className={styles.sub}>Çalışmanın {dimensions[view.dimension].toLocaleLowerCase("tr-TR")} bazında dağılımı.</p>
+      <p className={styles.sub}>
+        Çalışma ve tamamlanan işlerin {dimensions[view.dimension].toLocaleLowerCase("tr-TR")} bazında dağılımı.
+      </p>
       <div className={styles.card}>
         <nav aria-label="Kırılım" className={styles.chips}>
           {(["Project", "Category", "Task"] as const).map(d => (
@@ -50,14 +52,20 @@ export function Distribution({ view, actual }: { view: View; actual: UseQueryRes
                     {!item.snapshotAvailable && <span className="muted"> · geçmiş bağlam bilinmiyor</span>}
                   </span>
                   <span className={styles.track} aria-hidden="true">
-                    <span style={{ width: `${max ? (Number(item.workSeconds) / max) * 100 : 0}%` }} />
+                    <span style={{ width: `${max ? (accountedSeconds(item) / max) * 100 : 0}%` }} />
                   </span>
-                  <span className={styles.rowValue}>{roughDuration(item.workSeconds)}</span>
+                  <span className={styles.rowValue}>
+                    {roughDuration(accountedSeconds(item))}
+                    {Number(item.estimatedCompletedSeconds ?? 0) > 0 && (
+                      <small className="muted"> · {roughDuration(item.estimatedCompletedSeconds)} tahmini</small>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
             <p className={styles.note}>
-              En çok zaman alanlar önce. Aralığın toplamı {roughDuration(page.totalWorkSeconds)}.
+              En çok zaman alanlar önce. Aralığın toplamı{" "}
+              {roughDuration(Number(page.totalWorkSeconds) + Number(page.totalEstimatedCompletedSeconds ?? 0))}.
             </p>
             {!all && Number(page.total) > preview && (
               <button className="ghost" onClick={() => setAll(true)}>

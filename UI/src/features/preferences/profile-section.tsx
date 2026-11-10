@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "../auth/provider";
 import { ProfileAvatar } from "../auth/avatar";
-import { GoogleSignInButton } from "../auth/google-sign-in-button";
 import { queryKeys } from "../../lib/api/query-client";
 import { ApiError } from "../../lib/api/errors";
 import { Menu } from "../../components/ui/menu";
@@ -230,13 +229,6 @@ function ProfileEditor({ owner }: { owner: string }) {
               Veri kullanımı hakkında bilgi<span className="sr-only"> (yeni sekmede açılır)</span>
             </Link>
           </p>
-          <GoogleSignInButton
-            mode="link"
-            disabled={busy || !!blocked}
-            onLinked={() => {
-              void client.invalidateQueries({ queryKey: key });
-            }}
-          />
           <form
             onSubmit={event => {
               event.preventDefault();

@@ -1,4 +1,4 @@
-// Generated from canonical OpenAPI SHA256 cddc9ee442cc9b7ffcb185bc1de08d8985a3c37ad7f0cd46e7f8c13f7c7cd9e7. Do not edit.
+// Generated from canonical OpenAPI SHA256 d74990fa9c4cd66d06f78d9c6478a6fcc8b2e938c41b5c2ca1b506f33cab66d5. Do not edit.
 export interface paths {
     "/api/analytics/actual": {
         parameters: {
@@ -30328,6 +30328,7 @@ export interface paths {
                     offset?: number | string;
                     assignedOffset?: number | string;
                     limit?: number | string;
+                    hierarchy?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -30344,6 +30345,175 @@ export interface paths {
                         "text/plain": components["schemas"]["TaskPickerView"];
                         "application/json": components["schemas"]["TaskPickerView"];
                         "text/json": components["schemas"]["TaskPickerView"];
+                    };
+                };
+                /** @description Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description JWT veya giriş bilgisi gerekli/geçersiz. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Kaynak yok veya bu kullanıcıya ait değil. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Sürüm/idempotency/domain çatışması; güncel durumu okuyun. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Beklenmeyen hata; traceId ile takip edilir. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Gerekli sağlayıcı/özellik kullanılamıyor. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/{kind}/{id}/task-tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    offset?: number | string;
+                    limit?: number | string;
+                };
+                header?: never;
+                path: {
+                    kind: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ResourceTaskTreePage"];
+                        "application/json": components["schemas"]["ResourceTaskTreePage"];
+                        "text/json": components["schemas"]["ResourceTaskTreePage"];
                     };
                 };
                 /** @description Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors. */
@@ -37038,6 +37208,11 @@ export interface components {
             workSeconds: number | string;
             /** Format: int32 */
             sessionCount: number | string;
+            /**
+             * Format: double
+             * @default 0
+             */
+            estimatedCompletedSeconds: number | string;
         };
         ActualBreakdownPage: {
             /** Format: date */
@@ -37057,6 +37232,11 @@ export interface components {
             limit: number | string;
             /** Format: int32 */
             total: number | string;
+            /**
+             * Format: double
+             * @default 0
+             */
+            totalEstimatedCompletedSeconds: number | string;
         };
         ActualBucketView: {
             /** Format: date */
@@ -37084,6 +37264,16 @@ export interface components {
             /** Format: double */
             missingSnapshotSeconds: number | string;
             focus: components["schemas"]["FocusMetrics"];
+            /**
+             * Format: double
+             * @default 0
+             */
+            estimatedCompletedSeconds: number | string;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            estimatedCompletedCount: number | string;
         };
         AddDayItemRequest: {
             /** Format: uuid */
@@ -37097,6 +37287,7 @@ export interface components {
             /** Format: int64 */
             expectedPlanningVersion: number | string;
             isUrgent?: boolean;
+            scope?: components["schemas"]["PlanEntryScope"];
             priority?: components["schemas"]["TaskPriority"];
             energyDemand?: null | components["schemas"]["EnergyLevel"];
         };
@@ -37608,6 +37799,7 @@ export interface components {
             limit: number | string;
             /** Format: int32 */
             total: number | string;
+            groups?: null | components["schemas"]["DayPlanGroup"][];
         };
         /** @enum {unknown} */
         DayItemPlacement: "Last" | "First" | null;
@@ -37634,10 +37826,15 @@ export interface components {
             /** @default false */
             isUrgent: boolean;
             timingIssue?: null | string;
+            /** Format: uuid */
+            groupTaskId?: null | string;
+            /** Format: uuid */
+            groupParentTaskId?: null | string;
         };
         /** @enum {unknown} */
         DayItemState: "Planned" | "Removed" | "Scheduled";
         DayItemVersionRequest: {
+            completeTask?: boolean;
             /** Format: int64 */
             version?: number | string;
         };
@@ -37674,6 +37871,10 @@ export interface components {
             priority?: components["schemas"]["TaskPriority"];
             energyDemand?: null | components["schemas"]["EnergyLevel"];
             timingIssue?: null | string;
+            /** Format: uuid */
+            groupTaskId?: null | string;
+            /** Format: uuid */
+            groupParentTaskId?: null | string;
         };
         DayOverviewView: {
             day: components["schemas"]["DailyPlanView"];
@@ -37687,6 +37888,20 @@ export interface components {
             support: components["schemas"]["SupportDayView"];
             versions: components["schemas"]["DayReadVersions"];
             recurringTaskIds: string[];
+        };
+        DayPlanGroup: {
+            /** Format: uuid */
+            taskId: string;
+            members: components["schemas"]["DayPlanMember"][];
+        };
+        DayPlanMember: {
+            /** Format: uuid */
+            taskId: string;
+            /** Format: uuid */
+            parentTaskId: null | string;
+            title: string;
+            /** Format: uuid */
+            scheduleId: null | string;
         };
         DayReadVersions: {
             /** Format: int64 */
@@ -38193,6 +38408,7 @@ export interface components {
         MoveDayItemRequest: {
             /** Format: date */
             targetDate: string;
+            completeTask?: boolean;
             /** Format: int64 */
             version?: number | string;
         };
@@ -38332,6 +38548,15 @@ export interface components {
             poolId?: null | string;
             /** Format: date-time */
             deadlineAt?: null | string;
+            /** Format: date */
+            plannedFrom?: null | string;
+            /** Format: date */
+            plannedTo?: null | string;
+            energyDemand?: null | components["schemas"]["EnergyLevel"];
+            /** @enum {unknown} */
+            priority?: "Low" | "Normal" | "High" | "Urgent" | null;
+            /** @default true */
+            inheritNoteDueAt: boolean;
         };
         /** @enum {unknown} */
         NoteDisplay: "Short" | "Detailed" | "Toggle";
@@ -38648,6 +38873,8 @@ export interface components {
             /** @default false */
             replayed: boolean;
         };
+        /** @enum {unknown} */
+        PlanEntryScope: "Single" | "Subtree";
         PlanEntryVersionRequest: {
             /** Format: uuid */
             id: string;
@@ -38769,6 +38996,10 @@ export interface components {
             photoUploadEnabled: boolean;
             firstName: string;
             lastName: string;
+            /** @default true */
+            hasPassword: boolean;
+            /** @default false */
+            googleLinked: boolean;
         };
         PushConfiguration: {
             enabled: boolean;
@@ -39114,6 +39345,17 @@ export interface components {
         ResourceFieldsRequest: {
             name: string;
             description?: null | string;
+        };
+        ResourceTaskTreePage: {
+            roots: components["schemas"]["TaskView"][];
+            nodes: components["schemas"]["TaskView"][];
+            parents: components["schemas"]["TaskAncestorRow"][];
+            /** Format: int32 */
+            offset: number | string;
+            /** Format: int32 */
+            limit: number | string;
+            /** Format: int32 */
+            total: number | string;
         };
         ResourceVersionRequest: {
             /** Format: int64 */
@@ -39647,6 +39889,7 @@ export interface components {
             directEstimatedSeconds: null | number | string;
             priority: components["schemas"]["TaskPriority"];
             energyDemand: null | components["schemas"]["EnergyLevel"];
+            children?: null | components["schemas"]["TaskPickerRow"][];
         };
         TaskPickerView: {
             assigned: components["schemas"]["TaskPickerPage"];

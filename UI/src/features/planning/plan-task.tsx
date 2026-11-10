@@ -9,7 +9,7 @@ import { useSession } from "../auth/provider";
 import { localToday, validDate } from "../preferences/model";
 import { useDisplayPreferences } from "../workspace/queries";
 import { isOffline, offlineWrite } from "../tasks/model";
-import { dayItemLimit, readDayItems } from "./model";
+import { dayItemLimit, readDay, readDayItems } from "./model";
 import { acceptTaskPlan, blocksTaskPlanRetry, taskPlanFailure } from "./plan-task-model";
 
 /** Mevcut görev kimliği ve sunucunun saatsiz öğe komutu kullanılır. Görev kopyası veya istemci plan hesabı yok. */
@@ -19,7 +19,7 @@ export function PlanTask({
   close,
   report,
 }: {
-  task: { id: string; title: string };
+  task: { id: string; title: string; scope?: "Single" | "Subtree" };
   trigger: HTMLElement;
   close: () => void;
   report: (value: { pending: boolean }) => void;
@@ -80,13 +80,30 @@ export function PlanTask({
             "Görev okunan plan sayfasında görünmüyor. Sonuç hâlâ doğrulanamadı; işlem tekrar gönderilmedi. Günün planını kontrol edebilirsin.",
           );
       } else {
-        acceptTaskPlan(
-          await session.api
-            .mutation("/api/daily-plans/{date}/items", "post", { path: { date: selected }, body: { taskId: task.id } })
-            .execute(),
-          task.id,
-          selected,
-        );
+        if (task.scope === "Subtree") {
+          const day = readDay(
+            await session.api.read("/api/daily-plans/{date}", { path: { date: selected } }),
+            selected,
+          );
+          const result = await session.api
+            .mutation("/api/daily-plans/{date}/entries", "post", {
+              path: { date: selected },
+              body: { taskId: task.id, scope: "Subtree", expectedPlanningVersion: day.planningVersion },
+            })
+            .execute();
+          acceptTaskPlan(result.item, task.id, selected);
+        } else {
+          acceptTaskPlan(
+            await session.api
+              .mutation("/api/daily-plans/{date}/items", "post", {
+                path: { date: selected },
+                body: { taskId: task.id },
+              })
+              .execute(),
+            task.id,
+            selected,
+          );
+        }
         if (!current()) return;
         // Yazı makbuzu yeterli. Yavaş takip GET'i doğrulanmış kaydı gizlememeli.
         setSaved(true);

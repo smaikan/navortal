@@ -14,11 +14,13 @@ import { ApiError } from "../../src/lib/api/errors";
 const today = "2026-10-23",
   filters = readFilters(new URLSearchParams("fromDate=2026-10-01&toDate=2026-10-23&bucket=Month"), today);
 const metrics: Actual["totals"] = {
+  estimatedCompletedCount: 0,
   workSeconds: "1800.123456",
   taskWorkSeconds: "1800.123456",
   generalWorkSeconds: 0,
   manualWorkSeconds: "1800.123456",
   sessionCount: 1,
+  estimatedCompletedSeconds: 0,
   segmentCount: 1,
   missingSnapshotSeconds: 0,
   focus: {
@@ -58,6 +60,7 @@ const item = {
   snapshotAvailable: true,
   workSeconds: 600,
   sessionCount: 1,
+  estimatedCompletedSeconds: 0,
 };
 const breakdown: Breakdown = {
   fromDate: filters.fromDate,
@@ -65,6 +68,7 @@ const breakdown: Breakdown = {
   dimension: "Task",
   timeZonePolicy: "SourceSessionZone",
   serverNow: actual.serverNow,
+  totalEstimatedCompletedSeconds: 0,
   totalWorkSeconds: 2700,
   items: [item],
   offset: 0,

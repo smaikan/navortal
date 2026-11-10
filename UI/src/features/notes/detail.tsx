@@ -121,7 +121,7 @@ export function NoteDetail({
       )}
       {convert && (
         <Suspense fallback={<p role="status">Dönüştürme açılıyor…</p>}>
-          <Convert note={note} zone={zone} trigger={convert} close={() => setConvert(null)} />
+          <Convert note={note} trigger={convert} close={() => setConvert(null)} />
         </Suspense>
       )}
     </Surface>

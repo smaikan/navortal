@@ -2,10 +2,8 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import { Plus, X } from "lucide-react";
 import { useSession } from "../auth/provider";
-import { useTaskPanel } from "../../components/layout/task-panel";
 import { ApiError } from "../../lib/api/errors";
-import { estimateText, priorities, states } from "../tasks/model";
-import { useTasks } from "../tasks/queries";
+import { useCollectionTasks, ResourceTaskTree } from "./task-tree";
 import { duration } from "../tasks/work/model";
 import { ResourceTile } from "./resource-tile";
 import {
@@ -23,22 +21,8 @@ import {
   type ResourceKind,
 } from "./model";
 import { resourceApi, useCollectionCache, useResource, useResourceWorkload } from "./queries";
-import type { TaskQuery } from "../tasks/model";
-import { Menu, openRowMenu } from "../../components/ui/menu";
 const PlanTask = lazy(() => import("../planning/plan-task").then(module => ({ default: module.PlanTask })));
 const ResourceTaskPicker = lazy(() => import("./task-picker").then(module => ({ default: module.ResourceTaskPicker })));
-function taskFilter(kind: ResourceKind, id: string): Partial<TaskQuery> {
-  switch (kind) {
-    case "projects":
-      return { projectId: id };
-    case "pools":
-      return { poolId: id };
-    case "categories":
-      return { categoryId: id };
-    case "tags":
-      return { tagId: id };
-  }
-}
 
 type Report = (change: { dirty?: boolean; pending?: boolean }) => void;
 export function ResourceDetail({
@@ -187,23 +171,18 @@ function ResourceTasks({
     },
     [report],
   );
-  const open = useTaskPanel();
-  const tasks = useTasks({
-    ...taskFilter(kind, id),
-    offset,
-    limit: resourceTaskPageSize,
-    includeArchived: false,
-    includeCompleted: true,
-    orderBy: "Title",
-  });
+  const tasks = useCollectionTasks(kind, id, offset, resourceTaskPageSize);
   const data = tasks.data;
   const count = data?.items.length ?? 0;
-  const [plan, setPlan] = useState<{ task: { id: string; title: string }; trigger: HTMLElement } | null>(null);
+  const [plan, setPlan] = useState<{
+    task: { id: string; title: string; scope?: "Single" | "Subtree" };
+    trigger: HTMLElement;
+  } | null>(null);
   return (
     <section className="resource-block" aria-labelledby={`${kind}-tasks-heading`}>
       <div className="resource-section-heading">
         <h3 id={`${kind}-tasks-heading`}>
-          Görevler {data && <span className="resource-task-count">{data.total}</span>}
+          Görevler {data && <span className="resource-task-count">{data.nodes.length}</span>}
         </h3>
         {!archived && (kind === "projects" || kind === "pools") && (
           <button
@@ -241,49 +220,18 @@ function ResourceTasks({
       {!data && !tasks.isError && <p role="status">Görevler okunuyor…</p>}
       {data && (
         <>
-          <p className="muted relation-count">{data.total} görev</p>
+          <p className="muted relation-count">{data.total} ana / tekil görev grubu</p>
           {count ? (
-            <ul className="task-list resource-task-list" aria-label={`${meta.singular} görevleri`}>
-              {data.items.map(task => (
-                <li
-                  key={task.id}
-                  className="resource-task-line"
-                  onContextMenu={kind === "pools" ? openRowMenu : undefined}
-                >
-                  <button
-                    className={`task-row${task.state === "Completed" ? " completed" : ""}`}
-                    onClick={event => open(task.id, event.currentTarget)}
-                    aria-label={`${task.title} ayrıntısını aç`}
-                  >
-                    <span className="task-row-title">{task.title}</span>
-                    <span className="task-row-meta">
-                      <span>{states[task.state]}</span>
-                      <span>{priorities[task.priority]} öncelik</span>
-                      <span>
-                        {task.hasDirectWork
-                          ? estimateText(task.directEstimatedSeconds) || "Tahmin yok"
-                          : "Kapsayıcı görev"}
-                      </span>
-                    </span>
-                  </button>
-                  {kind === "pools" && (
-                    <Menu
-                      label={`${task.title} havuz görevi menüsü`}
-                      items={[
-                        {
-                          label: "Güne planla",
-                          disabled:
-                            pickerPending ||
-                            !task.hasDirectWork ||
-                            ["Completed", "Skipped", "Canceled"].includes(task.state),
-                          onSelect: trigger => setPlan({ task, trigger }),
-                        },
-                      ]}
-                    />
-                  )}
-                </li>
-              ))}
-            </ul>
+            <ResourceTaskTree
+              kind={kind}
+              roots={data.roots}
+              nodes={data.nodes}
+              parents={data.parents}
+              archived={archived}
+              onPlan={(task, trigger, subtree) =>
+                setPlan({ task: { ...task, scope: subtree ? "Subtree" : "Single" }, trigger })
+              }
+            />
           ) : (
             <p className="relation-empty">
               Bu {meta.locative} arşivlenmemiş görev yok. Arşivlenmiş görevler bu listede ve iş yükünde sayılmaz.

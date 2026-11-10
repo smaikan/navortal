@@ -374,7 +374,7 @@ function Library({ zone, list }: { zone: string; list: CategoryList }) {
       )}
       {convert && (
         <Suspense fallback={<p role="status">Dönüştürme açılıyor…</p>}>
-          <Convert note={convert.note} zone={zone} trigger={convert.trigger} close={() => setConvert(null)} />
+          <Convert note={convert.note} trigger={convert.trigger} close={() => setConvert(null)} />
         </Suspense>
       )}
       {manage && (

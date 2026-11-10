@@ -616,3 +616,7 @@ label.recurrence-history-row:hover {
 .recurrence-top {
   margin-bottom: 20px;
 }
+
+.recurrence-board.is-empty {
+  grid-template-columns: minmax(0, 1fr);
+}

@@ -200,3 +200,7 @@ export function analyticsFailure(e: unknown) {
   if (e instanceof ApiError && ["offline", "protocol"].includes(e.kind)) return e.message;
   return "Rapor okunamadı. Bağlantını kontrol edip yeniden dene.";
 }
+
+/** Ölçülen çalışma ile sayaçsız tamamlanan tahminler ayrı kaynaklardır. */
+export const accountedSeconds = (m: { workSeconds: number | string; estimatedCompletedSeconds?: number | string }) =>
+  Number(m.workSeconds) + Number(m.estimatedCompletedSeconds ?? 0);

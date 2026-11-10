@@ -79,7 +79,7 @@ export function GoogleSignInButton({
                 if (!current() || (error instanceof ApiError && error.kind === "identity-changed")) return;
                 setIssue(
                   error instanceof ApiError && error.code === "google_link_required"
-                    ? "Bu e-postayla bir hesabın var. Önce e-posta ve parolanla giriş yap, ardından Ayarlar › Profil bölümünden Google hesabını bağla."
+                    ? "Bu e-postayla bir hesabın var. Önce e-posta ve parolanla giriş yap, ardından Ayarlar › Hesap bölümünden Google hesabını bağla."
                     : error instanceof ApiError && error.code === "google_challenge_invalid"
                       ? "Google girişinin süresi doldu. Yeniden deneyebilirsin."
                       : error instanceof Error

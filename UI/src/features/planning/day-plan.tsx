@@ -79,11 +79,13 @@ type RowProps = {
   onEdit?: () => void;
   /** Sıradaki açık öğe. Satır vurgulanır, başlatma düğmeleri yazıyla görünür. */
   next?: boolean;
+  hideParent?: boolean;
 };
 
 /** Plan satırında gün öğesi kutusu, saat, görev/üst adı, tahmin, Başlat ve menü var. Satıra basınca saat yerinde düzenlenir. */
 export function PlanRow({
   entry,
+  hideParent = false,
   date,
   zone,
   format,
@@ -168,7 +170,7 @@ export function PlanRow({
         >
           <span className="r2-plan-title">
             {facts.title}
-            {facts.parent && <span className="r2-plan-parent"> · {facts.parent}</span>}
+            {facts.parent && !hideParent && <span className="r2-plan-parent"> · {facts.parent}</span>}
             {running && (
               <span className="r2-chip running-chip">
                 <span className="running-dot" aria-hidden="true" />

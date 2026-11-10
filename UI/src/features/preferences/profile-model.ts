@@ -6,6 +6,8 @@ export type Profile = {
   photoUploadEnabled: boolean;
   firstName: string;
   lastName: string;
+  hasPassword?: boolean;
+  googleLinked?: boolean;
 };
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function readProfile(value: unknown): Profile {
@@ -26,7 +28,9 @@ export function readProfile(value: unknown): Profile {
       (typeof u.googlePictureUrl !== "string" || !isValidGooglePictureUrl(u.googlePictureUrl))) ||
     typeof p?.photoUploadEnabled !== "boolean" ||
     typeof p.firstName !== "string" ||
-    typeof p.lastName !== "string"
+    typeof p.lastName !== "string" ||
+    (p.hasPassword !== undefined && typeof p.hasPassword !== "boolean") ||
+    (p.googleLinked !== undefined && typeof p.googleLinked !== "boolean")
   )
     throw new ApiError("protocol", "Profil bilgileri okunamadı.");
   return p as Profile;

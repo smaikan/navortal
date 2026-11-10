@@ -1,4 +1,5 @@
 "use client";
+import { ChevronRight } from "lucide-react";
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import type { components } from "../../lib/api/generated/schema";
@@ -38,10 +39,10 @@ function decode(value: PickerView) {
   if (typeof value.hasExactMatch !== "boolean") throw new ApiError("protocol", "Görev eşleşmesi doğrulanamadı.");
   return value;
 }
-export function useTaskPicker(date: string | undefined, search: string, enabled = true) {
+export function useTaskPicker(date: string | undefined, search: string, enabled = true, hierarchy = false) {
   const { session, state } = useSession();
   return useInfiniteQuery({
-    queryKey: queryKeys.resource(state.user!.id, "task-picker", { date, search }),
+    queryKey: queryKeys.resource(state.user!.id, "task-picker", { date, search, hierarchy }),
     enabled,
     networkMode: "always",
     staleTime: 30_000,
@@ -61,7 +62,7 @@ export function useTaskPicker(date: string | undefined, search: string, enabled 
     queryFn: async ({ signal, pageParam }) =>
       decode(
         await session.api.read("/api/tasks/picker", {
-          query: { date, search: search || undefined, ...pageParam, limit: 25 },
+          query: { date, search: search || undefined, ...pageParam, limit: 25, hierarchy },
           signal,
         }),
       ),
@@ -109,9 +110,11 @@ export function TaskPicker({
   disabled = false,
   placeholder = "Görev ekle",
   leadingIcon,
+  hierarchical = false,
 }: {
   date?: string;
-  choose: (row: PickerRow) => Promise<boolean>;
+  choose: (row: PickerRow, scope?: "Single" | "Subtree") => Promise<boolean>;
+  hierarchical?: boolean;
   create?: (title: string, fields: NewTaskFields) => Promise<boolean>;
   createLabel?: (title: string) => string;
   excluded?: ReadonlySet<string>;
@@ -136,10 +139,20 @@ export function TaskPicker({
     return () => clearTimeout(timer);
   }, [wanted]);
   const showing = expanded && !disabled;
-  const query = useTaskPicker(date, search, showing);
-  const assigned = pickerRows(query.data?.pages, "assigned", excluded),
-    other = pickerRows(query.data?.pages, "other", excluded);
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
+  const depthById = new Map<string, number>();
+  const flatten = (roots: PickerRow[], depth = 0): PickerRow[] =>
+    roots.flatMap(row => {
+      depthById.set(row.id, depth);
+      return [row, ...(collapsed.has(row.id) ? [] : flatten(row.children ?? [], depth + 1))];
+    });
+  const query = useTaskPicker(date, search, showing, hierarchical);
+  const assignedRoots = pickerRows(query.data?.pages, "assigned", hierarchical ? empty : excluded),
+    otherRoots = pickerRows(query.data?.pages, "other", hierarchical ? empty : excluded);
+  const assigned = hierarchical ? flatten(assignedRoots) : assignedRoots,
+    other = hierarchical ? flatten(otherRoots) : otherRoots;
   const matches = (row: PickerRow) =>
+    hierarchical ||
     `${row.parentTitle ?? ""} ${row.title}`.toLocaleLowerCase("tr-TR").includes(wanted.toLocaleLowerCase("tr-TR"));
   const a = assigned.filter(matches),
     b = other.filter(matches),
@@ -153,10 +166,26 @@ export function TaskPicker({
     if (flight.current || disabled) return;
     const row = rows[index];
     if (!row && !(canCreate && index === rows.length)) return;
+    if (
+      row &&
+      hierarchical &&
+      excluded.has(row.id) &&
+      !(row.children?.length && !row.parentTaskId && depthById.get(row.id) === 0)
+    )
+      return;
     flight.current = true;
     setPending(true);
     try {
-      if (await (row ? choose(row) : create!(wanted, { priority, energyDemand: energy }))) {
+      if (
+        await (row
+          ? choose(
+              row,
+              hierarchical && !!row.children?.length && !row.parentTaskId && depthById.get(row.id) === 0
+                ? "Subtree"
+                : "Single",
+            )
+          : create!(wanted, { priority, energyDemand: energy }))
+      ) {
         setText("");
         setSearch("");
         setActive(0);
@@ -182,19 +211,53 @@ export function TaskPicker({
       setExpanded(false);
     }
   }
-  const option = (row: PickerRow, index: number) => (
-    <div
-      key={row.id}
-      id={`${id}-${index}`}
-      role="option"
-      aria-selected={current === index}
-      className={`r2-option${current === index ? " active" : ""}`}
-      onMouseDown={e => e.preventDefault()}
-      onClick={() => void select(index)}
-    >
-      <PickerLabel row={row} />
-    </div>
-  );
+  const option = (row: PickerRow, index: number) => {
+    const nested = hierarchical && (depthById.get(row.id) ?? 0) > 0;
+    const planned = hierarchical && excluded.has(row.id);
+    const canRefresh = !!row.children?.length && !row.parentTaskId && !nested;
+    return (
+      <div
+        key={row.id}
+        className={hierarchical ? "r2-picker-tree-line" : undefined}
+        style={hierarchical ? { paddingInlineStart: `${Math.min(depthById.get(row.id) ?? 0, 12) * 18}px` } : undefined}
+      >
+        {hierarchical && !!row.children?.length && (
+          <button
+            type="button"
+            aria-label={`${row.title} alt görevleri`}
+            aria-expanded={!collapsed.has(row.id)}
+            onMouseDown={e => e.preventDefault()}
+            onClick={() =>
+              setCollapsed(before => {
+                const next = new Set(before);
+                if (next.has(row.id)) next.delete(row.id);
+                else next.add(row.id);
+                return next;
+              })
+            }
+          >
+            <ChevronRight
+              size={14}
+              aria-hidden
+              style={{ transform: !collapsed.has(row.id) ? "rotate(90deg)" : undefined }}
+            />
+          </button>
+        )}
+        <div
+          id={`${id}-${index}`}
+          role="option"
+          aria-selected={current === index}
+          aria-disabled={(planned && !canRefresh) || undefined}
+          className={`r2-option${current === index ? " active" : ""}`}
+          onMouseDown={e => e.preventDefault()}
+          onClick={() => void select(index)}
+        >
+          <PickerLabel row={nested ? { ...row, parentTitle: null } : row} />
+          {planned && <span className="r2-option-planned">Planda</span>}
+        </div>
+      </div>
+    );
+  };
   return (
     <div
       className="r2-add-plan"

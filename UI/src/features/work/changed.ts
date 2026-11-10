@@ -5,6 +5,8 @@ export const WORK_CHANNEL = "adhd.work.changes.v1";
 const resources = [
   "task",
   "tasks",
+  "analytics",
+  "collection-task-tree",
   "task-tree",
   "task-work",
   "task-components",

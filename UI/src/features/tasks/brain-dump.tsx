@@ -1,6 +1,7 @@
 "use client";
 import { useId, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 import { useSession } from "../auth/provider";
 import { ApiError } from "../../lib/api/errors";
 import { queryKeys } from "../../lib/api/query-client";
@@ -79,19 +80,26 @@ export function BrainDump({ done }: { done?: () => void }) {
       }}
       aria-busy={busy}
     >
-      <label htmlFor={`${id}-text`}>Aklındakileri alt alta yaz</label>
-      <textarea
-        id={`${id}-text`}
-        rows={8}
-        value={text}
-        readOnly={busy}
-        aria-describedby={`${id}-preview`}
-        onChange={event => {
-          setText(event.target.value);
-          setMessage("");
-        }}
-      />
-      <p id={`${id}-preview`} className="muted" aria-live="polite">
+      <p className="brain-dump-intro">Önce aklındakileri yaz, ayrıntıları sonra düzenleyebilirsin.</p>
+      <div className="brain-dump-field">
+        <div className="brain-dump-label">
+          <label htmlFor={`${id}-text`}>Aklındakileri alt alta yaz</label>
+          <span id={`${id}-limit`}>En fazla {dumpLimit} görev</span>
+        </div>
+        <textarea
+          id={`${id}-text`}
+          rows={10}
+          value={text}
+          readOnly={busy}
+          placeholder={"Faturayı öde\nSunum taslağını hazırla\nKargoyu teslim al"}
+          aria-describedby={`${id}-limit ${id}-preview`}
+          onChange={event => {
+            setText(event.target.value);
+            setMessage("");
+          }}
+        />
+      </div>
+      <p id={`${id}-preview`} className="brain-dump-preview" data-ready={!!preview.titles.length} aria-live="polite">
         {preview.titles.length ? `${preview.titles.length} görev eklenecek` : "Her dolu satır bir görev olur."}
         {preview.skipped ? ` · ${preview.skipped} tekrar satırı atlandı` : ""}
         {preview.over ? ` · ilk ${dumpLimit} satır alınır` : ""}
@@ -101,8 +109,13 @@ export function BrainDump({ done }: { done?: () => void }) {
           {failure}
         </p>
       )}
-      {message && <p role="status">{message}</p>}
+      {message && (
+        <p role="status" className="brain-dump-feedback">
+          {message}
+        </p>
+      )}
       <button type="submit" className="primary" disabled={busy || !preview.titles.length}>
+        <Plus size={18} aria-hidden="true" />
         {busy ? "Ekleniyor…" : "Görevleri ekle"}
       </button>
     </form>

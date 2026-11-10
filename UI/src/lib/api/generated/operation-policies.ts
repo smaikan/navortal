@@ -11,6 +11,7 @@ export const operationPolicies = {
   "DELETE /api/matrix/items/{taskId}": policy0,
   "DELETE /api/tasks/{id}/dependencies/{sourceId}": policy0,
   "DELETE /api/tasks/{id}/ordering/{sourceId}": policy0,
+  "GET /api/{kind}/{id}/task-tree": policy1,
   "GET /api/account/profile": policy1,
   "GET /api/account/profile/photo": policy1,
   "GET /api/analytics/actual": policy1,

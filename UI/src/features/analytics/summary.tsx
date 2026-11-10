@@ -1,6 +1,6 @@
 "use client";
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { Actual } from "./model";
+import { accountedSeconds, type Actual } from "./model";
 import { bucketLabel, leadSentence, longDate, previousTitle, rangeText, roughDuration, type View } from "./period";
 import { Failure } from "./failure";
 import styles from "./report.module.css";
@@ -10,7 +10,7 @@ export function Summary({ view, actual, previous }: { view: View; actual: Query;
   const r = actual.data,
     p = previous.data,
     // Karşılaştırma okunamazsa yalnız karşılaştırma kalkar, ana sayı kalır.
-    prior = view.previous && p ? p.totals.workSeconds : null,
+    prior = view.previous && p ? accountedSeconds(p.totals) : null,
     // Kapalı sorgu TanStack Query içinde pending kalabiliyor. Gerçekten istenen karşılaştırmayı bekliyoruz.
     settled = !view.previous || !previous.isPending;
   return (
@@ -39,23 +39,33 @@ export function Summary({ view, actual, previous }: { view: View; actual: Query;
       {r && (
         <>
           <p className={styles.lead} role={settled ? undefined : "status"}>
-            {settled ? leadSentence(view.period, r.totals.workSeconds, prior) : "Karşılaştırma okunuyor…"}
+            {settled
+              ? Number(r.totals.estimatedCompletedSeconds ?? 0) > 0
+                ? `Bu dönemde ${roughDuration(r.totals.workSeconds)} ölçülen çalışma ve ${roughDuration(r.totals.estimatedCompletedSeconds)} tahmini tamamlanan iş kaydedildi.`
+                : leadSentence(view.period, accountedSeconds(r.totals), prior)
+              : "Karşılaştırma okunuyor…"}
           </p>
           <div className={styles.tiles}>
             <div className={styles.tile}>
-              <span className={styles.label}>Çalışma süresi</span>
-              <strong className={styles.value}>{roughDuration(r.totals.workSeconds)}</strong>
+              <span className={styles.label}>
+                {Number(r.totals.estimatedCompletedSeconds ?? 0) > 0 ? "Çalışma ve biten işler" : "Çalışma süresi"}
+              </span>
+              <strong className={styles.value}>{roughDuration(accountedSeconds(r.totals))}</strong>
               <span className={styles.note}>
-                {prior !== null ? `${previousTitle[view.period]}: ${roughDuration(prior)}` : " "}
+                {Number(r.totals.estimatedCompletedSeconds ?? 0) > 0
+                  ? `${roughDuration(r.totals.workSeconds)} ölçülen · ${roughDuration(r.totals.estimatedCompletedSeconds)} tahmini tamamlanan`
+                  : prior !== null
+                    ? `${previousTitle[view.period]}: ${roughDuration(prior)}`
+                    : " "}
               </span>
             </div>
             {r.bucket === "Day" ? (
               <div className={styles.tile}>
                 <span className={styles.label}>Çalışılan gün</span>
                 <strong className={styles.value}>
-                  {r.buckets.filter(b => Number(b.metrics.workSeconds) > 0).length} / {r.buckets.length}
+                  {r.buckets.filter(b => accountedSeconds(b.metrics) > 0).length} / {r.buckets.length}
                 </strong>
-                <span className={styles.note}>Kayıtlı çalışma olan gün</span>
+                <span className={styles.note}>Çalışma veya tamamlanan iş olan gün</span>
               </div>
             ) : (
               <div className={styles.tile}>
@@ -90,7 +100,7 @@ export function Rhythm({ view, actual }: { view: View; actual: Query }) {
       </section>
     ) : null;
   const rows = r.buckets,
-    values = rows.map(b => Number(b.metrics.workSeconds)),
+    values = rows.map(b => accountedSeconds(b.metrics)),
     max = Math.max(0, ...values),
     peak = max > 0 ? values.indexOf(max) : -1,
     dense = rows.length > 14;

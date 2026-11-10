@@ -36,6 +36,79 @@ test.afterAll(async () => {
   await setup?.dispose();
 });
 
+test("draft row menu reverses indentation and removes a parent while retaining its written children", async ({
+  page,
+}) => {
+  const run = randomUUID().slice(0, 6);
+  await signIn(page, token);
+  await page.goto("/tasks");
+  await page.getByRole("button", { name: "Görev ekle", exact: true }).click();
+  await page.getByRole("textbox", { name: "Yeni görev adı", exact: true }).fill(`Düzenlenen taslak ${run}`);
+  await page.getByRole("button", { name: "Yeni göreve alt görev ekle", exact: true }).click();
+  const first = page.getByRole("textbox", { name: "1. alt görev adı, 1. seviye", exact: true });
+  await first.fill(`Hazırlık ${run}`);
+  const second = page.getByRole("textbox", { name: "2. alt görev adı, 1. seviye", exact: true });
+  await second.fill(`Kontrol ${run}`);
+  await second.press("Tab");
+  await expect(page.getByRole("textbox", { name: "2. alt görev adı, 2. seviye", exact: true })).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(second).toBeFocused();
+  await expect(second).toHaveValue(`Kontrol ${run}`);
+  await second.press("Tab");
+
+  const actions = page.getByRole("button", { name: `Kontrol ${run} taslak işlemleri`, exact: true });
+  await expect(actions).toBeVisible();
+  await actions.click();
+  await page.getByRole("menuitem", { name: "Bir seviye yukarı al", exact: true }).click();
+  await expect(second).toBeFocused();
+  await page.getByRole("button", { name: `Kontrol ${run} altına alt görev ekle`, exact: true }).click();
+  await page.getByRole("textbox", { name: "3. alt görev adı, 2. seviye", exact: true }).fill(`Korunan alt adım ${run}`);
+  await actions.click();
+  await page.getByRole("menuitem", { name: "Kaldır", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "2. alt görev adı, 1. seviye", exact: true })).toHaveValue(
+    `Korunan alt adım ${run}`,
+  );
+  await expect(first).toBeFocused();
+  await page.getByRole("button", { name: "Ekle", exact: true }).click();
+  await expect(detail(page, `Düzenlenen taslak ${run}`)).toBeVisible();
+  const saved = await children((await rootTask(`Düzenlenen taslak ${run}`)).id);
+  expect(saved.map(task => task.title)).toEqual([`Hazırlık ${run}`, `Korunan alt adım ${run}`]);
+});
+
+test("the final empty draft row can be removed by Backspace or its menu without discarding the title", async ({
+  page,
+}) => {
+  await signIn(page, token);
+  await page.goto("/tasks");
+  await page.getByRole("button", { name: "Görev ekle", exact: true }).click();
+  const title = page.getByRole("textbox", { name: "Yeni görev adı", exact: true });
+  const plus = page.getByRole("button", { name: "Yeni göreve alt görev ekle", exact: true });
+  await plus.click();
+  await page.getByRole("textbox", { name: "1. alt görev adı, 1. seviye", exact: true }).press("Backspace");
+  await expect(page.getByRole("textbox", { name: /alt görev adı/ })).toHaveCount(0);
+  await expect(title).toBeFocused();
+  await title.fill("Korunacak ana görev");
+  await plus.click();
+  await page.getByRole("button", { name: "1. satır taslak işlemleri", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kaldır", exact: true }).click();
+  await expect(title).toBeFocused();
+  await expect(title).toHaveValue("Korunacak ana görev");
+  await expect(page.getByRole("textbox", { name: /alt görev adı/ })).toHaveCount(0);
+  await plus.click();
+  const first = page.getByRole("textbox", { name: "1. alt görev adı, 1. seviye", exact: true });
+  await first.fill("Yazılan görev");
+  await page.getByRole("textbox", { name: "2. alt görev adı, 1. seviye", exact: true }).press("Backspace");
+  await expect(first).toBeFocused();
+  await expect(page.getByRole("textbox", { name: /alt görev adı/ })).toHaveCount(1);
+  await first.press("End");
+  await first.press("Backspace");
+  await expect(first).toHaveValue("Yazılan göre");
+  // Editing the last filled row keeps the existing automatic next-empty-row behavior.
+  await expect(page.getByRole("textbox", { name: /alt görev adı/ })).toHaveCount(2);
+  await first.press("Escape");
+  await expect(page.getByRole("button", { name: "Görev ekle", exact: true })).toBeVisible();
+});
+
 test("add row opens only the title with a plus; subtasks nest and save once; unknown result is retried only by the user with the same key", async ({
   page,
 }, info) => {

@@ -41,7 +41,7 @@ export function useTaskDraftGuard(dirty: boolean) {
 const TaskPanelContext = createContext<(id: string, trigger: HTMLElement) => void>(() => {
   throw new Error("TaskPanelProvider gerekli.");
 });
-const media = "(min-width: 1200px)";
+const media = "(min-width: 768px)";
 function subscribe(callback: () => void) {
   const query = window.matchMedia(media);
   query.addEventListener("change", callback);

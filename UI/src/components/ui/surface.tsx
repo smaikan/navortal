@@ -42,6 +42,24 @@ function slide(element: HTMLElement, from: string, to: string, entering = false)
     fill: "forwards",
   });
 }
+/** Consume the compatibility click from this gesture even after its dialog has unmounted.
+ * A fresh pointerdown or keyboard click is a new intentional action and stays available. */
+function consumeOutsideClick() {
+  const stop = () => {
+    window.removeEventListener("click", click, true);
+    window.removeEventListener("pointerdown", stop, true);
+    window.clearTimeout(timer);
+  };
+  const click = (event: MouseEvent) => {
+    stop();
+    if (event.detail === 0) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
+  const timer = window.setTimeout(stop, 750);
+  window.addEventListener("click", click, true);
+  window.addEventListener("pointerdown", stop, true);
+}
 const modalLocks = new Set<HTMLDialogElement>();
 let bodyOverflow = "";
 
@@ -297,7 +315,7 @@ export function Surface({
             event.clientX > rect.right ||
             event.clientY < rect.top ||
             event.clientY > rect.bottom);
-        if (outsideDown.current && isSheet(event.currentTarget)) {
+        if (outsideDown.current) {
           event.preventDefault();
           event.stopPropagation();
         }
@@ -310,19 +328,19 @@ export function Surface({
             event.clientX > rect.right ||
             event.clientY < rect.top ||
             event.clientY > rect.bottom);
-        if (isSheet(event.currentTarget) && (outsideDown.current || outside)) {
+        const down = outsideDown.current;
+        outsideDown.current = false;
+        if (down || outside) {
           event.preventDefault();
           event.stopPropagation();
-          return;
+          consumeOutsideClick();
+          if (down && outside) requestClose();
         }
-        if (outsideDown.current && outside) requestClose();
-        outsideDown.current = false;
       }}
       onPointerCancel={() => {
         outsideDown.current = false;
       }}
       onClick={event => {
-        if (!isSheet(event.currentTarget)) return;
         const down = outsideDown.current;
         outsideDown.current = false;
         const rect = event.currentTarget.getBoundingClientRect();
