@@ -31,6 +31,8 @@ public static class AuthRegistration
         services.AddScoped<IAuthSessionStore, AuthSessionStore>();
         services.AddScoped<AuthService>();
         services.Configure<GoogleSettings>(config.GetSection("Google"));
+        services.AddDataProtection();
+        services.AddScoped<GoogleChallenge>();
         services.AddScoped<IGoogleTokenVerifier, GoogleTokenVerifier>();
         services.AddScoped<IGoogleAccountStore, GoogleAccountStore>();
         services.AddScoped<GoogleAuthService>();

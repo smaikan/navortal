@@ -12,6 +12,12 @@ public sealed class CsrfProtection(RequestDelegate next)
         {
             var bearer = context.Request.Headers.Authorization.Any(x => x?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true);
             var origin = Source(context);
+            if (context.Request.Path.Equals("/api/auth/session/google", StringComparison.OrdinalIgnoreCase)
+                && (origin is null || !SameHost(context, origin) || context.Request.Headers[SessionCookie.CsrfHeader] != "1"))
+            {
+                await Refuse(context, "csrf_required");
+                return;
+            }
             if (!bearer && origin is not null && !SameHost(context, origin))
             {
                 await Refuse(context, "csrf_origin");

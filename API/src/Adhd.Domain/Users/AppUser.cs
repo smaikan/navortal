@@ -15,6 +15,7 @@ public sealed class AppUser
     public Guid? ProfilePhotoId { get; set; }
     public Guid? ProfilePhotoRevision { get; set; }
     public long? ProfilePhotoCloudVersion { get; set; }
+    public string? GooglePictureUrl { get; set; }
 }
 
 public sealed class UserPlanningState

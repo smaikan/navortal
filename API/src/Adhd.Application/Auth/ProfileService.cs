@@ -9,7 +9,7 @@ public interface IProfileStore
 {
     Task<AppUser?> ReadAsync(Guid user, CancellationToken ct);
     Task<bool> NameAsync(Guid user, long version, string firstName, string lastName, string displayName, CancellationToken ct);
-    Task<bool> PhotoAsync(Guid user, long version, Guid? photo, long? cloudVersion, Guid? revision, CancellationToken ct);
+    Task<bool> PhotoAsync(Guid user, long version, Guid? photo, long? cloudVersion, Guid? revision, CancellationToken ct, bool clearGooglePicture = false);
 }
 public interface IProfilePhotos
 {
@@ -69,10 +69,10 @@ public sealed class ProfileService(IProfileStore store, IProfilePhotos photos)
     public async Task<ProfileView> RemoveAsync(Guid user, long version, CancellationToken ct)
     {
         var before = await Required(user, ct); Version(before, version);
-        if (before.ProfilePhotoId is null) return View(before);
+        if (before.ProfilePhotoId is null && before.GooglePictureUrl is null) return View(before);
         // Fotoğraf bağını önce CAS ile kaldır. Arada ad değişirse silinen fotoğrafı geri bağlamasın.
-        if (!await store.PhotoAsync(user, version, null, null, null, ct)) throw Conflict();
-        await Cleanup(user, before.ProfilePhotoId.Value);
+        if (!await store.PhotoAsync(user, version, null, null, null, ct, clearGooglePicture: true)) throw Conflict();
+        if (before.ProfilePhotoId is { } old) await Cleanup(user, old);
         return await ReadAsync(user, ct);
     }
     public async Task<byte[]> PhotoAsync(Guid user, Guid version, CancellationToken ct)

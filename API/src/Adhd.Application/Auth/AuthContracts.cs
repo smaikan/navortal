@@ -2,7 +2,7 @@ using Adhd.Domain.Users;
 
 namespace Adhd.Application.Auth;
 
-public sealed record UserSummary(Guid Id, string Email, string DisplayName, long ProfileVersion = 1, Guid? PhotoVersion = null);
+public sealed record UserSummary(Guid Id, string Email, string DisplayName, long ProfileVersion = 1, Guid? PhotoVersion = null, string? GooglePictureUrl = null);
 public sealed record AuthResponse(string AccessToken, string TokenType, UserSummary User);
 // Giriş sonucu: dış yanıt ve tokenın bağlı olduğu oturum.
 public sealed record SignIn(AuthResponse Response, Guid SessionId);

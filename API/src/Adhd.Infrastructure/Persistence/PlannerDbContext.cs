@@ -230,6 +230,7 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options,
             b.Property(x => x.DisplayName).HasMaxLength(320);
             b.Property(x => x.FirstName).HasMaxLength(50);
             b.Property(x => x.LastName).HasMaxLength(50);
+            b.Property(x => x.GooglePictureUrl).HasMaxLength(2048);
             b.HasIndex(x => x.NormalizedEmail).IsUnique();
             b.Property(x => x.Version).IsConcurrencyToken();
         });

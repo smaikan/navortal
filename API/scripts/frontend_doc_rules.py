@@ -62,7 +62,10 @@ EXTRA_FIELD_NOTES = {
     'accessToken': 'Uygulamanın süresiz Bearer JWT değeri; register/login yanıtında gelir.',
     'tokenType': 'Authorization şeması: Bearer.',
     'token': 'Yalnız parola sıfırlama kodu; uygulama JWT değildir,64karakter/30dk/tek kullanım.',
-    'idToken': 'Google sağlayıcı kanıtı; geliştirmede Google kapalıdır.',
+    'idToken': 'Doğrulanmış Google Identity Services ID token kanıtı; backend Google:Enabled=true ve geçerli Google:ClientId olduğunda doğrulanır (kapalıysa 503).',
+    'googlePictureUrl': 'Özel yüklenen fotoğraftan ayrı, doğrulanmış Google kimliğinden gelen HTTPS googleusercontent profil görseli fallback URL’si. İstemci no-referrer ile doğrudan Google’dan çeker, sunucu indirmez; özel fotoğraf önceliklidir ve fotoğraf kaldırma her ikisini temizler.',
+    'clientId': 'Google Identity Services Web istemci kimliği; Google kapalı veya yapılandırılmamışsa boş döner.',
+    'nonce': 'Tarayıcı Google GIS akışında replay önleme amaçlı rastgele değer; HttpOnly SameSite=Strict challenge cookie ile doğrulanır.',
     'email': 'Hesap e-postası; kimlik eşleştirmede trim+uppercase normalizasyonu kullanılır.',
     'password': 'Register en az6karakter; login mevcut parolayı aynen alır. Trim/karmaşıklık eklemeyin.',
     'newPassword': 'Reset sonrası parola; en az6karakter. Eski JWT kopyalarını iptal etmez.',
@@ -436,7 +439,11 @@ SCHEMA_FIELD_NOTES = {
     'ProfileVersionRequest': {'expectedUserId': 'İstemcinin me ile doğruladığı hesap kimliği; JWT sahibiyle eşleşmezse404. Yazı hedefini seçmez, cookie değişimi yarışını engeller.'},
     'UpdateProfileRequest': {'expectedUserId': 'İstemcinin me ile doğruladığı hesap kimliği; JWT sahibiyle eşleşmezse404.'},
     'UploadProfilePhotoRequest': {'uploadId': 'Her yeni kullanıcı niyeti için rastgele UUID; belirsiz yanıt GET user.photoVersion ile uzlaştırılır. Cloudinary asset kimliği değildir.', 'contentBase64': 'En fazla2MiB JPEG/PNG/WebP dosyasının saf base64 içeriği; data URL öneki yok. Azami2796204 karakter; gerçek byte imzası da denetlenir.'},
-    'UserSummary': {'profileVersion': 'Profil yazılarının beklenen users sürümü; ad/fotoğraf değişiminde artar. Geç eski me yanıtı daha yeni sürümü ezmez.', 'photoVersion': 'Fotoğraf yoksa null; varsa fotoğraf yükleme niyetinin opak UUID sürümü. Yalnız aynı owner /api/account/profile/photo?version= üzerinden okunur; Cloudinary adresi veya asset kimliği değildir.'},
+    'UserSummary': {'profileVersion': 'Profil yazılarının beklenen users sürümü; ad/fotoğraf değişiminde artar. Geç eski me yanıtı daha yeni sürümü ezmez.', 'photoVersion': 'Fotoğraf yoksa null; varsa fotoğraf yükleme niyetinin opak UUID sürümü. Yalnız aynı owner /api/account/profile/photo?version= üzerinden okunur; Cloudinary adresi veya asset kimliği değildir.', 'googlePictureUrl': 'İsteğe bağlı harici profil fotoğrafı URL’si; yalnız HTTPS googleusercontent kökenlidir. Özel yüklenen fotoğraf (photoVersion) önceliklidir, kullanıcı fotoğrafı sildiğinde Google fallback de kalıcı olarak temizlenir.'},
+    'GoogleAuthConfigView': {'enabled': 'Sunucuda Google kimlik doğrulamasının açık olup olmadığı (Google.Enabled).', 'clientId': 'Google Identity Services Web istemci kimliği (Google.ClientId); kapalıysa boş.', 'nonce': 'Kısa ömürlü tarayıcı doğrulama nonce değeri; etkin olduğunda HttpOnly challenge cookie ile eşleşir.'},
+    'GoogleRequest': {'idToken': 'Google Identity Services tarafından sağlanan doğrulanmış ID token kanıtı.'},
+    'GoogleLoginRequest': {'idToken': 'Google Identity Services tarafından sağlanan doğrulanmış ID token kanıtı.'},
+    'GoogleLinkRequest': {'idToken': 'Mevcut oturuma bağlanacak Google hesabına ait doğrulanmış ID token.', 'expectedUserId': 'me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse 404/409, başka kullanıcı bağlanamaz.'},
     'NoteView': {'title': 'Yalnız Detailed/Toggle notta zorunlu, 1–200 karakter, trim edilir; Short notta null olmalıdır.', 'categoryId': 'Owner not kategorisi; null kategorisiz. Yazmada etkin kategori gerekir; kaldırılmış kategorideki notlar bağını korur.', 'display': 'Short tek metin; Detailed listede başlık + pencere; Toggle listede başlık + yerinde açılan içerik. NextStep yalnız Short.', 'taskTitle': 'Bağlı görevin güncel başlığı aynı okumada; görev yoksa null. Görev kopyası değildir.'},
     'NoteFields': {'title': 'Yalnız Detailed/Toggle notta zorunlu, 1–200 karakter, trim edilir; Short notta null olmalıdır.', 'categoryId': 'Owner not kategorisi; null kategorisiz. Yazmada etkin kategori gerekir; kaldırılmış kategorideki notlar bağını korur.', 'display': 'Short tek metin; Detailed listede başlık + pencere; Toggle listede başlık + yerinde açılan içerik. NextStep yalnız Short.'},
     'EditNoteRequest': {'display': 'Null/verilmezse başlık, kategori ve gösterim aynen kalır (yalnız metin/tarih düzenleme). Değer verilirse title ve categoryId birlikte yeniden yazılır.', 'title': 'display verildiğinde: Detailed/Toggle için 1–200, Short için null.', 'categoryId': 'display verildiğinde yeni değerdir; null kategoriyi kaldırır. Değişmeyen kaldırılmış kategori kabul edilir, yeni kategori etkin olmalıdır.'},
@@ -502,6 +509,14 @@ SCHEMA_FIELD_NOTES = {
 
 
 def operation_notes(method, path):
+    if method == 'GET' and path == '/api/auth/google/config':
+        return ['Google yapılandırması: no-store önbellekleme; sunucuda Google etkinse (Google:Enabled=true ve ClientId dolu) enabled=true, clientId ve tarayıcı giriş/bağlama akışında replay koruması için kısa ömürlü HttpOnly SameSite=Strict challenge cookie ile eşleşen nonce döner. Kapalıysa enabled=false ve boş clientId döner.']
+    if method == 'POST' and path == '/api/auth/session/google':
+        return ['Tarayıcı Google oturumu: idToken Google Identity Services tarafından sağlanır. Sunucu tokenı doğrular, challenge cookie kontrolü yapar ve HttpOnly app session cookie yazar. Yanıt yalnız UserSummary taşır, Bearer token içermez. Sunucuda Google kapalıysa 503; yetkisiz üçüncü taraf e-postada mevcut hesap varsa 409 google_link_required döner.']
+    if method == 'POST' and path == '/api/auth/google/link':
+        return ['Oturum açmış kullanıcıya Google kimliğini bağlar. Cookie isteklerinde expectedUserId zorunludur ve oturum sahibiyle eşleşmelidir (404); Bearer istemcide gönderilirse kontrol edilir. Tarayıcı isteklerinde challenge cookie doğrulanır, Bearer uyumludur. Geçersiz Google kanıtı/challenge 400 döner, mevcut uygulama oturumu kapanmaz. Bağlantı sonrası UserSummary.googlePictureUrl güncellenebilir. Başka hesaba bağlı sub için 409 google_already_linked döner.']
+    if method == 'POST' and path == '/api/auth/google':
+        return ['Harici ve mobil istemciler için Bearer uyumluluk ucu. Doğrulanmış idToken ile JWT AccessToken ve UserSummary döner; tarayıcı /api/auth/session/google kullanır. Google kapalıysa 503 döner.']
     if method == 'POST' and path == '/api/auth/change-password':
         return ['Mevcut parola ve expectedUserId doğrulanır. En az6 karakter yeni parola trim edilmez; mevcut paroladan farklıdır. Hash/version, reset bağlantıları, bütün eski sid iptalleri ve yeni sid tek transaction içindedir. Response yalnız UserSummary; yeni JWT HttpOnly cookie içindedir. Eski cookie/Bearer kopyaları ve diğer cihazlar kapanır. Cookie CSRF/Origin ve auth rate limit geçerlidir. Key/otomatik retry yok; belirsiz sonuçta yeni parolayla giriş yap. GET me parola değişikliğini kanıtlamaz.']
     if path.startswith('/api/analytics/recurrences'):

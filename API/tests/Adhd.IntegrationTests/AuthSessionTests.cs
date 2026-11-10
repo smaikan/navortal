@@ -48,7 +48,7 @@ public sealed class AuthSessionTests(DatabaseFixture fixture) : IClassFixture<Da
         var created = await browser.PostAsJsonAsync("/api/auth/session/register", new { email, password = "123456" });
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
         using var body = System.Text.Json.JsonDocument.Parse(await created.Content.ReadAsStringAsync());
-        Assert.Equal(new[] { "displayName", "email", "id", "photoVersion", "profileVersion" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order().ToArray());
+        Assert.Equal(new[] { "displayName", "email", "googlePictureUrl", "id", "photoVersion", "profileVersion" }, body.RootElement.EnumerateObject().Select(x => x.Name).Order().ToArray());
         var owner = (await browser.GetFromJsonAsync<UserSummary>("/api/auth/me"))!;
         Assert.Equal(email, owner.Email);
         Assert.Contains("httponly", created.Headers.GetValues("Set-Cookie").Single(), StringComparison.OrdinalIgnoreCase);

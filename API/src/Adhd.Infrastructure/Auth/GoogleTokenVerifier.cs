@@ -23,7 +23,16 @@ public sealed class GoogleTokenVerifier(IOptions<GoogleSettings> settings) : IGo
         {
             var proof = await GoogleJsonWebSignature.ValidateAsync(credential,
                 new GoogleJsonWebSignature.ValidationSettings { Audience = [settings.Value.ClientId] }).WaitAsync(ct);
-            return new GoogleIdentity(proof.Subject, proof.Email, proof.Name, proof.EmailVerified);
+            return new GoogleIdentity(
+                proof.Subject,
+                proof.Email,
+                proof.Name,
+                proof.EmailVerified,
+                proof.GivenName,
+                proof.FamilyName,
+                proof.Picture,
+                proof.HostedDomain,
+                proof.Nonce);
         }
         catch (InvalidJwtException)
         { throw new UseCaseException(ErrorKind.Unauthenticated, "google_invalid", "Google kimliği doğrulanamadı."); }

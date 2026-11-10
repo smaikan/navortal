@@ -65,6 +65,6 @@ public sealed class AuthService(IUserStore users, IPasswordService passwords, IA
         return true;
     }
     public static string NormalizeEmail(string email) => email.Trim().ToUpperInvariant();
-    public static UserSummary Summary(AppUser u) => new(u.Id, u.Email, u.DisplayName, u.Version, u.ProfilePhotoRevision);
+    public static UserSummary Summary(AppUser u) => new(u.Id, u.Email, u.DisplayName, u.Version, u.ProfilePhotoRevision, u.GooglePictureUrl);
     public static string TokenHash(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 }

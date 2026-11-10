@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using Adhd.Api.Auth;
 using Adhd.Application.Auth;
+using Adhd.Application.Common;
+using Adhd.Infrastructure.Auth;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -9,7 +12,8 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace Adhd.Api.Controllers;
 
 [ApiController, Route("api/auth")]
-public sealed class AuthController(AuthService auth, IUserStore users, GoogleAuthService google, PasswordChangeService passwordChange, TimeProvider clock) : ControllerBase
+public sealed class AuthController(AuthService auth, IUserStore users, GoogleAuthService google, PasswordChangeService passwordChange, TimeProvider clock,
+    IOptions<GoogleSettings> googleSettings, GoogleChallenge challenge) : ControllerBase
 {
     [Authorize, HttpPost("change-password"), EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(UserSummary), 200)]
@@ -106,8 +110,46 @@ public sealed class AuthController(AuthService auth, IUserStore users, GoogleAut
     [ProducesResponseType(204)]
     public async Task<IActionResult> LinkGoogle(GoogleRequest request, CancellationToken ct)
     {
-        await google.LinkAsync(UserId, request.IdToken, ct);
+        EnsureGoogleEnabled();
+        var browser = HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem);
+        if ((browser || request.ExpectedUserId.HasValue) && request.ExpectedUserId != UserId)
+            throw new UseCaseException(ErrorKind.NotFound, "google_owner_changed", "Hesap değişti. Girişini kontrol et.");
+        try
+        {
+            await google.LinkAsync(UserId, request.IdToken, ct, browser ? challenge.Read(HttpContext) : null);
+        }
+        catch (UseCaseException error) when (error.Code is "google_invalid" or "google_challenge_invalid")
+        {
+            // Google kanıtı geçersizken mevcut uygulama oturumu hâlâ geçerlidir.
+            throw new UseCaseException(ErrorKind.Validation, error.Code, error.Message);
+        }
+        if (browser) challenge.Clear(HttpContext);
         return NoContent();
+    }
+
+    [HttpGet("google/config")]
+    public GoogleAuthConfigView GoogleConfig()
+    {
+        Response.Headers.CacheControl = "no-store, private";
+        var enabled = googleSettings.Value.Enabled && !string.IsNullOrWhiteSpace(googleSettings.Value.ClientId);
+        return enabled ? new(true, googleSettings.Value.ClientId, challenge.Create(HttpContext)) : new(false, null, null);
+    }
+
+    [HttpPost("session/google"), EnableRateLimiting("auth")]
+    public async Task<UserSummary> GoogleSession(GoogleRequest request, CancellationToken ct)
+    {
+        EnsureGoogleEnabled();
+        var nonce = challenge.Read(HttpContext);
+        var signIn = await google.LoginAsync(request.IdToken, Family(), ct, nonce);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        challenge.Clear(HttpContext);
+        return signIn.Response.User;
+    }
+
+    private void EnsureGoogleEnabled()
+    {
+        if (!googleSettings.Value.Enabled) throw new UseCaseException(ErrorKind.Unavailable, "google_disabled", "Google girişi şu anda kapalı.");
+        if (string.IsNullOrWhiteSpace(googleSettings.Value.ClientId)) throw new UseCaseException(ErrorKind.Unavailable, "google_not_configured", "Google girişi henüz yapılandırılmadı.");
     }
 
     private Guid UserId => Guid.Parse(User.FindFirst("sub")!.Value);
@@ -129,7 +171,9 @@ public sealed class LoginRequest
 public sealed class GoogleRequest
 {
     [Required, StringLength(20000)] public string IdToken { get; set; } = "";
+    public Guid? ExpectedUserId { get; set; }
 }
+public sealed record GoogleAuthConfigView(bool Enabled, string? ClientId, string? Nonce);
 public sealed class ChangePasswordRequest
 {
     [Required] public Guid ExpectedUserId { get; set; }
