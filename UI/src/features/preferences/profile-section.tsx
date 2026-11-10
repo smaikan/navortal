@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "../auth/provider";
 import { ProfileAvatar } from "../auth/avatar";
+import { GoogleSignInButton } from "../auth/google-sign-in-button";
 import { queryKeys } from "../../lib/api/query-client";
 import { ApiError } from "../../lib/api/errors";
 import { Menu } from "../../components/ui/menu";
@@ -149,7 +150,7 @@ function ProfileEditor({ owner }: { owner: string }) {
           ? result.firstName === blocked.first && result.lastName === blocked.last
           : blocked?.kind === "photo"
             ? result.user.photoVersion === blocked.id
-            : blocked?.kind === "remove" && !result.user.photoVersion;
+            : blocked?.kind === "remove" && !result.user.photoVersion && !result.user.googlePictureUrl;
       if (matched && blocked?.kind === "name") setDraft(undefined);
       else setDraft(old => (old ? { ...old, version: result.user.profileVersion! } : old));
       setBlocked(undefined);
@@ -189,9 +190,9 @@ function ProfileEditor({ owner }: { owner: string }) {
                   disabled={busy || !!blocked || !profile.photoUploadEnabled}
                   onClick={() => fileInput.current?.click()}
                 >
-                  {profile.user.photoVersion ? "Fotoğrafı değiştir" : "Fotoğraf seç"}
+                  {profile.user.photoVersion || profile.user.googlePictureUrl ? "Fotoğrafı değiştir" : "Fotoğraf seç"}
                 </button>
-                {profile.user.photoVersion && (
+                {(profile.user.photoVersion || profile.user.googlePictureUrl) && (
                   <Menu
                     label="Profil fotoğrafı seçenekleri"
                     items={[
@@ -223,11 +224,19 @@ function ProfileEditor({ owner }: { owner: string }) {
             }}
           />
           <p className="profile-privacy muted">
-            Fotoğrafın Cloudinary’de saklanır ve hesabına giriş yapılarak görüntülenir.{" "}
+            Yüklediğin fotoğraf Cloudinary’de saklanır. Google profil fotoğrafın varsa tarayıcın görseli Google’dan
+            alır.{" "}
             <Link href="/privacy-notice" target="_blank" rel="noopener">
               Veri kullanımı hakkında bilgi<span className="sr-only"> (yeni sekmede açılır)</span>
             </Link>
           </p>
+          <GoogleSignInButton
+            mode="link"
+            disabled={busy || !!blocked}
+            onLinked={() => {
+              void client.invalidateQueries({ queryKey: key });
+            }}
+          />
           <form
             onSubmit={event => {
               event.preventDefault();

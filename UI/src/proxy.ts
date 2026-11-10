@@ -17,6 +17,7 @@ export function proxy(request: NextRequest) {
   if (security.nonce) headers.set("x-nonce", security.nonce);
   const response = pageResponse(request, headers);
   response.headers.set("Content-Security-Policy", security.policy);
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   if (security.nonce) response.headers.set("Cache-Control", "no-store, private, max-age=0");
   return response;
 }

@@ -26,6 +26,16 @@ export default function Cookies() {
         </p>
       </section>
       <section>
+        <h2>Google ile giriş</h2>
+        <p>
+          Google girişi etkinse giriş ve hesap bağlama ekranlarında Google Identity Services yüklenir. Giriş isteğini
+          doğrulayan birinci taraf çerezi <code>__Host-adhd_google_challenge</code> en fazla 10 dakika saklanır;
+          HttpOnly, Secure ve SameSite=Strict kullanır ve başarılı işlemde temizlenir. Yerel geliştirmede adı{" "}
+          <code>adhd_google_challenge</code> olur. Google’ın hesap seçimi ve oturum hizmetleri kendi alanında çalışır;
+          e-posta ve parola girişimiz de kullanılabilir.
+        </p>
+      </section>
+      <section>
         <h2>Yerel görünüm ve kullanım tercihleri</h2>
         <p>
           Tema seçimi, menü görünümü, kapattığın ipuçları ve bazı gün planı görünüm seçimleri localStorage’da saklanır.

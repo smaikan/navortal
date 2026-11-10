@@ -8,6 +8,11 @@ export type LogoutResult = Readonly<{
   status: "confirmed" | "already-ended" | "unconfirmed" | "superseded";
   allDevices: boolean;
 }>;
+export type GoogleConfig = Readonly<{
+  enabled: boolean;
+  clientId: string | null;
+  nonce: string | null;
+}>;
 /** Oturum JavaScript'in göremediği HttpOnly cookie'de. Bu anahtar yalnız burada giriş olabilir işareti, sır içermiyor. Gereksiz me isteğini azaltıyor ve sekmelere giriş/çıkış değişikliğini duyuruyor. */
 export const SESSION_MARKER_KEY = "adhd.session.v1";
 /** Eski token kaydını bir kere cookie oturumuna taşımak için okuyup siliyoruz. */
@@ -16,6 +21,22 @@ export type TokenStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 type Phase = "initializing" | "anonymous" | "checking" | "unavailable" | "authenticated";
 type Snapshot = Readonly<{ phase: Phase; user: User | null; storageWarning: string | null }>;
 export const INITIAL_SESSION: Snapshot = { phase: "initializing", user: null, storageWarning: null };
+
+const GOOGLE_USERCONTENT_HOST = /(?:^|\.)googleusercontent\.com$/i;
+
+export function isValidGooglePictureUrl(value: unknown): value is string {
+  if (typeof value !== "string" || !value.trim() || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:") return false;
+    if (url.username || url.password) return false;
+    if (url.port !== "" && url.port !== "443") return false;
+    const hostname = url.hostname.toLowerCase();
+    return GOOGLE_USERCONTENT_HOST.test(hostname);
+  } catch {
+    return false;
+  }
+}
 
 function validUser(value: unknown): value is User {
   if (!value || typeof value !== "object") return false;
@@ -30,7 +51,11 @@ function validUser(value: unknown): value is User {
       (typeof user.profileVersion === "number" &&
         Number.isSafeInteger(user.profileVersion) &&
         user.profileVersion > 0)) &&
-    (user.photoVersion == null || (typeof user.photoVersion === "string" && /^[0-9a-f-]{36}$/i.test(user.photoVersion)))
+    (user.photoVersion == null ||
+      (typeof user.photoVersion === "string" && /^[0-9a-f-]{36}$/i.test(user.photoVersion))) &&
+    (user.googlePictureUrl === undefined ||
+      user.googlePictureUrl === null ||
+      (typeof user.googlePictureUrl === "string" && isValidGooglePictureUrl(user.googlePictureUrl)))
   );
 }
 
@@ -47,6 +72,7 @@ export function createSession(options: {
   let verification: Promise<void> | undefined;
   let requests = new AbortController();
   let logoutPending = false;
+  let authPending = false;
   const listeners = new Set<() => void>();
   const ownerCleanups = new Set<() => void>();
   const publish = (next: Snapshot) => {
@@ -210,7 +236,8 @@ export function createSession(options: {
       old.email !== user.email ||
       old.displayName !== user.displayName ||
       (old.profileVersion ?? 1) !== (user.profileVersion ?? 1) ||
-      (old.photoVersion ?? null) !== (user.photoVersion ?? null)
+      (old.photoVersion ?? null) !== (user.photoVersion ?? null) ||
+      (old.googlePictureUrl ?? null) !== (user.googlePictureUrl ?? null)
     )
       publish({ ...snapshot, user });
     return true;
@@ -314,16 +341,67 @@ export function createSession(options: {
       await verify();
     },
     async authenticate(mode: "login" | "register", credentials: Credentials) {
-      if (logoutPending) throw new ApiError("policy", "Çıkış işlemi sürüyor. Birazdan yeniden dene.");
-      const epoch = identity.epoch;
-      const response =
-        mode === "register"
-          ? await api.mutation("/api/auth/session/register", "post", { body: credentials }).execute()
-          : await api.mutation("/api/auth/session/login", "post", { body: credentials }).execute();
-      if (identity.epoch !== epoch) throw new ApiError("identity-changed", "Giriş durumu değişti. Yeniden dene.");
-      if (!validUser(response)) throw new ApiError("protocol", "Giriş yanıtı doğrulanamadı.");
-      replaceIdentity(true, mark());
-      await verify();
+      if (authPending || logoutPending)
+        throw new ApiError("policy", "Giriş veya çıkış işlemi sürüyor. Birazdan yeniden dene.");
+      authPending = true;
+      try {
+        const epoch = identity.epoch;
+        const response =
+          mode === "register"
+            ? await api.mutation("/api/auth/session/register", "post", { body: credentials }).execute()
+            : await api.mutation("/api/auth/session/login", "post", { body: credentials }).execute();
+        if (identity.epoch !== epoch) throw new ApiError("identity-changed", "Giriş durumu değişti. Yeniden dene.");
+        if (!validUser(response)) throw new ApiError("protocol", "Giriş yanıtı doğrulanamadı.");
+        replaceIdentity(true, mark());
+        await verify();
+      } finally {
+        authPending = false;
+      }
+    },
+    async authenticateGoogle(idToken: string, expectedEpoch = identity.epoch) {
+      if (identity.epoch !== expectedEpoch) throw new ApiError("identity-changed", "Giriş durumu değişti.");
+      if (authPending || logoutPending)
+        throw new ApiError("policy", "Giriş veya çıkış işlemi sürüyor. Birazdan yeniden dene.");
+      authPending = true;
+      try {
+        const response = await api.mutation("/api/auth/session/google", "post", { body: { idToken } }).execute();
+        if (identity.epoch !== expectedEpoch) throw new ApiError("identity-changed", "Giriş durumu değişti.");
+        if (!validUser(response)) throw new ApiError("protocol", "Giriş yanıtı doğrulanamadı.");
+        replaceIdentity(true, mark());
+        await verify();
+      } finally {
+        authPending = false;
+      }
+    },
+    async getGoogleConfig(signal?: AbortSignal): Promise<GoogleConfig> {
+      const config = await api.read("/api/auth/google/config", { signal });
+      if (
+        !config ||
+        typeof config.enabled !== "boolean" ||
+        (config.enabled &&
+          (typeof config.clientId !== "string" ||
+            !config.clientId.trim() ||
+            typeof config.nonce !== "string" ||
+            !/^[A-Za-z0-9_-]{43}$/.test(config.nonce)))
+      )
+        throw new ApiError("protocol", "Google giriş ayarları doğrulanamadı.");
+      return { enabled: config.enabled, clientId: config.clientId ?? null, nonce: config.nonce ?? null };
+    },
+    async linkGoogle(idToken: string, expectedEpoch = identity.epoch) {
+      if (identity.epoch !== expectedEpoch) throw new ApiError("identity-changed", "Hesap durumu değişti.");
+      if (!identity.active || !identity.verified || !snapshot.user)
+        throw new ApiError("not-authenticated", "Google hesabını bağlamak için oturum açık olmalı.");
+      if (authPending || logoutPending) throw new ApiError("policy", "İşlem sürüyor. Birazdan yeniden dene.");
+      authPending = true;
+      try {
+        const owner = snapshot.user.id;
+        await api.mutation("/api/auth/google/link", "post", { body: { idToken, expectedUserId: owner } }).execute();
+        if (identity.epoch !== expectedEpoch || snapshot.user?.id !== owner)
+          throw new ApiError("identity-changed", "Hesap durumu değişti.");
+        await recheck();
+      } finally {
+        authPending = false;
+      }
     },
     verify,
     /** Bu oturumu sunucuda kapatıyoruz. İstek hata verse bile yerel durum temizleniyor. */

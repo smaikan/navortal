@@ -7,7 +7,7 @@ import { FormSkeleton } from "../../../components/ui/skeleton";
 export const metadata: Metadata = {
   title: "Giriş yap",
   robots: { index: false, follow: false },
-  referrer: "no-referrer",
+  referrer: "strict-origin",
 };
 export default function LoginPage() {
   return (

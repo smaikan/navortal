@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createSession,
+  isValidGooglePictureUrl,
   LEGACY_TOKEN_KEY,
   SESSION_MARKER_KEY,
   type TokenStorage,
@@ -461,4 +462,119 @@ it("return paths accept only known workspace routes and migrate legacy deep link
     "/tasks/%5cevil",
   ])
     expect(safeReturnPath(path)).toBe("/planning");
+});
+
+describe("Google session ownership", () => {
+  it("uses the browser endpoint, verifies me and persists only the non-secret session marker", async () => {
+    const f = fixture();
+    await f.session.initialize();
+    f.fetch.mockResolvedValueOnce(json(user)).mockResolvedValueOnce(json(user));
+    await f.session.authenticateGoogle("ephemeral-google-proof");
+    expect(f.fetch.mock.calls[0][0]).toBe("/api/auth/session/google");
+    const init = f.fetch.mock.calls[0][1]!;
+    expect(JSON.parse(init.body as string)).toEqual({ idToken: "ephemeral-google-proof" });
+    expect(new Headers(init.headers).get("X-ADHD-CSRF")).toBe("1");
+    expect(init.credentials).toBe("same-origin");
+    expect(new Headers(init.headers).has("Authorization")).toBe(false);
+    expect(f.fetch.mock.calls[1][0]).toBe("/api/auth/me");
+    expect([...f.data.entries()]).toEqual([[SESSION_MARKER_KEY, MARK]]);
+    expect(f.session.getSnapshot().phase).toBe("authenticated");
+  });
+
+  it("rejects a callback from a previous identity without sending its credential", async () => {
+    const f = fixture();
+    await f.session.initialize();
+    const old = f.session.getIdentity().epoch;
+    f.session.forget();
+    await expect(f.session.authenticateGoogle("old-proof", old)).rejects.toMatchObject({ kind: "identity-changed" });
+    expect(f.fetch).not.toHaveBeenCalled();
+  });
+
+  it("blocks concurrent password and Google submissions and discards a late Google response", async () => {
+    const f = fixture();
+    await f.session.initialize();
+    let finish!: (response: Response) => void;
+    f.fetch.mockImplementationOnce(
+      () =>
+        new Promise(resolve => {
+          finish = resolve;
+        }),
+    );
+    const pending = f.session.authenticateGoogle("proof");
+    await expect(f.session.authenticate("login", { email: user.email, password: "123456" })).rejects.toMatchObject({
+      kind: "policy",
+    });
+    await expect(f.session.authenticateGoogle("duplicate")).rejects.toMatchObject({ kind: "policy" });
+    f.session.forget();
+    finish(json(user));
+    await expect(pending).rejects.toMatchObject({ kind: "identity-changed" });
+    expect(f.session.getSnapshot().phase).toBe("anonymous");
+    expect(f.data.size).toBe(0);
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not retry a failed Google login automatically", async () => {
+    const f = fixture();
+    await f.session.initialize();
+    f.fetch.mockResolvedValueOnce(json({ title: "Link required", code: "google_link_required" }, 409));
+    await expect(f.session.authenticateGoogle("proof")).rejects.toMatchObject({
+      status: 409,
+      code: "google_link_required",
+    });
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+    expect(f.data.size).toBe(0);
+  });
+
+  it("links the verified owner and refreshes profile receipts without resetting their workspace", async () => {
+    const f = fixture(true);
+    f.fetch.mockResolvedValueOnce(json(user));
+    await f.session.initialize();
+    const epoch = f.session.getIdentity().epoch;
+    f.fetch
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(
+        json({ ...user, profileVersion: 2, googlePictureUrl: "https://lh3.googleusercontent.com/a/photo" }),
+      );
+    await f.session.linkGoogle("proof", epoch);
+    expect(f.fetch.mock.calls[1][0]).toBe("/api/auth/google/link");
+    expect(JSON.parse(f.fetch.mock.calls[1][1]!.body as string)).toEqual({ idToken: "proof", expectedUserId: user.id });
+    expect(f.session.getSnapshot().user?.googlePictureUrl).toBe("https://lh3.googleusercontent.com/a/photo");
+    expect(f.session.getIdentity().epoch).toBe(epoch);
+  });
+
+  it("validates public config and keeps nonce out of browser storage", async () => {
+    const f = fixture();
+    await f.session.initialize();
+    const config = { enabled: true, clientId: "client.apps.googleusercontent.com", nonce: "n".repeat(43) };
+    f.fetch.mockResolvedValueOnce(json(config));
+    expect(await f.session.getGoogleConfig()).toEqual(config);
+    expect(f.data.size).toBe(0);
+    f.fetch.mockResolvedValueOnce(json({ ...config, nonce: null }));
+    await expect(f.session.getGoogleConfig()).rejects.toMatchObject({ kind: "protocol" });
+  });
+
+  it("keeps the existing session when a Google link challenge needs to be refreshed", async () => {
+    const f = fixture(true);
+    f.fetch.mockResolvedValueOnce(json(user));
+    await f.session.initialize();
+    f.fetch.mockResolvedValueOnce(json({ code: "google_challenge_invalid", title: "Try again" }, 400));
+    await expect(f.session.linkGoogle("proof")).rejects.toMatchObject({ status: 400 });
+    expect(f.session.getSnapshot().phase).toBe("authenticated");
+    expect(f.data.get(SESSION_MARKER_KEY)).toBe(MARK);
+    expect(f.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    ["https://lh3.googleusercontent.com/a/photo", true],
+    ["https://googleusercontent.com/a/photo", true],
+    ["http://lh3.googleusercontent.com/a/photo", false],
+    ["https://evilgoogleusercontent.com/a/photo", false],
+    ["https://lh3.googleusercontent.com.evil.test/a/photo", false],
+    ["https://name@lh3.googleusercontent.com/a/photo", false],
+    ["https://lh3.googleusercontent.com:444/a/photo", false],
+    ["javascript:alert(1)", false],
+    ["https://lh3.googleusercontent.com/" + "a".repeat(2048), false],
+  ])("validates Google picture URL %s", (url, expected) => {
+    expect(isValidGooglePictureUrl(url)).toBe(expected);
+  });
 });

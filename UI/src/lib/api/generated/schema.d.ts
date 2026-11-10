@@ -1,4 +1,4 @@
-// Generated from canonical OpenAPI SHA256 7ce40382b361828819e7864d039572d5ee039388bf2683dbe6c820cd63f7bb16. Do not edit.
+// Generated from canonical OpenAPI SHA256 cddc9ee442cc9b7ffcb185bc1de08d8985a3c37ad7f0cd46e7f8c13f7c7cd9e7. Do not edit.
 export interface paths {
     "/api/analytics/actual": {
         parameters: {
@@ -2073,6 +2073,345 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description JWT veya giriş bilgisi gerekli/geçersiz. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Kaynak yok veya bu kullanıcıya ait değil. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Sürüm/idempotency/domain çatışması; güncel durumu okuyun. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin. */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Beklenmeyen hata; traceId ile takip edilir. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Gerekli sağlayıcı/özellik kullanılamıyor. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/google/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["GoogleAuthConfigView"];
+                        "application/json": components["schemas"]["GoogleAuthConfigView"];
+                        "text/json": components["schemas"]["GoogleAuthConfigView"];
+                    };
+                };
+                /** @description Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description JWT veya giriş bilgisi gerekli/geçersiz. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Kaynak yok veya bu kullanıcıya ait değil. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Sürüm/idempotency/domain çatışması; güncel durumu okuyun. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Beklenmeyen hata; traceId ile takip edilir. */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Gerekli sağlayıcı/özellik kullanılamıyor. */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": {
+                            type?: null | string;
+                            title?: null | string;
+                            /** Format: int32 */
+                            status?: null | number | string;
+                            detail?: null | string;
+                            instance?: null | string;
+                            code: string;
+                            traceId: string;
+                            errors?: null | {
+                                [key: string]: string[];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/session/google": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["GoogleRequest"];
+                    "text/json": components["schemas"]["GoogleRequest"];
+                    "application/*+json": components["schemas"]["GoogleRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["UserSummary"];
+                        "application/json": components["schemas"]["UserSummary"];
+                        "text/json": components["schemas"]["UserSummary"];
+                    };
                 };
                 /** @description Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors. */
                 400: {
@@ -37721,8 +38060,15 @@ export interface components {
          * @enum {unknown}
          */
         GapPolicy: "Reject" | "Skip" | "ShiftForward";
+        GoogleAuthConfigView: {
+            enabled: boolean;
+            clientId: null | string;
+            nonce: null | string;
+        };
         GoogleRequest: {
             idToken: string;
+            /** Format: uuid */
+            expectedUserId?: null | string;
         };
         HistoricalTaskState: {
             /** Format: uuid */
@@ -39645,6 +39991,7 @@ export interface components {
             profileVersion: number | string;
             /** Format: uuid */
             photoVersion?: null | string;
+            googlePictureUrl?: null | string;
         };
         UtcWindow: {
             /** Format: date-time */

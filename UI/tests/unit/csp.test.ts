@@ -44,7 +44,23 @@ it("dev-only eval and loopback websocket exceptions do not widen production sour
   const production = pageSecurity("/login", local, false).policy;
   expect(production).not.toContain("'unsafe-eval'");
   expect(production).toContain("ws://127.0.0.1:3400");
-  expect(production).not.toMatch(/(?:https?:|wss?:)\s|\*/);
+  expect(production).not.toMatch(/(?:https?:|wss?:)\s/);
+  for (const source of production.split(/[;\s]+/).filter(source => source.includes("*")))
+    expect(source).toBe("https://*.googleusercontent.com");
+});
+
+it("allows Google Identity Services and Googleusercontent images narrowly and sets COOP", () => {
+  const url = new URL("https://example.test/login");
+  const { policy, nonce } = pageSecurity("/login", url, false);
+  expect(policy).toContain("https://accounts.google.com/gsi/client");
+  expect(policy).toContain("frame-src 'self' https://accounts.google.com");
+  expect(policy).toContain(`style-src 'self' https://accounts.google.com/gsi/style 'nonce-${nonce}'`);
+  expect(policy).toContain("connect-src 'self' wss://example.test");
+  expect(policy).toContain("https://accounts.google.com/gsi/");
+  expect(policy).toContain("img-src 'self' data: blob: https://*.googleusercontent.com https://googleusercontent.com");
+
+  const response = proxy(new NextRequest("https://example.test/login"));
+  expect(response.headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin-allow-popups");
 });
 
 it("permits canonical WSS behind a loopback proxy and accepts only loopback Host overrides", () => {

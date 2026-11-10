@@ -45,14 +45,15 @@ export function pageSecurity(
     basicCsp,
     "default-src 'self'",
     // Sabit tema kodu hash ile ilk boyamadan önce çalışır; root layout request okumaz.
-    `script-src 'self' 'nonce-${nonce}' 'sha256-${themeHash}' 'strict-dynamic'${development ? " 'unsafe-eval'" : ""}`,
-    `style-src 'self' ${development ? "'unsafe-inline'" : `'nonce-${nonce}'`}`,
+    `script-src 'self' 'nonce-${nonce}' 'sha256-${themeHash}' 'strict-dynamic' https://accounts.google.com/gsi/client${development ? " 'unsafe-eval'" : ""}`,
+    `style-src 'self' https://accounts.google.com/gsi/style ${development ? "'unsafe-inline'" : `'nonce-${nonce}'`}`,
     "style-src-attr 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    "frame-src 'self' https://accounts.google.com",
+    "img-src 'self' data: blob: https://*.googleusercontent.com https://googleusercontent.com",
     "font-src 'self'",
     "media-src 'self' blob:",
     "worker-src 'self'",
-    `connect-src 'self' ${websocket.join(" ")}`,
+    `connect-src 'self' ${websocket.join(" ")} https://accounts.google.com/gsi/`,
   ].join("; ");
   return { policy, nonce };
 }

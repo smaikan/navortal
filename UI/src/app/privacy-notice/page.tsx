@@ -28,6 +28,12 @@ export default function PrivacyNotice() {
             tutulmaz.
           </li>
           <li>
+            <strong>Google ile giriş:</strong> Bu seçeneği kullanırsan Google tarafından doğrulanan hesap kimliği,
+            e-posta adresi, ad, soyad ve varsa profil fotoğrafı adresi hesabını oluşturmak veya mevcut hesabına bağlamak
+            için kullanılır. Google profil fotoğrafı görüntülenirken tarayıcın Google’a bir görsel isteği gönderir; IP
+            adresi ve bağlantı bilgileri Google’a iletilebilir. Google parolanı almayız.
+          </li>
+          <li>
             <strong>Girdiğin içerikler:</strong> Görevler, alt görevler, notlar, projeler, etiketler, gün planları,
             tekrarlar, hatırlatmalar ve özel günler; istediğin planlama ve hatırlatma işlevlerini sağlamak için
             saklanır.

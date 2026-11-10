@@ -7,7 +7,7 @@ import { FormSkeleton } from "../../../components/ui/skeleton";
 export const metadata: Metadata = {
   title: "Hesap oluştur",
   robots: { index: false, follow: false },
-  referrer: "no-referrer",
+  referrer: "strict-origin",
 };
 export default function RegisterPage() {
   return (

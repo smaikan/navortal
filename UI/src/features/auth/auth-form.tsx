@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FormSkeleton } from "../../components/ui/skeleton";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { ApiError } from "../../lib/api/errors";
 import { useSession } from "./provider";
 import type { Credentials } from "./session";
 import { safeReturnPath } from "./return-path";
 import { validateCredentials } from "./credentials";
 import { takeLogoutNotice } from "./logout-notice";
+import { GoogleSignInButton } from "./google-sign-in-button";
 
 type AuthFields = Credentials & { acceptTerms: boolean };
 
@@ -21,6 +22,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const search = useSearchParams();
   const next = safeReturnPath(search.get("next"));
   const [showPassword, setShowPassword] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [waitUntil, setWaitUntil] = useState(0);
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -36,6 +38,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     handleSubmit,
     setError,
     resetField,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<AuthFields>({
     defaultValues: { email: "", password: "", acceptTerms: false },
@@ -50,6 +53,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       return Object.keys(errors).length ? { values: {}, errors } : { values, errors: {} };
     },
   });
+  const acceptTerms = useWatch({ control, name: "acceptTerms" });
   useEffect(() => {
     if (state.phase === "authenticated") router.replace(next);
   }, [state.phase, router, next]);
@@ -65,7 +69,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   }, [waitUntil]);
 
   async function submit(values: Credentials) {
-    if (submitting.current || secondsLeft || uncertain) return;
+    if (submitting.current || googleBusy || secondsLeft || uncertain) return;
     submitting.current = true;
     try {
       // Kutu yalnız form şartı. KVKK rızası veya sunucuda tutulan kabul kaydı sayılmıyor.
@@ -140,9 +144,9 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         onSubmit={event => {
           void handleSubmit(submit)(event);
         }}
-        aria-busy={isSubmitting}
+        aria-busy={isSubmitting || googleBusy}
       >
-        <fieldset disabled={isSubmitting}>
+        <fieldset disabled={isSubmitting || googleBusy}>
           <legend className="sr-only">{signup ? "Hesap bilgileri" : "Giriş bilgileri"}</legend>
           <div className="form-field">
             <label htmlFor="email">E-posta</label>
@@ -245,6 +249,14 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           </button>
         </fieldset>
       </form>
+      <GoogleSignInButton
+        mode={mode}
+        disabled={isSubmitting || secondsLeft > 0 || uncertain || (signup && !acceptTerms)}
+        disabledMessage={
+          signup && !acceptTerms ? "Google ile devam etmek için Kullanım Koşulları’nı kabul et." : undefined
+        }
+        onBusyChange={setGoogleBusy}
+      />
       <p className="auth-switch auth-switch-account">
         {signup ? "Hesabın var mı?" : "Hesabın yok mu?"}{" "}
         <Link href={counterpart} prefetch={false}>

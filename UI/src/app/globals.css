@@ -518,6 +518,93 @@ fieldset {
   margin-top: 24px;
   color: var(--muted);
 }
+.google-auth {
+  min-width: 0;
+}
+.google-auth[hidden] {
+  display: none;
+}
+.google-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-block: 22px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+}
+.google-auth-divider::before,
+.google-auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--divider);
+}
+.google-auth-control {
+  position: relative;
+  width: min(100%, 400px);
+  min-height: 40px;
+  margin-inline: auto;
+}
+.google-auth-button {
+  width: 100%;
+  min-width: 0;
+}
+.google-auth-button:focus-within {
+  outline: 2px solid var(--primary-text);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+.google-auth-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--divider);
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--raised);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.google-auth-placeholder svg {
+  flex: none;
+}
+.google-auth-terms {
+  justify-content: flex-start;
+}
+.google-auth-caption {
+  margin-block: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.google-auth .form-error {
+  margin-block: 12px;
+  font-size: 13px;
+}
+.google-auth .google-auth-retry {
+  display: block;
+  width: min(100%, 400px);
+  margin-inline: auto;
+  min-height: 40px;
+  font-size: 14px;
+}
+.google-auth-control[hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .google-auth-spinner {
+    animation: google-auth-spin 1s linear infinite;
+  }
+}
+@keyframes google-auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 /* Giriş ve kayıt: ortada tek kart, arkada markanın güneşinden gelen ince yaylar. */
 .auth-page-arcs {
   background-image:

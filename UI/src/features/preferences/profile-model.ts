@@ -1,5 +1,5 @@
 import { ApiError } from "../../lib/api/errors";
-import type { User } from "../auth/session";
+import { isValidGooglePictureUrl, type User } from "../auth/session";
 
 export type Profile = {
   user: User & { profileVersion: number };
@@ -21,6 +21,9 @@ export function readProfile(value: unknown): Profile {
     !Number.isSafeInteger(u.profileVersion) ||
     u.profileVersion < 1 ||
     (u.photoVersion != null && (typeof u.photoVersion !== "string" || !uuid.test(u.photoVersion))) ||
+    (u.googlePictureUrl !== undefined &&
+      u.googlePictureUrl !== null &&
+      (typeof u.googlePictureUrl !== "string" || !isValidGooglePictureUrl(u.googlePictureUrl))) ||
     typeof p?.photoUploadEnabled !== "boolean" ||
     typeof p.firstName !== "string" ||
     typeof p.lastName !== "string"

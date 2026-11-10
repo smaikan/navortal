@@ -115,9 +115,9 @@ describe("response and policy boundaries", () => {
     await f.api.read("/api/tasks", { query: { includeCompleted: false, search: "%_ test" } });
     expect(f.fetcher.mock.calls[1][0]).toBe("/api/tasks?includeCompleted=false&search=%25_+test");
   });
-  test("Google and undeclared dynamic commands never fetch", () => {
+  test("Google mutations follow normal policy and do not fetch until explicitly executed", () => {
     const f = fixture();
-    expect(() => f.api.mutation("/api/auth/google", "post", { body: { idToken: "unused" } })).toThrow(ApiError);
+    expect(() => f.api.mutation("/api/auth/session/google", "post", { body: { idToken: "unused" } })).not.toThrow();
     expect(f.fetcher).not.toHaveBeenCalled();
   });
   test("focus operation policy resolves only the declared concrete commands", async () => {
