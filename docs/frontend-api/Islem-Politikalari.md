@@ -1,6 +1,6 @@
 # İşlem bazında tekrar, sürüm ve key politikası
 
-Bu tablo 225 somut işlemi kapsar; kaynak OpenAPI220operationdır. 33 OpenAPI operation key ister (focus altı komut açıldığında38 somut key işlemi). Diğer187operationda header tanımlı değildir. GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.
+Bu tablo 227 somut işlemi kapsar; kaynak OpenAPI222operationdır. 33 OpenAPI operation key ister (focus altı komut açıldığında38 somut key işlemi). Diğer189operationda header tanımlı değildir. GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.
 
 | HTTP işlemi | Key / üst sınır | Body sürüm alanları | Tekrar / toparlanma |
 | --- | --- | --- | --- |
@@ -14,8 +14,10 @@ Bu tablo 225 somut işlemi kapsar; kaynak OpenAPI220operationdır. 33 OpenAPI op
 | `DELETE /api/account/profile/photo` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
 | `GET /api/account/profile/photo` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `PUT /api/account/profile/photo` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
+| `POST /api/auth/change-password` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/forgot-password` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/google` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
+| `GET /api/auth/google/config` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `POST /api/auth/google/link` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/login` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/logout` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
@@ -24,6 +26,7 @@ Bu tablo 225 somut işlemi kapsar; kaynak OpenAPI220operationdır. 33 OpenAPI op
 | `POST /api/auth/register` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/reset-password` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/session/adopt` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
+| `POST /api/auth/session/google` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/session/login` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/session/register` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `GET /api/preferences` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
@@ -228,4 +231,3 @@ Bu tablo 225 somut işlemi kapsar; kaynak OpenAPI220operationdır. 33 OpenAPI op
 | `GET /api/analytics/plans` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `GET /api/analytics/recurrences` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `GET /api/analytics/recurrences/{id}` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
-| `POST /api/auth/change-password` | Tanımlı değil | — | Otomatik yazım retry yok; belirsiz sonuçta yeni parolayla giriş. GET me parola değişikliğini kanıtlamaz. |

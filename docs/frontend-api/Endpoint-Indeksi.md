@@ -1,6 +1,6 @@
 # Bütün HTTP yolları
 
-219 OpenAPI controller işlemi, focus komutunun altı yolu ayrı gösterildiğinde224 somut işlem. Her satırın modülünde aynı method/path başlığını bulun. Auth evet ise uygulama JWT Bearer gerekir; başka owner kaynakları404. Health/OpenAPI/SignalR taşıma uçları [ana rehberde](../Frontend%20API%20Rehberi.md) ayrıca açıklanır.
+222 OpenAPI controller işlemi, focus komutunun altı yolu ayrı gösterildiğinde227 somut işlem. Her satırın modülünde aynı method/path başlığını bulun. Auth evet ise uygulama JWT Bearer gerekir; başka owner kaynakları404. Health/OpenAPI/SignalR taşıma uçları [ana rehberde](../Frontend%20API%20Rehberi.md) ayrıca açıklanır.
 
 | Method | Yol | JWT | Referans |
 | --- | --- | --- | --- |
@@ -14,8 +14,10 @@
 | DELETE | `/api/account/profile/photo` | evet | [Profile](auth.md) |
 | GET | `/api/account/profile/photo` | evet | [Profile](auth.md) |
 | PUT | `/api/account/profile/photo` | evet | [Profile](auth.md) |
+| POST | `/api/auth/change-password` | evet | [Auth](auth.md) |
 | POST | `/api/auth/forgot-password` | hayır | [PasswordReset](auth.md) |
 | POST | `/api/auth/google` | hayır | [Auth](auth.md) |
+| GET | `/api/auth/google/config` | hayır | [Auth](auth.md) |
 | POST | `/api/auth/google/link` | evet | [Auth](auth.md) |
 | POST | `/api/auth/login` | hayır | [Auth](auth.md) |
 | POST | `/api/auth/logout` | evet | [Auth](auth.md) |
@@ -24,6 +26,7 @@
 | POST | `/api/auth/register` | hayır | [Auth](auth.md) |
 | POST | `/api/auth/reset-password` | hayır | [PasswordReset](auth.md) |
 | POST | `/api/auth/session/adopt` | evet | [Auth](auth.md) |
+| POST | `/api/auth/session/google` | hayır | [Auth](auth.md) |
 | POST | `/api/auth/session/login` | hayır | [Auth](auth.md) |
 | POST | `/api/auth/session/register` | hayır | [Auth](auth.md) |
 | GET | `/api/preferences` | evet | [Preferences](preferences.md) |

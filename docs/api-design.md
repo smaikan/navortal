@@ -1,6 +1,6 @@
 # HTTP sözleşmesi — MVP-00
 
-**16 Ekim2026 güncellemesi:** Bu belgenin ilk bölümleri tarihsel MVP-00 tasarımıdır; aşağıdaki uygulanmış MVP ekleri onu aşamalı olarak düzeltir. Frontend entegrasyonunda bütün endpoint/DTO/örnek/yetki/sürüm sözleşmesinin güncel kaynağı [Frontend API Rehberi](Frontend%20API%20Rehberi.md) ve [üretilen OpenAPI](openapi-v1.json) dosyasıdır. Taslak route/alanları çalışan endpoint olarak kullanmayın. Google giriş/link kullanıcı kararıyla kapalıdır.
+**16 Ekim2026 güncellemesi:** Bu belgenin ilk bölümleri tarihsel MVP-00 tasarımıdır; aşağıdaki uygulanmış MVP ekleri onu aşamalı olarak düzeltir. Frontend entegrasyonunda bütün endpoint/DTO/örnek/yetki/sürüm sözleşmesinin güncel kaynağı [Frontend API Rehberi](Frontend%20API%20Rehberi.md) ve [üretilen OpenAPI](openapi-v1.json) dosyasıdır. Taslak route/alanları çalışan endpoint olarak kullanmayın. Google giriş/link artık yapılandırmayla etkinleştirilir; güncel hesap bağlama kuralları ve kurulum [Google rehberindedir](google-auth-setup.md).
 
 Tasarım durumu: bu routes ilgili MVP'de uygulanır; var olmayan endpoint başarı dönmez. ASP.NET controller API, JSON camelCase, enum string, UUID string, instant ISO8601 UTC (Z veya +00:00), yerel tarih yyyy-MM-dd. Süre seconds long; dakika yalnız sunum. Tüm özel veriler JWT Bearer ve sub ownership.
 
@@ -14,7 +14,7 @@ offset=0, limit=50 (max100); tarih aralığı from/to yarı açık, en çok366 g
 - POST /api/auth/login {email,password} →200 aynı token response; yanlış401. HS256 issuer/audience env, sub/i at; exp yok. MapInboundClaims=false, RequireExpirationTime=false, ValidateLifetime=true; onlyHS256.
 - GET /api/auth/me →200 user; user DB'de yoksa401.
 - POST /api/auth/logout →204 JWT gerekli; stateless onay, revoke yok. Frontend localStorage/cache/SignalR temizler, work kapanmaz.
-- POST /api/auth/google {idToken} →200 yerel JWT; ExternalLogin subject; aynı e-posta başka hesap conflict409, otomatik merge yok.
+- POST /api/auth/google {idToken} →200 yerel JWT; ExternalLogin subject; aynı doğrulanmış Gmail/Workspace e-postası mevcut kullanıcı ID’sine bağlanır; diğer alan adlarında mevcut hesapla giriş ve açık bağlama gerekir.
 - POST /api/auth/google/link {idToken} JWT gerekli →204; başka hesaba bağlı subject409. Google proof expiry/signature/issuer/client audience doğrulanır.
 - POST /api/auth/forgot-password {email} →202 genel yanıt; reset CSPRNG, DB hash, 30dk, tek kullanım.
 - POST /api/auth/reset-password {token,newPassword} →204; invalid/expired/used400. Eski JWT geçerli kalır; Google-only hesaba örtülü parola eklenmez.
@@ -46,11 +46,11 @@ Ortak Id, UserId, Version, UTC ve second birimleri bütün DTO'larda aynı. Plan
 
 ## Uygulanan kapsam — MVP-14
 
-Register/login/me/stateless logout gerçek controller ve JWT pipeline ile uygulanmıştır; 19 integration testi docs/verification/mvp-02.md içinde. Reset, tercihler, task/ağaç/süre/lifecycle/bağımlılık ve sınıflandırma uçları aşağıda uygulanmış sözleşmedir. Work aşağıda uygulanmıştır; manuel plan/revizyon aşağıda uygulanmıştır, motor/preview/apply hedef sözleşmedir; Google kullanıcı kararıyla kapalıdır. Login/register DTO validation, unique email409 ve unauthorized problem401 gerçektir. Üretim OpenAPI yalnız Development/Testing ortamında sunulur.
+Register/login/me/stateless logout gerçek controller ve JWT pipeline ile uygulanmıştır; 19 integration testi docs/verification/mvp-02.md içinde. Reset, tercihler, task/ağaç/süre/lifecycle/bağımlılık ve sınıflandırma uçları aşağıda uygulanmış sözleşmedir. Work aşağıda uygulanmıştır; manuel plan/revizyon aşağıda uygulanmıştır, motor/preview/apply hedef sözleşmedir; Google için güncel davranış [kurulum rehberinde](google-auth-setup.md) açıklanır. Login/register DTO validation, unique email409 ve unauthorized problem401 gerçektir. Üretim OpenAPI yalnız Development/Testing ortamında sunulur.
 
 ## Geliştirme auth kararı
 
-Register şifresi yalnız en az 6 karakterdir; ek karmaşıklık ve e-posta doğrulaması yok. Kayıt hemen access JWT verir. Google uçları geliştirmede `Google:Enabled=false` ile kapalı: 503/code=google_disabled; link ayrıca JWT ister. Provider smoke ve etkin hesap eşleme kabulü ertelenmiştir. Google tabloları ilerideki etkinleştirme içindir; kullanıcıya Google giriş seçeneği sunulmaz.
+Register şifresi yalnız en az 6 karakterdir; ek karmaşıklık ve e-posta doğrulaması yok. Kayıt hemen access JWT verir. Google varsayılan olarak `Google:Enabled=false` ile kapalıdır: 503/code=google_disabled. Client ID ve Enabled ayarlarıyla Google butonu açılır. Tarayıcı `session/google` ucunu, HttpOnly oturum ve nonce challenge’ını kullanır; link mevcut oturum ve beklenen kullanıcı kimliği ister. Gerçek Google hesabıyla son kabul, Client ID doldurulduktan sonra yapılır.
 
 ## MVP-05 uygulanan tercihler
 

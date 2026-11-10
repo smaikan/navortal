@@ -56,7 +56,8 @@ Proxy `X-Forwarded-For` başlığını gelen değere eklemez, istemcinin kendi a
 | `Jwt__SigningKey` | Kalıcı, yeterince uzun HS256 secret; restart'ta yeniden üretmeyin. Issuer/audience da uygulama ayarlarıyla aynı kalır. |
 | `ReverseProxy__KnownProxies__0`, sonraki indeksler | API'nin doğrudan bağlandığı güvenilir proxy IP'leri. Tek-hop forwarded header limit1. Bütün interneti trusted network yapmayın. |
 | `Jobs__Enabled` | Varsayılan kalıcı worker'ları açar; false yalnız hosted işleri kapatır, kayıtları silmez. |
-| `Google__Enabled=false` | Kullanıcı kararı; gerçek Google provider kabulü ertelenmiştir. |
+| `Google__Enabled=false` | Başlangıçta Google girişi kapalıdır; Client ID ayarlandıktan sonra true yapılır. [Kurulum](google-auth-setup.md). |
+| `Google__ClientId` | Google Auth Platform → Clients → Web application Client ID. API/.local/api.env içinde boş alan hazırdır; Client Secret gerekmez. |
 | SMTP yapılandırması | İsteğe bağlı parola kurtarma; register email onayı içermez. Kesin alan adları `appsettings.json`/README'dedir. |
 | `Push__Enabled=false` | Başlangıçta dış Web Push kapalı; in-app/SignalR bağımsız çalışır. |
 | `Push__Subject`, `Push__PublicKey`, `Push__PrivateKey` | Açılırsa ayrı kalıcı P-256 VAPID keypair ve gerçek iletişim adresi gerekir. JWT secret'ı değildir. |

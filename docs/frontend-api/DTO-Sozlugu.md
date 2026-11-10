@@ -283,6 +283,14 @@ Değerler: `Timed`, `Untimed`.
 | `version` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Template sürümü; TaskView.version değildir. |
 | `taskVersion` | null\|integer\|string (int64) | hayır | pattern="^-?(?:0\|[1-9]\\d*)$" | Occurrence taskı varsa zorunlu güncel task sürümü; henüz task yoksa gönderilmez. |
 
+## ChangePasswordRequest
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse409 account_changed. Yazı hedefini seçmez. |
+| `currentPassword` | string | evet | — | Mevcut parola; sunucudaki hash ile doğrulanır, hatalıysa400 current_password_invalid. Sırdır, log/URL/storage alanına yazılmaz. |
+| `newPassword` | string | evet | minLength=6 | En az6 karakter, trim/ek karmaşıklık yoktur; mevcut paroladan farklıdır. Eski oturumlar/reset bağlantıları iptal edilir, yeni HttpOnly cookie verilir. |
+
 ## ClassificationRequest
 
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
@@ -972,11 +980,20 @@ Değerler: `ContinueTracking`, `AutoBreak`.
 
 Değerler: `Reject`, `Skip`, `ShiftForward`.
 
+## GoogleAuthConfigView
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `enabled` | boolean | evet | — | Sunucuda Google kimlik doğrulamasının açık olup olmadığı (Google.Enabled). |
+| `clientId` | null\|string | evet | — | Google Identity Services Web istemci kimliği (Google.ClientId); kapalıysa boş. |
+| `nonce` | null\|string | evet | — | Kısa ömürlü tarayıcı doğrulama nonce değeri; etkin olduğunda HttpOnly challenge cookie ile eşleşir. |
+
 ## GoogleRequest
 
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
 | --- | --- | --- | --- | --- |
-| `idToken` | string | evet | minLength=0; maxLength=20000 | Google sağlayıcı kanıtı; geliştirmede Google kapalıdır. |
+| `idToken` | string | evet | minLength=0; maxLength=20000 | Google Identity Services tarafından sağlanan doğrulanmış ID token kanıtı. |
+| `expectedUserId` | null\|string (uuid) | hayır | — | me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404. |
 
 ## HistoricalTaskState
 
@@ -2860,6 +2877,7 @@ Değerler: `NoEstimate`, `NeedsEstimateExtension`, `TaskInactive`, `DependencyBl
 | `displayName` | string | evet | — | Register alanı isteğe bağlı; boş/null ise trim edilmiş e-postanın tamamı kullanılır. |
 | `profileVersion` | integer\|string (int64) | hayır | pattern="^-?(?:0\|[1-9]\\d*)$"; default=1 | Profil yazılarının beklenen users sürümü; ad/fotoğraf değişiminde artar. Geç eski me yanıtı daha yeni sürümü ezmez. |
 | `photoVersion` | null\|string (uuid) | hayır | — | Fotoğraf yoksa null; varsa fotoğraf yükleme niyetinin opak UUID sürümü. Yalnız aynı owner /api/account/profile/photo?version= üzerinden okunur; Cloudinary adresi veya asset kimliği değildir. |
+| `googlePictureUrl` | null\|string | hayır | — | İsteğe bağlı harici profil fotoğrafı URL’si; yalnız HTTPS googleusercontent kökenlidir. Özel yüklenen fotoğraf (photoVersion) önceliklidir, kullanıcı fotoğrafı sildiğinde Google fallback de kalıcı olarak temizlenir. |
 
 ## UtcWindow
 
@@ -3016,11 +3034,3 @@ Bu şema operation response içinde inline bulunur;200named schema sayısına ek
 | `errors` | Record<string,string[]>/null | Model-binding/alan doğrulama hataları; her domain400de yok. Alan key casing normalize edilir. |
 
 Bilinen şema kısıtı: CreateScheduleRequest.kind,TaskStateRequest.action,FocusPresetRequest.settings,UpdateFocusPresetRequest.settings required olmasına rağmen nullable union gösterebilir. Runtime Required doğrulaması nullı400reddeder; ilgili alan açıklaması/entegrasyon kuralları uygulanır.
-
-## ChangePasswordRequest
-
-| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
-| --- | --- | --- | --- | --- |
-| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse409 account_changed. Yazı hedefini seçmez. |
-| `currentPassword` | string | evet | — | Mevcut parola; sunucudaki hash ile doğrulanır, hatalıysa400 current_password_invalid. Sırdır, log/URL/storage'a yazılmaz. |
-| `newPassword` | string | evet | minLength=6 | Yeni parola; trim/ek karmaşıklık yoktur, mevcut paroladan farklıdır. Bütün eski oturumlar ve reset bağlantıları kapanır; yeni HttpOnly oturum cookie'si verilir. |

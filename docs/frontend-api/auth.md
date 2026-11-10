@@ -1,6 +1,6 @@
 # Kimlik doğrulama ve profil
 
-UI-R3: Register201 ve login200 HttpOnly oturum cookie'si yazar (production'da `__Host-adhd_session`, Secure, SameSite=Strict, Path=/, ≈400 gün; Development/Testing loopback'te `adhd_session`). Tarayıcı `/api/auth/session/register` (201) ve `/api/auth/session/login` (200) uçlarını kullanır; bu yanıtlar yalnız UserSummary taşır, token içermez. `/api/auth/register` ve `/api/auth/login` Bearer istemci sözleşmesini korur; tarayıcı bu uçları kullanmaz. Açık Authorization: Bearer başlığı (tarayıcı dışı istemci) varsa o, yoksa cookie kullanılır; URL query token hiçbir yerde kabul edilmez. Her token bir `sid` oturumuna bağlıdır ve her istekte iptal kontrolü yapılır. Cookie ile kimliği doğrulanan POST/PUT/PATCH/DELETE aynı-host Origin (yoksa Referer) ve `X-ADHD-CSRF: 1` ister; Bearer muaftır. `GET /api/auth/me` bir günden eski cookie'yi aynı oturumla yeniler. Logout geçerli oturumu, logout-all bütün oturumları kapatır; parola sıfırlama da bütün oturumları kapatır; push abonelikleri değişmez. `session/adopt`, sid'siz eski tarayıcı token'ını bir kez cookie oturumuna çevirir. E-posta/parola etkin, parola yalnız en az6 karakter; Google kapalıdır (503). Forgot202 hesap uygunluğunu açıklamaz; reset ayrı30dk/tek kullanımlık koddur.
+UI-R3: Register201 ve login200 HttpOnly oturum cookie'si yazar (production'da `__Host-adhd_session`, Secure, SameSite=Strict, Path=/, ≈400 gün; Development/Testing loopback'te `adhd_session`). Tarayıcı `/api/auth/session/register` (201) ve `/api/auth/session/login` (200) uçlarını kullanır; bu yanıtlar yalnız UserSummary taşır, token içermez. `/api/auth/register` ve `/api/auth/login` Bearer istemci sözleşmesini korur; tarayıcı bu uçları kullanmaz. Açık Authorization: Bearer başlığı (tarayıcı dışı istemci) varsa o, yoksa cookie kullanılır; URL query token hiçbir yerde kabul edilmez. Her token bir `sid` oturumuna bağlıdır ve her istekte iptal kontrolü yapılır. Cookie ile kimliği doğrulanan POST/PUT/PATCH/DELETE aynı-host Origin (yoksa Referer) ve `X-ADHD-CSRF: 1` ister; Bearer muaftır. `GET /api/auth/me` bir günden eski cookie'yi aynı oturumla yeniler. Logout geçerli oturumu, logout-all bütün oturumları kapatır; parola sıfırlama da bütün oturumları kapatır; push abonelikleri değişmez. `session/adopt`, sid'siz eski tarayıcı token'ını bir kez cookie oturumuna çevirir. E-posta/parola etkin, parola yalnız en az6 karakter. Google kimlik doğrulaması backend yapılandırmasına (`Google:Enabled`, `Google:ClientId`) bağlıdır; varsayılan olarak kapalıdır (503). `GET /api/auth/google/config` no-store önbellekleme ve etkin durumda kısa ömürlü HttpOnly SameSite=Strict tarayıcı challenge cookie ile enabled/clientId/nonce döndürür. Tarayıcı girişi `POST /api/auth/session/google {idToken}` yalnız UserSummary döndürür ve HttpOnly oturum cookie'si yazar; `POST /api/auth/google` Bearer uyumluluğunu korur. `POST /api/auth/google/link {idToken, expectedUserId}` oturum açmış kullanıcıya Google bağlar (tarayıcıda challenge cookie doğrulanır, Bearer uyumludur). Doğrulanmış Google token'ından ad/soyad/görünen ad/fotoğraf ilk aktarımda doldurulur, kullanıcının düzenlediği alanlar korunur; `sub` sabit harici kimliktir. Aynı e-postada otomatik bağlama yalnız doğrulanmış Gmail veya `hd` içeren kurumsal Google Workspace adreslerinde yapılır, mevcut kullanıcı ID/verileri ve parola korunur; diğer alan adları önce parolayla giriş ve ayarlardan bağlama gerektirir. `UserSummary.googlePictureUrl` özel yüklenen fotoğraftan ayrı isteğe bağlı HTTPS Googleusercontent fallback URL'sidir; kullanıcının yüklediği özel fotoğraf önceliklidir, fotoğraf kaldırma her ikisini temizler ve tarayıcı görseli doğrudan Google'dan no-referrer ile çeker (sunucuya indirilmez). Forgot202 hesap uygunluğunu açıklamaz; reset ayrı30dk/tek kullanımlık koddur.
 
 [Ana rehber](../Frontend%20API%20Rehberi.md) · [DTO sözlüğü](DTO-Sozlugu.md) · [Hata kodları](Hata-Kodlari.md) · [Koşullar ve state akışları](Entegrasyon-Kurallari.md) · [Plan mesajları](Plan-Mesajlari.md) · [İşlem bazlı tekrar politikası](Islem-Politikalari.md)
 
@@ -34,7 +34,8 @@ Authorization: Bearer <APPLICATION_JWT>
     "email": "developer@example.test",
     "displayName": "örnek",
     "profileVersion": 1,
-    "photoVersion": "11111111-1111-4111-8111-111111111111"
+    "photoVersion": "11111111-1111-4111-8111-111111111111",
+    "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
@@ -59,7 +60,7 @@ Authorization: Bearer <APPLICATION_JWT>
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `expectedUserId` | Guid | required |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `firstName` | String | required; length:1..50 |
 | `lastName` | String | length:0..50 |
 
@@ -95,7 +96,8 @@ Content-Type: application/json
     "email": "developer@example.test",
     "displayName": "örnek",
     "profileVersion": 1,
-    "photoVersion": "11111111-1111-4111-8111-111111111111"
+    "photoVersion": "11111111-1111-4111-8111-111111111111",
+    "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
@@ -120,7 +122,7 @@ Content-Type: application/json
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `expectedUserId` | Guid | required |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [ProfileVersionRequest](DTO-Sozlugu.md#profileversionrequest).
 
@@ -152,7 +154,8 @@ Content-Type: application/json
     "email": "developer@example.test",
     "displayName": "örnek",
     "profileVersion": 1,
-    "photoVersion": "11111111-1111-4111-8111-111111111111"
+    "photoVersion": "11111111-1111-4111-8111-111111111111",
+    "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
@@ -209,7 +212,7 @@ Response body yok; JSON parse etmeyin.
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `expectedUserId` | Guid | required |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `uploadId` | Guid | DTO/modül iş kuralı |
 | `mediaType` | String | required; length:0..20 |
 | `contentBase64` | String | required; length:0..2796204 |
@@ -247,11 +250,67 @@ Content-Type: application/json
     "email": "developer@example.test",
     "displayName": "örnek",
     "profileVersion": 1,
-    "photoVersion": "11111111-1111-4111-8111-111111111111"
+    "photoVersion": "11111111-1111-4111-8111-111111111111",
+    "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
   "lastName": "örnek"
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
+
+## POST /api/auth/change-password
+
+**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
+
+**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+
+**Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
+
+**Ek entegrasyon kuralı:** Mevcut parola ve expectedUserId doğrulanır. En az6 karakter yeni parola trim edilmez; mevcut paroladan farklıdır. Hash/version, reset bağlantıları, bütün eski sid iptalleri ve yeni sid tek transaction içindedir. Response yalnız UserSummary; yeni JWT HttpOnly cookie içindedir. Eski cookie/Bearer kopyaları ve diğer cihazlar kapanır. Cookie CSRF/Origin ve auth rate limit geçerlidir. Key/otomatik retry yok; belirsiz sonuçta yeni parolayla giriş yap. GET me parola değişikliğini kanıtlamaz.
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `expectedUserId` | Guid | required |
+| `currentPassword` | String | required |
+| `newPassword` | String | required; minLength:6 |
+
+**Request şeması:** [ChangePasswordRequest](DTO-Sozlugu.md#changepasswordrequest).
+
+**Örnek request body:**
+
+```json
+{
+  "expectedUserId": "11111111-1111-4111-8111-111111111111",
+  "currentPassword": "örnek",
+  "newPassword": "123456"
+}
+```
+
+**Örnek HTTP:**
+
+```http
+POST /api/auth/change-password
+Accept: application/json
+Authorization: Bearer <APPLICATION_JWT>
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [UserSummary](DTO-Sozlugu.md#usersummary).
+
+```json
+{
+  "id": "11111111-1111-4111-8111-111111111111",
+  "email": "developer@example.test",
+  "displayName": "örnek",
+  "profileVersion": 1,
+  "photoVersion": "11111111-1111-4111-8111-111111111111",
+  "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
 }
 ```
 
@@ -277,7 +336,7 @@ Content-Type: application/json
 
 ```json
 {
-  "email": "16ed5fe50c6e4c639378c74525b62dd0@example.test"
+  "email": "developer@example.test"
 }
 ```
 
@@ -294,11 +353,11 @@ Content-Type: application/json
 
 ```json
 {
-  "message": "Hesabınız uygunsa şifre sıfırlama bağlantısı gönderilecek."
+  "message": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
 
@@ -306,13 +365,16 @@ Content-Type: application/json
 
 **Yetki:** Anonim erişim; aşağıdaki auth/provider koşulları geçerli.
 
-**Amaç/koşul:** Geliştirmede kapalı: Google gerçek provider kabulü ertelendi. UI giriş düğmesini etkin göstermeyin; request valid olsa da özellik503 verebilir.
+**Amaç/koşul:** Bearer istemci uyumluluğu: doğrulanmış idToken ile JWT AccessToken ve UserSummary döner; tarayıcı /api/auth/session/google kullanır. Google kapalıysa 503.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
+
+**Ek entegrasyon kuralı:** Harici ve mobil istemciler için Bearer uyumluluk ucu. Doğrulanmış idToken ile JWT AccessToken ve UserSummary döner; tarayıcı /api/auth/session/google kullanır. Google kapalıysa 503 döner.
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `idToken` | String | required; length:0..20000 |
+| `expectedUserId` | Guid? | DTO/modül iş kuralı |
 
 **Request şeması:** [GoogleRequest](DTO-Sozlugu.md#googlerequest).
 
@@ -320,7 +382,8 @@ Content-Type: application/json
 
 ```json
 {
-  "idToken": "örnek"
+  "idToken": "<GOOGLE_ID_TOKEN_FROM_GIS>",
+  "expectedUserId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
@@ -344,7 +407,8 @@ Content-Type: application/json
     "email": "developer@example.test",
     "displayName": "örnek",
     "profileVersion": 1,
-    "photoVersion": "11111111-1111-4111-8111-111111111111"
+    "photoVersion": "11111111-1111-4111-8111-111111111111",
+    "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
   }
 }
 ```
@@ -353,29 +417,54 @@ Content-Type: application/json
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
 
-Gerçek test hata örneği — HTTP 503:
+## GET /api/auth/google/config
+
+**Yetki:** Anonim erişim; aşağıdaki auth/provider koşulları geçerli.
+
+**Amaç/koşul:** No-store önbellekleme; sunucu yapılandırmasına (Google:Enabled, Google:ClientId) göre enabled, clientId ve tarayıcı replay koruması için kısa ömürlü HttpOnly SameSite=Strict challenge cookie ile eşleşen nonce döner.
+
+**Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+**Ek entegrasyon kuralı:** Google yapılandırması: no-store önbellekleme; sunucuda Google etkinse (Google:Enabled=true ve ClientId dolu) enabled=true, clientId ve tarayıcı giriş/bağlama akışında replay koruması için kısa ömürlü HttpOnly SameSite=Strict challenge cookie ile eşleşen nonce döner. Kapalıysa enabled=false ve boş clientId döner.
+
+**Request body:** yok.
+
+**Örnek HTTP:**
+
+```http
+GET /api/auth/google/config
+Accept: application/json
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [GoogleAuthConfigView](DTO-Sozlugu.md#googleauthconfigview).
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.6.4",
-  "title": "Google girişi şu anda kapalı.",
-  "status": 503,
-  "code": "google_disabled",
-  "traceId": "00-dfd8be99894efc0dc6039204fb15df0c-3d85fc33084aea81-00"
+  "enabled": false,
+  "clientId": "<GOOGLE_WEB_CLIENT_ID>",
+  "nonce": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
 }
 ```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
 ## POST /api/auth/google/link
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Geliştirmede kapalı: Google gerçek provider kabulü ertelendi. UI giriş düğmesini etkin göstermeyin; request valid olsa da özellik503 verebilir.
+**Amaç/koşul:** Oturum açmış kullanıcıya Google bağlar (expectedUserId doğrulaması). Tarayıcıda challenge cookie ile idToken eşleşir, Bearer çağrısı da desteklenir. sub benzersizdir; Google kapalıysa 503.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
+
+**Ek entegrasyon kuralı:** Oturum açmış kullanıcıya Google kimliğini bağlar. Cookie isteklerinde expectedUserId zorunludur ve oturum sahibiyle eşleşmelidir (404); Bearer istemcide gönderilirse kontrol edilir. Tarayıcı isteklerinde challenge cookie doğrulanır, Bearer uyumludur. Geçersiz Google kanıtı/challenge 400 döner, mevcut uygulama oturumu kapanmaz. Bağlantı sonrası UserSummary.googlePictureUrl güncellenebilir. Başka hesaba bağlı sub için 409 google_already_linked döner.
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `idToken` | String | required; length:0..20000 |
+| `expectedUserId` | Guid? | DTO/modül iş kuralı |
 
 **Request şeması:** [GoogleRequest](DTO-Sozlugu.md#googlerequest).
 
@@ -383,7 +472,8 @@ Gerçek test hata örneği — HTTP 503:
 
 ```json
 {
-  "idToken": "örnek"
+  "idToken": "<GOOGLE_ID_TOKEN_FROM_GIS>",
+  "expectedUserId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
@@ -404,18 +494,6 @@ Response body yok; JSON parse etmeyin.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
 
-Gerçek test hata örneği — HTTP 503:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.6.4",
-  "title": "Google girişi şu anda kapalı.",
-  "status": 503,
-  "code": "google_disabled",
-  "traceId": "00-858ad2ea038f6954665390098868f67b-e8eb1d364d09b9cd-00"
-}
-```
-
 ## POST /api/auth/login
 
 **Yetki:** Anonim erişim; aşağıdaki auth/provider koşulları geçerli.
@@ -435,7 +513,7 @@ Gerçek test hata örneği — HTTP 503:
 
 ```json
 {
-  "email": "c07ee46abd2c48b1999df50a7d3d1f02@example.test",
+  "email": "developer@example.test",
   "password": "123456"
 }
 ```
@@ -453,31 +531,22 @@ Content-Type: application/json
 
 ```json
 {
-  "accessToken": "<REPLACE_ACCESSTOKEN>",
+  "accessToken": "<APPLICATION_JWT>",
   "tokenType": "Bearer",
   "user": {
-    "id": "01a16bf8-97a0-77d1-b807-d4a1b1967947",
-    "email": "c07ee46abd2c48b1999df50a7d3d1f02@example.test",
-    "displayName": "c07ee46abd2c48b1999df50a7d3d1f02@example.test"
+    "id": "11111111-1111-4111-8111-111111111111",
+    "email": "developer@example.test",
+    "displayName": "örnek",
+    "profileVersion": 1,
+    "photoVersion": "11111111-1111-4111-8111-111111111111",
+    "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
   }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
-
-Gerçek test hata örneği — HTTP 401:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "E-posta veya parola hatalı.",
-  "status": 401,
-  "code": "invalid_credentials",
-  "traceId": "00-31b4cfd97a7462ea63302840b0aa6baf-992f80d85d1c0254-00"
-}
-```
 
 ## POST /api/auth/logout
 
@@ -501,7 +570,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 Response body yok; JSON parse etmeyin.
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -527,7 +596,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 Response body yok; JSON parse etmeyin.
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -554,27 +623,18 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "id": "01a16bf8-97a0-77d1-b807-d4a1b1967947",
-  "email": "c07ee46abd2c48b1999df50a7d3d1f02@example.test",
-  "displayName": "c07ee46abd2c48b1999df50a7d3d1f02@example.test"
+  "id": "11111111-1111-4111-8111-111111111111",
+  "email": "developer@example.test",
+  "displayName": "örnek",
+  "profileVersion": 1,
+  "photoVersion": "11111111-1111-4111-8111-111111111111",
+  "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 401:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "Giriş yapmanız gerekiyor.",
-  "status": 401,
-  "code": "unauthorized",
-  "traceId": "00-3ccbb97bbf729941b1482a79365d1bec-7b3fa81f70433395-00"
-}
-```
 
 ## POST /api/auth/register
 
@@ -596,9 +656,9 @@ Gerçek test hata örneği — HTTP 401:
 
 ```json
 {
-  "email": "fff8a6523f6d4378b971eab057559114@example.test",
+  "email": "developer@example.test",
   "password": "123456",
-  "displayName": "Test Reader"
+  "displayName": "örnek"
 }
 ```
 
@@ -615,31 +675,22 @@ Content-Type: application/json
 
 ```json
 {
-  "accessToken": "<REPLACE_ACCESSTOKEN>",
+  "accessToken": "<APPLICATION_JWT>",
   "tokenType": "Bearer",
   "user": {
-    "id": "01a16bfd-13f1-73d7-a63c-1c96c5aa14eb",
-    "email": "fff8a6523f6d4378b971eab057559114@example.test",
-    "displayName": "Test Reader"
+    "id": "11111111-1111-4111-8111-111111111111",
+    "email": "developer@example.test",
+    "displayName": "örnek",
+    "profileVersion": 1,
+    "photoVersion": "11111111-1111-4111-8111-111111111111",
+    "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
   }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Bu e-posta zaten kullanılıyor.",
-  "status": 409,
-  "code": "email_exists",
-  "traceId": "00-9eda25c5fef176c8ef942f8af42cabd4-403bb7c61ae3e984-00"
-}
-```
 
 ## POST /api/auth/reset-password
 
@@ -660,7 +711,7 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "token": "<REPLACE_TOKEN>",
+  "token": "<RESET_CODE_FROM_EMAIL>",
   "newPassword": "123456"
 }
 ```
@@ -677,21 +728,9 @@ Content-Type: application/json
 
 Response body yok; JSON parse etmeyin.
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
-
-Gerçek test hata örneği — HTTP 400:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "Şifre sıfırlama bağlantısı geçersiz veya süresi dolmuş.",
-  "status": 400,
-  "code": "reset_invalid",
-  "traceId": "00-9ca47012c0b8585712aa434fc637823c-094574454bb85ce6-00"
-}
-```
 
 ## POST /api/auth/session/adopt
 
@@ -716,27 +755,70 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "id": "01a16bfe-07c5-77dd-9a89-92f86c062b35",
-  "email": "f6116debae5e438386c6eadcc9cdb84b@example.test",
-  "displayName": "f6116debae5e438386c6eadcc9cdb84b@example.test"
+  "id": "11111111-1111-4111-8111-111111111111",
+  "email": "developer@example.test",
+  "displayName": "örnek",
+  "profileVersion": 1,
+  "photoVersion": "11111111-1111-4111-8111-111111111111",
+  "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
 
-Gerçek test hata örneği — HTTP 401:
+## POST /api/auth/session/google
+
+**Yetki:** Anonim erişim; aşağıdaki auth/provider koşulları geçerli.
+
+**Amaç/koşul:** Tarayıcı Google girişi: doğrulanmış idToken ve challenge cookie ile HttpOnly oturum açar, yanıt yalnız UserSummary taşır. Sunucuda Google kapalıysa 503; yetkisiz e-postada google_link_required döner.
+
+**Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
+
+**Ek entegrasyon kuralı:** Tarayıcı Google oturumu: idToken Google Identity Services tarafından sağlanır. Sunucu tokenı doğrular, challenge cookie kontrolü yapar ve HttpOnly app session cookie yazar. Yanıt yalnız UserSummary taşır, Bearer token içermez. Sunucuda Google kapalıysa 503; yetkisiz üçüncü taraf e-postada mevcut hesap varsa 409 google_link_required döner.
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `idToken` | String | required; length:0..20000 |
+| `expectedUserId` | Guid? | DTO/modül iş kuralı |
+
+**Request şeması:** [GoogleRequest](DTO-Sozlugu.md#googlerequest).
+
+**Örnek request body:**
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "Oturum taşınamadı. Yeniden giriş yap.",
-  "status": 401,
-  "code": "adopt_refused",
-  "traceId": "00-ba402c5cc6cb2d4075bb8a9912b99069-ab5877768fae0f7a-00"
+  "idToken": "<GOOGLE_ID_TOKEN_FROM_GIS>",
+  "expectedUserId": "11111111-1111-4111-8111-111111111111"
 }
 ```
+
+**Örnek HTTP:**
+
+```http
+POST /api/auth/session/google
+Accept: application/json
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [UserSummary](DTO-Sozlugu.md#usersummary).
+
+```json
+{
+  "id": "11111111-1111-4111-8111-111111111111",
+  "email": "developer@example.test",
+  "displayName": "örnek",
+  "profileVersion": 1,
+  "photoVersion": "11111111-1111-4111-8111-111111111111",
+  "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
 
 ## POST /api/auth/session/login
 
@@ -779,7 +861,8 @@ Content-Type: application/json
   "email": "developer@example.test",
   "displayName": "örnek",
   "profileVersion": 1,
-  "photoVersion": "11111111-1111-4111-8111-111111111111"
+  "photoVersion": "11111111-1111-4111-8111-111111111111",
+  "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
 }
 ```
 
@@ -830,64 +913,11 @@ Content-Type: application/json
   "email": "developer@example.test",
   "displayName": "örnek",
   "profileVersion": 1,
-  "photoVersion": "11111111-1111-4111-8111-111111111111"
+  "photoVersion": "11111111-1111-4111-8111-111111111111",
+  "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
 }
 ```
 
 Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
-
-## POST /api/auth/change-password
-
-**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
-
-**Amaç/koşul:** Mevcut parola doğrulanır. expectedUserId oturum sahibiyle aynı olmalıdır. Yeni parola yalnız en az 6 karakter ister, trim veya ek karmaşıklık uygulanmaz; mevcut paroladan farklı olmalıdır. Hash/version güncellemesi, açık reset bağlantılarının tüketilmesi, bütün eski sid oturumlarının iptali ve yeni sid oluşturulması tek PostgreSQL transaction içinde yapılır. Başarı UserSummary ve yeni HttpOnly cookie döndürür; JWT gövdede bulunmaz. Diğer cihazlar ve eski cookie/Bearer kopyaları reddedilir; başka hesaplar, çalışmalar ve push abonelikleri değişmez. Cookie yazısı aynı-host Origin ve X-ADHD-CSRF: 1 gerektirir. Auth rate limit geçerlidir.
-
-**Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse başarı varsaymayın; yeni parolayla giriş yaparak kontrol edin. GET me parola değişikliğini kanıtlamaz. Header eklemek duplicate koruması sağlamaz.
-
-| Request alanı | C# tip karşılığı | Ek annotation |
-| --- | --- | --- |
-| `expectedUserId` | Guid | required |
-| `currentPassword` | String | required |
-| `newPassword` | String | required; minLength:6 |
-
-**Request şeması:** [ChangePasswordRequest](DTO-Sozlugu.md#changepasswordrequest).
-
-**Örnek request body:**
-
-```json
-{
-  "expectedUserId": "11111111-1111-4111-8111-111111111111",
-  "currentPassword": "örnek",
-  "newPassword": "123456"
-}
-```
-
-**Örnek HTTP:**
-
-```http
-POST /api/auth/change-password
-Accept: application/json
-Authorization: Bearer <APPLICATION_JWT>
-Content-Type: application/json
-```
-
-**Başarılı response:** HTTP 200.
-Şema: [UserSummary](DTO-Sozlugu.md#usersummary).
-
-```json
-{
-  "id": "11111111-1111-4111-8111-111111111111",
-  "email": "developer@example.test",
-  "displayName": "örnek",
-  "profileVersion": 1,
-  "photoVersion": "11111111-1111-4111-8111-111111111111"
-}
-```
-
-Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
-
-**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
-
-**İşleme özgü hatalar:** 400 `current_password_invalid`, `password_unchanged`, `password_too_short`/`validation_failed`; 409 `account_changed`, `credentials_changed`; geçersiz oturum 401.

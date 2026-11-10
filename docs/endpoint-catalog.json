@@ -33,7 +33,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -78,7 +78,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -123,7 +123,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -353,12 +353,32 @@
           "required",
           "length:0..20000"
         ]
+      },
+      {
+        "name": "expectedUserId",
+        "type": "Guid?",
+        "rules": []
       }
     ],
     "success": [
       {
         "status": 200,
         "type": "AuthResponse"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/auth/google/config",
+    "controller": "Auth",
+    "action": "GoogleConfig",
+    "authRequired": false,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "GoogleAuthConfigView"
       }
     ]
   },
@@ -377,6 +397,11 @@
           "required",
           "length:0..20000"
         ]
+      },
+      {
+        "name": "expectedUserId",
+        "type": "Guid?",
+        "rules": []
       }
     ],
     "success": [
@@ -552,6 +577,35 @@
   },
   {
     "method": "POST",
+    "path": "/api/auth/session/google",
+    "controller": "Auth",
+    "action": "GoogleSession",
+    "authRequired": false,
+    "bodyType": "GoogleRequest",
+    "fields": [
+      {
+        "name": "idToken",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..20000"
+        ]
+      },
+      {
+        "name": "expectedUserId",
+        "type": "Guid?",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "UserSummary"
+      }
+    ]
+  },
+  {
+    "method": "POST",
     "path": "/api/auth/session/login",
     "controller": "Auth",
     "action": "LoginSession",
@@ -687,7 +741,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       }
     ],
@@ -734,7 +788,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -793,7 +847,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -838,7 +892,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       }
     ],
@@ -878,7 +932,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -913,7 +967,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -921,7 +975,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -1054,7 +1108,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -1092,7 +1146,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -1220,7 +1274,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -1401,7 +1455,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       }
     ],
@@ -1424,7 +1478,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -1454,7 +1508,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -1477,7 +1531,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -1500,7 +1554,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -1523,7 +1577,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -1531,7 +1585,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -1610,7 +1664,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -1780,7 +1834,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -1863,7 +1917,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -1898,7 +1952,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -2056,7 +2110,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2079,7 +2133,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2204,7 +2258,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -2293,7 +2347,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2316,7 +2370,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2537,7 +2591,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2616,7 +2670,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2654,7 +2708,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2809,7 +2863,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -2847,7 +2901,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -2900,7 +2954,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3006,7 +3060,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -3044,7 +3098,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -3214,7 +3268,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -3406,7 +3460,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3425,7 +3479,7 @@
         "name": "dayItemVersion",
         "type": "Int64?",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -3492,7 +3546,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -3500,7 +3554,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3535,7 +3589,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -3558,7 +3612,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -3566,7 +3620,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3627,7 +3681,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -3635,7 +3689,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3670,7 +3724,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -3762,7 +3816,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       }
     ],
@@ -3808,7 +3862,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       }
     ],
@@ -3862,7 +3916,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3906,7 +3960,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3956,7 +4010,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -3991,7 +4045,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -4118,7 +4172,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -4194,7 +4248,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -4217,7 +4271,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -4348,7 +4402,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -4452,7 +4506,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -4490,7 +4544,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -4695,7 +4749,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -4778,7 +4832,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -4801,7 +4855,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -4831,7 +4885,7 @@
         "name": "parentVersion",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -4904,7 +4958,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -4939,7 +4993,7 @@
         "name": "expectedPlanningVersion",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       }
     ],
@@ -4962,7 +5016,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -5000,7 +5054,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5058,7 +5112,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5086,7 +5140,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5098,7 +5152,7 @@
         "name": "parentVersion",
         "type": "Int64?",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5146,7 +5200,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5189,7 +5243,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5252,7 +5306,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5282,7 +5336,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -5335,7 +5389,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5437,7 +5491,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5451,14 +5505,14 @@
         "name": "directEstimatedSeconds",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
         "name": "targetBudgetSeconds",
         "type": "Int64?",
         "rules": [
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       }
     ],
@@ -5583,7 +5637,7 @@
         "name": "scheduleVersion",
         "type": "Int64?",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -5614,7 +5668,7 @@
         "type": "Int64?",
         "rules": [
           "required",
-          "range:0..9,223372036854776E+18"
+          "range:0..9.223372036854776E+18"
         ]
       },
       {
@@ -5626,7 +5680,7 @@
         "name": "expectedSessionVersion",
         "type": "Int64?",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
@@ -5686,7 +5740,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -5709,7 +5763,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -5732,7 +5786,7 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       }
     ],
@@ -5770,14 +5824,14 @@
         "name": "version",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {
         "name": "segmentVersion",
         "type": "Int64",
         "rules": [
-          "range:1..9,223372036854776E+18"
+          "range:1..9.223372036854776E+18"
         ]
       },
       {

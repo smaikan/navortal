@@ -1,10 +1,10 @@
 {
-  "openApiOperations": 220,
-  "documentedConcreteOperations": 225,
-  "schemas": 307,
-  "httpExampleOperations": 183,
-  "schemaExampleOperations": 42,
-  "openApiSha256": "7ce40382b361828819e7864d039572d5ee039388bf2683dbe6c820cd63f7bb16",
+  "openApiOperations": 222,
+  "documentedConcreteOperations": 227,
+  "schemas": 308,
+  "httpExampleOperations": 175,
+  "schemaExampleOperations": 52,
+  "openApiSha256": "cddc9ee442cc9b7ffcb185bc1de08d8985a3c37ad7f0cd46e7f8c13f7c7cd9e7",
   "coverage": [
     {
       "method": "GET",
@@ -118,11 +118,22 @@
     },
     {
       "method": "POST",
+      "openApiPath": "/api/auth/change-password",
+      "documentedPath": "/api/auth/change-password",
+      "file": "frontend-api/auth.md",
+      "successStatus": 200,
+      "exampleSource": "schema",
+      "requestBodyDocumented": true,
+      "responseBodyDocumented": true,
+      "authDocumented": true
+    },
+    {
+      "method": "POST",
       "openApiPath": "/api/auth/forgot-password",
       "documentedPath": "/api/auth/forgot-password",
       "file": "frontend-api/auth.md",
       "successStatus": 202,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -131,6 +142,17 @@
       "method": "POST",
       "openApiPath": "/api/auth/google",
       "documentedPath": "/api/auth/google",
+      "file": "frontend-api/auth.md",
+      "successStatus": 200,
+      "exampleSource": "schema",
+      "requestBodyDocumented": true,
+      "responseBodyDocumented": true,
+      "authDocumented": true
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/auth/google/config",
+      "documentedPath": "/api/auth/google/config",
       "file": "frontend-api/auth.md",
       "successStatus": 200,
       "exampleSource": "schema",
@@ -155,7 +177,7 @@
       "documentedPath": "/api/auth/login",
       "file": "frontend-api/auth.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -166,7 +188,7 @@
       "documentedPath": "/api/auth/logout",
       "file": "frontend-api/auth.md",
       "successStatus": 204,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -177,7 +199,7 @@
       "documentedPath": "/api/auth/logout-all",
       "file": "frontend-api/auth.md",
       "successStatus": 204,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -188,7 +210,7 @@
       "documentedPath": "/api/auth/me",
       "file": "frontend-api/auth.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -199,7 +221,7 @@
       "documentedPath": "/api/auth/register",
       "file": "frontend-api/auth.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -210,7 +232,7 @@
       "documentedPath": "/api/auth/reset-password",
       "file": "frontend-api/auth.md",
       "successStatus": 204,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -221,7 +243,18 @@
       "documentedPath": "/api/auth/session/adopt",
       "file": "frontend-api/auth.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "schema",
+      "requestBodyDocumented": true,
+      "responseBodyDocumented": true,
+      "authDocumented": true
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/session/google",
+      "documentedPath": "/api/auth/session/google",
+      "file": "frontend-api/auth.md",
+      "successStatus": 200,
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2464,17 +2497,6 @@
       "openApiPath": "/api/analytics/recurrences/{id}",
       "documentedPath": "/api/analytics/recurrences/{id}",
       "file": "frontend-api/analytics.md",
-      "successStatus": 200,
-      "exampleSource": "schema",
-      "requestBodyDocumented": true,
-      "responseBodyDocumented": true,
-      "authDocumented": true
-    },
-    {
-      "method": "POST",
-      "openApiPath": "/api/auth/change-password",
-      "documentedPath": "/api/auth/change-password",
-      "file": "frontend-api/auth.md",
       "successStatus": 200,
       "exampleSource": "schema",
       "requestBodyDocumented": true,

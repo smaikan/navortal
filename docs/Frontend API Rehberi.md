@@ -1,6 +1,6 @@
 # Frontend geliştirici API rehberi
 
-7 Kasım parola değiştirme ekiyle güncel makine sözleşmesi **220 controller işlemi / 225 somut işlem / 307 DTO ve enum şeması** içerir. Hesap ayarları `POST /api/auth/change-password` ile mevcut parolayı doğrular; yeni HttpOnly oturum oluştururken eski oturumları ve reset bağlantılarını tek transaction içinde kapatır. [Auth sözleşmesi](frontend-api/auth.md#post-apiauthchange-password), [tasarım ve test planı](../UI-docs/design/Parola%20Değiştirme%20Planı.md). Aşağıdaki tarihli envanterler kendi teslim dönemlerini gösterir.
+Google giriş entegrasyonuyla güncel makine sözleşmesi **222 controller işlemi / 227 somut işlem / 308 DTO ve enum şeması** içerir. [Google kurulumu ve hesap bağlama kuralları](google-auth-setup.md). Hesap ayarları `POST /api/auth/change-password` ile mevcut parolayı doğrular; yeni HttpOnly oturum oluştururken eski oturumları ve reset bağlantılarını tek transaction içinde kapatır. [Auth sözleşmesi](frontend-api/auth.md#post-apiauthchange-password), [tasarım ve test planı](../UI-docs/design/Parola%20Değiştirme%20Planı.md). Aşağıdaki tarihli envanterler kendi teslim dönemlerini gösterir.
 
 Temel sözleşme: **16 Ekim 2026** · Son ek: **29 Ekim 2026**. Backend kökü `API/`, frontend kökü `UI/`. Bu rehber çalışan ASP.NET Core uygulamasının sözleşmesini anlatır. Türkçe, masaüstü öncelikli, çevrimiçi ürün geliştirin. API, görev/plan/gerçek çalışma hesaplarının otoritesidir.
 
@@ -33,7 +33,7 @@ Başarılı yanıttaki uyarı/yerleşememe kodlarının açıklamaları [Plan Me
 
 | Konu | Endpoint referansı | Ayrıntılı davranış |
 | --- | --- | --- |
-| Kayıt, giriş, me, logout, parola kurtarma, kapalı Google | [Kimlik](frontend-api/auth.md) | [Auth/HTTP](api-design.md) |
+| Kayıt, giriş, me, logout, parola kurtarma, Google ile giriş ve bağlama | [Kimlik](frontend-api/auth.md) | [Auth/HTTP](api-design.md) |
 | Kullanıcı tercihleri, çalışma saatleri, tarih istisnaları | [Tercihler](frontend-api/preferences.md) | DTO ve modül notları |
 | Görev CRUD, ağaç, süre/ilerleme, durum, dependency/sıra, sınıflandırma | [Görevler](frontend-api/tasks.md) | [Temel sözleşme](api-design.md) |
 | Proje, havuz, kategori, etiket | [Koleksiyonlar](frontend-api/collections.md) | DTO ve modül notları |
@@ -53,7 +53,7 @@ Başarılı yanıttaki uyarı/yerleşememe kodlarının açıklamaları [Plan Me
 - [Tüm yolların indeksi](frontend-api/Endpoint-Indeksi.md)
 - [Operasyon/kurulum/yedekleme](operations.md), [MVP-29 kabul kanıtı](verification/mvp-29.md).
 
-Örnekler sentetik test verisidir. Kimlikler/sürümler birbirinden bağımsız senaryolardan gelir; modüller arası JSON'ları aynen arka arkaya çalıştırmayın. Gerçek akışta önceki yanıtın ID ve sürümünü taşıyın. JWT, reset kodu ve push anahtar/endpoint alanları değiştirme işaretleriyle redakte edilmiştir. `<APPLICATION_JWT>` çalışır bir token değildir. Google kapalı olduğundan başarılı provider örneği yalnız yapısaldır; gerçek sağlayıcı doğrulaması ertelenmiştir. Diğer örneklerin kaynağı her endpoint altında yazılıdır.
+Örnekler sentetik test verisidir. Kimlikler/sürümler birbirinden bağımsız senaryolardan gelir; modüller arası JSON'ları aynen arka arkaya çalıştırmayın. Gerçek akışta önceki yanıtın ID ve sürümünü taşıyın. JWT, reset kodu ve push anahtar/endpoint alanları değiştirme işaretleriyle redakte edilmiştir. `<APPLICATION_JWT>` çalışır bir token değildir. Google varsayılan olarak kapalıdır; kurulumdan sonra etkinleştirilir. Provider örnekleri yapısaldır; gerçek Google hesabıyla son kabul kontrolü kurulumu yapan kişiye aittir. Diğer örneklerin kaynağı her endpoint altında yazılıdır.
 
 ## Origin, taşıma ve JSON kuralları
 
@@ -109,7 +109,7 @@ Tarayıcı bootstrap:
 3. 401'de yerel auth/query/UI kişisel verisini ve SignalR bağlantısını temizleyip login gösterin. 404/409'u logout sebebi saymayın. Otomatik sonsuz login retry yapmayın.
 4. Logout sırasında mevcut owner push subscription'ını API'den kaldırın, tarayıcı subscription'ını uygun şekilde unsubscribe edin, hub'ı kapatın, token ve Query cache'ini temizleyin. Başka sekmelere storage/BroadcastChannel ile hesap değişimini iletin.
 
-`POST /api/auth/logout` 204 döner ve bu oturumu sunucuda kapatır (token kopyaları da geçersizleşir); `POST /api/auth/logout-all` bütün oturumları kapatır. Logout work/focus oturumunu bitirmez. Kullanıcı çalışmayı kapatacaksa önce açık work/focus komutunu kullanır. Reset password isteğe bağlı ayrı e-posta akışıdır: forgot 202, kod 30 dakika/tek kullanım, reset 204; UI-R3 ile bütün mevcut oturumlar kapanır. Google giriş/link UI'da kapalı kalır; doğru provider request'i bile 503 verebilir.
+`POST /api/auth/logout` 204 döner ve bu oturumu sunucuda kapatır (token kopyaları da geçersizleşir); `POST /api/auth/logout-all` bütün oturumları kapatır. Logout work/focus oturumunu bitirmez. Kullanıcı çalışmayı kapatacaksa önce açık work/focus komutunu kullanır. Reset password isteğe bağlı ayrı e-posta akışıdır: forgot 202, kod 30 dakika/tek kullanım, reset 204; UI-R3 ile bütün mevcut oturumlar kapanır. Google giriş/bağlama Google:Enabled ve Google:ClientId ayarlarıyla etkinleşir; tarayıcı girişinde session/google kullanılır. Ayrıntılar [kurulum rehberindedir](google-auth-setup.md).
 
 Auth rate limit, `[EnableRateLimiting("auth")]` kullanılan eylemlerde IP başına **5 dakikada 30 istek**, kuyruk yok, 429'dur. Limitin kapsamı ilgili modülün status bilgisindedir. 429 gövdesi boş olabilir; JSON veya Retry-After başlığının her zaman geleceğini varsaymayın.
 

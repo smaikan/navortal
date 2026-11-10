@@ -1,7 +1,8 @@
 {
-  "openApiOperations": 220,
-  "concreteOperations": 225,
-  "sourceSha256": "7ce40382b361828819e7864d039572d5ee039388bf2683dbe6c820cd63f7bb16",
+  "openApiOperations": 222,
+  "concreteOperations": 227,
+  "schemas": 308,
+  "sourceSha256": "cddc9ee442cc9b7ffcb185bc1de08d8985a3c37ad7f0cd46e7f8c13f7c7cd9e7",
   "operations": [
     {
       "method": "GET",
@@ -125,6 +126,17 @@
     },
     {
       "method": "POST",
+      "openApiPath": "/api/auth/change-password",
+      "path": "/api/auth/change-password",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
       "openApiPath": "/api/auth/forgot-password",
       "path": "/api/auth/forgot-password",
       "authRequired": false,
@@ -143,6 +155,17 @@
       "maxKeyLength": null,
       "bodyVersionFields": [],
       "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/auth/google/config",
+      "path": "/api/auth/google/config",
+      "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
       "contract": "frontend-api/auth.md"
     },
     {
@@ -227,6 +250,17 @@
       "openApiPath": "/api/auth/session/adopt",
       "path": "/api/auth/session/adopt",
       "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/session/google",
+      "path": "/api/auth/session/google",
+      "authRequired": false,
       "idempotencyKeyRequired": false,
       "maxKeyLength": null,
       "bodyVersionFields": [],
@@ -2674,17 +2708,6 @@
       "bodyVersionFields": [],
       "retryPolicy": "bounded-read",
       "contract": "frontend-api/analytics.md"
-    },
-    {
-      "method": "POST",
-      "openApiPath": "/api/auth/change-password",
-      "path": "/api/auth/change-password",
-      "authRequired": true,
-      "idempotencyKeyRequired": false,
-      "maxKeyLength": null,
-      "bodyVersionFields": [],
-      "retryPolicy": "no-automatic-write-retry",
-      "contract": "frontend-api/auth.md"
     }
   ]
 }

@@ -176,7 +176,7 @@ Real push delivery has its own opt-in test: `UI_REAL_PUSH=1` with local VAPID ke
 
 ## Status
 
-The app is live at [www.navortal.com.tr](https://www.navortal.com.tr) and still a work in progress. Physical devices and screen readers still need proper testing. Mobile performance is still being tuned. Google sign-in exists in the backend but is switched off, so accounts use email and password only.
+The app is live at [www.navortal.com.tr](https://www.navortal.com.tr) and still a work in progress. Physical devices and screen readers still need proper testing. Mobile performance is still being tuned. Google sign-in is conditionally supported via backend configuration (`Google:Enabled` and `Google:ClientId`); when unconfigured or disabled, accounts use email and password only. See the [Google Auth Setup Guide](docs/google-auth-setup.md) for configuration steps, OAuth requirements, and activation instructions. Note that actual Google Cloud credentials are not provided in the repository, and live end-to-end validation with a real Google account remains a manual operational step.
 
 ## License
 

@@ -10,7 +10,7 @@
 4. `/api/sync` workSessionId Running, yoksa en son Paused oturumu gösterebilir. `/api/work-sessions/current` **yalnız Running** döndürür. Bu yüzden current.activeSession=null, duraklatılmış iş yok demek değildir. Sync kimliğini work detail ile okuyun veya `GET /api/work-sessions?state=Paused` kullanın.
 5. Focus current, Working/Paused/Break/AwaitingNext kaydını döndürebilir; yoksa session=null. Work/focus kimlikleri eşdeğer değildir.
 
-Auth profili düzenleme, parola değiştirme (reset dışında), hesap silme, refresh/revoke, ekip/rol ve açık Google UI akışı mevcut değildir. Olmayan endpointler tasarlanmış gibi çağrılmaz. Register/newPassword en az6karakter; login mevcut parolayı aynen alır. Register/reset boşlukları parola içinde anlamlıdır; istemci trim etmez. E-posta normalizasyonu sunucudadır.
+Profil düzenleme, `change-password`, Google giriş ve açık Google bağlama akışları mevcuttur. Tarayıcı Google girişi `session/google` üzerinden HttpOnly oturum ve nonce challenge kullanır; [Google kurulumu](../google-auth-setup.md) yapılandırmayı ve aynı e-postalı hesap bağlama kurallarını açıklar. Hesap silme ve ekip/rol gibi olmayan uçlar tasarlanmış gibi çağrılmaz. Register/newPassword en az6karakter; login mevcut parolayı aynen alır. Register/reset boşlukları parola içinde anlamlıdır; istemci trim etmez. E-posta normalizasyonu sunucudadır.
 
 Reset linkindeki64karakter token uygulama JWT değildir. Reset 30dk/tek kullanımdır;204sonrası kullanıcı giriş yapar. Eski uygulama JWT kopyaları geçerli kalır. SMTP kapalı veya teslim başarısızken de forgot202 geneldir; gerçek bir upstream503 ayrı hizmet hatasıdır. SMTP durumunu açıklayan public endpoint yoktur. `forgot` yanıtı bir e-posta hesabının varlığını veya teslim edildiğini kanıtlamaz.
 
