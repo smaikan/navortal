@@ -508,7 +508,40 @@ SCHEMA_FIELD_NOTES = {
 }
 
 
+SCHEMA_FIELD_NOTES['ProfileView'].update({
+    'hasPassword': 'Hesapta kullanılabilir parola hashı var; false ise mevcut parola isteyen form gösterilmez.',
+    'googleLinked': 'Google ExternalLogin bağı gerçekten mevcut; fotoğraf URLsi bağlantı kanıtı değildir.',
+})
+EXTRA_FIELD_NOTES.update({
+    'estimatedCompletedSeconds': 'Hiç pozitif ölçülen çalışması olmayan tamamlanmış görevlerin tamamlanma anındaki kendi iş tahmini; ölçülen workSeconds alanından ayrıdır. Kapsayıcı hedef bütçesi eklenmez.',
+    'estimatedCompletedCount': 'Tahmini tamamlanan süreye katkı veren tekil görev sayısı.',
+    'totalEstimatedCompletedSeconds': 'Kırılımın bütün sayfalarında tahmini tamamlanan süre toplamı.',
+    'groupTaskId': 'Seçilen günün kaydedilmiş görev grubu kökü; bağımsız öğede null.',
+    'groupParentTaskId': 'Gün grubuna katılma anındaki doğrudan üst görev kimliği; canlı ağaç değişince geçmiş grup taşınmaz.',
+    'completeTask': 'Varsayılan false eski plan-öğesi davranışını korur. true ile complete uygun görev alt ağacını tamamlar, reopen yalnız seçili görevi açar.',
+})
+SCHEMA_FIELD_NOTES['AddPlanEntryRequest'] = {'scope': 'Single yalnız seçileni; Subtree mevcut ana görev ve uygun alt ağacını ekler. Mevcut tekil/saatli kayıtlar korunur.'}
+SCHEMA_FIELD_NOTES['DayItemPage'] = {'groups': 'Sayfa sınırından bağımsız kaydedilmiş grup üyeliği; öğeler yine sayfalıdır. UI grubun bütün sayfalarını yüklemelidir.'}
+SCHEMA_FIELD_NOTES['TaskPickerRow'] = {'children': 'hierarchy=true seçicisinde iç içe alt görevler. Alt görev seçimi tekildir; kök seçimi Subtree olabilir.'}
+SCHEMA_FIELD_NOTES['ResourceTaskTreePage'] = {'roots': 'Sayfadaki ana veya bağımsız görevler.', 'nodes': 'Bu köklerin bütün görünür alt ağaçları; sınıflandırma bağlarını değiştirmez.', 'parents': 'Tekil alt görevin üst bağlamı.', 'total': 'Görev sayısı değil bütün kök gruplarının sayısı.'}
+
+SCHEMA_FIELD_NOTES['NoteConversion'] = {
+    'plannedFrom': 'İsteğe bağlı tarih aralığı başlangıcı; plannedTo ile birlikte veya ikisi null. Başlangıç bitişten sonra olamaz; en çok 367 takvim günü.',
+    'plannedTo': 'İsteğe bağlı tarih aralığı bitişi; tek gün için plannedFrom ile aynı tarih gönderilir.',
+    'energyDemand': 'İsteğe bağlı efor: Low/Medium/High; null belirtilmedi.',
+    'priority': 'İsteğe bağlı aciliyet: Low/Normal/High/Urgent; null veya eksikse Normal.',
+    'inheritNoteDueAt': 'Yeni tarayıcı dönüşümleri false gönderir; notun dueAt değeri görev son teslimine aktarılmaz. Eski istemciler için varsayılan true davranışı korunur.',
+    'deadlineAt': 'Eski istemciler için isteğe bağlı son teslim instantı. Yeni dönüşüm arayüzü bu alanı göndermez; plannedFrom/plannedTo kullanır.',
+}
+
 def operation_notes(method, path):
+    if method == 'POST' and path == '/api/notes/{id}/convert':
+        return ['Not korunarak yeni göreve bağlanır. Yeni UI plannedFrom/plannedTo, energyDemand ve priority alanlarını isteğe bağlı gönderir; inheritNoteDueAt=false ile notun tarihi son teslim tarihine aktarılmaz. Aralık iki tarih birlikte veya ikisi null; tek gün için aynı tarih, en çok367 gün. Efor null, aciliyet null/eksikse Normal olabilir. Eski payload/son teslim ve kaydedilmiş idempotency makbuzları uyumludur. Aynı anahtar ve içerik aynı görevi döndürür; farklı içerik409, geçersiz seçim400; kayıt tek transaction içindedir.']
+    if path == '/api/{kind}/{id}/task-tree':
+        return ['Projeler/havuzlar/kategoriler/etiketler için owner kapsamlı görev ağacı. Offset/limit kök gruplarına uygulanır; alt görevler bölünmez, aynı görev tek kök altında görünür. Alt görevlerin mevcut sınıflandırması değiştirilmez; bitmiş kökler sonradır.']
+    if path in ('/api/analytics/actual', '/api/analytics/actual/breakdown'):
+        return ['Ölçülen çalışma ve tahmini tamamlanan iş ayrı alanlardadır. Pozitif ölçülen çalışma varsa tahmin eklenmez. Tahmin tamamlanma anındaki kendi iş tahmini, sınıflandırma ve kaynak saat diliminden okunur; sahte çalışma oturumu yaratılmaz, ana hedef bütçesi tekrar sayılmaz.']
+
     if method == 'GET' and path == '/api/auth/google/config':
         return ['Google yapılandırması: no-store önbellekleme; sunucuda Google etkinse (Google:Enabled=true ve ClientId dolu) enabled=true, clientId ve tarayıcı giriş/bağlama akışında replay koruması için kısa ömürlü HttpOnly SameSite=Strict challenge cookie ile eşleşen nonce döner. Kapalıysa enabled=false ve boş clientId döner.']
     if method == 'POST' and path == '/api/auth/session/google':
@@ -524,9 +557,9 @@ def operation_notes(method, path):
     if method == 'POST' and path == '/api/calendar/days/{date}/defer-tasks':
         return ['Görev Ertele: tasks[{taskId,targetDate}] 1–50 farklı görev ve her birinin kaynak günden sonraki hedefi; expectedPlanningVersion ve zorunlu Idempotency-Key. Sunucu görevlerin kaynak gündeki bütün açık saatli/saatsiz parçalarını bulur (en çok500 öğe); UI sayfaları tam olmak zorunda değildir. Önizleme/onay adımı yok. Tüm hedefler tek transaction/ChangeSet, tek planning version artışı; rutin görevi/protected/running/stale/owner/hedefte tamamlanmış öğe veya DB hatasında tamamı rollback. Hedefte mevcut açık öğe korunur; diğerleri saatsiz taşınır, görev ve actual değişmez. Sonuç items farklı localDate içerebilir. Aynı normalize seçim+key özgün sonucu döndürür; belirsiz yazı yalnız açık kullanıcı isteğiyle aynı key ile alınır. [Ayrıntı](../task-deferral.md).']
     if path == '/api/tasks/picker':
-        return ['UI-R4: owner açık/doğrudan işler; date atanmış/diğer grupları ayrılır. offset/assignedOffset bağımsız, limit1..100; UI25. Ebeveyn başlığı aynı sorguda, HasExactMatch bütün uygun kümede. Literal Türkçe substring; her satır için ek parent GET yok. Coverage aynı repeatable-read snapshot içindeki owner sürümleridir; UI yalnız bütün sayfalar güncel planning sürümü ve ±15sn tazelik taşıyorsa handshake tekrar okumasını atlar; eksik/eski sertifika yeniden okunur.']
+        return ['Varsayılan düz seçici uyumludur. hierarchy=true kapsayıcı kökleri ve Children ağacını da döndürür; sayfalama kökler üzerinden, arama üst bağlamı koruyarak yapılır. date atanmış/diğer grupları ayrılır. offset/assignedOffset bağımsız, limit1..100; UI25. Ebeveyn başlığı aynı sorguda, HasExactMatch bütün uygun kümede. Literal Türkçe substring; her satır için ek parent GET yok. Coverage aynı repeatable-read snapshot içindeki owner sürümleridir; UI yalnız bütün sayfalar güncel planning sürümü ve ±15sn tazelik taşıyorsa handshake tekrar okumasını atlar; eksik/eski sertifika yeniden okunur.']
     if path == '/api/daily-plans/{date}/entries':
-        return ['UI-R4: taskId veya title tam biri; expectedPlanningVersion ve zorunlu Idempotency-Key. Yeni görev+day item tek transaction. IsUrgent yalnız plana ekler, çalışma/focus başlatmaz veya duraklatmaz. Başlangıç serverNow yerel dakikası; bitiş null. Aynı key aynı makbuz; farklı payload409. Normal ekleme saatsiz; öncelik/efor yalnız yeni görev içindir. Undo day-items/undo üzerinden; geçmiş korunur.']
+        return ['scope=Single varsayılanı yalnız seçileni ekler. Mevcut kökte scope=Subtree kendisi ve uygun alt ağacı tek işlemde ekler (en çok2000 görev); mevcut tekil/saatli kayıtlar kimlik ve saatlerini koruyarak gruba katılır, fazladan kopya oluşmaz. Tekrar seçim eksikleri uzlaştırır; geçmiş günler sonradan değişmez. UI-R4: taskId veya title tam biri; expectedPlanningVersion ve zorunlu Idempotency-Key. Yeni görev+day item tek transaction. IsUrgent yalnız plana ekler, çalışma/focus başlatmaz veya duraklatmaz. Başlangıç serverNow yerel dakikası; bitiş null. Aynı key aynı makbuz; farklı payload409. Normal ekleme saatsiz; öncelik/efor yalnız yeni görev içindir. Undo day-items/undo üzerinden; geçmiş korunur.']
     if path == '/api/day-items/{id}/time':
         return ['UI-R4: version ve expectedPlanningVersion; start null olabilir, end varsa start gerekli ve pozitif en çok24saat. Başlangıç öğenin kayıtlı gününde; saat dilimi gün planından. Acil day itemda end dolabilir ve overlap reddi yoktur; normal tam aralık mevcut schedules dönüşümünü kullanır. Key yok; belirsiz yazı tekrarlanmaz.']
     notes = []
@@ -595,13 +628,13 @@ def operation_notes(method, path):
     if path == '/api/daily-plans/{date}/items' and method == 'GET':
         notes.append('UI-R2 saatsiz gün öğeleri: yalnız Planned durumundakiler sortOrder sırasıyla; silinmiş/arşivli görevin öğesi düşer. UI-R3 değişiklikleri revision/undo ve planningVersion üretir; yalnız okuma sürüm değiştirmez. UI-R4 startsAt/endsAt/isUrgent/priority/energyDemand/timingIssue projeksiyonu vardır; bitişsiz süre sıfır kabul edilmez. taskTitle/parentTitle/directEstimatedSeconds güncel görevden okunur.')
     if path == '/api/daily-plans/{date}/items' and method == 'POST':
-        notes.append('Açık doğrudan işi (hasDirectWork, bitmemiş, arşivsiz) güne saatsiz ekler; kapsayıcı veya kapalı görev409 task_not_plannable. Aynı gün aynı görev için tek Planned öğe vardır:409 day_item_exists. Idempotency-Key yoktur; belirsiz sonuçta yeniden göndermeyin, listeyi GET ile okuyun.')
+        notes.append('Açık, arşivsiz görevi (kapsayıcı dahil) güne saatsiz ekler; kapalı görev409 task_not_plannable. Aynı gün aynı görev için tek Planned öğe vardır:409 day_item_exists. Idempotency-Key yoktur; belirsiz sonuçta yeniden göndermeyin, listeyi GET ile okuyun.')
     if path.startswith('/api/day-items/{id}/'):
-        notes.append('Gün öğesinin version değeri gönderilir; eski version409 version_conflict, Planned olmayan öğe409 day_item_not_planned, başka hesap veya silinmiş görev404. complete/reopen yalnız o günün öğesini işaretler; görevi tamamlamaz veya yeniden açmaz.')
+        notes.append('Gün öğesinin version değeri gönderilir; eski version409 version_conflict, Planned olmayan öğe409 day_item_not_planned, başka hesap veya silinmiş görev404. completeTask=false varsayılanında complete/reopen yalnız plan öğesini işaretler. completeTask=true tamamlamada görev alt ağacını da tamamlar ve açık sayaçları kapatır; yeniden açmada yalnız seçili görev açılır. Bu görev durumu değişikliği genel plan undo yerine tamamlanma kutusuyla geri açılır.')
     if path == '/api/day-items/{id}/move':
         notes.append('Öğeyi saatsiz olarak hedef güne taşır ve tamamlanma işaretini kaldırır. Aynı gün400 day_item_same_day; hedefte aynı görev varsa409 day_item_exists.')
     if method == 'POST' and path in ('/api/schedules/{id}/complete', '/api/schedules/{id}/reopen'):
-        notes.append('UI-R2 saatli plan öğesini bitirir/yeniden açar; görev durumu, planningVersion ve revisionlar değişmez. Gece yarısını geçen bloğun bağlı parçaları birlikte değişir ve hepsi döner. Kaldırılmış blok409 schedule_removed.')
+        notes.append('completeTask=false varsayılanında yalnız saatli plan öğesi değişir. completeTask=true görev alt ağacını da tamamlar, seçili günün biten bloklarını görünür tutar ve planningVersion ilerler; yeniden açmada yalnız seçili görev açılır. Gece yarısını geçen bloğun bağlı parçaları birlikte değişir ve hepsi döner. Kaldırılmış blok409 schedule_removed.')
     if method == 'POST' and path == '/api/schedules':
         notes.append('UI-R2: dayItemId ve dayItemVersion verilirse aynı görev ve günün saatsiz öğesi aynı işlemde saatli bloğa dönüşür (öğe listeden düşer). dayItemVersion eksik400 day_item_version_required; görev farklı400 day_item_task_mismatch; gün farklı400 day_item_day_mismatch.')
     if method == 'GET' and path == '/api/calendar/overview':

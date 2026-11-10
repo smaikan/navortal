@@ -8,7 +8,7 @@ Raporlar salt okunur,1..366yerel gün ve50000kaynak yoğunluk sınırı kullanı
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+**Amaç/koşul:** Ölçülen çalışma ve tahmini tamamlanan iş ayrı alanlardadır. Pozitif ölçülen çalışma varsa tahmin eklenmez. Tahmin tamamlanma anındaki kendi iş tahmini, sınıflandırma ve kaynak saat diliminden okunur; sahte çalışma oturumu yaratılmaz, ana hedef bütçesi tekrar sayılmaz.
 
 **Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
 
@@ -438,7 +438,7 @@ Gerçek test hata örneği — HTTP 400:
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+**Amaç/koşul:** Ölçülen çalışma ve tahmini tamamlanan iş ayrı alanlardadır. Pozitif ölçülen çalışma varsa tahmin eklenmez. Tahmin tamamlanma anındaki kendi iş tahmini, sınıflandırma ve kaynak saat diliminden okunur; sahte çalışma oturumu yaratılmaz, ana hedef bütçesi tekrar sayılmaz.
 
 **Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
 

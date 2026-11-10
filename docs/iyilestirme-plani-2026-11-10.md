@@ -1,6 +1,6 @@
 # Arayüz, görev ağacı ve analiz iyileştirme planı
 
-Tarih: 10 Kasım 2026. Bu belge kullanıcının taleplerini mevcut kodla karşılaştırır. Bu aşamada uygulama kodu veya canlı hizmetler değiştirilmedi. Hata nedenlerine ilişkin kod bulguları ile henüz yeniden üretilmemiş belirtiler ayrı değerlendirilir.
+Tarih: 10 Kasım 2026. Bu belge kullanıcının taleplerini mevcut kodla karşılaştırır. Kullanıcının onayıyla uygulama aşamasına geçildi. Genel yerleşim, sol menü, üst çubuk, kartlar, modal boyutları ve mevcut item biçimleri korunacak; yalnız istenen davranışlara yönelik sınırlı eklemeler yapılacak. Hata nedenlerine ilişkin kod bulguları ile henüz yeniden üretilmemiş belirtiler ayrı değerlendirilir.
 
 ## Tasarım sınırı ve inceleme maketleri
 
@@ -29,7 +29,7 @@ Uygulama öncesi inceleme için yalnız HTML ve gömülü CSS içeren [maket diz
 4. Ana görevi tamamlamak ilgili açık alt ağacı da tamamlar. İşlem sürüm kontrolüyle sunucuda bir bütün olarak yürür; açık sayaçlar tutarlı biçimde kapatılır. Mevcut `CompleteSubtree` davranışı yeniden kullanılır.
 5. Ana görevde çalışma başlatılabilir. Kendi çalışma süresi ile alt görevlerin toplamı ayrı izlenir. Ana görev süresi çocuklara otomatik dağıtılmaz; aynı anda tek aktif sayaç kuralı korunur.
 6. Ana görev, yalnız kapsayıcı olduğu için sayaç veya güne ekleme sırasında genel hatayla reddedilmez. Bağımlılık, arşiv ve tamamlanma engelleri kullanıcıya anlaşılır gösterilir.
-7. Tamamlanmış işler listenin altında “Bitmiş görevler” bölümünde üstü çizili görünür. Alt görevlerin üst bağı burada da anlaşılır kalır. Önceden yalnız üstü tamamlanmış, altında açık işi olan kayıtlar gerçeğe uygun gösterilir; geçmiş kayıtlar kendiliğinden topluca kapatılmaz.
+7. Projelerde tamamlanma yalnız soluk renk ile anlatılmayacak: başlıkta kesintisiz ve belirgin (en az 2 px) üstü çizgi, hafif solutulmuş metin, işaretli tamamlanma kutusu ve “Tamamlandı” metni birlikte kullanılacak. Mevcut kart/satır tasarımı korunacak. Tamamlanmış işler listenin altında “Bitmiş görevler” bölümünde üstü çizili görünür. Alt görevlerin üst bağı burada da anlaşılır kalır. Önceden yalnız üstü tamamlanmış, altında açık işi olan kayıtlar gerçeğe uygun gösterilir; geçmiş kayıtlar kendiliğinden topluca kapatılmaz.
 
 ## Aşama 1 — Panel ve modal etkileşimleri
 
@@ -180,10 +180,13 @@ Playwright kabul senaryoları:
 - Notlarda kategorisiz rozetin kaybolması; dış modal ölçüleri sabitken uzun metnin daha çok alan kullanması; masaüstü Kartlar ve mobil mevcut varsayılan.
 - Rutin boş ekranında dar/normal/geniş masaüstü ve mobil ekran görüntüleri.
 
-## Uygulamadan önce netleştirilecek noktalar
+## Uygulamada kesinleştirilen davranışlar
 
-1. Hatanın alt görevli ana görevin sayacı başlatıldığında oluştuğu kullanıcı tarafından netleştirildi. Tam hata kodu, ekran ve yeniden üretim uygulama aşamasındaki hata incelemesinde doğrulanacak.
-2. Analiz için ölçülen süre varsa ölçülmüş değerin, yoksa tahminin esas alınması önerisi.
-3. Ana görevi yeniden açma ve grubu plandan kaldırma kapsamı için yukarıdaki davranış varsayımları. Tekil alt görev seçimi, ana görevle komple ekleme, mevcut item tasarımının korunması ve sonradan ana görev eklendiğinde tekilleştirme kullanıcı tarafından kesinleştirildi.
+- Alt görevli ana görevlerde sayaç hatasının kaynağı kapsayıcı göreve uygulanan `direct_work_required` engeliydi. Kapsayıcı ana görevlerde sayaç ve plana ekleme desteklenir; mevcut bağımlılık/arşiv/durum korumaları sürer.
+- Analizde pozitif ölçülen çalışma varsa ölçülen süre, hiç pozitif çalışma yoksa tamamlanma anındaki pozitif kendi iş tahmini kullanılır. Tahmin ayrı etiketlenir; hedef bütçe çocukların üzerine eklenmez.
+- Ana görevin tamamlanması uygun alt ağacı tamamlar. Yeniden açma yalnız seçili görevi açar; tamamlanmış çocukları kendiliğinden açmaz. Durum işlemi plan geçmişindeki genel geri alma yerine tamamlanma kutusuyla geri açılır.
+- Ana satırı plandan kaldırmak görevleri silmez. Alt satırlar kendi plan kayıtlarıyla bağımsız kalır. Tekil alt satırı kaldırmak kardeşleri etkilemez. Ana görevi yeniden seçmek eksikleri uzlaştırır.
+- Grup üyeliği gün planına kaydedilir. Sonradan oluşturulan alt görevler geçmiş planı değiştirmez; ana görev tekrar seçilirse eksikler eklenir. Önceden tekil veya saatli olan kayıtların kimliği, saati ve çalışma geçmişi korunur.
+- Desktop not varsayılanı mevcut API'de zaten Kartlar'dır. Açık Liste tercihi değiştirilmez; mobil mevcut Liste görünümünü korur.
 
-Bu noktalar planı hazırlamaya engel değildir; ilgili hesaplama/yazma davranışı uygulanmadan önce kesinleştirilir.
+Uygulama ve doğrulama sonuçları ayrı uygulama raporunda kayıt altına alınır.

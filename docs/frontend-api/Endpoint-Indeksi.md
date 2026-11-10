@@ -1,6 +1,6 @@
 # Bütün HTTP yolları
 
-222 OpenAPI controller işlemi, focus komutunun altı yolu ayrı gösterildiğinde227 somut işlem. Her satırın modülünde aynı method/path başlığını bulun. Auth evet ise uygulama JWT Bearer gerekir; başka owner kaynakları404. Health/OpenAPI/SignalR taşıma uçları [ana rehberde](../Frontend%20API%20Rehberi.md) ayrıca açıklanır.
+223 OpenAPI controller işlemi, focus komutunun altı yolu ayrı gösterildiğinde228 somut işlem. Her satırın modülünde aynı method/path başlığını bulun. Auth evet ise uygulama JWT Bearer gerekir; başka owner kaynakları404. Health/OpenAPI/SignalR taşıma uçları [ana rehberde](../Frontend%20API%20Rehberi.md) ayrıca açıklanır.
 
 | Method | Yol | JWT | Referans |
 | --- | --- | --- | --- |
@@ -66,6 +66,7 @@
 | GET | `/api/tasks/{id}/work-components` | evet | [TaskWorkload](tasks.md) |
 | PUT | `/api/tasks/{id}/work-definition` | evet | [TaskWorkload](tasks.md) |
 | GET | `/api/tasks/{id}/workload` | evet | [TaskWorkload](tasks.md) |
+| GET | `/api/{kind}/{id}/task-tree` | evet | [TaskRead](tasks.md) |
 | GET | `/api/categories` | evet | [Categories](collections.md) |
 | POST | `/api/categories` | evet | [Categories](collections.md) |
 | GET | `/api/categories/{id}` | evet | [Categories](collections.md) |

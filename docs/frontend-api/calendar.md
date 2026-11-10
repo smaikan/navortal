@@ -754,7 +754,7 @@ Gerçek test hata örneği — HTTP 409:
 | `targetDate` | DateOnly? | required |
 | `schedules` | PlanEntryVersionRequest[] | required; maxLength:50 |
 | `items` | PlanEntryVersionRequest[] | required; maxLength:50 |
-| `expectedPlanningVersion` | Int64? | required; range:0..9,223372036854776E+18 |
+| `expectedPlanningVersion` | Int64? | required; range:0..9.223372036854776E+18 |
 | `allowProtectedChange` | Boolean | DTO/modül iş kuralı |
 | `reason` | String | maxLength:500 |
 
@@ -819,7 +819,7 @@ Content-Type: application/json
 | `targetDate` | DateOnly? | required |
 | `schedules` | PlanEntryVersionRequest[] | required; maxLength:50 |
 | `items` | PlanEntryVersionRequest[] | required; maxLength:50 |
-| `expectedPlanningVersion` | Int64? | required; range:0..9,223372036854776E+18 |
+| `expectedPlanningVersion` | Int64? | required; range:0..9.223372036854776E+18 |
 | `allowProtectedChange` | Boolean | DTO/modül iş kuralı |
 | `reason` | String | maxLength:500 |
 
@@ -885,7 +885,7 @@ Content-Type: application/json
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `tasks` | DeferTaskTargetRequest[] | required; minLength:1; maxLength:50 |
-| `expectedPlanningVersion` | Int64? | required; range:0..9,223372036854776E+18 |
+| `expectedPlanningVersion` | Int64? | required; range:0..9.223372036854776E+18 |
 
 **Request şeması:** [DeferTasksRequest](DTO-Sozlugu.md#defertasksrequest).
 

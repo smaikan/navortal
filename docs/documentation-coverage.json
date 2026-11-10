@@ -1,10 +1,10 @@
 {
-  "openApiOperations": 222,
-  "documentedConcreteOperations": 227,
-  "schemas": 308,
+  "openApiOperations": 223,
+  "documentedConcreteOperations": 228,
+  "schemas": 312,
   "httpExampleOperations": 175,
-  "schemaExampleOperations": 52,
-  "openApiSha256": "cddc9ee442cc9b7ffcb185bc1de08d8985a3c37ad7f0cd46e7f8c13f7c7cd9e7",
+  "schemaExampleOperations": 53,
+  "openApiSha256": "d74990fa9c4cd66d06f78d9c6478a6fcc8b2e938c41b5c2ca1b506f33cab66d5",
   "coverage": [
     {
       "method": "GET",
@@ -287,7 +287,7 @@
       "documentedPath": "/api/preferences",
       "file": "frontend-api/preferences.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -298,7 +298,7 @@
       "documentedPath": "/api/preferences",
       "file": "frontend-api/preferences.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -309,7 +309,7 @@
       "documentedPath": "/api/preferences/working-hours",
       "file": "frontend-api/preferences.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -320,7 +320,7 @@
       "documentedPath": "/api/tasks",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -331,7 +331,7 @@
       "documentedPath": "/api/tasks",
       "file": "frontend-api/tasks.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -342,7 +342,7 @@
       "documentedPath": "/api/tasks/batch",
       "file": "frontend-api/tasks.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -353,7 +353,7 @@
       "documentedPath": "/api/tasks/children",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -386,7 +386,7 @@
       "documentedPath": "/api/tasks/{id}",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -397,7 +397,7 @@
       "documentedPath": "/api/tasks/{id}",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -419,7 +419,7 @@
       "documentedPath": "/api/tasks/{id}/archive",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -430,7 +430,7 @@
       "documentedPath": "/api/tasks/{id}/auto-complete",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -441,7 +441,7 @@
       "documentedPath": "/api/tasks/{id}/children",
       "file": "frontend-api/tasks.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -452,7 +452,7 @@
       "documentedPath": "/api/tasks/{id}/classification",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -463,7 +463,7 @@
       "documentedPath": "/api/tasks/{id}/classification",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -474,7 +474,7 @@
       "documentedPath": "/api/tasks/{id}/delete",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -485,7 +485,7 @@
       "documentedPath": "/api/tasks/{id}/dependencies",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -496,7 +496,7 @@
       "documentedPath": "/api/tasks/{id}/dependencies",
       "file": "frontend-api/tasks.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -507,7 +507,7 @@
       "documentedPath": "/api/tasks/{id}/dependencies/{sourceId}",
       "file": "frontend-api/tasks.md",
       "successStatus": 204,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -529,7 +529,7 @@
       "documentedPath": "/api/tasks/{id}/move",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -540,7 +540,7 @@
       "documentedPath": "/api/tasks/{id}/ordering",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -551,7 +551,7 @@
       "documentedPath": "/api/tasks/{id}/ordering",
       "file": "frontend-api/tasks.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -562,7 +562,7 @@
       "documentedPath": "/api/tasks/{id}/ordering/{sourceId}",
       "file": "frontend-api/tasks.md",
       "successStatus": 204,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -573,7 +573,7 @@
       "documentedPath": "/api/tasks/{id}/planned-range",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -584,7 +584,7 @@
       "documentedPath": "/api/tasks/{id}/progress",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -595,7 +595,7 @@
       "documentedPath": "/api/tasks/{id}/required",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -606,7 +606,7 @@
       "documentedPath": "/api/tasks/{id}/restore",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -617,7 +617,7 @@
       "documentedPath": "/api/tasks/{id}/start-eligibility",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -628,7 +628,7 @@
       "documentedPath": "/api/tasks/{id}/state",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -639,7 +639,7 @@
       "documentedPath": "/api/tasks/{id}/subtree",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -650,7 +650,7 @@
       "documentedPath": "/api/tasks/{id}/summary",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -661,7 +661,7 @@
       "documentedPath": "/api/tasks/{id}/work-components",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -672,7 +672,7 @@
       "documentedPath": "/api/tasks/{id}/work-definition",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -683,7 +683,18 @@
       "documentedPath": "/api/tasks/{id}/workload",
       "file": "frontend-api/tasks.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
+      "requestBodyDocumented": true,
+      "responseBodyDocumented": true,
+      "authDocumented": true
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/{kind}/{id}/task-tree",
+      "documentedPath": "/api/{kind}/{id}/task-tree",
+      "file": "frontend-api/tasks.md",
+      "successStatus": 200,
+      "exampleSource": "schema",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -694,7 +705,7 @@
       "documentedPath": "/api/categories",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -705,7 +716,7 @@
       "documentedPath": "/api/categories",
       "file": "frontend-api/collections.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -716,7 +727,7 @@
       "documentedPath": "/api/categories/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -727,7 +738,7 @@
       "documentedPath": "/api/categories/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -738,7 +749,7 @@
       "documentedPath": "/api/categories/{id}/archive",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -749,7 +760,7 @@
       "documentedPath": "/api/categories/{id}/workload",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -760,7 +771,7 @@
       "documentedPath": "/api/pools",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -771,7 +782,7 @@
       "documentedPath": "/api/pools",
       "file": "frontend-api/collections.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -782,7 +793,7 @@
       "documentedPath": "/api/pools/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -793,7 +804,7 @@
       "documentedPath": "/api/pools/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -804,7 +815,7 @@
       "documentedPath": "/api/pools/{id}/archive",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -815,7 +826,7 @@
       "documentedPath": "/api/pools/{id}/workload",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -826,7 +837,7 @@
       "documentedPath": "/api/projects",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -837,7 +848,7 @@
       "documentedPath": "/api/projects",
       "file": "frontend-api/collections.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -848,7 +859,7 @@
       "documentedPath": "/api/projects/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -859,7 +870,7 @@
       "documentedPath": "/api/projects/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -870,7 +881,7 @@
       "documentedPath": "/api/projects/{id}/archive",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -881,7 +892,7 @@
       "documentedPath": "/api/projects/{id}/workload",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -892,7 +903,7 @@
       "documentedPath": "/api/tags",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -903,7 +914,7 @@
       "documentedPath": "/api/tags",
       "file": "frontend-api/collections.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -914,7 +925,7 @@
       "documentedPath": "/api/tags/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -925,7 +936,7 @@
       "documentedPath": "/api/tags/{id}",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -936,7 +947,7 @@
       "documentedPath": "/api/tags/{id}/archive",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -947,7 +958,7 @@
       "documentedPath": "/api/tags/{id}/workload",
       "file": "frontend-api/collections.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -958,7 +969,7 @@
       "documentedPath": "/api/daily-plans/{date}",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -980,7 +991,7 @@
       "documentedPath": "/api/daily-plans/{date}/glance",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -991,7 +1002,7 @@
       "documentedPath": "/api/daily-plans/{date}/items",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1002,7 +1013,7 @@
       "documentedPath": "/api/daily-plans/{date}/items",
       "file": "frontend-api/planning.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1013,7 +1024,7 @@
       "documentedPath": "/api/daily-plans/{date}/items/move",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1035,7 +1046,7 @@
       "documentedPath": "/api/daily-plans/{date}/revisions",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1057,7 +1068,7 @@
       "documentedPath": "/api/day-items/undo",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1068,7 +1079,7 @@
       "documentedPath": "/api/day-items/{id}/complete",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1079,7 +1090,7 @@
       "documentedPath": "/api/day-items/{id}/move",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1090,7 +1101,7 @@
       "documentedPath": "/api/day-items/{id}/remove",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1101,7 +1112,7 @@
       "documentedPath": "/api/day-items/{id}/reopen",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1123,7 +1134,7 @@
       "documentedPath": "/api/plan-revisions/{id}",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1134,7 +1145,7 @@
       "documentedPath": "/api/plan-revisions/{id}/changes",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1145,7 +1156,7 @@
       "documentedPath": "/api/plan-revisions/{id}/items",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1156,7 +1167,7 @@
       "documentedPath": "/api/schedules",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1167,7 +1178,7 @@
       "documentedPath": "/api/schedules",
       "file": "frontend-api/planning.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1178,7 +1189,7 @@
       "documentedPath": "/api/schedules/{id}",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1189,7 +1200,7 @@
       "documentedPath": "/api/schedules/{id}",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1200,7 +1211,7 @@
       "documentedPath": "/api/schedules/{id}/complete",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1211,7 +1222,7 @@
       "documentedPath": "/api/schedules/{id}/move",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1222,7 +1233,7 @@
       "documentedPath": "/api/schedules/{id}/remove",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1233,7 +1244,7 @@
       "documentedPath": "/api/schedules/{id}/reopen",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1244,7 +1255,7 @@
       "documentedPath": "/api/scheduling/apply",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1255,7 +1266,7 @@
       "documentedPath": "/api/scheduling/distribute-apply",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1266,7 +1277,7 @@
       "documentedPath": "/api/scheduling/distribute-plan",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1277,7 +1288,7 @@
       "documentedPath": "/api/scheduling/distribute-preview",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1288,7 +1299,7 @@
       "documentedPath": "/api/scheduling/distribution-proposals/{id}",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1299,7 +1310,7 @@
       "documentedPath": "/api/scheduling/plan",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1310,7 +1321,7 @@
       "documentedPath": "/api/scheduling/preview",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1321,7 +1332,7 @@
       "documentedPath": "/api/scheduling/proposals/{id}",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1332,7 +1343,7 @@
       "documentedPath": "/api/scheduling/undo-multi-preview",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1343,7 +1354,7 @@
       "documentedPath": "/api/scheduling/undo-preview",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1354,7 +1365,7 @@
       "documentedPath": "/api/tasks/{id}/allocation",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1365,7 +1376,7 @@
       "documentedPath": "/api/work-sessions/start-now",
       "file": "frontend-api/planning.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1376,7 +1387,7 @@
       "documentedPath": "/api/calendar",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1387,7 +1398,7 @@
       "documentedPath": "/api/calendar/days/{date}",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1398,7 +1409,7 @@
       "documentedPath": "/api/calendar/days/{date}/carry",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1453,7 +1464,7 @@
       "documentedPath": "/api/calendar/days/{date}/tasks/{id}/pool",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1464,7 +1475,7 @@
       "documentedPath": "/api/calendar/items",
       "file": "frontend-api/calendar.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1486,7 +1497,7 @@
       "documentedPath": "/api/focus-presets",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1497,7 +1508,7 @@
       "documentedPath": "/api/focus-presets",
       "file": "frontend-api/work-focus.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1508,7 +1519,7 @@
       "documentedPath": "/api/focus-presets/{id}",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1519,7 +1530,7 @@
       "documentedPath": "/api/focus-sessions",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1530,7 +1541,7 @@
       "documentedPath": "/api/focus-sessions",
       "file": "frontend-api/work-focus.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1541,7 +1552,7 @@
       "documentedPath": "/api/focus-sessions/current",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1552,7 +1563,7 @@
       "documentedPath": "/api/focus-sessions/{id}",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1563,7 +1574,7 @@
       "documentedPath": "/api/focus-sessions/{id}/pause",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1574,7 +1585,7 @@
       "documentedPath": "/api/focus-sessions/{id}/resume",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1585,7 +1596,7 @@
       "documentedPath": "/api/focus-sessions/{id}/break",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1596,7 +1607,7 @@
       "documentedPath": "/api/focus-sessions/{id}/next",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1607,7 +1618,7 @@
       "documentedPath": "/api/focus-sessions/{id}/finish",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1618,7 +1629,7 @@
       "documentedPath": "/api/focus-sessions/{id}/cancel",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1629,7 +1640,7 @@
       "documentedPath": "/api/tasks/{id}/time",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1640,7 +1651,7 @@
       "documentedPath": "/api/work-sessions",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1651,7 +1662,7 @@
       "documentedPath": "/api/work-sessions/current",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1662,7 +1673,7 @@
       "documentedPath": "/api/work-sessions/manual",
       "file": "frontend-api/work-focus.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1673,7 +1684,7 @@
       "documentedPath": "/api/work-sessions/start",
       "file": "frontend-api/work-focus.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1684,7 +1695,7 @@
       "documentedPath": "/api/work-sessions/{id}",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1695,7 +1706,7 @@
       "documentedPath": "/api/work-sessions/{id}/corrections",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1706,7 +1717,7 @@
       "documentedPath": "/api/work-sessions/{id}/finish",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1717,7 +1728,7 @@
       "documentedPath": "/api/work-sessions/{id}/pause",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1728,7 +1739,7 @@
       "documentedPath": "/api/work-sessions/{id}/resume",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1739,7 +1750,7 @@
       "documentedPath": "/api/work-sessions/{id}/segments",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1750,7 +1761,7 @@
       "documentedPath": "/api/work-sessions/{id}/segments/{segmentId}/corrections",
       "file": "frontend-api/work-focus.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1761,7 +1772,7 @@
       "documentedPath": "/api/client-errors",
       "file": "frontend-api/support.md",
       "successStatus": 202,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1838,7 +1849,7 @@
       "documentedPath": "/api/notes",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1849,7 +1860,7 @@
       "documentedPath": "/api/notes",
       "file": "frontend-api/support.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1871,7 +1882,7 @@
       "documentedPath": "/api/notes/{id}",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1882,7 +1893,7 @@
       "documentedPath": "/api/notes/{id}/convert",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1893,7 +1904,7 @@
       "documentedPath": "/api/notes/{id}/delete",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1915,7 +1926,7 @@
       "documentedPath": "/api/support/days/{date}",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1926,7 +1937,7 @@
       "documentedPath": "/api/support/days/{date}",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1937,7 +1948,7 @@
       "documentedPath": "/api/support/days/{date}/end-preparation",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1948,7 +1959,7 @@
       "documentedPath": "/api/support/quick-start",
       "file": "frontend-api/support.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1959,7 +1970,7 @@
       "documentedPath": "/api/support/rescue",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1970,7 +1981,7 @@
       "documentedPath": "/api/tasks/{id}/energy",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1981,7 +1992,7 @@
       "documentedPath": "/api/tasks/{id}/return-context",
       "file": "frontend-api/support.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -1992,7 +2003,7 @@
       "documentedPath": "/api/special-days",
       "file": "frontend-api/special-days.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2003,7 +2014,7 @@
       "documentedPath": "/api/special-days",
       "file": "frontend-api/special-days.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2014,7 +2025,7 @@
       "documentedPath": "/api/special-days/occurrences",
       "file": "frontend-api/special-days.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2025,7 +2036,7 @@
       "documentedPath": "/api/special-days/{id}",
       "file": "frontend-api/special-days.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2036,7 +2047,7 @@
       "documentedPath": "/api/special-days/{id}/delete",
       "file": "frontend-api/special-days.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2047,7 +2058,7 @@
       "documentedPath": "/api/special-days/{id}/restore",
       "file": "frontend-api/special-days.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2058,7 +2069,7 @@
       "documentedPath": "/api/recurrence-templates",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2069,7 +2080,7 @@
       "documentedPath": "/api/recurrence-templates",
       "file": "frontend-api/recurrence.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2091,7 +2102,7 @@
       "documentedPath": "/api/recurrence-templates/{id}",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2102,7 +2113,7 @@
       "documentedPath": "/api/recurrence-templates/{id}",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2113,7 +2124,7 @@
       "documentedPath": "/api/recurrence-templates/{id}/definitions",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2124,7 +2135,7 @@
       "documentedPath": "/api/recurrence-templates/{id}/enabled",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2135,7 +2146,7 @@
       "documentedPath": "/api/recurrence-templates/{id}/materialize",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2146,7 +2157,7 @@
       "documentedPath": "/api/recurrence-templates/{id}/occurrences",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2157,7 +2168,7 @@
       "documentedPath": "/api/recurrence-templates/{id}/occurrences/{date}/cancel",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2168,7 +2179,7 @@
       "documentedPath": "/api/recurrence-templates/{id}/occurrences/{date}/skip",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2179,7 +2190,7 @@
       "documentedPath": "/api/tasks/{id}/recurrence",
       "file": "frontend-api/recurrence.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2190,7 +2201,7 @@
       "documentedPath": "/api/jobs/outbox",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2201,7 +2212,7 @@
       "documentedPath": "/api/jobs/outbox/{id}/retry",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2212,7 +2223,7 @@
       "documentedPath": "/api/jobs/reminders",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2223,7 +2234,7 @@
       "documentedPath": "/api/notifications",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2245,7 +2256,7 @@
       "documentedPath": "/api/notifications/preferences",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2256,7 +2267,7 @@
       "documentedPath": "/api/notifications/preferences",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2267,7 +2278,7 @@
       "documentedPath": "/api/notifications/push-config",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2289,7 +2300,7 @@
       "documentedPath": "/api/notifications/reminders",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2300,7 +2311,7 @@
       "documentedPath": "/api/notifications/reminders",
       "file": "frontend-api/notifications.md",
       "successStatus": 201,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2311,7 +2322,7 @@
       "documentedPath": "/api/notifications/reminders/{id}",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2322,7 +2333,7 @@
       "documentedPath": "/api/notifications/reminders/{id}/cancel",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2333,7 +2344,7 @@
       "documentedPath": "/api/notifications/subscriptions",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2344,7 +2355,7 @@
       "documentedPath": "/api/notifications/subscriptions",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2355,7 +2366,7 @@
       "documentedPath": "/api/notifications/subscriptions/{id}/remove",
       "file": "frontend-api/notifications.md",
       "successStatus": 204,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2366,7 +2377,7 @@
       "documentedPath": "/api/notifications/{id}",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2377,7 +2388,7 @@
       "documentedPath": "/api/notifications/{id}/read",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2388,7 +2399,7 @@
       "documentedPath": "/api/notifications/{id}/snooze",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2399,7 +2410,7 @@
       "documentedPath": "/api/sync",
       "file": "frontend-api/notifications.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2421,7 +2432,7 @@
       "documentedPath": "/api/analytics/actual",
       "file": "frontend-api/analytics.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2432,7 +2443,7 @@
       "documentedPath": "/api/analytics/actual/breakdown",
       "file": "frontend-api/analytics.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2443,7 +2454,7 @@
       "documentedPath": "/api/analytics/days/{date}/review",
       "file": "frontend-api/analytics.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2454,7 +2465,7 @@
       "documentedPath": "/api/analytics/estimate-accuracy",
       "file": "frontend-api/analytics.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2465,7 +2476,7 @@
       "documentedPath": "/api/analytics/estimate-suggestion",
       "file": "frontend-api/analytics.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true
@@ -2476,7 +2487,7 @@
       "documentedPath": "/api/analytics/plans",
       "file": "frontend-api/analytics.md",
       "successStatus": 200,
-      "exampleSource": "synthetic-http",
+      "exampleSource": "http",
       "requestBodyDocumented": true,
       "responseBodyDocumented": true,
       "authDocumented": true

@@ -39,7 +39,9 @@ Authorization: Bearer <APPLICATION_JWT>
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
-  "lastName": "örnek"
+  "lastName": "örnek",
+  "hasPassword": true,
+  "googleLinked": false
 }
 ```
 
@@ -101,7 +103,9 @@ Content-Type: application/json
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
-  "lastName": "örnek"
+  "lastName": "örnek",
+  "hasPassword": true,
+  "googleLinked": false
 }
 ```
 
@@ -159,7 +163,9 @@ Content-Type: application/json
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
-  "lastName": "örnek"
+  "lastName": "örnek",
+  "hasPassword": true,
+  "googleLinked": false
 }
 ```
 
@@ -255,7 +261,9 @@ Content-Type: application/json
   },
   "photoUploadEnabled": false,
   "firstName": "örnek",
-  "lastName": "örnek"
+  "lastName": "örnek",
+  "hasPassword": true,
+  "googleLinked": false
 }
 ```
 

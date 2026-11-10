@@ -1,8 +1,8 @@
 {
-  "openApiOperations": 222,
-  "concreteOperations": 227,
-  "schemas": 308,
-  "sourceSha256": "cddc9ee442cc9b7ffcb185bc1de08d8985a3c37ad7f0cd46e7f8c13f7c7cd9e7",
+  "openApiOperations": 223,
+  "concreteOperations": 228,
+  "schemas": 312,
+  "sourceSha256": "d74990fa9c4cd66d06f78d9c6478a6fcc8b2e938c41b5c2ca1b506f33cab66d5",
   "operations": [
     {
       "method": "GET",
@@ -721,6 +721,17 @@
       "method": "GET",
       "openApiPath": "/api/tasks/{id}/workload",
       "path": "/api/tasks/{id}/workload",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/tasks.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/{kind}/{id}/task-tree",
+      "path": "/api/{kind}/{id}/task-tree",
       "authRequired": true,
       "idempotencyKeyRequired": false,
       "maxKeyLength": null,

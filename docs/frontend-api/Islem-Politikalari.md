@@ -1,6 +1,6 @@
 # İşlem bazında tekrar, sürüm ve key politikası
 
-Bu tablo 227 somut işlemi kapsar; kaynak OpenAPI222operationdır. 33 OpenAPI operation key ister (focus altı komut açıldığında38 somut key işlemi). Diğer189operationda header tanımlı değildir. GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.
+Bu tablo 228 somut işlemi kapsar; kaynak OpenAPI223operationdır. 33 OpenAPI operation key ister (focus altı komut açıldığında38 somut key işlemi). Diğer190operationda header tanımlı değildir. GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.
 
 | HTTP işlemi | Key / üst sınır | Body sürüm alanları | Tekrar / toparlanma |
 | --- | --- | --- | --- |
@@ -66,6 +66,7 @@ Bu tablo 227 somut işlemi kapsar; kaynak OpenAPI222operationdır. 33 OpenAPI op
 | `GET /api/tasks/{id}/work-components` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `PUT /api/tasks/{id}/work-definition` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
 | `GET /api/tasks/{id}/workload` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
+| `GET /api/{kind}/{id}/task-tree` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `GET /api/categories` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `POST /api/categories` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `GET /api/categories/{id}` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |

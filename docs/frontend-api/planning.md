@@ -49,7 +49,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+**Amaç/koşul:** scope=Single varsayılanı yalnız seçileni ekler. Mevcut kökte scope=Subtree kendisi ve uygun alt ağacı tek işlemde ekler (en çok2000 görev); mevcut tekil/saatli kayıtlar kimlik ve saatlerini koruyarak gruba katılır, fazladan kopya oluşmaz. Tekrar seçim eksikleri uzlaştırır; geçmiş günler sonradan değişmez. UI-R4: taskId veya title tam biri; expectedPlanningVersion ve zorunlu Idempotency-Key. Yeni görev+day item tek transaction. IsUrgent yalnız plana ekler, çalışma/focus başlatmaz veya duraklatmaz. Başlangıç serverNow yerel dakikası; bitiş null. Aynı key aynı makbuz; farklı payload409. Normal ekleme saatsiz; öncelik/efor yalnız yeni görev içindir. Undo day-items/undo üzerinden; geçmiş korunur.
 
 **Tekrar gönderim:** Sözleşmede key zorunlu; aynı normalize edilmiş payload + aynı key. Replay özgün yanıtı döndürebilir; ardından güncel kaydı okuyun.
 
@@ -64,8 +64,9 @@ Authorization: Bearer <APPLICATION_JWT>
 | --- | --- | --- |
 | `taskId` | Guid? | DTO/modül iş kuralı |
 | `title` | String | length:0..300 |
-| `expectedPlanningVersion` | Int64? | required; range:0..9,223372036854776E+18 |
+| `expectedPlanningVersion` | Int64? | required; range:0..9.223372036854776E+18 |
 | `isUrgent` | Boolean | DTO/modül iş kuralı |
+| `scope` | PlanEntryScope | DTO/modül iş kuralı |
 | `priority` | TaskPriority | DTO/modül iş kuralı |
 | `energyDemand` | EnergyLevel? | DTO/modül iş kuralı |
 
@@ -79,6 +80,7 @@ Authorization: Bearer <APPLICATION_JWT>
   "title": "Raporu yaz",
   "expectedPlanningVersion": 0,
   "isUrgent": false,
+  "scope": "Single",
   "priority": "Low",
   "energyDemand": "Low"
 }
@@ -118,7 +120,9 @@ Content-Type: application/json
     "isUrgent": false,
     "priority": "Low",
     "energyDemand": "Low",
-    "timingIssue": "örnek"
+    "timingIssue": "örnek",
+    "groupTaskId": "11111111-1111-4111-8111-111111111111",
+    "groupParentTaskId": "11111111-1111-4111-8111-111111111111"
   },
   "replayed": false
 }
@@ -299,7 +303,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+**Amaç/koşul:** Açık, arşivsiz görevi (kapsayıcı dahil) güne saatsiz ekler; kapalı görev409 task_not_plannable. Aynı gün aynı görev için tek Planned öğe vardır:409 day_item_exists. Idempotency-Key yoktur; belirsiz sonuçta yeniden göndermeyin, listeyi GET ile okuyun.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
@@ -320,8 +324,8 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "taskId": "01a16bfc-0283-7501-bce1-75de05cbd99c",
-  "placement": "First"
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "placement": "Last"
 }
 ```
 
@@ -359,18 +363,6 @@ Content-Type: application/json
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Yalnız açık doğrudan işi planlayabilirsiniz.",
-  "status": 409,
-  "code": "task_not_plannable",
-  "traceId": "00-b990527784b0619e2f45a24e25eaa828-ccf19236346ae8da-00"
-}
-```
-
 ## POST /api/daily-plans/{date}/items/move
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
@@ -394,21 +386,13 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "targetDate": "2026-10-16",
   "items": [
     {
-      "id": "01a16bfb-db9e-7f84-b39f-2fed621688d3",
-      "version": 1
-    },
-    {
-      "id": "01a16bfb-dd5f-73cf-8039-0b5e1e46f001",
-      "version": 2
-    },
-    {
-      "id": "01a16bfb-ddc1-7075-8126-d192e1290513",
+      "id": "11111111-1111-4111-8111-111111111111",
       "version": 1
     }
-  ]
+  ],
+  "targetDate": "2026-10-16"
 }
 ```
 
@@ -748,7 +732,7 @@ Authorization: Bearer <APPLICATION_JWT>
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `changeSetId` | Guid? | required |
-| `expectedPlanningVersion` | Int64? | required; range:0..9,223372036854776E+18 |
+| `expectedPlanningVersion` | Int64? | required; range:0..9.223372036854776E+18 |
 
 **Request şeması:** [UndoDayItemsRequest](DTO-Sozlugu.md#undodayitemsrequest).
 
@@ -756,8 +740,8 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "changeSetId": "01a16bfb-e03d-7e18-94e5-1d349bf0128c",
-  "expectedPlanningVersion": 12
+  "changeSetId": "11111111-1111-4111-8111-111111111111",
+  "expectedPlanningVersion": 0
 }
 ```
 
@@ -847,7 +831,7 @@ Gerçek test hata örneği — HTTP 409:
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+**Amaç/koşul:** Gün öğesinin version değeri gönderilir; eski version409 version_conflict, Planned olmayan öğe409 day_item_not_planned, başka hesap veya silinmiş görev404. completeTask=false varsayılanında complete/reopen yalnız plan öğesini işaretler. completeTask=true tamamlamada görev alt ağacını da tamamlar ve açık sayaçları kapatır; yeniden açmada yalnız seçili görev açılır. Bu görev durumu değişikliği genel plan undo yerine tamamlanma kutusuyla geri açılır.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
@@ -859,7 +843,8 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `completeTask` | Boolean | DTO/modül iş kuralı |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [DayItemVersionRequest](DTO-Sozlugu.md#dayitemversionrequest).
 
@@ -867,6 +852,7 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
+  "completeTask": false,
   "version": 1
 }
 ```
@@ -921,7 +907,7 @@ Gerçek test hata örneği — HTTP 409:
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+**Amaç/koşul:** Gün öğesinin version değeri gönderilir; eski version409 version_conflict, Planned olmayan öğe409 day_item_not_planned, başka hesap veya silinmiş görev404. completeTask=false varsayılanında complete/reopen yalnız plan öğesini işaretler. completeTask=true tamamlamada görev alt ağacını da tamamlar ve açık sayaçları kapatır; yeniden açmada yalnız seçili görev açılır. Bu görev durumu değişikliği genel plan undo yerine tamamlanma kutusuyla geri açılır. Öğeyi saatsiz olarak hedef güne taşır ve tamamlanma işaretini kaldırır. Aynı gün400 day_item_same_day; hedefte aynı görev varsa409 day_item_exists.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
@@ -936,7 +922,8 @@ Gerçek test hata örneği — HTTP 409:
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
 | `targetDate` | DateOnly? | required |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `completeTask` | Boolean | DTO/modül iş kuralı |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [MoveDayItemRequest](DTO-Sozlugu.md#movedayitemrequest).
 
@@ -944,8 +931,9 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "version": 1,
-  "targetDate": "2026-10-16"
+  "targetDate": "2026-10-16",
+  "completeTask": false,
+  "version": 1
 }
 ```
 
@@ -999,7 +987,7 @@ Gerçek test hata örneği — HTTP 409:
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümü alın. Başka owner ID404;204 yanıtı JSON olarak parse etmeyin.
+**Amaç/koşul:** Gün öğesinin version değeri gönderilir; eski version409 version_conflict, Planned olmayan öğe409 day_item_not_planned, başka hesap veya silinmiş görev404. completeTask=false varsayılanında complete/reopen yalnız plan öğesini işaretler. completeTask=true tamamlamada görev alt ağacını da tamamlar ve açık sayaçları kapatır; yeniden açmada yalnız seçili görev açılır. Bu görev durumu değişikliği genel plan undo yerine tamamlanma kutusuyla geri açılır.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
@@ -1011,7 +999,8 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `completeTask` | Boolean | DTO/modül iş kuralı |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [DayItemVersionRequest](DTO-Sozlugu.md#dayitemversionrequest).
 
@@ -1019,7 +1008,8 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "version": 3
+  "completeTask": false,
+  "version": 1
 }
 ```
 
@@ -1061,7 +1051,7 @@ Content-Type: application/json
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+**Amaç/koşul:** Gün öğesinin version değeri gönderilir; eski version409 version_conflict, Planned olmayan öğe409 day_item_not_planned, başka hesap veya silinmiş görev404. completeTask=false varsayılanında complete/reopen yalnız plan öğesini işaretler. completeTask=true tamamlamada görev alt ağacını da tamamlar ve açık sayaçları kapatır; yeniden açmada yalnız seçili görev açılır. Bu görev durumu değişikliği genel plan undo yerine tamamlanma kutusuyla geri açılır.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
@@ -1073,7 +1063,8 @@ Content-Type: application/json
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `completeTask` | Boolean | DTO/modül iş kuralı |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [DayItemVersionRequest](DTO-Sozlugu.md#dayitemversionrequest).
 
@@ -1081,7 +1072,8 @@ Content-Type: application/json
 
 ```json
 {
-  "version": 2
+  "completeTask": false,
+  "version": 1
 }
 ```
 
@@ -1147,8 +1139,8 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
-| `expectedPlanningVersion` | Int64? | required; range:0..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
+| `expectedPlanningVersion` | Int64? | required; range:0..9.223372036854776E+18 |
 | `startsAt` | DateTimeOffset? | DTO/modül iş kuralı |
 | `endsAt` | DateTimeOffset? | DTO/modül iş kuralı |
 
@@ -1197,7 +1189,9 @@ Content-Type: application/json
   "isUrgent": false,
   "priority": "Low",
   "energyDemand": "Low",
-  "timingIssue": "örnek"
+  "timingIssue": "örnek",
+  "groupTaskId": "11111111-1111-4111-8111-111111111111",
+  "groupParentTaskId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
@@ -2330,7 +2324,7 @@ Gerçek test hata örneği — HTTP 409:
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+**Amaç/koşul:** completeTask=false varsayılanında yalnız saatli plan öğesi değişir. completeTask=true görev alt ağacını da tamamlar, seçili günün biten bloklarını görünür tutar ve planningVersion ilerler; yeniden açmada yalnız seçili görev açılır. Gece yarısını geçen bloğun bağlı parçaları birlikte değişir ve hepsi döner. Kaldırılmış blok409 schedule_removed.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
@@ -2342,7 +2336,8 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `completeTask` | Boolean | DTO/modül iş kuralı |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [DayItemVersionRequest](DTO-Sozlugu.md#dayitemversionrequest).
 
@@ -2350,6 +2345,7 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
+  "completeTask": false,
   "version": 1
 }
 ```
@@ -2718,7 +2714,7 @@ Gerçek test hata örneği — HTTP 409:
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+**Amaç/koşul:** completeTask=false varsayılanında yalnız saatli plan öğesi değişir. completeTask=true görev alt ağacını da tamamlar, seçili günün biten bloklarını görünür tutar ve planningVersion ilerler; yeniden açmada yalnız seçili görev açılır. Gece yarısını geçen bloğun bağlı parçaları birlikte değişir ve hepsi döner. Kaldırılmış blok409 schedule_removed.
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
@@ -2730,7 +2726,8 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `completeTask` | Boolean | DTO/modül iş kuralı |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [DayItemVersionRequest](DTO-Sozlugu.md#dayitemversionrequest).
 
@@ -2738,7 +2735,8 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "version": 2
+  "completeTask": false,
+  "version": 1
 }
 ```
 

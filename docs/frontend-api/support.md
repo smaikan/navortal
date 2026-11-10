@@ -705,6 +705,8 @@ Gerçek test hata örneği — HTTP 409:
 
 **Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
 
+**Ek entegrasyon kuralı:** Not korunarak yeni göreve bağlanır. Yeni UI plannedFrom/plannedTo, energyDemand ve priority alanlarını isteğe bağlı gönderir; inheritNoteDueAt=false ile notun tarihi son teslim tarihine aktarılmaz. Aralık iki tarih birlikte veya ikisi null; tek gün için aynı tarih, en çok367 gün. Efor null, aciliyet null/eksikse Normal olabilir. Eski payload/son teslim ve kaydedilmiş idempotency makbuzları uyumludur. Aynı anahtar ve içerik aynı görevi döndürür; farklı içerik409, geçersiz seçim400; kayıt tek transaction içindedir.
+
 **Tekrar gönderim:** Sözleşmede key zorunlu; aynı normalize edilmiş payload + aynı key. Replay özgün yanıtı döndürebilir; ardından güncel kaydı okuyun.
 
 | Parametre | Yer | Zorunlu | Tip / sınır |
@@ -718,10 +720,30 @@ Gerçek test hata örneği — HTTP 409:
 | `title` | String | DTO/modül iş kuralı |
 | `poolId` | Guid? | DTO/modül iş kuralı |
 | `deadlineAt` | DateTimeOffset? | DTO/modül iş kuralı |
+| `plannedFrom` | DateOnly? | DTO/modül iş kuralı |
+| `plannedTo` | DateOnly? | DTO/modül iş kuralı |
+| `energyDemand` | EnergyLevel? | DTO/modül iş kuralı |
+| `priority` | TaskPriority? | DTO/modül iş kuralı |
+| `inheritNoteDueAt` | Boolean | DTO/modül iş kuralı |
 
 **Request şeması:** [NoteConversion](DTO-Sozlugu.md#noteconversion).
 
-**Örnek request body:**
+**Yeni dönüşüm arayüzü için örnek (alanlar isteğe bağlı):**
+
+```json
+{
+  "version": 1,
+  "title": "Araştır",
+  "poolId": null,
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-18",
+  "energyDemand": "Medium",
+  "priority": "High",
+  "inheritNoteDueAt": false
+}
+```
+
+**Eski istemci uyumluluk örneği:**
 
 ```json
 {

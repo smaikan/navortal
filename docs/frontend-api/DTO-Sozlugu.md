@@ -26,6 +26,7 @@
 | `snapshotAvailable` | boolean | evet | — | Breakdown etiketinin tarihsel snapshot bilgisi var; false güncel adla doldurulmaz. |
 | `workSeconds` | number\|string (double) | evet | pattern="^-?(?:0\|[1-9]\\d*)(?:\\.\\d+)?$" | Focus hedefi veya rapor actual değeri; DTO bağlamını izleyin, ikisini toplamayın. |
 | `sessionCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Pozitif rapor kesişimi veren distinct work session sayısı; bucketlardan toplanmaz. |
+| `estimatedCompletedSeconds` | number\|string (double) | hayır | pattern="^-?(?:0\|[1-9]\\d*)(?:\\.\\d+)?$"; default=0 | Hiç pozitif ölçülen çalışması olmayan tamamlanmış görevlerin tamamlanma anındaki kendi iş tahmini; ölçülen workSeconds alanından ayrıdır. Kapsayıcı hedef bütçesi eklenmez. |
 
 ## ActualBreakdownPage
 
@@ -41,6 +42,7 @@
 | `offset` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sorgu listesindeki0tabanlı satır başlangıcı; listeye özgü üst sınırı izleyin. |
 | `limit` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sayfada en çok dönecek kayıt; genellikle1..100, kesin sınır modüldedir. |
 | `total` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Filtrelenmiş tüm sorgu sayısı; items.Length değildir. |
+| `totalEstimatedCompletedSeconds` | number\|string (double) | hayır | pattern="^-?(?:0\|[1-9]\\d*)(?:\\.\\d+)?$"; default=0 | Kırılımın bütün sayfalarında tahmini tamamlanan süre toplamı. |
 
 ## ActualBucketView
 
@@ -64,6 +66,8 @@
 | `segmentCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Pozitif rapor kesişimi veren distinct effective segment sayısı; bucketlardan toplanmaz. |
 | `missingSnapshotSeconds` | number\|string (double) | evet | pattern="^-?(?:0\|[1-9]\\d*)(?:\\.\\d+)?$" | Task bağlı fakat başlangıç snapshotı eksik actual saniyesi. |
 | `focus` | [FocusMetrics](DTO-Sozlugu.md#focusmetrics) | evet | — | Aynı gerçek çalışmanın focus alt kümesi; WorkSeconds üzerine tekrar eklenmez. |
+| `estimatedCompletedSeconds` | number\|string (double) | hayır | pattern="^-?(?:0\|[1-9]\\d*)(?:\\.\\d+)?$"; default=0 | Hiç pozitif ölçülen çalışması olmayan tamamlanmış görevlerin tamamlanma anındaki kendi iş tahmini; ölçülen workSeconds alanından ayrıdır. Kapsayıcı hedef bütçesi eklenmez. |
+| `estimatedCompletedCount` | integer\|string (int32) | hayır | pattern="^-?(?:0\|[1-9]\\d*)$"; default=0 | Tahmini tamamlanan süreye katkı veren tekil görev sayısı. |
 
 ## AddDayItemRequest
 
@@ -80,6 +84,7 @@
 | `title` | null\|string | hayır | minLength=0; maxLength=300 | Görev başlığı300, özel hatırlatma başlığı200karakter sınırındadır; DTO/use-case bağlamını izleyin. |
 | `expectedPlanningVersion` | integer\|string (int64) | evet | minimum=0; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Owner koordinasyon sürümü; entity version yerine geçmez. |
 | `isUrgent` | boolean | hayır | — | Acil plan bağlamı işareti; görev priority değerinden ayrıdır. Sayaç veya görevin tamamlanma durumu değildir. |
+| `scope` | [PlanEntryScope](DTO-Sozlugu.md#planentryscope) | hayır | — | Single yalnız seçileni; Subtree mevcut ana görev ve uygun alt ağacını ekler. Mevcut tekil/saatli kayıtlar korunur. |
 | `priority` | [TaskPriority](DTO-Sozlugu.md#taskpriority) | hayır | — | Low/Normal/High/Urgent; sayısal enum sırasıyla sıralama yapmayın. |
 | `energyDemand` | null / [EnergyLevel](DTO-Sozlugu.md#energylevel) | hayır | — | Görevin isteğe bağlı efor ihtiyacı; null tercih yok. |
 
@@ -577,6 +582,7 @@ Değerler: `Manual`, `Automatic`, `null`.
 | `offset` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sorgu listesindeki0tabanlı satır başlangıcı; listeye özgü üst sınırı izleyin. |
 | `limit` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sayfada en çok dönecek kayıt; genellikle1..100, kesin sınır modüldedir. |
 | `total` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Filtrelenmiş tüm sorgu sayısı; items.Length değildir. |
+| `groups` | null\|array | hayır | — | Sayfa sınırından bağımsız kaydedilmiş grup üyeliği; öğeler yine sayfalıdır. UI grubun bütün sayfalarını yüklemelidir. |
 
 ## DayItemPlacement
 
@@ -598,6 +604,8 @@ Değerler: `Last`, `First`, `null`.
 | `endsAt` | null\|string (date-time) | hayır | — | Plan bloğunun hariç bitiş instantı; deadline değildir. |
 | `isUrgent` | boolean | hayır | default=false | Acil plan bağlamı işareti; görev priority değerinden ayrıdır. Sayaç veya görevin tamamlanma durumu değildir. |
 | `timingIssue` | null\|string | hayır | — | UI-R4: otomatik saat kurulamama nedeni; ScheduleOverlap, LocalTimeUnavailable, PlanTimeZoneMismatch veya EstimateTooLong. Görev gün planında görünür kalır. |
+| `groupTaskId` | null\|string (uuid) | hayır | — | Seçilen günün kaydedilmiş görev grubu kökü; bağımsız öğede null. |
+| `groupParentTaskId` | null\|string (uuid) | hayır | — | Gün grubuna katılma anındaki doğrudan üst görev kimliği; canlı ağaç değişince geçmiş grup taşınmaz. |
 
 ## DayItemState
 
@@ -607,6 +615,7 @@ Değerler: `Planned`, `Removed`, `Scheduled`.
 
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
 | --- | --- | --- | --- | --- |
+| `completeTask` | boolean | hayır | — | Varsayılan false eski plan-öğesi davranışını korur. true ile complete uygun görev alt ağacını tamamlar, reopen yalnız seçili görevi açar. |
 | `version` | integer\|string (int64) | hayır | minimum=1; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
 
 ## DayItemView
@@ -632,6 +641,8 @@ Değerler: `Planned`, `Removed`, `Scheduled`.
 | `priority` | [TaskPriority](DTO-Sozlugu.md#taskpriority) | hayır | — | Low/Normal/High/Urgent; sayısal enum sırasıyla sıralama yapmayın. |
 | `energyDemand` | null / [EnergyLevel](DTO-Sozlugu.md#energylevel) | hayır | — | Görevin isteğe bağlı efor ihtiyacı; null tercih yok. |
 | `timingIssue` | null\|string | hayır | — | UI-R4: otomatik saat kurulamama nedeni; ScheduleOverlap, LocalTimeUnavailable, PlanTimeZoneMismatch veya EstimateTooLong. Görev gün planında görünür kalır. |
+| `groupTaskId` | null\|string (uuid) | hayır | — | Seçilen günün kaydedilmiş görev grubu kökü; bağımsız öğede null. |
+| `groupParentTaskId` | null\|string (uuid) | hayır | — | Gün grubuna katılma anındaki doğrudan üst görev kimliği; canlı ağaç değişince geçmiş grup taşınmaz. |
 
 ## DayOverviewView
 
@@ -646,6 +657,22 @@ Değerler: `Planned`, `Removed`, `Scheduled`.
 | `support` | [SupportDayView](DTO-Sozlugu.md#supportdayview) | evet | — | Aynı owner/günün küçük efor/kritik iş desteği ve sürümü. |
 | `versions` | [DayReadVersions](DTO-Sozlugu.md#dayreadversions) | evet | — | Bu görünümün okunduğu planning/notes/special-days kaynak sürümleri; diğer kaynaklara güncellik garantisi değildir. |
 | `recurringTaskIds` | string (uuid)[] | evet | — | Yalnız dönen saatli/saatsiz sayfalardaki rutin oluşumu görev kimlikleri; owner snapshot içinde toplu okunur. Rutin görevleri ertelenemez. |
+
+## DayPlanGroup
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `taskId` | string (uuid) | evet | — | İlgili görev kimliği (owner kapsamında). |
+| `members` | [DayPlanMember](DTO-Sozlugu.md#dayplanmember)[] | evet | — | İlgili endpoint/modül kapsamındaki değer. |
+
+## DayPlanMember
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `taskId` | string (uuid) | evet | — | İlgili görev kimliği (owner kapsamında). |
+| `parentTaskId` | null\|string (uuid) | evet | — | Tek parent; null root. Alt ağaç move döngü/dependency kurallarını yeniden doğrular. |
+| `title` | string | evet | — | Görev başlığı300, özel hatırlatma başlığı200karakter sınırındadır; DTO/use-case bağlamını izleyin. |
+| `scheduleId` | null\|string (uuid) | evet | — | Plan bloğu kimliği; work start bağlamı için scheduleVersion da gerekebilir. |
 
 ## DayReadVersions
 
@@ -1136,6 +1163,7 @@ Değerler: `Skip`, `ClampToLastDay`, `null`.
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
 | --- | --- | --- | --- | --- |
 | `targetDate` | string (date) | evet | — | Schedule move hedef yerel günü; StartsAt/EndsAt ile aynı gün bağlamına uymalı. |
+| `completeTask` | boolean | hayır | — | Varsayılan false eski plan-öğesi davranışını korur. true ile complete uygun görev alt ağacını tamamlar, reopen yalnız seçili görevi açar. |
 | `version` | integer\|string (int64) | hayır | minimum=1; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
 
 ## MoveDayItemsRequest
@@ -1277,7 +1305,12 @@ Değerler: `Gray`, `Blue`, `Teal`, `Green`, `Red`, `Pink`, `Purple`.
 | `version` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
 | `title` | string | evet | — | Görev başlığı300, özel hatırlatma başlığı200karakter sınırındadır; DTO/use-case bağlamını izleyin. |
 | `poolId` | null\|string (uuid) | hayır | — | Görev havuzu bağı; plan bloklarından bağımsızdır. |
-| `deadlineAt` | null\|string (date-time) | hayır | — | Görevin son teslim instantı; plan bloğu bitişinden ayrıdır. |
+| `deadlineAt` | null\|string (date-time) | hayır | — | Eski istemciler için isteğe bağlı son teslim instantı. Yeni dönüşüm arayüzü bu alanı göndermez; plannedFrom/plannedTo kullanır. |
+| `plannedFrom` | null\|string (date) | hayır | — | İsteğe bağlı tarih aralığı başlangıcı; plannedTo ile birlikte veya ikisi null. Başlangıç bitişten sonra olamaz; en çok 367 takvim günü. |
+| `plannedTo` | null\|string (date) | hayır | — | İsteğe bağlı tarih aralığı bitişi; tek gün için plannedFrom ile aynı tarih gönderilir. |
+| `energyDemand` | null / [EnergyLevel](DTO-Sozlugu.md#energylevel) | hayır | — | İsteğe bağlı efor: Low/Medium/High; null belirtilmedi. |
+| `priority` | object: Low, Normal, High, Urgent, null | hayır | — | İsteğe bağlı aciliyet: Low/Normal/High/Urgent; null veya eksikse Normal. |
+| `inheritNoteDueAt` | boolean | hayır | default=true | Yeni tarayıcı dönüşümleri false gönderir; notun dueAt değeri görev son teslimine aktarılmaz. Eski istemciler için varsayılan true davranışı korunur. |
 
 ## NoteDisplay
 
@@ -1552,6 +1585,10 @@ Değerler: `PreserveDirect`, `ConvertToContainer`, `null`.
 | `item` | [DayItemView](DTO-Sozlugu.md#dayitemview) | evet | — | İşlem sonucu dönen gün planı öğesi; görev tanımı veya gerçek çalışma kaydı değildir. |
 | `replayed` | boolean | hayır | default=false | Özgün işlemin sonucu tekrar dönüyor; güncel ölçüm/sürüm olduğunun garantisi değil. |
 
+## PlanEntryScope
+
+Değerler: `Single`, `Subtree`.
+
 ## PlanEntryVersionRequest
 
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
@@ -1672,6 +1709,8 @@ Değerler: `PreserveDirect`, `ConvertToContainer`, `null`.
 | `photoUploadEnabled` | boolean | evet | — | Sunucuda Cloudinary yapılandırması etkin ve doğrulanmışsa true; yalnız fotoğraf yükleme kullanılabilirliğidir. |
 | `firstName` | string | evet | — | Profil adı; trim sonrası1..50karakter. Eski kayıtta görünen adın tamamı, e-postaya eşitse boş. |
 | `lastName` | string | evet | — | İsteğe bağlı soyad; trim sonrası0..50karakter. Boşsa displayName yalnız addır. |
+| `hasPassword` | boolean | hayır | default=true | Hesapta kullanılabilir parola hashı var; false ise mevcut parola isteyen form gösterilmez. |
+| `googleLinked` | boolean | hayır | default=false | Google ExternalLogin bağı gerçekten mevcut; fotoğraf URLsi bağlantı kanıtı değildir. |
 
 ## PushConfiguration
 
@@ -2012,6 +2051,17 @@ Değerler: `Pending`, `Ready`, `Obsolete`, `Expired`.
 | --- | --- | --- | --- | --- |
 | `name` | string | evet | minLength=0; maxLength=200 | Koleksiyon adı200, focus preset adı100karakter; trim edilir. |
 | `description` | null\|string | hayır | minLength=0; maxLength=10000 | İsteğe bağlı açıklama; task/koleksiyon10000karakter. PUT omission null yapabilir. |
+
+## ResourceTaskTreePage
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `roots` | [TaskView](DTO-Sozlugu.md#taskview)[] | evet | — | Sayfadaki ana veya bağımsız görevler. |
+| `nodes` | [TaskView](DTO-Sozlugu.md#taskview)[] | evet | — | Bu köklerin bütün görünür alt ağaçları; sınıflandırma bağlarını değiştirmez. |
+| `parents` | [TaskAncestorRow](DTO-Sozlugu.md#taskancestorrow)[] | evet | — | Tekil alt görevin üst bağlamı. |
+| `offset` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sorgu listesindeki0tabanlı satır başlangıcı; listeye özgü üst sınırı izleyin. |
+| `limit` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sayfada en çok dönecek kayıt; genellikle1..100, kesin sınır modüldedir. |
+| `total` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Görev sayısı değil bütün kök gruplarının sayısı. |
 
 ## ResourceVersionRequest
 
@@ -2544,6 +2594,7 @@ Değerler: `Complete`, `Reopen`, `Defer`, `Skip`, `Cancel`, `CompleteDirectWork`
 | `directEstimatedSeconds` | null\|integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Yalnız bu task’ın kendi işi; null bilinmiyor,0 ile aynı değil. |
 | `priority` | [TaskPriority](DTO-Sozlugu.md#taskpriority) | evet | — | Low/Normal/High/Urgent; sayısal enum sırasıyla sıralama yapmayın. |
 | `energyDemand` | null / [EnergyLevel](DTO-Sozlugu.md#energylevel) | evet | — | Görevin isteğe bağlı efor ihtiyacı; null tercih yok. |
+| `children` | null\|array | hayır | — | hierarchy=true seçicisinde iç içe alt görevler. Alt görev seçimi tekildir; kök seçimi Subtree olabilir. |
 
 ## TaskPickerView
 

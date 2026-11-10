@@ -683,7 +683,7 @@ Gerçek test hata örneği — HTTP 404:
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+**Amaç/koşul:** Varsayılan düz seçici uyumludur. hierarchy=true kapsayıcı kökleri ve Children ağacını da döndürür; sayfalama kökler üzerinden, arama üst bağlamı koruyarak yapılır. date atanmış/diğer grupları ayrılır. offset/assignedOffset bağımsız, limit1..100; UI25. Ebeveyn başlığı aynı sorguda, HasExactMatch bütün uygun kümede. Literal Türkçe substring; her satır için ek parent GET yok. Coverage aynı repeatable-read snapshot içindeki owner sürümleridir; UI yalnız bütün sayfalar güncel planning sürümü ve ±15sn tazelik taşıyorsa handshake tekrar okumasını atlar; eksik/eski sertifika yeniden okunur.
 
 **Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
 
@@ -696,6 +696,7 @@ Gerçek test hata örneği — HTTP 404:
 | `offset` | query | hayır | integer\|string (int32); pattern="^-?(?:0\|[1-9]\\d*)$"; default=0 |
 | `assignedOffset` | query | hayır | integer\|string (int32); pattern="^-?(?:0\|[1-9]\\d*)$"; default=0 |
 | `limit` | query | hayır | integer\|string (int32); pattern="^-?(?:0\|[1-9]\\d*)$"; default=25 |
+| `hierarchy` | query | hayır | boolean; default=false |
 
 **Request body:** yok.
 
@@ -2963,3 +2964,45 @@ Gerçek test hata örneği — HTTP 404:
   "traceId": "00-2da5bf37ad65b244e83b392c18feedfa-7ed62cc1dbe3278a-00"
 }
 ```
+## GET /api/{kind}/{id}/task-tree
+
+**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
+
+**Amaç/koşul:** Projeler/havuzlar/kategoriler/etiketler için owner kapsamlı görev ağacı. Offset/limit kök gruplarına uygulanır; alt görevler bölünmez, aynı görev tek kök altında görünür. Alt görevlerin mevcut sınıflandırması değiştirilmez; bitmiş kökler sonradır.
+
+**Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `kind` | path | evet | string; pattern="^(projects\|pools\|categories\|tags)$" |
+| `id` | path | evet | string (uuid); — |
+| `offset` | query | hayır | integer\|string (int32); pattern="^-?(?:0\|[1-9]\\d*)$"; default=0 |
+| `limit` | query | hayır | integer\|string (int32); pattern="^-?(?:0\|[1-9]\\d*)$"; default=25 |
+
+**Request body:** yok.
+
+**Örnek HTTP:**
+
+```http
+GET /api/11111111-1111-4111-8111-111111111111/11111111-1111-4111-8111-111111111111/task-tree
+Accept: application/json
+Authorization: Bearer <APPLICATION_JWT>
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [ResourceTaskTreePage](DTO-Sozlugu.md#resourcetasktreepage).
+
+```json
+{
+  "roots": [],
+  "nodes": [],
+  "parents": [],
+  "offset": 0,
+  "limit": 1,
+  "total": 1
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
