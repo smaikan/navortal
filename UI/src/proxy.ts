@@ -1,6 +1,6 @@
 import { routeChanges } from "../public/route-paths.js";
 import { NextResponse, type NextRequest } from "next/server";
-import { isIndexablePublicPath, siteSettings } from "./lib/seo";
+import { isIndexablePublicPath, publicMetadataAssetPaths, siteSettings } from "./lib/seo";
 import { pageSecurity, visiblePageURL } from "./lib/security/csp";
 
 /** Tarama başlıkları ve test alanı kapısı. Kimlik doğrulama mevcut JWT + me akışında kalır. */
@@ -59,7 +59,8 @@ function pageResponse(request: NextRequest, headers: Headers) {
     });
   }
   const response = NextResponse.next({ request: { headers } });
-  if (!siteSettings().index || !isIndexablePublicPath(request.nextUrl.pathname))
+  const publicMetadataAsset = publicMetadataAssetPaths.some(asset => asset === path);
+  if (!publicMetadataAsset && (!siteSettings().index || !isIndexablePublicPath(path)))
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;
 }

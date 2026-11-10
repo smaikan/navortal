@@ -2,10 +2,20 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "../features/auth/provider";
 import { themeBootstrap } from "../lib/theme";
+import { siteDescription } from "../lib/seo";
 
 export const metadata: Metadata = {
   title: { default: "Navortal", template: "%s | Navortal" },
-  description: "Görevlerini, günün planını ve gerçek çalışmanı bir arada yönet.",
+  description: siteDescription,
+  applicationName: "Navortal",
+  icons: {
+    // A stable, high-resolution PNG also works for Google's favicon crawler.
+    icon: [
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
   manifest: "/manifest.webmanifest",
   // Sayfalar ayrı ayrı izin veriyor. Özel veya bilinmeyen adreslerde güvenli varsayılan kalıyor.
   robots: { index: false, follow: false },

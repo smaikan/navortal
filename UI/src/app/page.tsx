@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { PublicFrame } from "../components/layout/public-frame";
-import { publicMetadata, structuredData, websiteData } from "../lib/seo";
+import { publicMetadata, siteDescription, structuredData, websiteData } from "../lib/seo";
 import { ProductPreview } from "../features/landing/product-preview";
 import styles from "../features/landing/landing.module.css";
 
-const description =
-  "Navortal, Türkçe kişisel görev ve gün planlayıcısı. Görevlerini toparla, gününe yer aç ve sıradaki işe kendi ritminde başla.";
+const description = siteDescription;
 export const metadata = publicMetadata("/", "Navortal", description);
 export default function HomePage() {
   const data = structuredData(description);

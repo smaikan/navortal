@@ -13,6 +13,27 @@ const pages = [
   ["/help", "Kullanım yardımı", "Bilinmeyen süre sıfır değildir"],
 ];
 const site = siteSettings({ ...process.env, NODE_ENV: "production" });
+test("search identity has a crawlable branded favicon and aligned page metadata", async ({ page, request }) => {
+  await page.goto("/");
+  await expect(page).toHaveTitle("Navortal | Görev Yönetimi, Gün Planlama ve Pomodoro");
+  const description = await page.locator('meta[name="description"]').getAttribute("content");
+  expect(description).toContain("Pomodoro sayacı, rutinler, notlar ve çalışma analizi");
+  await expect(page.locator('meta[property="og:description"]')).toHaveAttribute("content", description!);
+  await expect(page.locator('meta[name="application-name"]')).toHaveAttribute("content", "Navortal");
+  await expect(page.locator('link[rel="icon"][href="/icon-192.png"]')).toHaveAttribute("sizes", "192x192");
+  const identities = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll(scripts => scripts.map(script => JSON.parse(script.textContent!)));
+  const website = identities.find(value => value["@type"] === "WebSite");
+  expect(website.name).toBe("Navortal");
+  expect(website.alternateName).not.toContain("navortal.com.tr");
+  for (const path of ["/favicon.ico", "/icon-192.png", "/icon.svg", "/robots.txt", "/sitemap.xml"]) {
+    const response = await request.get(path);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["x-robots-tag"]).toBeUndefined();
+  }
+  expect((await request.get("/tasks")).headers()["x-robots-tag"]).toContain("noindex");
+});
 test("the bare domain moves to www, www stays, and the AI summary is public", async ({ request }) => {
   const moved = await request.get("/features?from=x", {
     headers: { Host: "navortal.com.tr" },

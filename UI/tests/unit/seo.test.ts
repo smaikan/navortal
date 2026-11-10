@@ -1,7 +1,16 @@
 import { legalLinks } from "../../src/features/legal/links";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-import { isIndexablePublicPath, publicMetadata, publicPaths, siteSettings, structuredData } from "../../src/lib/seo";
+import {
+  isIndexablePublicPath,
+  publicMetadata,
+  publicMetadataAssetPaths,
+  publicPaths,
+  siteDescription,
+  siteSettings,
+  structuredData,
+  websiteData,
+} from "../../src/lib/seo";
 import robots from "../../src/app/robots";
 import sitemap from "../../src/app/sitemap";
 import { proxy } from "../../src/proxy";
@@ -62,6 +71,19 @@ describe("public deployment opt-in", () => {
     expect(data).not.toContain("<");
     expect(JSON.parse(data)).toMatchObject({ name: "Navortal", url: `${production.SITE_URL}/`, description: "<b>" });
   });
+  it("describes the home page consistently and identifies the brand rather than offering the domain as its name", () => {
+    const meta = publicMetadata("/", "Navortal", siteDescription, production);
+    expect(meta.title).toEqual({ absolute: "Navortal | Görev Yönetimi, Gün Planlama ve Pomodoro" });
+    expect(meta.description).toBe(siteDescription);
+    expect(meta.openGraph).toMatchObject({ siteName: "Navortal", description: siteDescription });
+    expect(meta.twitter).toMatchObject({ description: siteDescription });
+    const website = JSON.parse(websiteData(production)!);
+    const app = JSON.parse(structuredData(siteDescription, production)!);
+    expect(website).toMatchObject({ "@type": "WebSite", name: "Navortal", url: `${production.SITE_URL}/` });
+    expect(website.alternateName).not.toContain("navortal.com.tr");
+    expect(website.publisher["@id"]).toBe(app.publisher["@id"]);
+    expect(websiteData({})).toBeNull();
+  });
   it.each(publicPaths)("uses the exact reviewed route for %s", path => {
     const meta = publicMetadata(path, "Başlık", "Açıklama", production);
     expect(meta.alternates?.canonical).toBe(new URL(path, production.SITE_URL).href);
@@ -71,6 +93,12 @@ describe("public deployment opt-in", () => {
   });
 });
 describe("crawl boundaries", () => {
+  it.each(publicMetadataAssetPaths)("does not send page noindex directives on public crawler asset %s", path => {
+    settings(production);
+    expect(proxy(new NextRequest(`https://host.example.test${path}?v=stable`)).headers.get("X-Robots-Tag")).toBeNull();
+    // Public assets must not be added to the sitemap's list of pages.
+    expect(publicPaths.some(page => page === String(path))).toBe(false);
+  });
   it("lists only public product and legal pages, never auth, private, query state or fake dates", () => {
     settings(production);
     expect(
@@ -101,6 +129,8 @@ describe("crawl boundaries", () => {
     "/tasks",
     "/analytics/plan",
     "/missing",
+    "/tasks/export.png",
+    "/missing.svg",
   ])("sends noindex headers on %s in indexable production", path => {
     settings(production);
     expect(proxy(new NextRequest(`https://host.example.test${path}`)).headers.get("X-Robots-Tag")).toBe(

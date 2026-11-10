@@ -6,6 +6,23 @@ export const publicPaths = ["/", "/features", "/how-it-works", "/help", ...legal
 export type PublicPath = (typeof publicPaths)[number];
 type Environment = Record<string, string | undefined>;
 
+export const siteDescription =
+  "Görevlerini, projelerini ve günlük planını Navortal ile düzenle. Pomodoro sayacı, rutinler, notlar ve çalışma analiziyle zamanını daha bilinçli yönet.";
+
+// These public files identify the site and help crawlers discover it; they are not private pages.
+export const publicMetadataAssetPaths = [
+  "/favicon.ico",
+  "/icon.svg",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/icon-maskable-512.png",
+  "/apple-icon.png",
+  "/og-navortal.png",
+  "/manifest.webmanifest",
+  "/robots.txt",
+  "/sitemap.xml",
+] as const;
+
 export function isIndexablePublicPath(path: string, env: Environment = process.env) {
   return (
     publicPaths.some(candidate => candidate === path) &&
@@ -62,6 +79,7 @@ export function structuredData(description: string, env: Environment = process.e
   const data = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
+    "@id": `${origin}/#application`,
     name: "Navortal",
     url: `${origin}/`,
     description,
@@ -73,6 +91,7 @@ export function structuredData(description: string, env: Environment = process.e
     offers: { "@type": "Offer", price: "0", priceCurrency: "TRY" },
     publisher: {
       "@type": "Organization",
+      "@id": `${origin}/#organization`,
       name: "Navortal",
       url: `${origin}/`,
       logo: `${origin}/icon-512.png`,
@@ -90,10 +109,12 @@ export function websiteData(env: Environment = process.env) {
   return JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${origin}/#website`,
     name: "Navortal",
-    alternateName: ["navortal.com.tr", "Navortal Planlayıcı"],
+    alternateName: ["Navortal Planlayıcı"],
     url: `${origin}/`,
     inLanguage: "tr",
+    publisher: { "@id": `${origin}/#organization` },
   });
 }
 
@@ -105,7 +126,7 @@ export function publicMetadata(
 ): Metadata {
   const { origin, index: deploymentIndex } = siteSettings(env);
   const index = deploymentIndex && isIndexablePublicPath(path, env);
-  const fullTitle = path === "/" ? `${title} — Görev ve gün planı` : `${title} | Navortal`;
+  const fullTitle = path === "/" ? `${title} | Görev Yönetimi, Gün Planlama ve Pomodoro` : `${title} | Navortal`;
   return {
     title: { absolute: fullTitle },
     description,
