@@ -7,6 +7,8 @@ namespace Adhd.Infrastructure.Auth;
 
 public sealed class ProfileStore(PlannerDbContext db) : IProfileStore
 {
+    public Task<bool> GoogleLinkedAsync(Guid user, CancellationToken ct) => db.ExternalLogins.AsNoTracking().AnyAsync(x => x.UserId == user && x.Provider == "Google", ct);
+
     public Task<AppUser?> ReadAsync(Guid user, CancellationToken ct) => db.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == user, ct);
     public async Task<bool> NameAsync(Guid user, long version, string firstName, string lastName, string displayName, CancellationToken ct) =>
         await db.Users.Where(x => x.Id == user && x.Version == version).ExecuteUpdateAsync(s => s

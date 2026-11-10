@@ -49,7 +49,8 @@ public sealed class TaskLifecycleStore(PlannerDbContext db, IPreferencesStore pr
         TaskLifecycle.Apply(nodes, taskId, command.Action, choice, now);
         var closed = await Adhd.Infrastructure.Work.WorkLifecycle.CloseForTasks(db, userId, nodes, now, ct);
         var reason = string.IsNullOrWhiteSpace(command.Reason) ? null : command.Reason.Trim();
-        if (LifecycleAccess.Record(db, nodes, before, now, "StateChanged", reason is null ? null : new { reason, initiatingTaskId = taskId }) == 0 && closed == 0) return TaskStore.View(selected);
+        var completions = await CompletionSnapshots.Capture(db, userId, nodes, before, state.PlanningVersion, now, ct);
+        if (LifecycleAccess.Record(db, nodes, before, now, "StateChanged", dataForTask: task => new { reason, initiatingTaskId = taskId, completionSnapshot = completions.GetValueOrDefault(task.Id) }) == 0 && closed == 0) return TaskStore.View(selected);
         await Adhd.Infrastructure.Planning.PlanningLifecycle.CloseFuture(db, userId, nodes, now, ct);
         if (ownTransaction) state.PlanningVersion++; state.UpdatedAt = now;
         await db.SaveChangesAsync(ct); if (tx is not null) await tx.CommitAsync(ct); return TaskStore.View(selected);

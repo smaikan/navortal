@@ -51,8 +51,7 @@ public static class TaskGraphRules
             .Select(x => x.PredecessorTaskId).Distinct().Order().ToArray();
         var reasons = new List<string>();
         if (selected.ArchivedAt is not null) reasons.Add("task_archived");
-        if (!selected.HasDirectWork) reasons.Add("direct_work_required");
-        if (selected.DirectWorkCompleted) reasons.Add("direct_work_completed");
+        if (selected.HasDirectWork && selected.DirectWorkCompleted) reasons.Add("direct_work_completed");
         if (selected.State is not (TaskState.Pending or TaskState.InProgress or TaskState.Paused)) reasons.Add("task_inactive");
         if (blocked.Length > 0) reasons.Add("predecessor_incomplete");
         return new(selected.Id, reasons.Count == 0, reasons.ToArray(), blocked);

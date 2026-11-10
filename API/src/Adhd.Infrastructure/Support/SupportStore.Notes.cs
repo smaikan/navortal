@@ -88,7 +88,14 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
     public async Task<ConvertedNote> ConvertAsync(Guid userId, Guid id, NoteConversion command, string key, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(key) || key.Length > 128) throw Invalid("idempotency_key_required", "Idempotency-Key gerekli; en çok128 karakter.");
-        var fields = TaskService.ValidateFields(new(command.Title)); command = command with { Title = fields.Title, DeadlineAt = Utc(command.DeadlineAt) }; var hash = Hash(new { id, command });
+        var fields = TaskService.ValidateFields(new(command.Title, Priority: command.Priority ?? TaskPriority.Normal));
+        if (command.PlannedFrom.HasValue != command.PlannedTo.HasValue || command.PlannedFrom > command.PlannedTo || command.PlannedTo?.DayNumber - command.PlannedFrom?.DayNumber > 366)
+            throw Invalid("planned_range_invalid", "Tarih aralığı için başlangıç ve bitişi birlikte, en çok 367 gün olarak seçin.");
+        if (command.EnergyDemand.HasValue && !Enum.IsDefined(command.EnergyDemand.Value)) throw Invalid("energy_invalid", "Efor Low/Medium/High veya boş olmalı.");
+        command = command with { Title = fields.Title, DeadlineAt = Utc(command.DeadlineAt) };
+        // Existing saved commands must retain their original hash when the new options are absent.
+        var legacy = command.InheritNoteDueAt && command.PlannedFrom is null && command.PlannedTo is null && command.EnergyDemand is null && command.Priority is null;
+        var hash = legacy ? Hash(new { id, command = new { command.Version, command.Title, command.PoolId, command.DeadlineAt } }) : Hash(new { id, command });
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct);
         var previous = await db.IdempotencyRecords.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Scope == "note-convert" && x.Key == key, ct);
         if (previous is not null)
@@ -96,7 +103,10 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
             if (previous.RequestHash != hash) throw Conflict("idempotency_conflict", "Anahtar farklı dönüşümde kullanılmış.");
             return JsonSerializer.Deserialize<ConvertedNote>(previous.Response, RevisionWriter.Json)! with { Replayed = true };
         }
-        var note = await Note(userId, id, ct); var deadline = command.DeadlineAt ?? note.DueAt; var conversionHash = Hash(new { command.Title, command.PoolId, deadline }); ConvertedNote result;
+        var note = await Note(userId, id, ct); var deadline = command.DeadlineAt ?? (command.InheritNoteDueAt ? note.DueAt : null);
+        var conversionHash = legacy ? Hash(new { command.Title, command.PoolId, deadline })
+            : Hash(new { command.Title, command.PoolId, deadline, command.PlannedFrom, command.PlannedTo, command.EnergyDemand, priority = fields.Priority });
+        ConvertedNote result;
         if (note.ConvertedTaskId.HasValue)
         {
             if (note.ConversionHash != conversionHash) throw Conflict("note_already_converted", "Not başka bir görev dönüşümüne bağlanmış.");
@@ -107,6 +117,7 @@ public sealed partial class SupportStore(PlannerDbContext db, IPreferencesStore 
             Check(note.Version, command.Version);
             if (command.PoolId.HasValue && !await db.Pools.AnyAsync(x => x.UserId == userId && x.Id == command.PoolId && x.ArchivedAt == null, ct)) throw Missing("pool_not_found");
             var now = clock.GetUtcNow(); var task = new TaskItem { Id = Guid.CreateVersion7(), UserId = userId, Title = command.Title, Description = note.Text, DeadlineAt = deadline, PoolId = command.PoolId, CreatedAt = now, UpdatedAt = now,
+                PlannedFrom = command.PlannedFrom, PlannedTo = command.PlannedTo, EnergyDemand = command.EnergyDemand, Priority = fields.Priority,
                 SortOrder = (await db.Tasks.Where(x => x.UserId == userId && x.ParentTaskId == null && x.ArchivedAt == null).Select(x => (decimal?)x.SortOrder).MaxAsync(ct) ?? 0) + 1024 };
             db.Tasks.Add(task); TaskHistory.Append(db, task, "CreatedFromNote", null, new { noteId = note.Id }); note.ConvertedTaskId = task.Id; note.ConversionHash = conversionHash; note.Version++; note.UpdatedAt = now;
             state.PlanningVersion++; state.NotesVersion++; state.UpdatedAt = now; result = new(note.Id, task.Id, note.Version, state.PlanningVersion, false);

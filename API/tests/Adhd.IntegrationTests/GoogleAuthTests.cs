@@ -70,6 +70,7 @@ public sealed class GoogleAuthTests(DatabaseFixture fixture) : IClassFixture<Dat
         var user = (await response.Content.ReadFromJsonAsync<UserSummary>())!;
         var profile = (await browser.GetFromJsonAsync<ProfileView>("/api/account/profile"))!;
         Assert.Equal(user.Id, profile.User.Id); Assert.Equal(proof.Email, user.Email);
+        Assert.False(profile.HasPassword); Assert.True(profile.GoogleLinked);
         Assert.Equal("Ada", profile.FirstName); Assert.Equal("Lovelace", profile.LastName); Assert.Equal(proof.Picture, user.GooglePictureUrl);
         await using var db = fixture.CreateContext();
         Assert.Null((await db.Users.SingleAsync(x => x.Id == user.Id)).PasswordHash);

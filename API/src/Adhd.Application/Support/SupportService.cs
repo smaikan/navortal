@@ -26,7 +26,9 @@ public sealed record NoteCategoryFields(string Name, NoteCategoryColor Color, bo
 public sealed record NoteCategoryChange(long Version, string Name, NoteCategoryColor Color, bool ShowInBar, bool PinInAll, NoteViewMode ViewMode);
 public sealed record NoteCategoryMove(long Version, Guid? BeforeCategoryId);
 public sealed record NoteSystemViews(NoteViewMode AllViewMode, NoteViewMode TaskViewMode);
-public sealed record NoteConversion(long Version, string Title, Guid? PoolId = null, DateTimeOffset? DeadlineAt = null);
+public sealed record NoteConversion(long Version, string Title, Guid? PoolId = null, DateTimeOffset? DeadlineAt = null,
+    DateOnly? PlannedFrom = null, DateOnly? PlannedTo = null, EnergyLevel? EnergyDemand = null,
+    Adhd.Domain.Tasks.TaskPriority? Priority = null, bool InheritNoteDueAt = true);
 public sealed record ConvertedNote(Guid NoteId, Guid TaskId, long NoteVersion, long PlanningVersion, bool Replayed);
 public sealed record SupportDayView(DateOnly LocalDate, string TimeZoneId, EnergyLevel? AvailableEnergy, Guid[] CriticalTaskIds, long Version, long PlanningVersion, bool Enabled);
 public sealed record SupportDayChange(long Version, EnergyLevel? AvailableEnergy, Guid[] CriticalTaskIds);

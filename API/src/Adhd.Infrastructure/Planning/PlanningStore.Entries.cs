@@ -15,7 +15,7 @@ public sealed partial class PlanningStore
     {
         ValidateDate(date);
         if (string.IsNullOrWhiteSpace(key) || key.Length > 128) throw Invalid("idempotency_key_required", "Idempotency-Key gerekli; en çok128 karakter.");
-        if (command.TaskId.HasValue == !string.IsNullOrWhiteSpace(command.Title) || !Enum.IsDefined(command.Priority)
+        if (!Enum.IsDefined(command.Scope) || command.Scope == PlanEntryScope.Subtree && command.TaskId is null || command.TaskId.HasValue == !string.IsNullOrWhiteSpace(command.Title) || !Enum.IsDefined(command.Priority)
             || command.EnergyDemand is {} energy && !Enum.IsDefined(energy)) throw Invalid("entry_invalid", "Görev veya yeni bir başlık seçin.");
         var payload = new {date,command}; var hash = Hash(payload);
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId,ct);
@@ -34,6 +34,10 @@ public sealed partial class PlanningStore
             task=new() {Id=Guid.CreateVersion7(),UserId=userId,Title=fields.Title,Priority=fields.Priority,EnergyDemand=command.EnergyDemand,CreatedAt=now,UpdatedAt=now,
                 SortOrder=(await db.Tasks.Where(x=>x.UserId==userId && x.ParentTaskId==null && x.ArchivedAt==null).Select(x=>(decimal?)x.SortOrder).MaxAsync(ct)??0)+1024};
             db.Tasks.Add(task);TaskHistory.Append(db,task,"Created",null);
+        }
+        if (command.Scope == PlanEntryScope.Subtree) {
+            var group = await AddGroup(userId, date, command, task, state, key, hash, now, ct);
+            await tx.CommitAsync(ct); return group;
         }
         var plan=await Plan(userId,date,null,ct);
         var item=await db.DayItems.SingleOrDefaultAsync(x=>x.UserId==userId && x.LocalDate==date && x.TaskId==task.Id && x.State==DayItemState.Planned,ct);

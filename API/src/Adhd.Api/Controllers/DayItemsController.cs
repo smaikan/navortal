@@ -25,12 +25,12 @@ public sealed class DayItemsController(PlanningService service) : ControllerBase
     // İlgili günlerin son saatsiz öğe değişiklik grubunu geri alır.
     [HttpPost("undo")]
     public Task<DayItemBatchResult> Undo(UndoDayItemsRequest request, CancellationToken ct) => service.UndoDayItemsAsync(UserId, request.ChangeSetId!.Value, request.ExpectedPlanningVersion!.Value, ct);
-    [HttpPost("{id:guid}/complete")] public Task<DayItemView> Complete(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.ChangeDayItemAsync(UserId, id, request.Version, DayItemAction.Complete, ct);
-    [HttpPost("{id:guid}/reopen")] public Task<DayItemView> Reopen(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.ChangeDayItemAsync(UserId, id, request.Version, DayItemAction.Reopen, ct);
+    [HttpPost("{id:guid}/complete")] public Task<DayItemView> Complete(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.ChangeDayItemAsync(UserId, id, request.Version, DayItemAction.Complete, ct, request.CompleteTask);
+    [HttpPost("{id:guid}/reopen")] public Task<DayItemView> Reopen(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.ChangeDayItemAsync(UserId, id, request.Version, DayItemAction.Reopen, ct, request.CompleteTask);
     [HttpPost("{id:guid}/remove")] public Task<DayItemView> Remove(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.ChangeDayItemAsync(UserId, id, request.Version, DayItemAction.Remove, ct);
     [HttpPost("{id:guid}/move")] public Task<DayItemView> Move(Guid id, MoveDayItemRequest request, CancellationToken ct) => service.MoveDayItemAsync(UserId, id, request.Version, request.TargetDate!.Value, ct);
-    [HttpPost("/api/schedules/{id:guid}/complete")] public Task<ScheduleCompletion> CompleteSchedule(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.CompleteScheduleAsync(UserId, id, request.Version, true, ct);
-    [HttpPost("/api/schedules/{id:guid}/reopen")] public Task<ScheduleCompletion> ReopenSchedule(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.CompleteScheduleAsync(UserId, id, request.Version, false, ct);
+    [HttpPost("/api/schedules/{id:guid}/complete")] public Task<ScheduleCompletion> CompleteSchedule(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.CompleteScheduleAsync(UserId, id, request.Version, true, ct, request.CompleteTask);
+    [HttpPost("/api/schedules/{id:guid}/reopen")] public Task<ScheduleCompletion> ReopenSchedule(Guid id, DayItemVersionRequest request, CancellationToken ct) => service.CompleteScheduleAsync(UserId, id, request.Version, false, ct, request.CompleteTask);
 }
 public sealed class AddDayItemRequest
 {
@@ -55,6 +55,7 @@ public sealed class UndoDayItemsRequest
 }
 public class DayItemVersionRequest
 {
+    public bool CompleteTask { get; set; }
     [Range(1, long.MaxValue)] public long Version { get; set; }
 }
 public sealed class MoveDayItemRequest : DayItemVersionRequest

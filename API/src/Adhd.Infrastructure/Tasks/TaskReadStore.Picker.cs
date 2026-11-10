@@ -8,10 +8,11 @@ namespace Adhd.Infrastructure.Tasks;
 
 public sealed partial class TaskReadStore
 {
-    public async Task<TaskPickerView> PickerAsync(Guid userId, DateOnly? date, string? search, int offset, int assignedOffset, int limit, CancellationToken ct)
+    public async Task<TaskPickerView> PickerAsync(Guid userId, DateOnly? date, string? search, int offset, int assignedOffset, int limit, CancellationToken ct, bool hierarchy = false)
     {
         if (offset is < 0 or > 100000 || assignedOffset is < 0 or > 100000 || limit is < 1 or > 100 || search?.Length > 200 || date?.Year is < 2 or > 9998)
             throw new UseCaseException(ErrorKind.Validation, "task_picker_invalid", "Görev arama filtresi geçersiz.");
+        if (hierarchy) return await HierarchicalPicker(userId, date, search, offset, assignedOffset, limit, ct);
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct);
         var state = await db.PlanningStates.AsNoTracking().SingleAsync(x => x.UserId == userId, ct);
         var term = search?.Trim() ?? "";

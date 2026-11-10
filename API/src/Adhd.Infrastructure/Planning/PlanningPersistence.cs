@@ -47,6 +47,8 @@ internal static class PlanningPersistence
                 t.HasCheckConstraint("CK_day_item_time", "\"EndsAt\" IS NULL OR (\"StartsAt\" IS NOT NULL AND \"StartsAt\" < \"EndsAt\")");
             });
             b.HasKey(x => x.Id); b.HasAlternateKey(x => new { x.UserId, x.Id });
+            b.HasIndex(x => new { x.UserId, x.LocalDate, x.GroupTaskId });
+            b.HasOne<TaskItem>().WithMany().HasForeignKey(x => new { x.UserId, x.GroupTaskId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             b.HasIndex(x => new { x.UserId, x.LocalDate, x.SortOrder });
             b.HasIndex(x => new { x.UserId, x.LocalDate, x.TaskId }).IsUnique().HasFilter("\"State\" = 'Planned'");
             b.HasIndex(x => new { x.UserId, x.RecurrenceOccurrenceId }).HasFilter("\"RecurrenceOccurrenceId\" IS NOT NULL");

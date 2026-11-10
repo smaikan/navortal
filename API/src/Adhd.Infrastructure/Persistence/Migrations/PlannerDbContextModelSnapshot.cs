@@ -800,6 +800,12 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("EndsAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("GroupParentTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("GroupTaskId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsUrgent")
                         .HasColumnType("boolean");
 
@@ -845,10 +851,14 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId", "GroupTaskId");
+
                     b.HasIndex("UserId", "RecurrenceOccurrenceId")
                         .HasFilter("\"RecurrenceOccurrenceId\" IS NOT NULL");
 
                     b.HasIndex("UserId", "TaskId");
+
+                    b.HasIndex("UserId", "LocalDate", "GroupTaskId");
 
                     b.HasIndex("UserId", "LocalDate", "SortOrder");
 
@@ -2644,6 +2654,12 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Tasks.TaskItem", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "GroupTaskId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Adhd.Domain.Recurrence.RecurrenceOccurrence", null)
                         .WithMany()

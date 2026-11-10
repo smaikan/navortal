@@ -48,7 +48,7 @@ public sealed class DayGlanceStore(PlannerDbContext db, IPreferencesStore prefer
             if (item.CompletedAt is not null) { completed++; continue; }
             open++; openTasks.Add(item.Id);
         }
-        var estimates = await db.Tasks.AsNoTracking().Where(x => x.UserId == userId && openTasks.Contains(x.Id))
+        var estimates = await db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.HasDirectWork && openTasks.Contains(x.Id))
             .Select(x => new { x.Id, x.DirectEstimatedSeconds }).ToArrayAsync(ct);
         foreach (var task in estimates) { if (task.DirectEstimatedSeconds is { } seconds) planned += seconds; else unknown++; }
         var dayStart = PlanTime.DayStart(date, zone); var dayEnd = PlanTime.DayStart(date.AddDays(1), zone); var cutoff = now < dayEnd ? now : dayEnd;

@@ -15,7 +15,7 @@ internal sealed record PlanDelta(TaskSchedule Schedule, ScheduleView? Before, st
 internal sealed record DayDelta(DayItem Item, DayItemSnapshot? Before, string Type, Guid PlanId, DayItemSnapshot? After = null);
 internal static class RevisionWriter
 {
-    internal static DayItemSnapshot Snapshot(DayItem d) => new(d.Id, d.LocalDate, d.TaskId, d.SortOrder, d.State, d.CompletedAt, d.Version, d.ScheduleId, d.StartsAt, d.EndsAt, d.IsUrgent, d.TimingIssue);
+    internal static DayItemSnapshot Snapshot(DayItem d) => new(d.Id, d.LocalDate, d.TaskId, d.SortOrder, d.State, d.CompletedAt, d.Version, d.ScheduleId, d.StartsAt, d.EndsAt, d.IsUrgent, d.TimingIssue, d.GroupTaskId, d.GroupParentTaskId);
     internal static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { Converters = { new JsonStringEnumConverter() } };
     internal static ScheduleView View(TaskSchedule s) => new(s.Id, s.DailyPlanId, s.TaskId, s.Kind, s.State, s.StartsAt, s.EndsAt, s.IsFixed, s.IsLocked, s.SplitGroupId, s.OriginScheduleId, s.Version,
         s.TaskSnapshot is null ? null : JsonSerializer.Deserialize<PlanningTaskSnapshot>(s.TaskSnapshot, Json), s.IsAutomatic, s.CompletedAt);

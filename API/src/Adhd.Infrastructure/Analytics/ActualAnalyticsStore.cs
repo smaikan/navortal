@@ -15,10 +15,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Analytics;
 
-public sealed class ActualAnalyticsStore(PlannerDbContext db, IPreferencesStore preferences, TimeProvider clock) : IActualAnalyticsStore
+public sealed partial class ActualAnalyticsStore(PlannerDbContext db, IPreferencesStore preferences, TimeProvider clock) : IActualAnalyticsStore
 {
     private const int MaxRows = 50000;
-    private sealed record WorkPiece(Guid SessionId, Guid SegmentId, DateOnly Date, string Zone, decimal Seconds, bool Manual, Guid? TaskId, TaskAtStart? Snapshot);
+    private sealed record WorkPiece(Guid SessionId, Guid SegmentId, DateOnly Date, string Zone, decimal Seconds, bool Manual, Guid? TaskId, TaskAtStart? Snapshot, bool Estimated = false);
     private sealed record FocusPiece(Guid FocusId, DateOnly Date, string Zone, decimal Active, decimal Overtime);
     private sealed record FocusMarker(Guid FocusId, DateOnly Date, string Zone, string Kind);
     private sealed record Dataset(DateTimeOffset Now, long Version, int WeekStartsOn, WorkPiece[] Work, FocusPiece[] Focus, FocusMarker[] Markers);
@@ -36,9 +36,9 @@ public sealed class ActualAnalyticsStore(PlannerDbContext db, IPreferencesStore 
     public async Task<ActualBreakdownPage> BreakdownAsync(Guid userId, ActualAnalyticsQuery query, AnalyticsDimension dimension, int offset, int limit, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct); var data = await Load(userId, query, false, ct);
-        var grouped = data.Work.GroupBy(x => Key(x, dimension)).Select(g => new ActualBreakdownItem(g.Key.Id, g.Key.Label, g.Key.Available, g.Sum(x => x.Seconds), g.Select(x => x.SessionId).Distinct().Count()))
-            .OrderByDescending(x => x.WorkSeconds).ThenBy(x => x.Id).ThenBy(x => x.Label, StringComparer.Ordinal).ToArray();
-        return new(query.FromDate, query.ToDate, dimension, "SourceSessionZone", data.Now, data.Work.Sum(x => x.Seconds), grouped.Skip(offset).Take(limit).ToArray(), offset, limit, grouped.Length);
+        var grouped = data.Work.GroupBy(x => Key(x, dimension)).Select(g => new ActualBreakdownItem(g.Key.Id, g.Key.Label, g.Key.Available, g.Where(x=>!x.Estimated).Sum(x => x.Seconds), g.Where(x=>!x.Estimated).Select(x => x.SessionId).Distinct().Count(), g.Where(x=>x.Estimated).Sum(x=>x.Seconds)))
+            .OrderByDescending(x => x.WorkSeconds + x.EstimatedCompletedSeconds).ThenBy(x => x.Id).ThenBy(x => x.Label, StringComparer.Ordinal).ToArray();
+        return new(query.FromDate, query.ToDate, dimension, "SourceSessionZone", data.Now, data.Work.Where(x=>!x.Estimated).Sum(x => x.Seconds), grouped.Skip(offset).Take(limit).ToArray(), offset, limit, grouped.Length, data.Work.Where(x=>x.Estimated).Sum(x=>x.Seconds));
     }
     private async Task<Dataset> Load(Guid userId, ActualAnalyticsQuery q, bool includeFocus, CancellationToken ct)
     {
@@ -84,15 +84,17 @@ public sealed class ActualAnalyticsStore(PlannerDbContext db, IPreferencesStore 
                 Mark(focus.StartedAt, "Started"); if (focus.State == FocusState.Finished) Mark(focus.EndedAt, "Finished"); Mark(target.TargetAt, "EffectiveTarget"); Mark(focus.TargetReachedAt, "RecordedTarget");
             }
         }
+        work.AddRange(await EstimatedCompletions(userId, q, now, ct));
         return new(now, version, p.Values.WeekStartsOn, work.ToArray(), focusPieces.ToArray(), markers.ToArray());
     }
     private static ActualMetrics Metrics(WorkPiece[] work, FocusPiece[] focus, FocusMarker[] markers)
     {
+        var estimates = work.Where(x=>x.Estimated).ToArray(); work = work.Where(x=>!x.Estimated).ToArray();
         var cycles = focus.Select(x => x.FocusId).Distinct().Count(); var active = focus.Sum(x => x.Active);
         int Count(string kind) => markers.Where(x => x.Kind == kind).Select(x => x.FocusId).Distinct().Count();
         return new(work.Sum(x => x.Seconds), work.Where(x => x.TaskId.HasValue).Sum(x => x.Seconds), work.Where(x => !x.TaskId.HasValue).Sum(x => x.Seconds), work.Where(x => x.Manual).Sum(x => x.Seconds),
             work.Select(x => x.SessionId).Distinct().Count(), work.Select(x => x.SegmentId).Distinct().Count(), work.Where(x => x.TaskId.HasValue && x.Snapshot is null).Sum(x => x.Seconds),
-            new(active, focus.Sum(x => x.Overtime), cycles, Count("Started"), Count("Finished"), Count("EffectiveTarget"), Count("RecordedTarget"), cycles == 0 ? null : active / cycles));
+            new(active, focus.Sum(x => x.Overtime), cycles, Count("Started"), Count("Finished"), Count("EffectiveTarget"), Count("RecordedTarget"), cycles == 0 ? null : active / cycles), estimates.Sum(x=>x.Seconds), estimates.Select(x=>x.TaskId).Distinct().Count());
     }
     private static (Guid? Id, string Label, bool Available) Key(WorkPiece p, AnalyticsDimension dimension)
     {

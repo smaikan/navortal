@@ -85,6 +85,8 @@ public sealed class DayItem
     public Guid UserId { get; set; }
     public DateOnly LocalDate { get; set; }
     public Guid TaskId { get; set; }
+    public Guid? GroupTaskId { get; set; }
+    public Guid? GroupParentTaskId { get; set; }
     public int SortOrder { get; set; }
     public DayItemState State { get; set; } = DayItemState.Planned;
     public DateTimeOffset? CompletedAt { get; set; }

@@ -3,11 +3,12 @@ using Adhd.Domain.Users;
 
 namespace Adhd.Application.Auth;
 
-public sealed record ProfileView(UserSummary User, bool PhotoUploadEnabled, string FirstName, string LastName);
+public sealed record ProfileView(UserSummary User, bool PhotoUploadEnabled, string FirstName, string LastName, bool HasPassword = true, bool GoogleLinked = false);
 public sealed record ProfilePhoto(long CloudVersion);
 public interface IProfileStore
 {
     Task<AppUser?> ReadAsync(Guid user, CancellationToken ct);
+    Task<bool> GoogleLinkedAsync(Guid user, CancellationToken ct) => Task.FromResult(false);
     Task<bool> NameAsync(Guid user, long version, string firstName, string lastName, string displayName, CancellationToken ct);
     Task<bool> PhotoAsync(Guid user, long version, Guid? photo, long? cloudVersion, Guid? revision, CancellationToken ct, bool clearGooglePicture = false);
 }
@@ -23,11 +24,11 @@ public sealed class ProfileService(IProfileStore store, IProfilePhotos photos)
 {
     public const int MaxPhotoBytes = 2 * 1024 * 1024;
     public const int MaxBase64Length = 2796204;
-    public async Task<ProfileView> ReadAsync(Guid user, CancellationToken ct) => View(await Required(user, ct));
+    public async Task<ProfileView> ReadAsync(Guid user, CancellationToken ct) { var account = await Required(user, ct); return View(account) with { GoogleLinked = await store.GoogleLinkedAsync(user, ct) }; }
     public const int MaxNamePart = 50;
     // Eski görünen adı bölme. Parolalı hesapta bu değer e-postaysa ad alanı boş sayılır.
     private ProfileView View(AppUser user) => new(AuthService.Summary(user), photos.Enabled,
-        user.FirstName ?? (string.Equals(user.DisplayName, user.Email, StringComparison.OrdinalIgnoreCase) ? "" : user.DisplayName), user.LastName ?? "");
+        user.FirstName ?? (string.Equals(user.DisplayName, user.Email, StringComparison.OrdinalIgnoreCase) ? "" : user.DisplayName), user.LastName ?? "", !string.IsNullOrEmpty(user.PasswordHash));
     private async Task<AppUser> Required(Guid user, CancellationToken ct) => await store.ReadAsync(user, ct)
         ?? throw new UseCaseException(ErrorKind.NotFound, "profile_not_found", "Profil bulunamadı.");
     private static void Version(AppUser user, long version)
@@ -69,7 +70,7 @@ public sealed class ProfileService(IProfileStore store, IProfilePhotos photos)
     public async Task<ProfileView> RemoveAsync(Guid user, long version, CancellationToken ct)
     {
         var before = await Required(user, ct); Version(before, version);
-        if (before.ProfilePhotoId is null && before.GooglePictureUrl is null) return View(before);
+        if (before.ProfilePhotoId is null && before.GooglePictureUrl is null) return await ReadAsync(user, ct);
         // Fotoğraf bağını önce CAS ile kaldır. Arada ad değişirse silinen fotoğrafı geri bağlamasın.
         if (!await store.PhotoAsync(user, version, null, null, null, ct, clearGooglePicture: true)) throw Conflict();
         if (before.ProfilePhotoId is { } old) await Cleanup(user, old);

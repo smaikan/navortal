@@ -50,11 +50,11 @@ public interface IPlanningStore
     Task<TaskAllocation> AllocationAsync(Guid userId, Guid taskId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct);
     Task<DayItemPage> DayItemsAsync(Guid userId, DateOnly date, int offset, int limit, CancellationToken ct);
     Task<DayItemView> AddDayItemAsync(Guid userId, DateOnly date, Guid taskId, DayItemPlacement placement, CancellationToken ct);
-    Task<DayItemView> ChangeDayItemAsync(Guid userId, Guid id, long version, DayItemAction action, CancellationToken ct);
+    Task<DayItemView> ChangeDayItemAsync(Guid userId, Guid id, long version, DayItemAction action, CancellationToken ct, bool completeTask = false);
     Task<DayItemView> MoveDayItemAsync(Guid userId, Guid id, long version, DateOnly targetDate, CancellationToken ct);
     Task<DayItemBatchResult> MoveDayItemsAsync(Guid userId, DateOnly date, DayItemMoveEntry[] items, DateOnly targetDate, CancellationToken ct);
     Task<DayItemBatchResult> UndoDayItemsAsync(Guid userId, Guid changeSetId, long expectedPlanningVersion, CancellationToken ct);
-    Task<ScheduleCompletion> CompleteScheduleAsync(Guid userId, Guid id, long version, bool complete, CancellationToken ct);
+    Task<ScheduleCompletion> CompleteScheduleAsync(Guid userId, Guid id, long version, bool complete, CancellationToken ct, bool completeTask = false);
 }
 public sealed class PlanningService(IPlanningStore store)
 {
@@ -102,7 +102,7 @@ public sealed class PlanningService(IPlanningStore store)
         return store.MoveDayItemsAsync(userId, date, items, targetDate, ct);
     }
     public Task<DayItemBatchResult> UndoDayItemsAsync(Guid userId, Guid changeSetId, long expectedPlanningVersion, CancellationToken ct) => store.UndoDayItemsAsync(userId, changeSetId, expectedPlanningVersion, ct);
-    public Task<DayItemView> ChangeDayItemAsync(Guid userId, Guid id, long version, DayItemAction action, CancellationToken ct) => store.ChangeDayItemAsync(userId, id, version, action, ct);
+    public Task<DayItemView> ChangeDayItemAsync(Guid userId, Guid id, long version, DayItemAction action, CancellationToken ct, bool completeTask = false) => store.ChangeDayItemAsync(userId, id, version, action, ct, completeTask);
     public Task<DayItemView> MoveDayItemAsync(Guid userId, Guid id, long version, DateOnly targetDate, CancellationToken ct) => store.MoveDayItemAsync(userId, id, version, targetDate, ct);
-    public Task<ScheduleCompletion> CompleteScheduleAsync(Guid userId, Guid id, long version, bool complete, CancellationToken ct) => store.CompleteScheduleAsync(userId, id, version, complete, ct);
+    public Task<ScheduleCompletion> CompleteScheduleAsync(Guid userId, Guid id, long version, bool complete, CancellationToken ct, bool completeTask = false) => store.CompleteScheduleAsync(userId, id, version, complete, ct, completeTask);
 }

@@ -53,15 +53,15 @@ public sealed class UiR2DayItemTests(DatabaseFixture fixture) : IClassFixture<Da
     }
 
     [Fact]
-    public async Task OnlyOpenDirectWorkCanBeAddedAndDeletedOrArchivedTasksLeaveTheList()
+    public async Task OpenContainersCanBeAddedButCompletedAndForeignTasksAreRejected()
     {
         await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app); var other = await TaskScenario.User(app);
         var container = await s.Root("Kapsayıcı"); await s.Define(container.Id, false);
         var finished = await s.Root("Biten"); await s.State(finished.Id, TaskAction.Complete);
-        foreach (var id in new[] { container.Id, finished.Id })
-        {
-            var refused = await Add(s, id); Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode); Assert.Equal("task_not_plannable", await Code(refused));
-        }
+        var containerItem = await Added(s, container.Id);
+        Assert.Equal(container.Id, containerItem.TaskId);
+        Assert.Equal(HttpStatusCode.OK, (await Act(s, containerItem, "remove")).StatusCode);
+        var refused = await Add(s, finished.Id); Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode); Assert.Equal("task_not_plannable", await Code(refused));
         var foreign = await other.Root("Yabancı");
         Assert.Equal(HttpStatusCode.NotFound, (await Add(s, foreign.Id)).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await s.Client.PostAsJsonAsync($"/api/daily-plans/{Today:yyyy-MM-dd}/items", new { })).StatusCode);

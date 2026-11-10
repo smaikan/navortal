@@ -30,8 +30,8 @@ public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore
         {
             if (command.TaskId is null) throw Invalid("task_required", "Çalışma bloğu görev gerektirir.");
             task = await db.Tasks.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == command.TaskId, ct) ?? throw Missing("task_not_found", "Görev bulunamadı.");
-            if (!task.HasDirectWork || task.DirectWorkCompleted || task.ArchivedAt is not null || task.State is not (TaskState.Pending or TaskState.InProgress or TaskState.Paused))
-                throw Conflict("task_not_plannable", "Yalnız açık doğrudan işi planlayabilirsiniz.");
+            if (task.HasDirectWork && task.DirectWorkCompleted || task.ArchivedAt is not null || task.State is not (TaskState.Pending or TaskState.InProgress or TaskState.Paused))
+                throw Conflict("task_not_plannable", "Yalnız açık görevleri planlayabilirsiniz.");
             metadata = JsonSerializer.Serialize(new PlanningTaskSnapshot(await work.Snapshot(task, state.PlanningVersion, ct), task.State, task.HasDirectWork, task.DirectWorkCompleted, task.RequiredForParent, task.DirectEstimatedSeconds, task.TargetBudgetSeconds, task.Priority, task.EnergyDemand), RevisionWriter.Json);
         }
         else if (command.TaskId.HasValue) throw Invalid("schedule_kind_invalid", "Mola ve tampon görev taşıyamaz.");

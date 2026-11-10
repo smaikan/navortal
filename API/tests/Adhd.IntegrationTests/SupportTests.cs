@@ -59,6 +59,53 @@ public sealed class SupportTests(DatabaseFixture fixture) : IClassFixture<Databa
         await using var db = fixture.CreateContext(); Assert.Equal(1, await db.Tasks.CountAsync(x => x.UserId == s.UserId)); Assert.Equal(a.TaskId, (await db.Notes.SingleAsync(x => x.Id == n.Id)).ConvertedTaskId);
     }
     [Fact]
+    public async Task ConversionSavesOptionalPlanningFieldsWithoutCopyingNoteDueDateAndReplaysSafely()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app); var other = await TaskScenario.User(app);
+        var n = await Ok<NoteView>(await Send(s, HttpMethod.Post, "/api/notes", new NoteFields(NoteKind.General, "Araştırma notu", DueAt: Morning.AddDays(1))), HttpStatusCode.Created);
+        var body = new NoteConversion(n.Version, "Araştır", PlannedFrom: new(2026, 10, 16), PlannedTo: new(2026, 10, 18), EnergyDemand: EnergyLevel.High, Priority: TaskPriority.Urgent, InheritNoteDueAt: false);
+        var path = $"/api/notes/{n.Id}/convert"; var key = Guid.NewGuid().ToString();
+        Assert.Equal(HttpStatusCode.NotFound, (await Send(other, HttpMethod.Post, path, body)).StatusCode);
+        var first = await Ok<ConvertedNote>(await Send(s, HttpMethod.Post, path, body, key));
+        Assert.Equal(first.TaskId, (await Ok<ConvertedNote>(await Send(s, HttpMethod.Post, path, body, key))).TaskId);
+        Assert.Equal(first.TaskId, (await Ok<ConvertedNote>(await Send(s, HttpMethod.Post, path, body))).TaskId);
+        Assert.Equal(HttpStatusCode.Conflict, (await Send(s, HttpMethod.Post, path, body with { EnergyDemand = EnergyLevel.Low }, key)).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await Send(s, HttpMethod.Post, path, body with { PlannedTo = new(2026, 10, 19) })).StatusCode);
+        var task = await s.Get(first.TaskId); Assert.Null(task.DeadlineAt); Assert.Equal(body.PlannedFrom, task.PlannedFrom); Assert.Equal(body.PlannedTo, task.PlannedTo); Assert.Equal(EnergyLevel.High, task.EnergyDemand); Assert.Equal(TaskPriority.Urgent, task.Priority);
+        await using var db = fixture.CreateContext(); var note = await db.Notes.AsNoTracking().SingleAsync(x => x.Id == n.Id);
+        Assert.Equal(n.DueAt, note.DueAt); Assert.Equal(n.Text, note.Text); Assert.Equal(first.TaskId, note.ConvertedTaskId); Assert.Equal(1, await db.Tasks.CountAsync(x => x.UserId == s.UserId));
+    }
+    [Fact]
+    public async Task ConversionAllowsAllOptionsEmptyAndPreservesLegacyDeadlineAndIdempotencyHash()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app);
+        var n = await Ok<NoteView>(await Send(s, HttpMethod.Post, "/api/notes", new NoteFields(NoteKind.General, "Tarihli not", DueAt: Morning)), HttpStatusCode.Created);
+        var converted = await Ok<ConvertedNote>(await Send(s, HttpMethod.Post, $"/api/notes/{n.Id}/convert", new NoteConversion(n.Version, "İş", InheritNoteDueAt: false)));
+        var task = await s.Get(converted.TaskId); Assert.Null(task.DeadlineAt); Assert.Null(task.PlannedFrom); Assert.Null(task.PlannedTo); Assert.Null(task.EnergyDemand); Assert.Equal(TaskPriority.Normal, task.Priority);
+        var old = await Ok<NoteView>(await Send(s, HttpMethod.Post, "/api/notes", new NoteFields(NoteKind.General, "Eski istemci", DueAt: Morning)), HttpStatusCode.Created);
+        var body = new NoteConversion(old.Version, "Eski iş"); var key = Guid.NewGuid().ToString();
+        var legacy = await Ok<ConvertedNote>(await Send(s, HttpMethod.Post, $"/api/notes/{old.Id}/convert", body, key)); Assert.Equal(Morning, (await s.Get(legacy.TaskId)).DeadlineAt);
+        var json = JsonSerializer.Serialize(new { id = old.Id, command = new { body.Version, body.Title, body.PoolId, body.DeadlineAt } }, Json);
+        var expected = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(json)));
+        await using var db = fixture.CreateContext(); Assert.Equal(expected, (await db.IdempotencyRecords.SingleAsync(x => x.UserId == s.UserId && x.Key == key)).RequestHash);
+    }
+    [Theory]
+    [InlineData(0)] [InlineData(1)] [InlineData(2)] [InlineData(3)] [InlineData(4)]
+    public async Task InvalidConversionOptionsDoNotCreateTasksOrConsumeTheKey(int invalid)
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app); var n = await Note(s);
+        var body = new NoteConversion(n.Version, "İş", InheritNoteDueAt: false);
+        body = invalid switch {
+            0 => body with { PlannedFrom = new(2026, 10, 16) },
+            1 => body with { PlannedFrom = new(2026, 10, 18), PlannedTo = new(2026, 10, 16) },
+            2 => body with { PlannedFrom = new(2026, 1, 1), PlannedTo = new(2027, 1, 3) },
+            3 => body with { EnergyDemand = (EnergyLevel)99 },
+            _ => body with { Priority = (TaskPriority)99 }
+        };
+        var key = Guid.NewGuid().ToString(); Assert.Equal(HttpStatusCode.BadRequest, (await Send(s, HttpMethod.Post, $"/api/notes/{n.Id}/convert", body, key)).StatusCode);
+        await using var db = fixture.CreateContext(); Assert.False(await db.Tasks.AnyAsync(x => x.UserId == s.UserId)); Assert.Null((await db.Notes.SingleAsync(x => x.Id == n.Id)).ConvertedTaskId); Assert.False(await db.IdempotencyRecords.AnyAsync(x => x.UserId == s.UserId && x.Key == key));
+    }
+    [Fact]
     public async Task ConversionFailureRollsBackTaskNoteEventVersionAndKeyAndRejectsForeignPool()
     {
         await using var app = new PlannerFactory(fixture.ConnectionString); app.Clock.Now = Morning; var s = await TaskScenario.User(app); var other = await TaskScenario.User(app); var n = await Note(s); var foreign = await TaskScenario.Read<NamedResourceView>(await other.Client.PostAsJsonAsync("/api/pools", new { name = "Other" }));
