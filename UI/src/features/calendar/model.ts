@@ -188,3 +188,16 @@ export function calendarFailure(error: unknown) {
     ? error.message
     : "Takvim okunamadı. Bağlantını ve seçilen tarih/revizyonu kontrol edip yeniden dene.";
 }
+
+/** Aynı gün bir görev açılıp yeniden bitirilirse her bitirme ayrı olay olarak gelir. Özet görev başına tek satır gösterir; son bitirme kalır. */
+export function uniqueCompletions<T extends { taskId: string; sequence: number | string; effectiveAt: string }>(
+  items: readonly T[],
+): T[] {
+  const latest = new Map<string, T>();
+  for (const item of items) {
+    const known = latest.get(item.taskId);
+    if (!known || Number(item.sequence) > Number(known.sequence)) latest.set(item.taskId, item);
+  }
+  const kept = new Set(latest.values());
+  return items.filter(item => kept.has(item));
+}

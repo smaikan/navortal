@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Surface } from "../../components/ui/surface";
 import { queryKeys } from "../../lib/api/query-client";
 import { useSession } from "../auth/provider";
-import { readCalendarDay, calendarFailure, pageSize } from "../calendar/model";
+import { readCalendarDay, calendarFailure, pageSize, uniqueCompletions } from "../calendar/model";
 import { shortTime } from "../planning/agenda-blocks";
 import { useGlance } from "../planning/glance";
 import { minutes } from "../planning/model";
@@ -155,11 +155,11 @@ export function EndPreparationDialog({
             </section>
             <section aria-labelledby="day-review-completed">
               <h3 id="day-review-completed">
-                Tamamlanan görevler <span className="muted">({d.completions.total})</span>
+                Tamamlanan görevler <span className="muted">({summary.completedTaskCount})</span>
               </h3>
               {!Number(d.completions.total) && <p className="muted">Bu gün tamamlanan görev yok.</p>}
               <ul className="day-review-records">
-                {d.completions.items.map(item => (
+                {uniqueCompletions(d.completions.items).map(item => (
                   <li key={item.eventId}>
                     <strong>{item.title ?? "Görev adı kaydedilmemiş"}</strong>
                     <time dateTime={item.effectiveAt}>{shortTime(item.effectiveAt, item.timeZoneId, format)}</time>

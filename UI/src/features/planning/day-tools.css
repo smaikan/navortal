@@ -162,3 +162,26 @@
     align-items: flex-start;
   }
 }
+
+/* Gün sonu özeti: uzun başlıklar ve çok kayıt pencereyi taşırmaz; kayıt listeleri kendi içinde kayar. */
+.day-review {
+  min-width: 0;
+  overflow-x: hidden;
+}
+.day-review-records {
+  max-height: min(38dvh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.day-review-records li {
+  min-width: 0;
+}
+.day-review-records li > strong {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+.day-review-records time {
+  flex: none;
+  white-space: nowrap;
+}
