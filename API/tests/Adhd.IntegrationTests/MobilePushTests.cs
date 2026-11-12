@@ -41,6 +41,7 @@ public sealed class MobilePushTests
         {
             services.RemoveAll<IPushTransport>(); services.AddSingleton<IPushTransport>(web);
             services.PostConfigure<PushSettings>(PushDeliveryTests.EnableTransport);
+            services.PostConfigure<PushSettings>(o => o.SuppressReadDeliveries = true); // canlıdaki ayar
         }
     });
     private static HttpClient Cookie(JobScenario s, TaskScenario? user = null)
@@ -123,12 +124,12 @@ public sealed class MobilePushTests
     }
 
     [Fact]
-    public async Task MobileDefaultsOnSendsReminderTitleAndTimeAndDoesNotAlsoSendWebPush()
+    public async Task MobileDefaultsOnSendsReminderTitleAndTimeAndWebPushIsSentToo()
     {
         var fcm = new FakeFcm(); var web = new FakeWeb(); await using var s = await Scenario(fcm, web); using var client = Cookie(s); var installation = Guid.NewGuid();
         var prefs = await TaskScenario.Read<MobilePushPreferencesView>(await client.GetAsync("/api/mobile/push/preferences")); Assert.True(prefs.Enabled);
         await EnableWeb(s); var device = await Register(client, installation, Device(s.User.UserId)); await Ready(s);
-        var payload = Assert.Single(fcm.Sent); Assert.Empty(web.Sent);
+        var payload = Assert.Single(fcm.Sent); Assert.Single(web.Sent);
         Assert.Equal("Toplantı notlarını hazırla", payload["title"]); Assert.StartsWith("Hatırlatma saati ", payload["body"]); Assert.Equal("reminders-v1", payload["channelId"]);
         Assert.Equal("/notifications/" + payload["notificationId"], payload["path"]); Assert.Equal(16, payload.Count);
         var delivery = Guid.Parse(payload["deliveryId"]);
@@ -181,13 +182,81 @@ public sealed class MobilePushTests
     [InlineData(404, "fcm_unregistered", true)]
     [InlineData(400, "fcm_invalid_argument", true)]
     [InlineData(403, "fcm_sender_mismatch", false)]
-    public async Task DefinitiveRejectionFallsBackExactlyOnceAndOnlyInvalidTokensAreRemoved(int status, string code, bool invalid)
+    public async Task DefinitiveRejectionNeverDuplicatesWebAndOnlyInvalidTokensAreRemoved(int status, string code, bool invalid)
     {
         var fcm = new FakeFcm(); fcm.Results.Enqueue(new(status, code, invalid, true)); var web = new FakeWeb();
         await using var s = await Scenario(fcm, web); using var client = Cookie(s); await EnableWeb(s); await Register(client, Guid.NewGuid(), Device(s.User.UserId)); await Ready(s);
         Assert.Single(fcm.Sent); Assert.Single(web.Sent); await s.Pump(); Assert.Single(web.Sent);
-        await using var db = s.Context(); Assert.Equal("Web", (await db.MobilePushRoutes.SingleAsync()).Channel);
+        await using var db = s.Context(); Assert.Equal("Both", (await db.MobilePushRoutes.SingleAsync()).Channel);
         Assert.Equal(!invalid, (await db.MobilePushDevices.SingleAsync()).Active);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UnregisteredNewestDeviceRetriesNextDeviceOnceAndWebIsUnaffected(bool secondAlsoUnregistered)
+    {
+        var fcm = new FakeFcm(); fcm.Results.Enqueue(new(404, "fcm_unregistered", true, true));
+        if (secondAlsoUnregistered) fcm.Results.Enqueue(new(404, "fcm_unregistered", true, true));
+        var web = new FakeWeb();
+        await using var s = await Scenario(fcm, web); using var client = Cookie(s); await EnableWeb(s);
+        var older = Guid.NewGuid(); var newer = Guid.NewGuid(); var oldest = Guid.NewGuid();
+        await Register(client, oldest, Device(s.User.UserId, token: "token-oldest")); s.App.Clock.Now += TimeSpan.FromSeconds(1);
+        await Register(client, older, Device(s.User.UserId, token: "token-older")); s.App.Clock.Now += TimeSpan.FromSeconds(1);
+        await Register(client, newer, Device(s.User.UserId, token: "token-newer"));
+        await Ready(s); await s.Pump(); await s.Pump();
+        Assert.Equal(2, fcm.Sent.Count);
+        await using var db = s.Context();
+        var deliveries = await db.MobilePushDeliveries.OrderBy(x => x.Attempt).ToArrayAsync();
+        Assert.Equal([newer, older], deliveries.Select(x => x.InstallationId));
+        Assert.Equal([1, 2], deliveries.Select(x => x.Attempt));
+        Assert.Equal(deliveries[0].ExpiresAt, deliveries[1].ExpiresAt);
+        Assert.Equal("Both", (await db.MobilePushRoutes.SingleAsync()).Channel);
+        Assert.Single(web.Sent); // web bağımsız kanaldır: mobil sonucundan etkilenmez, tekrar da gönderilmez
+        Assert.True((await db.MobilePushDevices.SingleAsync(x => x.InstallationId == oldest)).Active);
+    }
+
+    [Fact]
+    public async Task NewSessionReadsOwnDeviceAfterLogoutAndReRegistersSameInstallationButOthersCannot()
+    {
+        await using var s = await Scenario(new FakeFcm()); using var old = Cookie(s); var installation = Guid.NewGuid();
+        var first = await Register(old, installation, Device(s.User.UserId));
+        Assert.Equal(HttpStatusCode.NoContent, (await old.PostAsync("/api/auth/logout", null)).StatusCode);
+        string email; await using (var db = s.Context()) email = (await db.Users.SingleAsync()).Email;
+        // Aynı kullanıcı çıkıştan sonra yeni oturum açar.
+        var login = await s.App.CreateClient().PostAsJsonAsync("/api/auth/login", new { email, password = "123456" });
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode); var auth = await TaskScenario.Read<Adhd.Application.Auth.AuthResponse>(login);
+        using var fresh = s.App.CreateClient(); fresh.DefaultRequestHeaders.Add("Cookie", "adhd_session=" + auth.AccessToken);
+        fresh.DefaultRequestHeaders.Add("Origin", "http://localhost"); fresh.DefaultRequestHeaders.Add("X-ADHD-CSRF", "1");
+        var seen = await TaskScenario.Read<MobilePushDeviceView>(await fresh.GetAsync("/api/mobile/push/devices/" + installation));
+        Assert.False(seen.Active); Assert.Equal(first.BindingVersion, seen.BindingVersion); Assert.Equal(1, seen.ClientSequence);
+        var again = await Register(fresh, installation, Device(s.User.UserId, 2, seen.BindingVersion));
+        Assert.True(again.Active); Assert.Equal(seen.BindingVersion + 1, again.BindingVersion);
+        // Başka kullanıcı bu kurulumu okuyamaz.
+        var other = await TaskScenario.User(s.App); using var stranger = Cookie(s, other);
+        Assert.Equal(HttpStatusCode.NotFound, (await stranger.GetAsync("/api/mobile/push/devices/" + installation)).StatusCode);
+    }
+
+    [Fact]
+    public async Task WebOffSendsMobileOnlyAndMobileOffSendsWebOnlyAndNoDeviceSendsWebOnly()
+    {
+        // Masaüstü anahtarı kapalı (abonelik yok): yalnız telefon.
+        var fcm = new FakeFcm(); var web = new FakeWeb();
+        await using (var s = await Scenario(fcm, web)) { using var c = Cookie(s); await Register(c, Guid.NewGuid(), Device(s.User.UserId)); await Ready(s);
+            Assert.Single(fcm.Sent); Assert.Empty(web.Sent); await using var db = s.Context(); Assert.Equal("Both", (await db.MobilePushRoutes.SingleAsync()).Channel); }
+        // pushEnabled kapalı (abonelik var): yalnız telefon.
+        fcm = new FakeFcm(); web = new FakeWeb();
+        await using (var s = await Scenario(fcm, web)) { using var c = Cookie(s); await EnableWeb(s);
+            Assert.True((await s.User.Client.PutAsJsonAsync("/api/notifications/preferences", new UpdateNotificationPreferences(1, new(PushEnabled: false)))).IsSuccessStatusCode);
+            await Register(c, Guid.NewGuid(), Device(s.User.UserId)); await Ready(s); Assert.Single(fcm.Sent); Assert.Empty(web.Sent); }
+        // Mobil tercih kapalı: yalnız masaüstü.
+        fcm = new FakeFcm(); web = new FakeWeb();
+        await using (var s = await Scenario(fcm, web)) { using var c = Cookie(s); await EnableWeb(s); await Register(c, Guid.NewGuid(), Device(s.User.UserId));
+            Assert.True((await Write(c, HttpMethod.Put, "/api/mobile/push/preferences", new UpdateMobilePushPreferences(s.User.UserId, 0, false))).IsSuccessStatusCode);
+            await Ready(s); Assert.Empty(fcm.Sent); Assert.Single(web.Sent); await using var db = s.Context(); Assert.Equal("Web", (await db.MobilePushRoutes.SingleAsync()).Channel); }
+        // Cihaz yok: yalnız masaüstü.
+        fcm = new FakeFcm(); web = new FakeWeb();
+        await using (var s = await Scenario(fcm, web)) { await EnableWeb(s); await Ready(s); Assert.Empty(fcm.Sent); Assert.Single(web.Sent); }
     }
 
     [Fact]
@@ -196,7 +265,7 @@ public sealed class MobilePushTests
         var fcm = new FakeFcm(); fcm.Results.Enqueue(new(0, "send_outcome_unknown")); var web = new FakeWeb();
         await using var s = await Scenario(fcm, web); using var client = Cookie(s); await EnableWeb(s); var installation = Guid.NewGuid();
         var device = await Register(client, installation, Device(s.User.UserId)); await Ready(s); await s.Pump();
-        var p = Assert.Single(fcm.Sent); Assert.Empty(web.Sent);
+        var p = Assert.Single(fcm.Sent); Assert.Single(web.Sent); // belirsiz mobil sonuç mobili yeniden göndermez; web zaten kendi kanalından gitmiştir
         await using var db = s.Context(); Assert.Equal(MobilePushDeliveryState.Unknown, (await db.MobilePushDeliveries.SingleAsync()).State);
         s.App.Clock.Now += TimeSpan.FromMinutes(3);
         var result = await TaskScenario.Read<MobilePushDisplayView>(await client.GetAsync($"/api/mobile/push/deliveries/{p["deliveryId"]}?installationId={installation}&bindingVersion={device.BindingVersion}"));

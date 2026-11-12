@@ -14,8 +14,10 @@ public sealed class MobilePushStore(PlannerDbContext db, IMobilePushTokenProtect
     MobilePushEligibility eligibility, TimeProvider clock) : IMobilePushStore
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    // Kayıt aynı kullanıcıya aitse bağlı olduğu oturum kapanmış olsa bile okunur: yeni oturum güncel bindingVersion'ı öğrenip
+    // aynı kurulumu yeniden kaydedebilsin. Yazma, makbuz ve teslim kontrolü hâlâ oturuma bağlıdır. Token dönmez.
     public async Task<MobilePushDeviceView> GetAsync(Guid user, Guid session, Guid installation, CancellationToken ct) =>
-        View(await Owned(user, session, installation, ct));
+        View(await db.MobilePushDevices.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == user && x.InstallationId == installation, ct) ?? throw Missing());
 
     public async Task<MobilePushDeviceView> RegisterAsync(Guid user, Guid session, Guid installation, RegisterMobilePushDevice command, string key, CancellationToken ct)
     {

@@ -38,8 +38,8 @@ public sealed partial class NotificationStore
         var accepted = await deliveries.Where(x => x.State == DeliveryState.Succeeded).MaxAsync(x => x.DeliveredAt, ct);
         var receipt = await db.NotificationClientReceipts.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == user
             && x.NotificationId == id && x.SnoozeCount == notification.SnoozeCount, ct);
-        var mobile = await db.MobilePushDeliveries.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == user
-            && x.NotificationId == id && x.SnoozeCount == notification.SnoozeCount, ct);
+        var mobile = await db.MobilePushDeliveries.AsNoTracking().Where(x => x.UserId == user
+            && x.NotificationId == id && x.SnoozeCount == notification.SnoozeCount).OrderByDescending(x => x.Attempt).FirstOrDefaultAsync(ct);
         static DateTimeOffset? Latest(DateTimeOffset? a, DateTimeOffset? b) => a is null ? b : b is null ? a : a > b ? a : b;
         prepared = prepared is null ? mobile?.CreatedAt : mobile is null ? prepared : prepared < mobile.CreatedAt ? prepared : mobile.CreatedAt;
         return new(notification.SnoozeCount, prepared ?? (notification.SnoozeCount == 0 ? notification.ReadyAt : null), Latest(accepted, mobile?.ProviderAcceptedAt),

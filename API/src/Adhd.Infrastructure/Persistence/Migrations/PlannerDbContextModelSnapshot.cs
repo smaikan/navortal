@@ -633,6 +633,11 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Attempt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<long>("BindingVersion")
                         .HasColumnType("bigint");
 
@@ -676,7 +681,7 @@ namespace Adhd.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("InstallationId");
 
-                    b.HasIndex("UserId", "NotificationId", "SnoozeCount")
+                    b.HasIndex("UserId", "NotificationId", "SnoozeCount", "Attempt")
                         .IsUnique();
 
                     b.ToTable("mobile_push_deliveries", (string)null);

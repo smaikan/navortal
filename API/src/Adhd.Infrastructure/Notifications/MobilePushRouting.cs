@@ -37,23 +37,43 @@ public sealed class MobilePushRouter(PlannerDbContext db, IFcmTransport fcm, IOp
     internal async Task PrepareAsync(NotificationIntent n, NotificationSettings settings, CancellationToken ct)
     {
         if (await db.MobilePushRoutes.AnyAsync(x => x.UserId == n.UserId && x.NotificationId == n.Id && x.SnoozeCount == n.SnoozeCount, ct)) return;
-        MobilePushDevice? device = null;
-        if (fcm.Available && !await db.MobilePushPreferences.AnyAsync(x => x.UserId == n.UserId && !x.Enabled, ct))
-            device = await (from d in db.MobilePushDevices.AsNoTracking()
-                join s in db.AuthSessions.AsNoTracking() on d.SessionId equals s.Id
-                where d.UserId == n.UserId && d.Active && d.ProtectedToken != null && d.Permission == "granted" && d.RemindersChannelEnabled
-                    && s.UserId == n.UserId && s.RevokedAt == null
-                orderby d.LastSeenAt descending, d.InstallationId
-                select d).FirstOrDefaultAsync(ct);
-        db.MobilePushRoutes.Add(new() { UserId = n.UserId, NotificationId = n.Id, SnoozeCount = n.SnoozeCount, Channel = device is null ? "Web" : "Mobile" });
-        if (device is null) { await PrepareWebAsync(n, settings, ct); return; }
+        var device = fcm.Available ? await BestDeviceAsync(n.UserId, null, ct) : null;
+        // Mobil ve web bağımsız kanallardır: uygun mobil cihaz varsa telefona, açık web aboneliği varsa masaüstüne de gider.
+        // Web kendi koşullarını (sunucu ayarı, pushEnabled, aktif abonelik) PrepareWebAsync içinde kendisi denetler.
+        db.MobilePushRoutes.Add(new() { UserId = n.UserId, NotificationId = n.Id, SnoozeCount = n.SnoozeCount, Channel = device is null ? "Web" : "Both" });
+        await PrepareWebAsync(n, settings, ct);
+        if (device is null) return;
+        AddDelivery(n.UserId, n.Id, n.SnoozeCount, 1, device, NotificationSources.Due(n, settings).AddMinutes(2));
+    }
+    // fcm_unregistered sonrası: web'e geçmeden önce sıradaki aktif cihazı bir kez dene (aynı ExpiresAt).
+    internal async Task RetryNextOrFallbackAsync(MobilePushDelivery failed, CancellationToken ct)
+    {
+        if (failed.Attempt == 1 && failed.LastErrorCode == "fcm_unregistered" && fcm.Available && clock.GetUtcNow() < failed.ExpiresAt
+            && await BestDeviceAsync(failed.UserId, failed.InstallationId, ct) is { } next)
+        {
+            AddDelivery(failed.UserId, failed.NotificationId, failed.SnoozeCount, 2, next, failed.ExpiresAt);
+            return;
+        }
+        await FallbackAsync(failed, ct);
+    }
+    private async Task<MobilePushDevice?> BestDeviceAsync(Guid user, Guid? exclude, CancellationToken ct)
+    {
+        if (await db.MobilePushPreferences.AnyAsync(x => x.UserId == user && !x.Enabled, ct)) return null;
+        return await (from d in db.MobilePushDevices.AsNoTracking()
+            join s in db.AuthSessions.AsNoTracking() on d.SessionId equals s.Id
+            where d.UserId == user && d.Active && d.ProtectedToken != null && d.Permission == "granted" && d.RemindersChannelEnabled
+                && s.UserId == user && s.RevokedAt == null && (exclude == null || d.InstallationId != exclude)
+            orderby d.LastSeenAt descending, d.InstallationId
+            select d).FirstOrDefaultAsync(ct);
+    }
+    private void AddDelivery(Guid user, Guid notification, int snooze, int attempt, MobilePushDevice device, DateTimeOffset expiresAt)
+    {
         var now = clock.GetUtcNow();
-        var delivery = new MobilePushDelivery { Id = Guid.CreateVersion7(), UserId = n.UserId, NotificationId = n.Id, SnoozeCount = n.SnoozeCount,
-            InstallationId = device.InstallationId, BindingVersion = device.BindingVersion, CreatedAt = now,
-            ExpiresAt = NotificationSources.Due(n, settings).AddMinutes(2) };
+        var delivery = new MobilePushDelivery { Id = Guid.CreateVersion7(), UserId = user, NotificationId = notification, SnoozeCount = snooze, Attempt = attempt,
+            InstallationId = device.InstallationId, BindingVersion = device.BindingVersion, CreatedAt = now, ExpiresAt = expiresAt };
         db.MobilePushDeliveries.Add(delivery);
-        db.Outbox.Add(new() { Id = Guid.CreateVersion7(), UserId = n.UserId, Kind = "MobilePushDelivery", SourceId = delivery.Id,
-            SourceVersion = n.SnoozeCount, EventKey = "mobile-push:" + delivery.Id.ToString("N"), Payload = "{}", OccurredAt = now, AvailableAt = now });
+        db.Outbox.Add(new() { Id = Guid.CreateVersion7(), UserId = user, Kind = "MobilePushDelivery", SourceId = delivery.Id,
+            SourceVersion = snooze, EventKey = "mobile-push:" + delivery.Id.ToString("N"), Payload = "{}", OccurredAt = now, AvailableAt = now });
     }
     internal async Task FallbackAsync(MobilePushDelivery delivery, CancellationToken ct)
     {

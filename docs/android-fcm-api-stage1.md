@@ -224,15 +224,15 @@ Data-only, gösterim öncesi kontrol için seçilmiştir. Arka planda/süreç ka
 
 ## 5. Kanal seçimi, yeniden deneme ve çıkış
 
-Her kullanıcı/notificationId/snoozeCount için `mobile_push_routes` atomik ve kalıcı karar tutar. Uygun mobil hedef varsa (FCM mevcut, mobil tercih açık, cihaz/kanal izni açık, canlı sid), son kayıt/yenilemesi en yeni kurulum seçilir; eşitlikte installationId sırası kullanılır. Bir turda tek mobil cihaz seçilir. Diğer mobil kayıtlar silinmez. Mobil yoksa mevcut Web Push fan-out'u aynen çalışır.
+Mobil ve Web Push bağımsız kanallardır; aynı bildirim ikisine birden gider. Her kullanıcı/notificationId/snoozeCount için `mobile_push_routes` atomik ve kalıcı karar tutar: `Both` (uygun mobil hedef var, web ayrıca hazırlanır) veya `Web` (mobil hedef yok). Uygun mobil hedef: FCM mevcut, mobil tercih açık, cihaz/kanal izni açık, canlı sid; son kayıt/yenilemesi en yeni kurulum seçilir, eşitlikte installationId sırası kullanılır. Bir turda tek mobil cihaz seçilir; diğer mobil kayıtlar silinmez. Seçilen cihaz FCM'den `fcm_unregistered` dönerse aynı kullanıcının sıradaki aktif cihazı bir kez denenir (`Attempt=2`, aynı son kullanma zamanı).
 
-Mobil gönderim ortak bildirim anahtarı/olay/sessiz saat politikalarına tabidir; eski Web Push pushEnabled anahtarı yalnız web kanalını yönetir. Varsayılan mobil açık olduğundan web pushEnabled=false iken de uygun mobil cihaza gönderilebilir.
+Mobil gönderim ortak bildirim anahtarı/olay/sessiz saat politikalarına tabidir. Web kanalı yalnız Web Push sunucu ayarına, `pushEnabled` tercihine ve aktif aboneliğe bağlıdır; mobil tercih ve cihaz anahtarları yalnız mobil kanalı yönetir. Biri kapalıysa bildirim yalnız diğerine gider. Varsayılan mobil açık olduğundan web `pushEnabled=false` iken de uygun mobil cihaza gönderilebilir.
 
-Seçilen cihaz gönderimden önce kapanır/oturumu iptal olur/mobil tercih kapanırsa veya FCM kesin reddederse mevcut web tercihi ve VAPID etkinliği uygunsa Web Push'a bir kez düşülür. Okunmuş/eski/kaynağı geçersiz bildirim Web fallback ile yeniden canlandırılmaz.
+Mobil gönderim başarısız olsa da web kanalı etkilenmez ve web tekrar gönderilmez. Okunmuş/eski/kaynağı geçersiz bildirim yeniden canlandırılmaz; web için `Push__SuppressReadDeliveries` açıkken gönderimden önce okunan bildirim masaüstüne de gitmez.
 
 FCM 429/5xx, Retry-After veya mevcut bounded job retry ile aynı deliveryId üzerinden yeniden denenir; güncel koşullar tekrar kontrol edilir. UNREGISTERED hedefi kapatır ve token'ı temizler. INVALID_ARGUMENT yalnız FcmError ayrıntısı token hatasını gösteriyor ve BadRequest payload hatası taşımıyorsa token temizler. Diğer kesin4xx hedef tokenını topluca silmez. Eski cevabın yeni dönen tokenı silmemesi bindingVersion ile korunur.
 
-Timeout/bağlantı kopması veya Sending durumunda süreç kaybı sonucu belirsizdir: Unknown tutulur, Web fallback ve otomatik yeniden gönderim yapılmaz. Bu tercih çift gösterim yerine nadir teslim kaybını göze alır. FCM kabulünden sonra makbuz gelmemesi de fallback sebebi değildir. Kullanıcı farklı tarayıcılarda web bildirimini zaten alıyorsa eski web kanalı kendi mevcut çok cihaz davranışını korur; kanallar arası mutlak exactly-once garantisi verilmez.
+Timeout/bağlantı kopması veya Sending durumunda süreç kaybı sonucu belirsizdir: Unknown tutulur ve mobil gönderim otomatik yeniden denenmez (web kanalı zaten bağımsız olarak gönderilmiştir). Bu tercih aynı cihazda çift gösterim yerine nadir teslim kaybını göze alır. FCM kabulünden sonra makbuz gelmemesi de fallback sebebi değildir. Kullanıcı farklı tarayıcılarda web bildirimini zaten alıyorsa eski web kanalı kendi mevcut çok cihaz davranışını korur; kanallar arası mutlak exactly-once garantisi verilmez.
 
 ## 6. Sunucu yapılandırması ve veri
 

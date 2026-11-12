@@ -45,6 +45,8 @@ public sealed class MobilePushDelivery
     public Guid UserId { get; set; }
     public Guid NotificationId { get; set; }
     public int SnoozeCount { get; set; }
+    // 1 = ilk cihaz; 2 = fcm_unregistered sonrası sıradaki cihaza tek yeniden deneme
+    public int Attempt { get; set; } = 1;
     public Guid InstallationId { get; set; }
     public long BindingVersion { get; set; }
     public MobilePushDeliveryState State { get; set; }

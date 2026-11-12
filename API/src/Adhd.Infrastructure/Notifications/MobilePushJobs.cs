@@ -81,7 +81,7 @@ public sealed class MobilePushJobs(PlannerDbContext db, IFcmTransport transport,
                 await db.MobilePushDevices.Where(x => x.InstallationId == d.InstallationId && x.UserId == d.UserId && x.BindingVersion == d.BindingVersion)
                     .ExecuteUpdateAsync(s => s.SetProperty(x => x.Active, false).SetProperty(x => x.TokenHash, (string?)null)
                         .SetProperty(x => x.ProtectedToken, (string?)null).SetProperty(x => x.Version, x => x.Version + 1), ct);
-            await router.FallbackAsync(d, ct);
+            await router.RetryNextOrFallbackAsync(d, ct);
         }
         else if (result.StatusCode == 429 || result.StatusCode >= 500)
         {

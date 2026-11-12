@@ -32,8 +32,8 @@ internal static class MobilePushPersistence
         });
         model.Entity<MobilePushDelivery>(b =>
         {
-            b.ToTable("mobile_push_deliveries"); b.HasKey(x => x.Id); b.HasIndex(x => new { x.UserId, x.NotificationId, x.SnoozeCount }).IsUnique();
-            b.Property(x => x.State).HasConversion<string>().HasMaxLength(20); b.Property(x => x.LastErrorCode).HasMaxLength(60);
+            b.ToTable("mobile_push_deliveries"); b.HasKey(x => x.Id); b.HasIndex(x => new { x.UserId, x.NotificationId, x.SnoozeCount, x.Attempt }).IsUnique();
+            b.Property(x => x.Attempt).HasDefaultValue(1); b.Property(x => x.State).HasConversion<string>().HasMaxLength(20); b.Property(x => x.LastErrorCode).HasMaxLength(60);
             b.HasOne<MobilePushRoute>().WithMany().HasForeignKey(x => new { x.UserId, x.NotificationId, x.SnoozeCount }).OnDelete(DeleteBehavior.Restrict);
             // Owner/binding are immutable delivery snapshots, never rewritten on account changes.
             b.HasOne<MobilePushDevice>().WithMany().HasForeignKey(x => x.InstallationId).OnDelete(DeleteBehavior.Restrict);
