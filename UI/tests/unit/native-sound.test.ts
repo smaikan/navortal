@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createNativeSoundController,
   createNativeSoundStore,
+  isLegacyNativeSoundState,
   nativeSoundGetMessage,
   nativeSoundHost,
   nativeSoundSetMessage,
@@ -11,8 +12,10 @@ import {
 } from "../../src/features/notifications/native-sound";
 
 const sounds = ["bell", "marimba", "digital", "glass", "pulse", "soft"];
-const state = (enabled: boolean, sound = "soft", available: unknown = sounds) =>
-  JSON.stringify({ type: "sound.state", enabled, sound, available });
+const trio = (pomodoro = "soft", reminder = "soft", taskEnd = "soft") => ({ pomodoro, reminder, taskEnd });
+const state = (enabled: boolean, chosen: unknown = trio(), available: unknown = sounds) =>
+  JSON.stringify({ type: "sound.state", enabled, sounds: chosen, available });
+const legacy = JSON.stringify({ type: "sound.state", enabled: true, sound: "soft", available: sounds });
 
 function fakeHost() {
   const sent: string[] = [];
@@ -38,40 +41,63 @@ describe("native sound bridge detection", () => {
 });
 
 describe("native sound messages", () => {
-  it("builds the documented get and set payloads", () => {
+  it("builds the documented get and set payloads with all three categories", () => {
     expect(JSON.parse(nativeSoundGetMessage())).toEqual({ type: "sound.get" });
-    expect(JSON.parse(nativeSoundSetMessage(true, "glass"))).toEqual({
+    expect(JSON.parse(nativeSoundSetMessage(true, trio("bell", "marimba", "glass") as never))).toEqual({
       type: "sound.set",
       enabled: true,
-      sound: "glass",
+      sounds: { pomodoro: "bell", reminder: "marimba", taskEnd: "glass" },
     });
     expect(JSON.parse(nativeSoundSetMessage(false))).toEqual({ type: "sound.set", enabled: false });
   });
-  it("never sends enabled:true without a valid sound", () => {
+  it("never sends enabled:true without three valid sounds", () => {
     expect(() => nativeSoundSetMessage(true)).toThrow();
-    expect(() => nativeSoundSetMessage(true, "siren" as never)).toThrow();
+    expect(() => nativeSoundSetMessage(true, { pomodoro: "bell", reminder: "soft" } as never)).toThrow();
+    expect(() => nativeSoundSetMessage(true, trio("siren") as never)).toThrow();
+  });
+  it("sends only the three known categories", () => {
+    const sent = JSON.parse(nativeSoundSetMessage(true, { ...trio(), extra: "bell" } as never));
+    expect(Object.keys(sent.sounds)).toEqual(["pomodoro", "reminder", "taskEnd"]);
   });
 });
 
 describe("native sound state parsing", () => {
   it("accepts the documented reply", () => {
-    expect(parseNativeSoundState(state(false))).toEqual({ enabled: false, sound: "soft", available: sounds });
+    expect(parseNativeSoundState(state(false, trio("bell", "marimba", "soft")))).toEqual({
+      enabled: false,
+      sounds: { pomodoro: "bell", reminder: "marimba", taskEnd: "soft" },
+      available: sounds,
+    });
   });
-  it("keeps the current sound selectable even if the app omits it", () => {
-    expect(parseNativeSoundState(state(true, "bell", ["soft", "pulse"]))?.available).toEqual(["pulse", "soft", "bell"]);
+  it("keeps every chosen sound selectable even if the app omits it", () => {
+    expect(parseNativeSoundState(state(true, trio("bell", "glass", "soft"), ["soft", "pulse"]))?.available).toEqual([
+      "bell",
+      "glass",
+      "pulse",
+      "soft",
+    ]);
   });
   it.each([
     ["not text", { type: "sound.state" }],
     ["not json", "{"],
-    ["other type", JSON.stringify({ type: "timer.state", enabled: true, sound: "soft", available: sounds })],
-    ["enabled not boolean", JSON.stringify({ type: "sound.state", enabled: "yes", sound: "soft", available: sounds })],
-    ["unknown sound", state(true, "siren")],
-    ["empty list", state(true, "soft", [])],
-    ["unknown listed sound", state(true, "soft", ["soft", "siren"])],
-    ["list not an array", state(true, "soft", "soft")],
+    ["other type", JSON.stringify({ type: "timer.state", enabled: true, sounds: trio(), available: sounds })],
+    ["enabled not boolean", JSON.stringify({ type: "sound.state", enabled: "yes", sounds: trio(), available: sounds })],
+    ["unknown sound in a category", state(true, trio("siren"))],
+    ["missing category", state(true, { pomodoro: "bell", reminder: "soft" })],
+    ["sounds not an object", state(true, "soft")],
+    ["legacy single sound", legacy],
+    ["empty list", state(true, trio(), [])],
+    ["unknown listed sound", state(true, trio(), ["soft", "siren"])],
+    ["list not an array", state(true, trio(), "soft")],
     ["too long", "x".repeat(5000)],
     ["null", "null"],
   ])("ignores an invalid reply: %s", (_name, data) => expect(parseNativeSoundState(data)).toBeNull());
+  it("recognises the old single-sound reply as an outdated app, nothing else", () => {
+    expect(isLegacyNativeSoundState(legacy)).toBe(true);
+    expect(isLegacyNativeSoundState(state(true))).toBe(false);
+    expect(isLegacyNativeSoundState("garbage")).toBe(false);
+    expect(isLegacyNativeSoundState(JSON.stringify({ type: "timer.state", sound: "soft" }))).toBe(false);
+  });
 });
 
 describe("native sound controller", () => {
@@ -83,43 +109,65 @@ describe("native sound controller", () => {
     const controller = createNativeSoundController(host);
     expect(sent.map(m => JSON.parse(m))).toEqual([{ type: "sound.get" }]);
     expect(controller.getSnapshot().phase).toBe("loading");
-    reply(state(false, "marimba"));
+    reply(state(false, trio("marimba", "bell", "soft")));
     expect(controller.getSnapshot()).toMatchObject({
       phase: "ready",
       pending: null,
-      state: { enabled: false, sound: "marimba" },
+      state: { enabled: false, sounds: { pomodoro: "marimba", reminder: "bell", taskEnd: "soft" } },
     });
   });
-  it("turning the switch on sends the chosen sound and then follows the app reply", () => {
+  it("turning the switch on sends all three stored sounds and then follows the app reply", () => {
     const { host, sent, reply } = fakeHost();
     const controller = createNativeSoundController(host);
-    reply(state(false, "glass"));
+    reply(state(false, trio("glass", "bell", "pulse")));
     controller.toggle();
-    expect(JSON.parse(sent.at(-1)!)).toEqual({ type: "sound.set", enabled: true, sound: "glass" });
-    expect(controller.getSnapshot().pending).toEqual({ enabled: true, sound: "glass" });
-    reply(state(true, "glass"));
-    expect(controller.getSnapshot()).toMatchObject({ pending: null, state: { enabled: true, sound: "glass" } });
+    expect(JSON.parse(sent.at(-1)!)).toEqual({
+      type: "sound.set",
+      enabled: true,
+      sounds: { pomodoro: "glass", reminder: "bell", taskEnd: "pulse" },
+    });
+    expect(controller.getSnapshot().pending).toMatchObject({ enabled: true });
+    reply(state(true, trio("glass", "bell", "pulse")));
+    expect(controller.getSnapshot()).toMatchObject({ pending: null, state: { enabled: true } });
   });
-  it("choosing a sound only works while enabled and sends the new sound", () => {
+  it("choosing a sound changes only that category and keeps the other two", () => {
     const { host, sent, reply } = fakeHost();
     const controller = createNativeSoundController(host);
-    reply(state(false));
-    controller.choose("bell");
+    reply(state(false, trio("glass", "bell", "pulse")));
+    controller.choose("reminder", "marimba");
     expect(sent).toHaveLength(1);
-    reply(state(true));
-    controller.choose("bell");
-    expect(JSON.parse(sent.at(-1)!)).toEqual({ type: "sound.set", enabled: true, sound: "bell" });
-    reply(state(true, "bell"));
-    expect(controller.getSnapshot().state?.sound).toBe("bell");
+    reply(state(true, trio("glass", "bell", "pulse")));
+    controller.choose("reminder", "marimba");
+    expect(JSON.parse(sent.at(-1)!)).toEqual({
+      type: "sound.set",
+      enabled: true,
+      sounds: { pomodoro: "glass", reminder: "marimba", taskEnd: "pulse" },
+    });
+    reply(state(true, trio("glass", "marimba", "pulse")));
+    expect(controller.getSnapshot().state?.sounds).toEqual({
+      pomodoro: "glass",
+      reminder: "marimba",
+      taskEnd: "pulse",
+    });
+    controller.choose("taskEnd", "soft");
+    expect(JSON.parse(sent.at(-1)!).sounds).toEqual({ pomodoro: "glass", reminder: "marimba", taskEnd: "soft" });
   });
-  it("turning it off sends no sound", () => {
+  it("does not send when the same sound is chosen again or the category is unknown", () => {
     const { host, sent, reply } = fakeHost();
     const controller = createNativeSoundController(host);
-    reply(state(true, "pulse"));
+    reply(state(true, trio("glass", "bell", "pulse")));
+    controller.choose("pomodoro", "glass");
+    controller.choose("other" as never, "bell");
+    expect(sent).toHaveLength(1);
+  });
+  it("turning it off sends no sounds", () => {
+    const { host, sent, reply } = fakeHost();
+    const controller = createNativeSoundController(host);
+    reply(state(true, trio("pulse", "bell", "soft")));
     controller.toggle();
     expect(JSON.parse(sent.at(-1)!)).toEqual({ type: "sound.set", enabled: false });
-    reply(state(false, "pulse"));
-    expect(controller.getSnapshot().state).toMatchObject({ enabled: false, sound: "pulse" });
+    reply(state(false, trio("pulse", "bell", "soft")));
+    expect(controller.getSnapshot().state).toMatchObject({ enabled: false, sounds: { pomodoro: "pulse" } });
   });
   it("ignores invalid replies and keeps waiting for a real one", () => {
     const { host, reply } = fakeHost();
@@ -127,10 +175,18 @@ describe("native sound controller", () => {
     reply(state(false));
     controller.toggle();
     reply("garbage");
-    reply(state(true, "siren"));
+    reply(state(true, trio("siren")));
     expect(controller.getSnapshot()).toMatchObject({ pending: { enabled: true }, state: { enabled: false } });
     reply(state(true));
     expect(controller.getSnapshot()).toMatchObject({ pending: null, state: { enabled: true } });
+  });
+  it("marks an old app that answers with a single sound as outdated", () => {
+    const { host, reply } = fakeHost();
+    const controller = createNativeSoundController(host);
+    reply(legacy);
+    expect(controller.getSnapshot()).toMatchObject({ phase: "outdated", state: null, pending: null });
+    controller.toggle();
+    expect(controller.getSnapshot().pending).toBeNull();
   });
   it("shows an error and reverts when the app does not answer within the timeout", () => {
     const { host, reply } = fakeHost();
@@ -205,9 +261,9 @@ describe("native sound store", () => {
     const seen = vi.fn();
     const off = store.subscribe(seen);
     expect(sent).toHaveLength(1);
-    reply(state(true, "digital"));
+    reply(state(true, trio("digital", "bell", "soft")));
     expect(seen).toHaveBeenCalled();
-    expect(store.getSnapshot().state).toMatchObject({ enabled: true, sound: "digital" });
+    expect(store.getSnapshot().state).toMatchObject({ enabled: true, sounds: { pomodoro: "digital" } });
     off();
     expect(host.onmessage).toBeNull();
   });

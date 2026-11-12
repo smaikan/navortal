@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createMiniPlayer, miniPlayerKey } from "../../src/features/mini-player/controller";
+import { createMiniPlayer, miniPlayerKey, placeTopRight } from "../../src/features/mini-player/controller";
 import { miniActivity } from "../../src/features/mini-player/activity";
 import type { Work } from "../../src/features/work/model";
 import type { Focus } from "../../src/features/focus/model";
@@ -163,5 +163,32 @@ describe("only active server snapshots are shown", () => {
     expect(miniActivity(null, focus("same", "Working")).runningFocus?.state).toBe("Working");
     expect(miniActivity(work("same", "Paused"), null)).toEqual({ runningWork: null, runningFocus: null });
     expect(miniActivity(null, null)).toEqual({ runningWork: null, runningFocus: null });
+  });
+});
+
+describe("mini player placement", () => {
+  const screenInfo = { availLeft: 0, availTop: 0, availWidth: 1920 } as Screen & {
+    availLeft?: number;
+    availTop?: number;
+  };
+  it("moves the window to the top right corner with a small gap", () => {
+    const moveTo = vi.fn();
+    placeTopRight({ outerWidth: 260, moveTo } as unknown as Window, screenInfo);
+    expect(moveTo).toHaveBeenCalledWith(1920 - 260 - 16, 16);
+  });
+  it("accounts for a second monitor on the left and falls back to the requested width", () => {
+    const moveTo = vi.fn();
+    placeTopRight(
+      { outerWidth: 0, moveTo } as unknown as Window,
+      { ...screenInfo, availLeft: -1920, availTop: 0 } as Screen,
+    );
+    expect(moveTo).toHaveBeenCalledWith(-1920 + 1920 - 240 - 16, 16);
+  });
+  it("never throws when the browser refuses to move the window", () => {
+    const moveTo = vi.fn(() => {
+      throw new Error("NotAllowedError");
+    });
+    expect(() => placeTopRight({ outerWidth: 260, moveTo } as unknown as Window, screenInfo)).not.toThrow();
+    expect(() => placeTopRight({} as Window, screenInfo)).not.toThrow();
   });
 });

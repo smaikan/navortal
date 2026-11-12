@@ -7,7 +7,8 @@ import { alertSoundIds } from "../../../public/alert-tones.js";
 import type { Settings } from "./model";
 
 type SoundKey = "pomodoroSound" | "reminderSound" | "taskEndSound";
-const rows: { key: SoundKey; label: string; detail: string }[] = [
+/** Olay kategorileri. Uygulama içi ses bölümü de aynı başlık ve açıklamaları kullanır. */
+export const soundRows: { key: SoundKey; label: string; detail: string }[] = [
   { key: "pomodoroSound", label: "Pomodoro", detail: "Çalışma hedefi ve mola bitişi" },
   {
     key: "reminderSound",
@@ -120,7 +121,7 @@ export function SoundCheck({
         Bildirim sesleri
       </h2>
       <p className="r2-hint">Her olay için ayrı bir ses seç. Seçimlerin otomatik kaydedilir.</p>
-      {rows.map(({ key, label, detail }) => {
+      {soundRows.map(({ key, label, detail }) => {
         const sound = settings[key];
         return (
           <div className="notification-sound-row" key={key}>

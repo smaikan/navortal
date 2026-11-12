@@ -13,6 +13,19 @@ export const pictureInPicture = () =>
     ? undefined
     : (window as Window & { documentPictureInPicture?: PictureInPicture }).documentPictureInPicture;
 
+const EDGE_GAP = 16;
+/** Mini pencere varsayılan olarak ekranın en sağ üstüne konur. Tarayıcı konumlandırmaya izin vermezse kendi yerinde kalır. */
+export function placeTopRight(target: Window, display: Screen & { availLeft?: number; availTop?: number }) {
+  try {
+    const width = target.outerWidth || 240;
+    const left = (display.availLeft ?? 0) + display.availWidth - width - EDGE_GAP;
+    const top = (display.availTop ?? 0) + EDGE_GAP;
+    target.moveTo(left, top); // Sol monitörde koordinatlar negatif olabilir
+  } catch {
+    /* Konum ayarlanamadı; pencere tarayıcının varsayılan yerinde açık kalır. */
+  }
+}
+
 type Snapshot = Readonly<{ window: Window | null; waiting: boolean; failure: string }>;
 export const initialMiniPlayer: Snapshot = { window: null, waiting: false, failure: "" };
 const noTicket: { settle: (ok: boolean) => void } = { settle() {} };
@@ -95,6 +108,7 @@ export function createMiniPlayer(options: {
             },
             { once: true },
           );
+          if (typeof window !== "undefined") placeTopRight(target, window.screen);
           publish({ window: target, waiting: accepted !== true, failure: "" });
         })
         .catch(() => {

@@ -1,19 +1,35 @@
 "use client";
 import { useId, useState, useSyncExternalStore } from "react";
-import { createNativeSoundStore, nativeSoundHost, type NativeSoundSnapshot } from "./native-sound";
-import { SoundSelect, useSoundPreview } from "./sound-check";
+import {
+  createNativeSoundStore,
+  nativeSoundHost,
+  type NativeSoundCategory,
+  type NativeSoundSnapshot,
+} from "./native-sound";
+import { SoundSelect, soundRows, useSoundPreview } from "./sound-check";
+
+/** Masaüstündeki üç olay satırı, uygulamadaki kategori adlarıyla eşlenir. */
+const categoryOf: Record<(typeof soundRows)[number]["key"], NativeSoundCategory> = {
+  pomodoroSound: "pomodoro",
+  reminderSound: "reminder",
+  taskEndSound: "taskEnd",
+};
+
+/** Uygulamanın içinde miyiz? Sunucuda ve ilk istemci çiziminde false; köprü varsa hemen true olur. */
+export function useInNativeApp() {
+  return useSyncExternalStore(
+    none,
+    () => nativeSoundHost() !== null,
+    () => false,
+  );
+}
 
 const none = () => () => {};
 const empty: NativeSoundSnapshot = { phase: "loading", state: null, pending: null, error: "" };
 
 /** Yalnız uygulamanın içinde (window.navortalTimer var) görünür. Tercih uygulamada tutulur, sunucuya yazılmaz. */
 export function NativeSoundSection() {
-  // Sunucu ve ilk istemci çizimi aynı (gizli); köprü varsa ilk etkileşimde bölüm belirir.
-  const inApp = useSyncExternalStore(
-    none,
-    () => nativeSoundHost() !== null,
-    () => false,
-  );
+  const inApp = useInNativeApp();
   return inApp ? <Section /> : null;
 }
 
@@ -28,7 +44,7 @@ function Section() {
   return (
     <section className="notification-sounds native-sound" aria-labelledby={`${id}-heading`}>
       <h2 id={`${id}-heading`} className="r2-small-heading">
-        Bildirim sesi
+        Bildirim sesleri
       </h2>
       <div className="notification-sound-row">
         <div id={`${id}-label`} className="native-sound-label">
@@ -50,23 +66,34 @@ function Section() {
           <span aria-hidden="true" />
         </button>
       </div>
-      {enabled && shown && snapshot.state && (
-        <div className="notification-sound-row">
-          <label htmlFor={`${id}-sound`}>
-            <strong>Ses</strong>
-            <span className="r2-hint">Seçtiğin ses uygulamadaki bildirimlerde çalar.</span>
-          </label>
-          <SoundSelect
-            id={`${id}-sound`}
-            label="Özel bildirim"
-            sound={shown.sound}
-            options={snapshot.state.available}
-            disabled={busy}
-            previewing={previewing}
-            change={sound => store.choose(sound)}
-            test={test}
-          />
-        </div>
+      {enabled &&
+        shown &&
+        snapshot.state &&
+        soundRows.map(({ key, label, detail }) => {
+          const category = categoryOf[key];
+          return (
+            <div className="notification-sound-row" key={key}>
+              <label htmlFor={`${id}-${key}`}>
+                <strong>{label}</strong>
+                <span className="r2-hint">{detail}</span>
+              </label>
+              <SoundSelect
+                id={`${id}-${key}`}
+                label={label}
+                sound={shown.sounds[category]}
+                options={snapshot.state!.available}
+                disabled={busy}
+                previewing={previewing}
+                change={sound => store.choose(category, sound)}
+                test={test}
+              />
+            </div>
+          );
+        })}
+      {snapshot.phase === "outdated" && (
+        <p role="status" className="r2-hint">
+          Bu özellik için uygulamanın güncel sürümü gerekiyor. Uygulamayı güncelleyip yeniden dene.
+        </p>
       )}
       {snapshot.phase === "loading" && (
         <p role="status" className="r2-hint">
@@ -93,7 +120,7 @@ function Section() {
           {message}
         </p>
       )}
-      <p className="r2-hint">Bu tercih yalnız bu uygulamada tutulur, hesabına kaydedilmez.</p>
+      <p className="r2-hint">Bu tercihler yalnız bu uygulamada tutulur, hesabına kaydedilmez.</p>
     </section>
   );
 }

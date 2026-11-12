@@ -14,6 +14,7 @@ import {
 import { useNotificationPreferences } from "./queries";
 import { useNotificationCache } from "./cache";
 import { SoundCheck } from "./sound-check";
+import { useInNativeApp } from "./native-sound-section";
 
 type Switch = keyof Pick<
   Settings,
@@ -63,6 +64,7 @@ function Form({ initial, onDirty }: { initial: Preferences; onDirty?: (dirty: bo
   const { session } = useSession();
   const cache = useNotificationCache();
   const id = useId();
+  const inNativeApp = useInNativeApp();
   const [base, setBase] = useState(initial),
     [draft, setDraft] = useState(initial.settings),
     [latest, setLatest] = useState<Preferences | null>(null);
@@ -259,7 +261,14 @@ function Form({ initial, onDirty }: { initial: Preferences; onDirty?: (dirty: bo
           Önceden haber verme süresi plan başlangıcı, plan bitişi ve son teslim bildirimlerine uygulanır.
         </p>
       </section>
-      <SoundCheck settings={draft} disabled={blocked} change={(key, sound) => void save({ ...draft, [key]: sound })} />
+      {/* Uygulamanın içinde sesleri uygulama çalar; üç kategori "Özel bildirim sesi" altında seçilir. */}
+      {!inNativeApp && (
+        <SoundCheck
+          settings={draft}
+          disabled={blocked}
+          change={(key, sound) => void save({ ...draft, [key]: sound })}
+        />
+      )}
       <section aria-labelledby={`${id}-calm`} className="r2-calm">
         <h2 id={`${id}-calm`} className="r2-small-heading">
           Sakin saatler
