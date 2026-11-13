@@ -81,14 +81,17 @@ export function NavigationLinks({
 }) {
   const soonId = useId();
   const of = (group: Group) => destinations.filter(d => d.group === group);
+  // Mobil alt çubuk: Gün Planlama, Görevler, Takvim, Notlar. Pomodoro ve Matris "Daha fazla" içinde.
+  const bar = ["/planning", "/tasks", "/calendar", "/notes"];
+  const inBar = (x: { path: string }) => bar.includes(x.path);
   if (subset === "primary")
-    return <Links links={of("main").filter(x => x.path !== "/matrix")} onNavigate={onNavigate} />;
+    return <Links links={bar.map(path => destinations.find(d => d.path === path)!)} onNavigate={onNavigate} />;
   return (
     <>
       {subset === "all" && <Links links={of("main")} onNavigate={onNavigate} />}
-      {subset === "more" && <Links links={of("main").filter(x => x.path === "/matrix")} onNavigate={onNavigate} />}
+      {subset === "more" && <Links links={of("main").filter(x => !inBar(x))} onNavigate={onNavigate} />}
       <hr className="nav-divider" />
-      <Links links={of("organize")} onNavigate={onNavigate} />
+      <Links links={of("organize").filter(x => subset === "all" || !inBar(x))} onNavigate={onNavigate} />
       {of("soon").length > 0 && (
         <p className="nav-group-label" id={soonId}>
           Yakında

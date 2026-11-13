@@ -7,7 +7,7 @@ import { ListPlus, MoreHorizontal, Plus } from "lucide-react";
 import { Account } from "../../features/auth/account";
 import { BrandMark } from "../ui/brand-mark";
 import { Surface } from "../ui/surface";
-import { NavigationLinks } from "./navigation";
+import { destinations, NavigationLinks } from "./navigation";
 import { TaskPanelProvider } from "./task-panel";
 import { closeSettings, readSettingsView, settingsTrigger } from "../../features/preferences/settings-url";
 import { useOptionalWork, WorkProvider } from "../../features/work/coordinator";
@@ -101,6 +101,7 @@ function ShellFrame({ children, player }: { children: React.ReactNode; player?: 
     if (window.history.state?.adhdMenu === base) router.back();
     else window.history.replaceState({}, "", base);
   }
+  const pageLabel = destinations.find(d => pathname === d.path || pathname.startsWith(`${d.path}/`))?.label;
   const shown = player ?? (live ? <WorkPlayer /> : null);
   return (
     <div className={`workspace-shell${shown ? " has-player" : ""}`}>
@@ -120,6 +121,12 @@ function ShellFrame({ children, player }: { children: React.ReactNode; player?: 
             <BrandMark size={22} />
             <span className="mobile-brand-name">Navortal</span>
           </Link>
+          {/* Telefonda hangi ekranda olduğun üst çubukta da görünür; sayfanın kendi başlığı h1 olarak kalır. */}
+          {pageLabel && (
+            <span className="mobile-page-title" aria-hidden="true">
+              {pageLabel}
+            </span>
+          )}
           {!player && work && (
             // Çalışan bağlantı sessiz kalıyor; ekran okuyucu durumunu yine duyuyor. Yalnız sorun gösteriliyor.
             // İlk bağlantı da sorun sayılmıyor. Onu kısa süre göstermek başlığı kaydırıyordu.
