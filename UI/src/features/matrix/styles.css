@@ -389,3 +389,46 @@
     display: none;
   }
 }
+
+/* Ayrılmamış işler: dört kutunun üstünde tek satırlık şerit. Kutu tasarımları aynı kalır. */
+.matrix-lane.matrix-inbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 10px 14px;
+  border-style: solid;
+  background: var(--surface);
+}
+.matrix-inbox > header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.matrix-inbox .matrix-cards {
+  display: flex;
+  flex: 1 1 320px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+.matrix-inbox .matrix-card {
+  grid-template-columns: 36px minmax(0, 1fr) 44px;
+  max-width: 280px;
+  padding: 0 2px;
+  border-radius: 22px;
+  background: var(--raised);
+}
+.matrix-inbox .matrix-card-facts {
+  display: none;
+}
+.matrix-inbox .matrix-lane-empty {
+  flex: 1 1 200px;
+  min-height: 0;
+  padding: 0;
+}
+.matrix-inbox .matrix-paging {
+  flex-basis: 100%;
+}

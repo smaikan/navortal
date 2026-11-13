@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { accountedSeconds, type Actual } from "./model";
 import { bucketLabel, leadSentence, longDate, previousTitle, rangeText, roughDuration, type View } from "./period";
@@ -110,6 +111,33 @@ export function Rhythm({ view, actual }: { view: View; actual: Query }) {
       : r.bucket === "Day"
         ? longDate(rows[peak].fromDate)
         : rangeText({ fromDate: rows[peak].fromDate, toDate: rows[peak].toDate });
+  // Çok az veriyle büyük bir grafik yanıltır; sayılar yukarıda kalır, grafik veri biriktikçe gelir.
+  const activeDays = values.filter(value => value > 0).length;
+  const thin = r.bucket === "Day" && (activeDays < 3 || values.reduce((sum, value) => sum + value, 0) < 1800);
+  if (thin)
+    return (
+      <section aria-labelledby="rhythm-title" className={styles.section}>
+        <h2 id="rhythm-title">Ritim</h2>
+        <div className={`${styles.card} ${styles.thin}`}>
+          <div>
+            <h3>Grafik için biraz daha veri gerekiyor</h3>
+            <p className={styles.sub}>
+              Ritim grafiği en az 3 gün ve toplam 30 dakikalık çalışma kaydıyla anlamlı olur. O zamana kadar sayılar
+              yukarıda.
+            </p>
+            <div className={styles.thinProgress} role="img" aria-label={`${Math.min(activeDays, 3)} / 3 gün`}>
+              <span>
+                <i style={{ width: `${(Math.min(activeDays, 3) / 3) * 100}%` }} />
+              </span>
+              {Math.min(activeDays, 3)} / 3 gün
+            </div>
+          </div>
+          <Link href="/focus" prefetch={false} className="button primary">
+            Bir odak başlat
+          </Link>
+        </div>
+      </section>
+    );
   return (
     <section aria-labelledby="rhythm-title" className={styles.section}>
       <h2 id="rhythm-title">Ritim</h2>

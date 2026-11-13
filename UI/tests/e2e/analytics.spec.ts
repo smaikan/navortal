@@ -100,7 +100,7 @@ test("empty week opens on a calm summary; every section has a text alternative a
     page.getByRole("navigation", { name: "Dönem", exact: true }).getByRole("link", { name: "Bu hafta" }),
   ).toHaveAttribute("aria-current", "page");
   await expect(page.getByText("Bu hafta kayıtlı çalışma yok. Bu, yaptığın bütün emeği ölçmez.")).toBeVisible();
-  await expect(page.getByRole("img", { name: /için çalışma süresi\. Kayıtlı çalışma yok\./ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Grafik için biraz daha veri gerekiyor" })).toBeVisible();
   await expect(page.getByText("Çalışma kaydedildikçe dağılım burada görünür.", { exact: true })).toBeVisible();
   await expect(page.getByText(/Bu dönemde kabul edilmiş plan yok/)).toBeVisible();
   await expect(page.getByText(/Henüz yeterli örnek yok/)).toBeVisible();

@@ -738,3 +738,44 @@
     display: none;
   }
 }
+
+/* Yeterli veri yokken grafiğin yerini alan açıklama kartı. */
+.thin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border-style: dashed;
+}
+.thin h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.thinProgress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.thinProgress > span {
+  flex: 1;
+  max-width: 260px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--divider);
+  overflow: hidden;
+}
+.thinProgress i {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+@media (max-width: 640px) {
+  .thin {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
