@@ -35,8 +35,8 @@ const bottom: { label: string; icon: PreviewIconName; page?: number }[] = [
   { label: "Gün Planlama", icon: "sun", page: 0 },
   { label: "Görevler", icon: "tasks" },
   { label: "Takvim", icon: "calendar", page: 1 },
-  { label: "Pomodoro", icon: "timer" },
-  { label: "Daha fazla", icon: "more", page: 2 },
+  { label: "Notlar", icon: "notes", page: 2 },
+  { label: "Daha fazla", icon: "more" },
 ];
 
 /** Örnek hesap için çizilmiş avatar. Gerçek bir kişinin fotoğrafı değil. */

@@ -26,6 +26,10 @@ const timed: PlanRow[] = [
   },
   { time: "11:00–11:30", title: "Kaynak notlarını düzenle", chips: ["Efor: Düşük"], duration: "30 dk" },
 ];
+const suggestions = [
+  { title: "Bütçe tablosunu güncelle", hint: "Aralığı bugün bitiyor" },
+  { title: "Ece için hediye bak", hint: "Dünden kaldı" },
+];
 const untimed: PlanRow[] = [{ title: "Faturayı öde", duration: "10 dk" }];
 
 function Segment({ items }: { items: string[] }) {
@@ -112,6 +116,14 @@ export function PlanScene() {
         <PreviewIcon name="plus" size={16} />
         Görev ekle
       </span>
+      <p className={styles.groupLabel}>Bugün için öneriler</p>
+      {suggestions.map(item => (
+        <div key={item.title} className={styles.suggestRow}>
+          <span className={styles.suggestTitle}>{item.title}</span>
+          <span className={styles.suggestHint}>{item.hint}</span>
+          <span className={styles.suggestAdd}>+ Plana ekle</span>
+        </div>
+      ))}
     </>
   );
 }
@@ -412,6 +424,10 @@ export function RoutinesScene() {
             <span className={styles.routineState}>Etkin</span>
           </li>
         ))}
+        <li className={styles.projectNew}>
+          <Plus aria-hidden="true" size={16} />
+          Yeni proje
+        </li>
       </ul>
     </>
   );
@@ -442,11 +458,12 @@ export function ProjectsScene() {
   return (
     <>
       <div className={styles.projectHead}>
-        <p className={styles.sceneTitle}>Projeler</p>
-        <span className={styles.projectAdd}>
-          <Plus aria-hidden="true" size={16} />
-          Yeni proje
-        </span>
+        <div>
+          <p className={styles.sceneTitle}>Projeler</p>
+          <p className={styles.projectLead}>
+            Bir hedefe bağlı, bitişi olan işler. Bitişi olmayan fikirleri Havuz’da tut.
+          </p>
+        </div>
       </div>
       <div className={styles.projectTools}>
         <span className={styles.projectSearch}>
@@ -470,6 +487,7 @@ export function ProjectsScene() {
                 <strong>{project.name}</strong>
                 <span>{project.info}</span>
               </span>
+              <span className={styles.projectStatus}>Sürüyor</span>
             </span>
             <span className={styles.projectText}>{project.text}</span>
             <span className={styles.projectProgress}>
@@ -480,6 +498,10 @@ export function ProjectsScene() {
             </span>
           </li>
         ))}
+        <li className={styles.projectNew}>
+          <Plus aria-hidden="true" size={16} />
+          Yeni proje
+        </li>
       </ul>
     </>
   );

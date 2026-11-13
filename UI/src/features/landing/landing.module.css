@@ -1074,16 +1074,54 @@ button.mockNavActive:hover {
 .projectHead .sceneTitle {
   margin: 0;
 }
-.projectAdd {
-  display: inline-flex;
+.projectLead {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.projectStatus {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.projectNew {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 38px;
-  padding: 0 14px;
-  border-radius: var(--radius);
-  background: var(--primary);
-  color: var(--on-primary);
+  justify-content: center;
+  gap: 8px;
+  min-height: 124px;
+  border: 1.5px dashed var(--control);
+  border-radius: var(--radius-lg);
+  color: var(--primary-text);
   font-weight: 600;
+}
+.suggestRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 4px 0 8px;
+  border-radius: var(--radius);
+}
+.suggestTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+}
+.suggestHint {
+  color: var(--muted);
+  font-size: 12px;
+}
+.suggestAdd {
+  color: var(--primary-text);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 .projectTools {
   gap: 16px;
