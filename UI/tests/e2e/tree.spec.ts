@@ -172,8 +172,9 @@ test("priority and effort are visibly distinct in the tree and filtered results"
   await page.goto(`/tasks?search=${encodeURIComponent(task.title)}&priority=High&energyDemand=High`);
   const results = page.getByRole("region", { name: "Arama sonuçları", exact: true });
   await checkBadges(results);
-  await expect(page.getByLabel("Önceliğe göre süz").locator("option:checked")).toHaveText("Yüksek öncelik");
-  await expect(page.getByLabel("Efora göre süz").locator("option:checked")).toHaveText("Yüksek efor");
+  await page.getByText("Filtreler", { exact: true }).click();
+  await expect(page.getByLabel("Öncelik", { exact: true }).locator("option:checked")).toHaveText("Yüksek öncelik");
+  await expect(page.getByLabel("Efor", { exact: true }).locator("option:checked")).toHaveText("Yüksek efor");
 });
 
 test(

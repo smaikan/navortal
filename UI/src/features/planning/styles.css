@@ -1019,20 +1019,43 @@
   list-style: none;
   min-width: 0;
 }
+.r2-plan-task-group {
+  position: relative;
+}
 .r2-plan-group-head {
-  display: flex;
-  align-items: start;
-  gap: 2px;
   min-width: 0;
 }
 .r2-plan-group-head > .r2-plan-list {
-  flex: 1;
   min-width: 0;
 }
-.r2-plan-group-toggle {
-  min-width: 20px;
-  padding-inline: 2px;
-  margin-top: 5px;
+/* Açma oku satırın dışında, kutucuğun soluna asılı durur; böylece ana görevin kutusu diğer satırlarla aynı hizada kalır. */
+.r2-plan-group-head > .r2-plan-group-toggle {
+  position: absolute;
+  top: 0;
+  left: -16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 36px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+}
+.r2-plan-group-toggle svg {
+  transition: transform var(--dur-fast) ease;
+}
+.r2-plan-group-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+@media (pointer: coarse) {
+  .r2-plan-group-head > .r2-plan-group-toggle {
+    height: 44px;
+  }
 }
 .r2-plan-group-children {
   list-style: none;
@@ -1088,4 +1111,106 @@
   color: var(--muted);
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* Yeni hesap karşılaması: üç adım, ilerleme çubuğu ve atla bağlantısı. Yalnız mavi ve gri tonlar. */
+.r2-welcome {
+  display: grid;
+  gap: 14px;
+  max-width: 560px;
+  padding: 18px;
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.r2-welcome h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+.r2-welcome p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.r2-welcome-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.r2-welcome-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--divider);
+  overflow: hidden;
+}
+.r2-welcome-track > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+.r2-welcome-progress > b {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.r2-welcome-steps {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.r2-welcome-step {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--divider);
+}
+.r2-welcome-step:last-child {
+  border-bottom: 0;
+}
+.r2-welcome-step.current {
+  background: var(--primary-soft);
+}
+.r2-welcome-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--control);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+.current .r2-welcome-mark,
+.done .r2-welcome-mark {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.r2-welcome-text {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+.r2-welcome-text > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.done .r2-welcome-text > strong {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.r2-welcome-link {
+  font-size: 13px;
+}
+.r2-welcome > .r2-quiet-link {
+  justify-self: center;
 }

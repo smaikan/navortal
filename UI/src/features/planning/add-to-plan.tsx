@@ -47,10 +47,12 @@ export function AssignedList({
   date,
   planned,
   actions,
+  title = "Bu güne atanmış görevler",
 }: {
   date: string;
   planned: ReadonlySet<string>;
   actions: DayActions;
+  title?: string;
 }) {
   const query = useTaskPicker(date, "");
   const assigned = pickerRows(query.data?.pages, "assigned", planned);
@@ -59,7 +61,7 @@ export function AssignedList({
   if (!assigned.length) return null;
   return (
     <section className="r2-assigned" aria-labelledby="r2-assigned-title">
-      <h3 id="r2-assigned-title">Bu güne atanmış görevler</h3>
+      <h3 id="r2-assigned-title">{title}</h3>
       <ul>
         {assigned.map(row => (
           <li key={row.id}>
@@ -71,7 +73,7 @@ export function AssignedList({
               aria-label={`Plana ekle: ${row.title}`}
               onClick={() => void actions.add(row.id)}
             >
-              Ekle
+              + Plana ekle
             </button>
           </li>
         ))}

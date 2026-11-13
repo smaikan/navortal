@@ -18,7 +18,6 @@ import { Shuffle } from "lucide-react";
 import { energies, quickSettings } from "../support/model";
 import { useSupports } from "../preferences/supports";
 import { useDaySignals } from "./signals-queries";
-import { NewTip } from "../../components/ui/new-tip";
 import { DayNav } from "./day-nav";
 import { ListSkeleton } from "../../components/ui/skeleton";
 import { useFirstData } from "../../lib/first-data";
@@ -28,6 +27,7 @@ import { AddToPlan, AssignedList } from "./add-to-plan";
 import type { DayNoteEditor } from "../notes/day-section";
 import { groupEntries, PlanTaskGroup } from "./task-groups";
 import { entryFacts, orderEntries, PlanRow } from "./day-plan";
+import { Welcome } from "./welcome";
 import { useOverviewDay, useOverviewItems, useOverviewSchedules, useOverviewSupport } from "./overview-queries";
 import { hintsByTask, useDayHints } from "./glance";
 import { LiveDayBar } from "./day-bar";
@@ -431,9 +431,6 @@ function DayContent({
       )}
       {oneThing && loaded ? (
         <>
-          <NewTip id="one-thing">
-            Tek görev görünümü yalnız şu anki işi gösterir; listeye istediğin an dönebilirsin.
-          </NewTip>
           <Suspense fallback={<p role="status">Tek görev hazırlanıyor…</p>}>
             <OneThing
               date={date}
@@ -479,7 +476,7 @@ function DayContent({
           {!loaded ? (
             !blocks.isError && !items.isError && <ListSkeleton label="Gün planı okunuyor…" />
           ) : total === 0 ? (
-            <EmptyDay date={date} planned={planned} actions={actions} />
+            <EmptyDay date={date} planned={planned} actions={actions} isToday={isToday} />
           ) : (
             <>
               {!supports.dayBar && !calm && (
@@ -529,6 +526,7 @@ function DayContent({
                 </Suspense>
               )}
               <AddToPlan date={date} planned={planned} plannedTitles={plannedTitles} actions={actions} />
+              {isToday && <AssignedList date={date} planned={planned} actions={actions} title="Bugün için öneriler" />}
             </>
           )}
         </section>
@@ -574,13 +572,29 @@ function DayContent({
   );
 }
 
-function EmptyDay({ date, planned, actions }: { date: string; planned: ReadonlySet<string>; actions: DayActions }) {
+function EmptyDay({
+  date,
+  planned,
+  actions,
+  isToday,
+}: {
+  date: string;
+  planned: ReadonlySet<string>;
+  actions: DayActions;
+  isToday: boolean;
+}) {
   return (
     <div className="r2-empty-day">
+      {isToday && <Welcome date={date} />}
       <p className="r2-empty-title">Bu gün için henüz plan yok</p>
       <ProjectedDay date={date} />
       <AddToPlan date={date} planned={planned} plannedTitles={new Set()} actions={actions} large />
-      <AssignedList date={date} planned={planned} actions={actions} />
+      <AssignedList
+        date={date}
+        planned={planned}
+        actions={actions}
+        title={isToday ? "Bugün için öneriler" : "Bu güne atanmış görevler"}
+      />
     </div>
   );
 }

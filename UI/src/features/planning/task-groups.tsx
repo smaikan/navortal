@@ -54,7 +54,7 @@ export function PlanTaskGroup({
                 })
               }
             >
-              <ChevronRight size={14} aria-hidden style={{ transform: open ? "rotate(90deg)" : undefined }} />
+              <ChevronRight size={14} aria-hidden="true" />
             </button>
           )}
           <ol className="r2-plan-list">

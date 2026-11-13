@@ -202,7 +202,7 @@ export function PlanRow({
         </button>
         <span className="r2-plan-estimate">
           <span className="sr-only">{facts.estimate ? "Tahmini süre " : "Tahmin girilmedi "}</span>
-          {facts.estimate || "Süre yok"}
+          {facts.estimate}
         </span>
         {work && facts.taskId && (
           <button
