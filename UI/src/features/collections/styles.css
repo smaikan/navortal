@@ -341,3 +341,63 @@
   width: 32px;
   min-height: 44px;
 }
+
+/* Başlık altı kısa açıklama, kart durum etiketi, havuz önizlemesi ve kesikli ekleme kutusu. */
+.resource-heading {
+  display: grid;
+  gap: 6px;
+}
+.resource-heading > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.resource-status {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.resource-status.active {
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.resource-preview {
+  display: grid;
+  width: 100%;
+  border-top: 1px solid var(--divider);
+}
+.resource-preview > span {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.resource-preview > em {
+  padding-top: 10px;
+  color: var(--primary-text);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+}
+.resource-new-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 124px;
+  border: 1.5px dashed var(--control);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--primary-text);
+  font-weight: 600;
+  box-shadow: none;
+}

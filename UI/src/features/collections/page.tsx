@@ -16,12 +16,37 @@ import {
   type ResourceSummary,
 } from "./model";
 import { useResources } from "./queries";
+import { useTasks } from "../tasks/queries";
 import { ResourceTile } from "./resource-tile";
 import "./styles.css";
 
 const summaryText = (value: ResourceSummary) =>
   !value.taskCount ? "Görev yok" : `${value.open} açık · ${value.known ? duration(value.known) : "süre belirsiz"}`;
 const leave = "Kaydedilmemiş değişiklikler silinecek. Devam edilsin mi?";
+const lead = {
+  projects: "Bir hedefe bağlı, bitişi olan işler. Bitişi olmayan fikirleri Havuz’da tut.",
+  pools: "Aklına geleni önce buraya at, zamanı gelince plana al. Bitişi olan işleri Projeler’de topla.",
+};
+/** Kart köşesindeki durum etiketi: iş yoksa Boş, hepsi bitmişse Tamamlandı, aksi halde Sürüyor. */
+function statusOf(summary: ResourceSummary | undefined) {
+  if (!summary || !summary.taskCount) return { label: "Boş", tone: "empty" };
+  if (summary.open === 0 && summary.completed === summary.taskCount) return { label: "Tamamlandı", tone: "done" };
+  return { label: "Sürüyor", tone: "active" };
+}
+/** Havuz kartında ilk üç açık iş görünür; kullanıcı kartı açmadan içeriği tarar. */
+function PoolPreview({ poolId, total }: { poolId: string; total: number }) {
+  const tasks = useTasks({ poolId, limit: 3, includeCompleted: false, includeArchived: false, excludeRecurring: true });
+  const items = tasks.data?.items ?? [];
+  if (!items.length) return null;
+  return (
+    <span className="resource-preview">
+      {items.map(task => (
+        <span key={task.id}>{task.title}</span>
+      ))}
+      {total > items.length && <em>Tümünü gör · {total}</em>}
+    </span>
+  );
+}
 /** Proje ve havuzun ortak liste/ayrıntı ekranı. Filtre ve açık kayıt URL'de. */
 export function ResourcePage({ kind }: { kind: ResourceKind }) {
   const meta = resourceKinds[kind];
@@ -161,11 +186,16 @@ export function ResourcePage({ kind }: { kind: ResourceKind }) {
   return (
     <main id="main" className="workspace-main resource-page" tabIndex={-1}>
       <header className="resource-head">
-        <h1 tabIndex={-1}>{meta.title}</h1>
-        <button type="button" className="primary resource-add" onClick={focusCreate}>
-          <Plus aria-hidden="true" size={16} />
-          Yeni {meta.lower}
-        </button>
+        <div className="resource-heading">
+          <h1 tabIndex={-1}>{meta.title}</h1>
+          {kind in lead && <p>{lead[kind as keyof typeof lead]}</p>}
+        </div>
+        {kind === "categories" && (
+          <button type="button" className="primary resource-add" onClick={focusCreate}>
+            <Plus aria-hidden="true" size={16} />
+            Yeni {meta.lower}
+          </button>
+        )}
       </header>
       <div className="resource-shell">
         <div className={`resource-layout${filters.id ? " has-detail" : ""}`}>
@@ -249,7 +279,15 @@ export function ResourcePage({ kind }: { kind: ResourceKind }) {
                                 <span className="resource-name">{item.name}</span>
                                 {summary && <span className="resource-summary">{summaryText(summary)}</span>}
                               </span>
+                              {kind === "projects" && !item.archivedAt && (
+                                <span className={`resource-status ${statusOf(summary).tone}`}>
+                                  {statusOf(summary).label}
+                                </span>
+                              )}
                             </span>
+                            {kind === "pools" && summary && summary.taskCount > 0 && (
+                              <PoolPreview poolId={item.id} total={summary.open} />
+                            )}
                             {item.description && <span className="resource-excerpt">{item.description}</span>}
                             {item.archivedAt && <span className="task-row-meta">Arşivlendi</span>}
                             {summary && summary.taskCount > 0 && kind !== "categories" && (
@@ -264,6 +302,14 @@ export function ResourcePage({ kind }: { kind: ResourceKind }) {
                         </li>
                       );
                     })}
+                    {kind !== "categories" && (
+                      <li>
+                        <button type="button" className="resource-new-tile" onClick={focusCreate}>
+                          <Plus aria-hidden="true" size={16} />
+                          Yeni {meta.lower}
+                        </button>
+                      </li>
+                    )}
                   </ul>
                 ) : (
                   <div className="empty-state resource-empty">
