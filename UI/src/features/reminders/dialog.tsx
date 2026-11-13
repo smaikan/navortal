@@ -289,7 +289,7 @@ export function ReminderDialog({
                     ))}
                   </div>
                 </section>
-                <section className="reminder-repeat">
+                <section className="reminder-repeat-field">
                   <label className="reminder-repeat-toggle">
                     <input
                       type="checkbox"

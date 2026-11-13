@@ -13,7 +13,6 @@ import {
   Undo2,
   type LucideIcon,
 } from "lucide-react";
-import { Menu } from "../../components/ui/menu";
 import { useDisplayPreferences } from "../workspace/queries";
 import { useSession } from "../auth/provider";
 import { useTask } from "../tasks/queries";
@@ -201,18 +200,14 @@ function Row({
     [issue, setIssue] = useState(""),
     [blocked, setBlocked] = useState(false);
   const busy = useRef(false);
-  async function command(action: "read" | "snooze") {
+  async function command() {
     if (busy.current || blocked) return;
     busy.current = true;
     setPending(true);
     setIssue("");
     try {
       const options = { path: { id: n.id }, body: { version: n.version } };
-      const raw = await (
-        action === "read"
-          ? session.api.mutation("/api/notifications/{id}/read", "post", options)
-          : session.api.mutation("/api/notifications/{id}/snooze", "post", options)
-      ).execute();
+      const raw = await session.api.mutation("/api/notifications/{id}/read", "post", options).execute();
       const result = readNotification(raw, n.id);
       if (cache.current()) cache.changed(result);
     } catch (error) {
@@ -262,16 +257,6 @@ function Row({
           </span>
         </button>
         <span className="r2-unread-dot" aria-hidden="true" />
-        <Menu
-          label="Bildirim işlemleri"
-          items={[
-            {
-              label: "Tercihlerdeki süreyle ertele",
-              disabled: pending || blocked || !["Pending", "Ready"].includes(n.state),
-              onSelect: () => void command("snooze"),
-            },
-          ]}
-        />
       </div>
       {expanded && (
         <div className="r2-inbox-actions">
@@ -281,23 +266,8 @@ function Row({
               Odak oturumunu aç
             </Link>
           )}
-          {["Pending", "Ready"].includes(n.state) && (
-            <button
-              type="button"
-              className="secondary"
-              disabled={pending || blocked}
-              onClick={() => void command("snooze")}
-            >
-              Ertele
-            </button>
-          )}
           {unread && (
-            <button
-              type="button"
-              className="r2-quiet"
-              disabled={pending || blocked}
-              onClick={() => void command("read")}
-            >
+            <button type="button" className="r2-quiet" disabled={pending || blocked} onClick={() => void command()}>
               Okundu
             </button>
           )}

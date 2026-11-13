@@ -90,7 +90,9 @@ export function SpecialDaysPage() {
     }
   }
   const zone = preferences.data?.values.timeZoneId;
-  const groups = list.data && zone ? arrange(list.data.items, localToday(zone)) : null;
+  const [only, setOnly] = useState<Kind | "all">("all");
+  const shownItems = list.data?.items.filter(day => only === "all" || day.kind === only);
+  const groups = shownItems && zone ? arrange(shownItems, localToday(zone)) : null;
   const row = (day: SpecialDay) => (
     <Menu
       floating
@@ -147,6 +149,18 @@ export function SpecialDaysPage() {
           </p>
         </div>
       )}
+      {list.data && list.data.items.length > 1 && (
+        <div role="group" aria-label="Türe göre süz" className="special-filter">
+          {(["all", "Birthday", "Anniversary", "Holiday", "Other"] as const).map(value => (
+            <button key={value} type="button" aria-pressed={only === value} onClick={() => setOnly(value)}>
+              {value === "all" ? "Tümü" : kinds[value]}
+            </button>
+          ))}
+        </div>
+      )}
+      {groups && list.data!.items.length > 0 && groups.soon.length + groups.later.length + groups.past.length === 0 && (
+        <p className="muted">Bu türde özel gün yok.</p>
+      )}
       {groups && list.data!.items.length > 0 && (
         <div className="special-days">
           {groups.soon.length > 0 && (
@@ -174,6 +188,11 @@ export function SpecialDaysPage() {
                         </strong>
                         <span className="muted">
                           {longDay(day.nextOccurrence!)} · {kinds[day.kind]}
+                          {ageText(day)}
+                        </span>
+                        <span className={`special-notice${day.reminder === "None" ? " none" : ""}`}>
+                          <Bell aria-hidden="true" size={12} />
+                          {reminders[day.reminder]}
                         </span>
                       </span>
                       <span className={`special-when${days === 0 ? " now" : ""}`}>{whenLabel(days)}</span>
@@ -199,12 +218,15 @@ export function SpecialDaysPage() {
                 />
               ))}
               {groups.past.length > 0 && (
-                <Month
-                  label="Geçmiş tek seferlik günler"
-                  items={groups.past}
-                  menu={row}
-                  onEdit={(day, trigger) => setEdit({ day, trigger })}
-                />
+                <details className="special-past">
+                  <summary>Geçmiş tek seferlik günler</summary>
+                  <Month
+                    label="Geçmiş tek seferlik günler"
+                    items={groups.past}
+                    menu={row}
+                    onEdit={(day, trigger) => setEdit({ day, trigger })}
+                  />
+                </details>
               )}
             </section>
           )}
@@ -225,6 +247,13 @@ export function SpecialDaysPage() {
   );
 }
 
+/** Doğum günü ve yıldönümünde kayıtlı başlangıç yılı varsa kaçıncı yaş/yıl olduğu eklenir. */
+function ageText(day: SpecialDay) {
+  if (day.year === null || day.year === undefined || day.nextOccurrence === null) return "";
+  if (day.kind !== "Birthday" && day.kind !== "Anniversary") return "";
+  const count = Number(day.nextOccurrence.slice(0, 4)) - Number(day.year);
+  return count > 0 ? ` · ${count}. ${day.kind === "Birthday" ? "yaş" : "yıl"}` : "";
+}
 const longDay = (date: string) =>
   new Intl.DateTimeFormat("tr-TR", { timeZone: "UTC", day: "numeric", month: "long", weekday: "long" }).format(
     new Date(`${date}T12:00:00Z`),

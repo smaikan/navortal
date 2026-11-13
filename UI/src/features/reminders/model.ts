@@ -180,3 +180,52 @@ export function reminderFailure(e: unknown) {
   }
   return "İşlem tamamlanamadı. Bağlantını kontrol edip yeniden dene.";
 }
+
+export type ReminderGroup = {
+  key: "today" | "tomorrow" | "later";
+  label: string;
+  rows: { reminder: Reminder; index: number }[];
+};
+/** Satırlar bugün, yarın ve daha sonra gruplarına ayrılır. Sıra sunucudan gelen sıradır; zamanı geçmiş aktif satır Bugün'de kalır. */
+export function groupReminders(items: Reminder[], zone: string, today: string): ReminderGroup[] {
+  const tomorrow = Temporal.PlainDate.from(today).add({ days: 1 }).toString();
+  const groups: ReminderGroup[] = [
+    { key: "today", label: "Bugün", rows: [] },
+    { key: "tomorrow", label: "Yarın", rows: [] },
+    { key: "later", label: "Daha sonra", rows: [] },
+  ];
+  items.forEach((reminder, index) => {
+    const date = dueInput(reminder.dueAt, zone).slice(0, 10);
+    groups[date <= today ? 0 : date === tomorrow ? 1 : 2].rows.push({ reminder, index });
+  });
+  return groups.filter(group => group.rows.length);
+}
+const clock = (at: string, zone: string) =>
+  new Intl.DateTimeFormat("tr-TR", { timeZone: zone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(
+    new Date(at),
+  );
+/** Satırın solundaki saat ve altındaki göreli zaman. Bugün "12 dk sonra", yarın gün adı, sonrası kısa tarih. */
+export function reminderWhen(at: string, now: number, zone: string, today: string) {
+  const date = dueInput(at, zone).slice(0, 10);
+  const time = clock(at, zone);
+  const minutes = Math.round((Date.parse(at) - now) / 60000);
+  if (date <= today) {
+    if (minutes <= 0) return { time, text: "Zamanı geldi", soon: true };
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    return {
+      time,
+      text: hours ? `${hours} sa${rest ? ` ${rest} dk` : ""} sonra` : `${minutes} dk sonra`,
+      soon: minutes <= 60,
+    };
+  }
+  const day = new Date(`${date}T12:00:00Z`);
+  const tomorrow = Temporal.PlainDate.from(today).add({ days: 1 }).toString();
+  const weekday = (style: "long" | "short") =>
+    new Intl.DateTimeFormat("tr-TR", { timeZone: "UTC", weekday: style }).format(day);
+  const text =
+    date === tomorrow
+      ? weekday("long")
+      : `${weekday("short")} ${new Intl.DateTimeFormat("tr-TR", { timeZone: "UTC", day: "numeric", month: "short" }).format(day)}`;
+  return { time, text, soon: false };
+}

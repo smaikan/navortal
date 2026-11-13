@@ -85,7 +85,7 @@ test("active reminders: an open list rereads the server when a one-off time arri
     await page.goto("/reminders");
     await expect(page.getByText("Aktif hatırlatma yok.", { exact: true })).toBeVisible();
     const reminder = await create(fx, "Birazdan zamanı dolacak", 4);
-    await page.getByRole("button", { name: "Hatırlatmaları yenile", exact: true }).click();
+    await page.reload();
     const row = page.locator(`[data-reminder-id="${reminder.id}"]`);
     await expect(row).toBeVisible();
     // Gerçek API zamanı da geçer. Yalnız tarayıcı saatini ilerletmek sunucu filtresini kanıtlamaz.

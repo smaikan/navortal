@@ -403,3 +403,47 @@
     outline: 1px solid CanvasText;
   }
 }
+
+/* Tür süzgeci, kart bildirim durumu ve katlanmış geçmiş günler. */
+.special-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.special-filter button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--divider);
+  border-radius: 18px;
+  background: var(--surface);
+  font-size: 13px;
+}
+.special-filter button[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-weight: 600;
+}
+.special-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.special-notice.none {
+  color: var(--danger);
+}
+.special-past > summary {
+  min-height: 44px;
+  padding: 10px 0;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .special-filter button {
+    min-height: 44px;
+  }
+}

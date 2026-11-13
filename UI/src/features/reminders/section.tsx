@@ -3,7 +3,7 @@ import Link from "next/link";
 const tabs = [
   ["reminders", "/reminders", "Hatırlatmalar"],
   ["special-days", "/reminders/special-days", "Özel günler"],
-  ["preferences", "/reminders/preferences", "Tercihler"],
+  ["preferences", "/reminders/preferences", "Bildirim ayarları"],
 ] as const;
 export type ReminderTab = (typeof tabs)[number][0];
 
@@ -11,10 +11,13 @@ export type ReminderTab = (typeof tabs)[number][0];
 export function ReminderSection({
   current,
   action,
+  counts,
   children,
 }: {
   current: ReminderTab;
   action?: React.ReactNode;
+  /** Sekme başlığının yanında görünen sayı; bilinmeyen sekmede gösterilmez. */
+  counts?: Partial<Record<ReminderTab, number | undefined>>;
   children: React.ReactNode;
 }) {
   return (
@@ -27,6 +30,7 @@ export function ReminderSection({
         {tabs.map(([key, href, label]) => (
           <Link key={key} href={href} prefetch={false} aria-current={key === current ? "page" : undefined}>
             {label}
+            {counts?.[key] !== undefined && <span className="r2-tab-count">{counts[key]}</span>}
           </Link>
         ))}
       </nav>
