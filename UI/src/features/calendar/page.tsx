@@ -61,15 +61,32 @@ function SpecialMarks({ items }: { items: Occurrence[] }) {
 }
 const specialLabel = (items: Occurrence[]) => (items.length ? `, ${items.map(occurrenceName).join(", ")}` : "");
 
+function CalendarTitle() {
+  return (
+    <header className="page-header r2-cal-title">
+      <h1 tabIndex={-1}>Takvim</h1>
+    </header>
+  );
+}
+
 export function CalendarPage() {
   const prefs = useDisplayPreferences();
   if (prefs.isError)
     return (
-      <p role="alert">
-        Takvim tercihleri okunamadı.<button onClick={() => void prefs.refetch()}>Tercihleri yeniden oku</button>
-      </p>
+      <>
+        <CalendarTitle />
+        <p role="alert">
+          Takvim tercihleri okunamadı.<button onClick={() => void prefs.refetch()}>Tercihleri yeniden oku</button>
+        </p>
+      </>
     );
-  if (!prefs.data) return <ListSkeleton label="Takvim hazırlanıyor…" rows={6} />;
+  if (!prefs.data)
+    return (
+      <>
+        <CalendarTitle />
+        <ListSkeleton label="Takvim hazırlanıyor…" rows={6} />
+      </>
+    );
   return (
     <Workspace
       zone={prefs.data.values.timeZoneId}
@@ -162,6 +179,9 @@ function Workspace({ zone, format, weekStartsOn }: { zone: string; format: strin
   return (
     <div className="r2-calendar">
       <div className="r2-cal-head">
+        {/* Başlık, Ay/Hafta ve tarih seçimi tek satırda ve aynı dikey ortada. */}
+        <CalendarTitle />
+        <span className="r2-spacer" />
         <div role="group" aria-label="Görünüm" className="r2-segment">
           <button type="button" aria-pressed={view === "month"} onClick={() => go({ view: "month" })}>
             Ay
@@ -170,7 +190,6 @@ function Workspace({ zone, format, weekStartsOn }: { zone: string; format: strin
             Hafta
           </button>
         </div>
-        <span className="r2-spacer" />
         <button
           type="button"
           className="r2-icon"
@@ -191,7 +210,7 @@ function Workspace({ zone, format, weekStartsOn }: { zone: string; format: strin
           <ChevronRight aria-hidden="true" size={16} />
         </button>
         <button type="button" className="r2-cal-today" onClick={() => go({ date: today })}>
-          {view === "month" ? "Bu ay" : "Bu hafta"}
+          Bugün
         </button>
         <span className="r2-cal-menu">
           <Menu

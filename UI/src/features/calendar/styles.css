@@ -446,3 +446,17 @@
     min-height: 52px;
   }
 }
+
+/* Başlık ve denetimler tek satırda: başlık solda, Ay/Hafta ile tarih seçimi sağda. */
+.r2-cal-head {
+  min-height: 44px;
+  gap: 12px;
+}
+.r2-cal-title {
+  margin: 0;
+  padding: 0;
+}
+.r2-cal-title h1 {
+  margin: 0;
+  line-height: 1.1;
+}

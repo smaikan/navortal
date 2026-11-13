@@ -407,7 +407,7 @@ test("month is the default: one entry per root task per day, +N beyond three, do
   await expect(label).not.toHaveText(before!);
   await page.getByRole("button", { name: "Önceki ay" }).click();
   await expect(label).toHaveText(before!);
-  const current = page.getByRole("button", { name: "Bu ay", exact: true });
+  const current = page.getByRole("button", { name: "Bugün", exact: true });
   if (page.viewportSize()!.width > 767) {
     await current.click();
     await expect(page).not.toHaveURL(/date=/);
