@@ -521,3 +521,189 @@
     min-height: 44px;
   }
 }
+
+/* Filtreler tek bir düğmenin altında toplanır; telefonda alttan açılan sayfa olur. */
+.r2-filter-box {
+  position: relative;
+}
+.r2-filter-box > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--control);
+  border-radius: 12px;
+  background: var(--surface);
+  font-weight: 500;
+  list-style: none;
+  cursor: pointer;
+}
+.r2-filter-box > summary::-webkit-details-marker {
+  display: none;
+}
+.r2-filter-box.active > summary,
+.r2-filter-box[open] > summary {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}
+.r2-filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+.r2-filter-pop {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  gap: 16px;
+  width: min(420px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 18px;
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.r2-filter-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.r2-filter-status legend,
+.r2-filter-grid > label > span,
+.r2-filter-date > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.r2-filter-status legend {
+  width: 100%;
+  float: left;
+}
+.r2-filter-status button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--divider);
+  border-radius: 20px;
+  background: var(--surface);
+  font-size: 13px;
+}
+.r2-filter-status button[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-weight: 600;
+}
+.r2-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+/* Yerel açılır liste oku yerine çizilmiş, hizalı bir ok. */
+.r2-select {
+  position: relative;
+  display: block;
+}
+.r2-select select {
+  appearance: none;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 34px 4px 12px;
+  border-color: var(--control);
+  font-size: 14px;
+}
+.r2-select::after {
+  content: "";
+  position: absolute;
+  right: 15px;
+  bottom: 18px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(50%) rotate(45deg);
+  pointer-events: none;
+}
+.r2-filter-date .r2-date-filter > summary {
+  min-height: 44px;
+  justify-content: space-between;
+}
+.r2-filter-date .r2-date-pop {
+  right: 0;
+  left: auto;
+}
+.r2-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.r2-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0 0 12px;
+  list-style: none;
+}
+.r2-active-filters li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 12px;
+  border-radius: 16px;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+.r2-active-filters button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+@media (max-width: 767px) {
+  .r2-filter-box[open]::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+    background: rgb(20 20 24 / 40%);
+  }
+  .r2-filter-pop {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+}

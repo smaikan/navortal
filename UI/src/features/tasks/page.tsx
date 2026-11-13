@@ -1,12 +1,13 @@
 "use client";
 import { lazy, Suspense, useEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Calendar, Check, CircleCheck, Clock, Search } from "lucide-react";
+import { Calendar, Check, Clock, Search } from "lucide-react";
 import { useCurrentTask, useTaskPanel } from "../../components/layout/task-panel";
 import { ListSkeleton } from "../../components/ui/skeleton";
-import { DateFilter } from "./date-filter";
-import { changedFilters, estimateRanges, maxTaskOffset, taskFilters, type TaskQuery } from "./model";
+import { ActiveFilterChips, activeFilters, FilterPanel } from "./filter-panel";
+import { useDisplayPreferences } from "../workspace/queries";
+import { localToday } from "../preferences/model";
+import { changedFilters, maxTaskOffset, taskFilters, type TaskQuery } from "./model";
 import { useTasks } from "./queries";
 import { rowFacts } from "./tree/model";
 import { RowLevels } from "./row-levels";
@@ -49,6 +50,9 @@ export function TasksPage() {
     });
     window.history.replaceState({}, "", pathname + (next.size ? `?${next}` : "") + window.location.hash);
   }
+  const zone = useDisplayPreferences().data?.values.timeZoneId ?? "Europe/Istanbul";
+  const today = localToday(zone);
+  const chips = activeFilters(params, today);
   const [term, setTerm] = useState(committed);
   useEffect(() => {
     if (term.trim() === committed) return;
@@ -63,10 +67,7 @@ export function TasksPage() {
       <header className="r2-head">
         <h1 tabIndex={-1}>Görevler</h1>
         <div className="r2-tools">
-          <Link href="/tasks/completed" prefetch={false} className="button secondary head-action">
-            <CircleCheck aria-hidden="true" size={16} />
-            Biten görevler
-          </Link>
+          <FilterPanel params={params} today={today} setFilters={setFilters} />
           <label className="r2-search">
             <Search aria-hidden="true" size={14} />
             <span className="sr-only">Görevlerde ara</span>
@@ -80,52 +81,7 @@ export function TasksPage() {
           </label>
         </div>
       </header>
-      <div className="r2-filters">
-        <label>
-          <span className="sr-only">Önceliğe göre süz</span>
-          <select
-            value={params.get("priority") ?? ""}
-            onChange={event => setFilters({ priority: event.target.value || null })}
-          >
-            <option value="">Tüm öncelikler</option>
-            <option value="Urgent">Acil öncelik</option>
-            <option value="High">Yüksek öncelik</option>
-            <option value="Normal">Normal öncelik</option>
-            <option value="Low">Düşük öncelik</option>
-          </select>
-        </label>
-        <label>
-          <span className="sr-only">Tahmini süreye göre süz</span>
-          <select
-            value={params.get("estimate") ?? ""}
-            onChange={event => setFilters({ estimate: event.target.value || null })}
-          >
-            <option value="">Tüm süreler</option>
-            {Object.entries(estimateRanges).map(([value, range]) => (
-              <option key={value} value={value}>
-                {range.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span className="sr-only">Efora göre süz</span>
-          <select
-            value={params.get("energyDemand") ?? ""}
-            onChange={event => setFilters({ energyDemand: event.target.value || null })}
-          >
-            <option value="">Tüm eforlar</option>
-            <option value="Low">Düşük efor</option>
-            <option value="Medium">Orta efor</option>
-            <option value="High">Yüksek efor</option>
-          </select>
-        </label>
-        <DateFilter
-          from={params.get("dateFrom") ?? ""}
-          to={params.get("dateTo") ?? ""}
-          change={(dateFrom, dateTo) => setFilters({ dateFrom, dateTo })}
-        />
-      </div>
+      <ActiveFilterChips chips={chips} setFilters={setFilters} />
       {filters.issue ? (
         <p role="alert" className="form-error">
           {filters.issue}
