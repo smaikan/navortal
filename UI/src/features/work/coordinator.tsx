@@ -15,6 +15,7 @@ import { syncEngine } from "../sync/engine";
 import { announceWorkChange, WORK_CHANNEL } from "./changed";
 import type { Immediate, ImmediateRequest } from "./immediate-types";
 import { withMiniPlayer } from "../mini-player/controller";
+import { listenNativeTimerResume, publishNativeTimer } from "./native-timer";
 
 export { WORK_CHANNEL };
 type Pending =
@@ -78,6 +79,7 @@ export function WorkProvider({ children, enabled = true }: { children: React.Rea
   const realtime = useRef<{ dispose: () => void; retry: () => void; refresh: () => void } | null>(null);
   const busyRef = useRef(false);
   const acceptedWorkspace = useRef<WorkspaceSnapshot | null>(null);
+  const nativeResumeRequested = useRef(false);
   const channel = useRef<BroadcastChannel | null>(null);
   const epoch = useRef(session.getIdentity().epoch);
   const current = useCallback(
@@ -85,8 +87,10 @@ export function WorkProvider({ children, enabled = true }: { children: React.Rea
     [session, owner],
   );
   const accept = useCallback(
-    (next: Work | null) => {
+    (next: Work | null, requestPermission = false) => {
       if (!current()) return;
+      const forceNative = !readyRef.current || nativeResumeRequested.current;
+      nativeResumeRequested.current = false;
       if (!readyRef.current) {
         readyRef.current = true;
         setReady(true);
@@ -95,13 +99,15 @@ export function WorkProvider({ children, enabled = true }: { children: React.Rea
       const value = next && (next.state === "Running" || next.state === "Paused") ? next : null;
       // Hâlâ oturum yok yanıtı her eşitlemede kabuğu tekrar çizmesin.
       setWork(previous => (previous === null && value === null ? previous : value));
-      if (value) setReceivedAt(performance.now());
+      const at = performance.now();
+      if (value) setReceivedAt(at);
+      publishNativeTimer(owner, next, at, requestPermission, forceNative);
     },
-    [current],
+    [current, owner],
   );
   const acceptWorkspace = useCallback(
     (snapshot: WorkspaceSnapshot) => {
-      if (acceptedWorkspace.current === snapshot || !current()) return;
+      if (!current() || (acceptedWorkspace.current === snapshot && !nativeResumeRequested.current)) return;
       acceptedWorkspace.current = snapshot;
       accept(snapshot.activeWork);
     },
@@ -171,6 +177,10 @@ export function WorkProvider({ children, enabled = true }: { children: React.Rea
       setOnline(navigator.onLine !== false);
       if (navigator.onLine === false || document.visibilityState !== "visible") abortReads();
     };
+    const stopNativeResume = listenNativeTimerResume(() => {
+      nativeResumeRequested.current = true;
+      return refresh();
+    });
     try {
       channel.current = new BroadcastChannel(WORK_CHANNEL);
       channel.current.onmessage = event => {
@@ -240,6 +250,7 @@ export function WorkProvider({ children, enabled = true }: { children: React.Rea
       abortReads();
       window.removeEventListener("online", network);
       window.removeEventListener("offline", network);
+      stopNativeResume();
       document.removeEventListener("visibilitychange", network);
       window.removeEventListener("pagehide", abortReads);
       channel.current?.close();
@@ -302,7 +313,7 @@ export function WorkProvider({ children, enabled = true }: { children: React.Rea
       const result = readWork(await mutation.execute({ retryUnknownResult: retry }));
       if (!current()) return false;
       setUncertain(null);
-      accept(result);
+      accept(result, true);
       setAnnouncement(announcements.start);
       afterWrite();
       // Aynı anahtar ilk yanıtı döndürür. Ardından gerçek güncel durum okunur.
@@ -336,7 +347,7 @@ export function WorkProvider({ children, enabled = true }: { children: React.Rea
       if (!current()) return false;
       setImmediate(result);
       setUncertain(null);
-      accept(result.receipt.session);
+      accept(result.receipt.session, true);
       setAnnouncement("Acil çalışma başladı. Kalan planın sonucu ayrı gösteriliyor.");
       afterWrite();
       void refresh();

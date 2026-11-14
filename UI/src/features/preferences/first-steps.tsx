@@ -18,7 +18,7 @@ export function FirstSteps() {
         <p className="muted">
           {preferences.data.values.hasWorkingWindows
             ? "Saatlerini ve tarih istisnalarını Ayarlar'da değiştirebilirsin."
-            : "Henüz haftalık çalışma saati belirlemedin. Saatlerini şimdi seçebilir veya önce görevler bölümüne geçebilirsin."}
+            : "Haftalık çalışma saati belirlemediğin için günün tamamı kullanılabilir. İstersen Ayarlar'dan saatlerini sınırlayabilirsin."}
         </p>
       )}
       <p className="muted">

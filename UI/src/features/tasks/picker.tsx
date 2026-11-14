@@ -129,6 +129,7 @@ export function TaskPicker({
     [search, setSearch] = useState(""),
     [expanded, setExpanded] = useState(false),
     [active, setActive] = useState(0),
+    [navigated, setNavigated] = useState(false),
     [pending, setPending] = useState(false);
   const flight = useRef(false);
   const [priority, setPriority] = useState<NewTaskFields["priority"]>("Normal");
@@ -162,6 +163,8 @@ export function TaskPicker({
   const canCreate = !!create && !!wanted && fresh && !query.data?.pages[0].hasExactMatch && !already;
   const count = rows.length + (canCreate ? 1 : 0),
     current = Math.min(active, Math.max(0, count - 1));
+  // Liste açılırken hiçbir satır seçili görünmez; ok tuşuyla gezilince veya arama yazılınca ilk eşleşme vurgulanır.
+  const lit = navigated || wanted !== "";
   async function select(index: number) {
     if (flight.current || disabled) return;
     const row = rows[index];
@@ -201,16 +204,19 @@ export function TaskPicker({
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       setExpanded(true);
+      setNavigated(true);
       setActive(Math.max(0, Math.min(count - 1, current + (e.key === "ArrowDown" ? 1 : -1))));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (showing) void select(current);
+      if (showing && lit) void select(current);
     } else if (e.key === "Escape" && showing) {
       e.preventDefault();
       e.stopPropagation();
       setExpanded(false);
+      setNavigated(false);
     }
   }
+  const hasKids = rows.some(r => !!r.children?.length);
   const option = (row: PickerRow, index: number) => {
     const nested = hierarchical && (depthById.get(row.id) ?? 0) > 0;
     const planned = hierarchical && excluded.has(row.id);
@@ -224,6 +230,7 @@ export function TaskPicker({
         {hierarchical && !!row.children?.length && (
           <button
             type="button"
+            className="r2-picker-toggle"
             aria-label={`${row.title} alt görevleri`}
             aria-expanded={!collapsed.has(row.id)}
             onMouseDown={e => e.preventDefault()}
@@ -243,17 +250,20 @@ export function TaskPicker({
             />
           </button>
         )}
+        {hierarchical && hasKids && !row.children?.length && <span className="r2-picker-spacer" aria-hidden="true" />}
         <div
           id={`${id}-${index}`}
           role="option"
-          aria-selected={current === index}
+          aria-selected={lit && current === index}
           aria-disabled={(planned && !canRefresh) || undefined}
-          className={`r2-option${current === index ? " active" : ""}`}
+          className={`r2-option r2-option-rows${lit && current === index ? " active" : ""}`}
           onMouseDown={e => e.preventDefault()}
           onClick={() => void select(index)}
         >
           <PickerLabel row={nested ? { ...row, parentTitle: null } : row} />
-          {planned && <span className="r2-option-planned">Planda</span>}
+          <span className="r2-option-planned" aria-hidden={planned ? undefined : true}>
+            {planned ? "Planda" : ""}
+          </span>
         </div>
       </div>
     );
@@ -262,7 +272,10 @@ export function TaskPicker({
     <div
       className="r2-add-plan"
       onBlur={e => {
-        if (!e.currentTarget.contains(e.relatedTarget)) setExpanded(false);
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          setExpanded(false);
+          setNavigated(false);
+        }
       }}
     >
       <label htmlFor={id} className="sr-only">
@@ -277,7 +290,7 @@ export function TaskPicker({
           aria-expanded={showing}
           aria-controls={showing ? `${id}-list` : undefined}
           aria-autocomplete="list"
-          aria-activedescendant={showing && count ? `${id}-${current}` : undefined}
+          aria-activedescendant={showing && lit && count ? `${id}-${current}` : undefined}
           aria-busy={pending || query.isFetching}
           autoComplete="off"
           maxLength={200}
@@ -323,8 +336,8 @@ export function TaskPicker({
               <div
                 id={`${id}-${rows.length}`}
                 role="option"
-                aria-selected={current === rows.length}
-                className={`r2-option${current === rows.length ? " active" : ""}`}
+                aria-selected={lit && current === rows.length}
+                className={`r2-option${lit && current === rows.length ? " active" : ""}`}
                 onMouseDown={e => e.preventDefault()}
                 onClick={() => void select(rows.length)}
               >

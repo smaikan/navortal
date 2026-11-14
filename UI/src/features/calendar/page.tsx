@@ -437,6 +437,7 @@ function DayDialog({
     <Surface
       title={dayTitle(date)}
       modal
+      pending={page.isPending || (past && summary.isPending)}
       returnTo={trigger}
       onClose={() => {
         if (!canLeave()) return false;

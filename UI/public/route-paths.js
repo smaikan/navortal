@@ -56,4 +56,4 @@ export const workspacePaths = [
   "/categories",
   "/guide",
 ];
-export const isWorkspacePath = path => workspacePaths.includes(path);
+export const isWorkspacePath = path => workspacePaths.includes(path) || /^\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(path);

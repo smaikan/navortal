@@ -19,39 +19,23 @@ import {
   readSubscription,
   readSubscriptions,
   setupDeadline,
+  subscriptionMatchesKey,
   type Subscription,
 } from "./model";
-const browserChanges = (notify: () => void) => {
-  window.addEventListener("focus", notify);
-  window.addEventListener("planner-push-permission", notify);
-  window.addEventListener("planner-push-registered", notify);
-  document.addEventListener("visibilitychange", notify);
-  return () => {
-    window.removeEventListener("focus", notify);
-    window.removeEventListener("planner-push-permission", notify);
-    window.removeEventListener("planner-push-registered", notify);
-    document.removeEventListener("visibilitychange", notify);
-  };
-};
-const supported = () =>
-  window.isSecureContext && "serviceWorker" in navigator
-    ? "Notification" in window && "PushManager" in window
-      ? "supported"
-      : "worker-only"
-    : "unsupported";
-const permissionValue = () => ("Notification" in window ? Notification.permission : "unsupported");
-const storedDeviceLabel = () => {
-  try {
-    const id = localStorage.getItem("adhd.push-device.v1");
-    return id ? `Tarayıcı:${id}` : null;
-  } catch {
-    return null;
-  }
-};
+import { appleMobile, browserChanges, permissionValue, pushSupport, storedDeviceLabel } from "./browser";
+import { hasAndroidTimerHost } from "../work/native-timer";
+import { PhoneNotifications } from "./phone";
+const never = () => () => {};
+/** Android uygulamasında (window.navortalTimer) tarayıcı Web Push yerine telefon bildirim bölümü gösterilir. */
 export function PushPage() {
+  const phone = useSyncExternalStore(never, hasAndroidTimerHost, () => false);
+  return phone ? <PhoneNotifications /> : <BrowserPushPage />;
+}
+function BrowserPushPage() {
   const headingId = useId();
   const { session, state } = useSession();
-  const owner = state.user!.id;
+  const owner = state.user!.id,
+    epoch = session.getIdentity().epoch;
   const cache = useNotificationCache();
   const work = useWork();
   const prefs = useNotificationPreferences();
@@ -71,12 +55,57 @@ export function PushPage() {
     [pending, setPending] = useState(false),
     [message, setMessage] = useState(""),
     [issue, setIssue] = useState("");
-  const support = useSyncExternalStore(browserChanges, supported, () => "checking");
+  const support = useSyncExternalStore(browserChanges, pushSupport, () => "checking");
   const permission = useSyncExternalStore(browserChanges, permissionValue, () => "unsupported");
   const localLabel = useSyncExternalStore(browserChanges, storedDeviceLabel, () => null);
   const busy = useRef(false);
+  const apple = useSyncExternalStore(browserChanges, appleMobile, () => false);
+  const [showInstall, setShowInstall] = useState(false);
+  const [localSubscription, setLocalSubscription] = useState<PushSubscription | null>(null);
+  const [localChecking, setLocalChecking] = useState(true);
+  const [localIssue, setLocalIssue] = useState("");
+  const [checkedAt, setCheckedAt] = useState(() => Date.now());
   const activating = useRef<number | null>(null);
   const [reconcile, setReconcile] = useState(false);
+  useEffect(() => {
+    const current = () => session.getIdentity().epoch === epoch && session.getSnapshot().user?.id === owner;
+    let live = true,
+      sequence = 0;
+    const check = async () => {
+      const attempt = ++sequence;
+      if (support !== "supported" || permission !== "granted") {
+        setLocalSubscription(null);
+        setLocalChecking(false);
+        setLocalIssue("");
+        return;
+      }
+      setLocalChecking(true);
+      try {
+        const r = await setupDeadline(navigator.serviceWorker.getRegistration("/"));
+        const subscription = r ? await setupDeadline(r.pushManager.getSubscription()) : null;
+        if (live && attempt === sequence && current()) {
+          setLocalSubscription(subscription);
+          setLocalIssue("");
+        }
+      } catch (error) {
+        if (live && attempt === sequence && current()) {
+          setLocalSubscription(null);
+          setLocalIssue(pushFailure(error));
+        }
+      } finally {
+        if (live && attempt === sequence && current()) {
+          setLocalChecking(false);
+          setCheckedAt(Date.now());
+        }
+      }
+    };
+    void check();
+    const stop = browserChanges(() => void check());
+    return () => {
+      live = false;
+      stop();
+    };
+  }, [support, permission, session, owner, epoch]);
   useEffect(() => {
     if (support === "unsupported" || support === "checking") return;
     let live = true;
@@ -132,7 +161,8 @@ export function PushPage() {
       })(),
     );
     if (!cache.current()) throw new Error("Hesap değişti.");
-    await setRecipient(owner, undefined, cache.current);
+    await setupDeadline(setRecipient(owner, undefined, cache.current));
+    if (!cache.current()) throw new Error("Hesap değişti.");
     setRegistration(r);
     setWaiting(!!r.waiting);
     return r;
@@ -191,18 +221,25 @@ export function PushPage() {
     if (support !== "supported" || !config.data?.enabled || !config.data.publicKey) return;
     // İstek tıklamada hemen başlar. Kullanıcı etkinliğini tüketebilecek await'lerden önce.
     const allowed = await Notification.requestPermission();
+    if (!cache.current()) return;
     window.dispatchEvent(new Event("planner-push-permission"));
     if (allowed !== "granted") {
       setMessage("İzin verilmedi. Bildirimler gelen kutusunda kullanılabilir.");
       return;
     }
-    const r = await prepare(),
-      label = deviceLabel();
+    const label = deviceLabel();
+    const r = await prepare();
     let subscription = await setupDeadline(r.pushManager.getSubscription());
-    if (subscription && !subs.data?.some(s => s.active && s.label === label)) {
-      await subscription.unsubscribe();
+    if (!cache.current()) return;
+    if (
+      subscription &&
+      (!subscriptionMatchesKey(subscription, config.data.publicKey) ||
+        !subs.data?.some(s => s.active && s.label === label))
+    ) {
+      if (!(await setupDeadline(subscription.unsubscribe()))) throw new Error("Eski abonelik kaldırılamadı.");
       subscription = null;
     }
+    if (!cache.current()) return;
     subscription ??= await setupDeadline(
       r.pushManager.subscribe({
         userVisibleOnly: true,
@@ -210,7 +247,7 @@ export function PushPage() {
       }),
     );
     if (!cache.current()) {
-      await subscription.unsubscribe();
+      await setupDeadline(subscription.unsubscribe());
       return;
     }
     const value = subscription.toJSON();
@@ -228,12 +265,15 @@ export function PushPage() {
         })
         .execute(),
     );
+    if (!cache.current()) return;
+    setLocalSubscription(subscription);
     if (cache.current()) {
       window.dispatchEvent(new Event("planner-push-registered"));
       setMessage("Bu cihaz kaydedildi. Bildirimler açılıyor…");
       void subs.refetch();
     }
     const fresh = readPreferences(await session.api.read("/api/notifications/preferences"));
+    if (!cache.current()) return;
     const saved = readPreferences(
       await session.api
         .mutation("/api/notifications/preferences", "put", {
@@ -258,13 +298,23 @@ export function PushPage() {
     void subs.refetch();
     setMessage("Bu cihazın bildirimleri kapatıldı.");
     try {
-      if (s.label === deviceLabel()) await (await registration?.pushManager.getSubscription())?.unsubscribe();
+      if (s.label === storedDeviceLabel()) {
+        const r = registration ?? (await setupDeadline(navigator.serviceWorker.getRegistration("/")));
+        const subscription = r ? await setupDeadline(r.pushManager.getSubscription()) : null;
+        if (!cache.current()) return;
+        if (subscription && !(await setupDeadline(subscription.unsubscribe())))
+          throw new Error("Tarayıcı aboneliği kaldırılamadı.");
+        if (!cache.current()) return;
+        setLocalSubscription(null);
+        window.dispatchEvent(new Event("planner-push-registered"));
+      }
     } catch {
-      setIssue("Sunucu aboneliği kaldırıldı; tarayıcıdaki izin ve aboneliği ayrıca kontrol et.");
+      if (cache.current()) setIssue("Sunucu aboneliği kaldırıldı; tarayıcıdaki izin ve aboneliği ayrıca kontrol et.");
     }
   }
   async function disable() {
     const fresh = readPreferences(await session.api.read("/api/notifications/preferences"));
+    if (!cache.current()) return;
     const saved = readPreferences(
       await session.api
         .mutation("/api/notifications/preferences", "put", {
@@ -277,15 +327,26 @@ export function PushPage() {
       setMessage("Tüm cihaz bildirimleri kapalı. Uygulamadaki gelen kutusu açık kalır.");
     }
   }
-  const thisDevice = subs.data?.find(s => s.active && s.label === localLabel);
+  const thisDevice = subs.data?.find(
+    s => s.active && s.label === localLabel && (!s.expiresAt || Date.parse(s.expiresAt) > checkedAt),
+  );
+  const browserReady =
+    !!localSubscription &&
+    !!config.data?.publicKey &&
+    subscriptionMatchesKey(localSubscription, config.data.publicKey, checkedAt);
   const deviceOn =
-    !!thisDevice && !!prefs.data?.settings.pushEnabled && !!config.data?.enabled && permission === "granted";
+    !!thisDevice &&
+    browserReady &&
+    !!prefs.data?.settings.pushEnabled &&
+    !!config.data?.enabled &&
+    permission === "granted";
   const activeDevices = subs.data?.filter(s => s.active) ?? [];
   async function reread() {
     const rows = await Promise.all([config.refetch(), prefs.refetch(), subs.refetch()]);
     if (rows.some(r => r.isError)) throw new Error("Okuma tamamlanmadı.");
     if (cache.current()) {
       setReconcile(false);
+      window.dispatchEvent(new Event("planner-push-registered"));
       setMessage("Bildirim durumu güncellendi.");
     }
   }
@@ -297,33 +358,72 @@ export function PushPage() {
           <p>Uygulama arka plandayken de hatırlatmalarını ekranında gör.</p>
         </div>
         <span className={`device-state${deviceOn ? " on" : ""}`}>
-          {support === "checking" ? "Kontrol ediliyor" : deviceOn ? "Açık" : "Kapalı"}
+          {support === "checking" || localChecking ? "Kontrol ediliyor" : deviceOn ? "Açık" : "Kapalı"}
         </span>
       </div>
       {(support === "unsupported" || support === "worker-only") && (
         <p role="status">
-          Bu tarayıcı masaüstü bildirimlerini desteklemiyor. Hatırlatmalarını gelen kutusunda görebilirsin.
+          Bu tarayıcıda cihaz bildirimi kullanılamıyor. Hatırlatmalarını gelen kutusunda görebilirsin.
         </p>
+      )}
+      {support === "install-required" && (
+        <div className="device-install">
+          <p>iPhone veya iPad’de bildirim almak için Navortal’ı ana ekranından aç.</p>
+          <button
+            type="button"
+            aria-expanded={showInstall}
+            aria-controls={`${headingId}-install`}
+            onClick={() => setShowInstall(value => !value)}
+          >
+            Ana ekrana ekleyerek kullan
+          </button>
+          {showInstall && (
+            <ol id={`${headingId}-install`}>
+              <li>Tarayıcının Paylaş veya menü düğmesini aç.</li>
+              <li>“Ana Ekrana Ekle”yi seç. Bu seçenek görünmüyorsa sayfayı Safari’de aç.</li>
+              <li>Navortal’ı ana ekranındaki simgesinden açıp bildirim tercihlerine dön.</li>
+            </ol>
+          )}
+        </div>
       )}
       {support === "supported" && (
         <>
           {permission === "denied" && (
-            <p role="status">Bildirim izni kapalı. Adres çubuğundaki site izinlerinden bildirimlere izin ver.</p>
+            <p role="status">
+              {apple
+                ? "Bildirim izni kapalı. iPhone veya iPad Ayarlar → Bildirimler → Navortal bölümünden izin ver."
+                : "Bildirim izni kapalı. Tarayıcının site izinlerinden bildirimlere izin ver."}
+            </p>
           )}
           {config.data?.enabled === false && (
             <p role="status">
               Cihaz bildirimleri şu an kullanılamıyor. Bildirimlerini sağ üstteki zilden görebilirsin.
             </p>
           )}
+          {prefs.data?.settings.enabled === false && (
+            <p role="status">
+              Genel bildirim tercihin kapalı. Hatırlatma almak için yukarıdaki “Bildirimler açık” seçeneğini de aç.
+            </p>
+          )}
           <div className="device-main-action">
             <button
               className={deviceOn ? undefined : "primary"}
               disabled={
-                pending || reconcile || !prefs.data || !subs.data || !config.data?.enabled || permission === "denied"
+                pending ||
+                reconcile ||
+                localChecking ||
+                !prefs.data ||
+                !subs.data ||
+                !config.data?.enabled ||
+                permission === "denied"
               }
               onClick={() => void action(deviceOn && thisDevice ? () => remove(thisDevice) : enable)}
             >
-              {deviceOn ? "Bu cihazda bildirimleri kapat" : "Bu cihazda bildirimleri aç"}
+              {deviceOn
+                ? "Bu cihazda bildirimleri kapat"
+                : permission === "granted"
+                  ? "Bağlantıyı yenile"
+                  : "Bu cihazda bildirimleri aç"}
             </button>
             <p className="r2-hint">Bu seçim cihaz bildirimlerini etkiler. Sağ üstteki zil her zaman çalışır.</p>
             <p className="r2-hint">
@@ -336,9 +436,9 @@ export function PushPage() {
           </div>
         </>
       )}
-      {(config.isError || prefs.isError || subs.isError || reconcile || issue) && (
+      {(config.isError || prefs.isError || subs.isError || reconcile || issue || localIssue) && (
         <div className="form-error">
-          <p role="alert">{issue || "Bildirim durumu doğrulanamadı. Yenileyip tekrar kontrol et."}</p>
+          <p role="alert">{issue || localIssue || "Bildirim durumu doğrulanamadı. Yenileyip tekrar kontrol et."}</p>
           <button disabled={pending} onClick={() => void action(reread)}>
             Durumu yenile
           </button>

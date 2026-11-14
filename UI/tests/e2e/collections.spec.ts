@@ -14,7 +14,7 @@ let api: APIRequestContext;
 let token: string;
 let foreignPool: Resource;
 const faults = new WeakMap<Page, string[]>();
-const setupHost = "http://127.0.0.1:5182";
+const setupHost = process.env.UI_E2E_SETUP_URL ?? "http://127.0.0.1:5182";
 const evidence = EVIDENCE;
 const tag = () => randomUUID().slice(0, 8);
 async function register() {
@@ -280,11 +280,11 @@ test("pools: paging, parent+child counted once, no task copies, workload refresh
   await expect(page.getByText("25 / 26 havuz")).toBeVisible();
   await page.getByRole("list", { name: "Havuz listesi" }).getByRole("button").filter({ hasText: pool.name }).click();
   await expect(heading(page, "pools")).toHaveText(pool.name);
-  await expect(metric(page, "Havuz iş yükü", "Görev")).toHaveText("2");
+  await expect(metric(page, "Havuz iş yükü", "Görev")).toHaveText("1");
   await expect(metric(page, "Havuz iş yükü", "Bilinen tahmin süre")).toHaveText("30 dk");
   await expect(page.getByText("Hesaplanan toplam", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Kendi işi olan iş", { exact: true })).toHaveCount(0);
-  await expect(page.locator(".resource-detail .relation-count")).toHaveText("2 görev");
+  await expect(page.locator(".resource-detail .relation-count")).toHaveText("1 ana / tekil görev grubu");
   expect(await totalTasks()).toBe(before + 2);
 
   // Aynı görev paneli açılıp kapanırken taslak korunur.
@@ -713,4 +713,98 @@ test("pools: extension text replacement cannot crash picker close or navigate aw
   await expect(page.getByRole("heading", { name: "Bu ekran açılamadı", exact: true })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Havuz için görev seç", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: `${chosen.title} ayrıntısını aç`, exact: true })).toBeVisible();
+});
+
+test("projects: leaf progress refreshes on completion, subtree completion and reopening without reload", async ({
+  page,
+}) => {
+  const run = tag();
+  const project = await resource("projects", `İlerleme ${run}`);
+  const root = await task(`Ana ${run}`);
+  const first = await child(root.id, `Birinci ${run}`);
+  const second = await child(root.id, `İkinci ${run}`);
+  await classify(root.id, { projectId: project.id });
+  // Yerel yazıdan sonra yenileme SignalR bağlantısına bağlı olmamalı.
+  await page.route("**/api/hubs/planner/negotiate?**", route => route.abort());
+  await page.goto(`/projects?id=${project.id}`);
+  const item = page
+    .getByRole("list", { name: "Projeler listesi", includeHidden: true })
+    .getByRole("button", { includeHidden: true })
+    .filter({ hasText: project.name });
+  await expect(item.locator(".resource-progress")).toHaveText("0/2");
+  await expect(metric(page, "Proje iş yükü", "Görev")).toHaveText("2");
+  await expect(page.locator(".resource-task-count")).toHaveText("2");
+  const firstCheck = page.getByRole("checkbox", { name: `${first.title} tamamlandı`, exact: true });
+  await firstCheck.click();
+  await expect(firstCheck).toBeChecked();
+  await expect(item.locator(".resource-progress")).toHaveText("1/2");
+  await expect(item.locator(".resource-summary")).toContainText("1 açık");
+  await page.getByRole("checkbox", { name: `${root.title} tamamlandı`, exact: true }).click();
+  await expect(item.locator(".resource-progress")).toHaveText("2/2");
+  await expect(item.locator(".resource-summary")).toContainText("0 açık");
+  const secondCheck = page.getByRole("checkbox", { name: `${second.title} tamamlandı`, exact: true });
+  await expect(secondCheck).toBeEnabled();
+  await secondCheck.click();
+  await expect(secondCheck).not.toBeChecked();
+  await expect(item.locator(".resource-progress")).toHaveText("1/2");
+});
+
+test("projects: a committed completion with a lost response is confirmed by GET without replay or a stale warning", async ({
+  page,
+}) => {
+  const project = await resource("projects", `Kayıp yanıt ${tag()}`);
+  const chosen = await task(`Doğrulanan ${tag()}`);
+  await classify(chosen.id, { projectId: project.id });
+  let writes = 0;
+  let inspections = 0;
+  const before = await getTask(chosen.id);
+  await page.route(`**/api/tasks/${chosen.id}`, async route => {
+    inspections++;
+    // Yanıt kaybının hemen ardından ilk GET hâlâ eski durumu görebilir.
+    if (inspections === 1) return route.fulfill({ json: before });
+    await route.continue();
+  });
+  await page.route(`**/api/tasks/${chosen.id}/state`, async route => {
+    writes++;
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    await route.abort("failed");
+  });
+  await page.goto(`/projects?id=${project.id}`);
+  const checkbox = page.getByRole("checkbox", { name: `${chosen.title} tamamlandı`, exact: true });
+  await checkbox.click();
+  await expect(checkbox).toBeChecked();
+  await expect(checkbox).toBeEnabled();
+  await expect(alert(page, "İşlemin sonucu alınamadı")).toHaveCount(0);
+  await expect(page.locator(".resource-progress").filter({ hasText: "1/1" })).toHaveCount(1);
+  expect(writes).toBe(1);
+  expect(inspections).toBe(2);
+});
+
+test("projects: an unconfirmed completion stays blocked until a successful inspection and is never replayed", async ({
+  page,
+}) => {
+  const project = await resource("projects", `Belirsiz ${tag()}`);
+  const chosen = await task(`Kontrol ${tag()}`);
+  await classify(chosen.id, { projectId: project.id });
+  let writes = 0;
+  page.on("request", r => {
+    if (r.method() === "POST" && r.url().endsWith(`/tasks/${chosen.id}/state`)) writes++;
+  });
+  const endpoint = `**/api/tasks/${chosen.id}/state`;
+  await page.route(endpoint, route => route.abort("failed"));
+  await page.goto(`/projects?id=${project.id}`);
+  const checkbox = page.getByRole("checkbox", { name: `${chosen.title} tamamlandı`, exact: true });
+  await checkbox.click();
+  await expect(alert(page, "İşlemin sonucu alınamadı")).toBeVisible();
+  await expect(checkbox).not.toBeChecked();
+  await expect(checkbox).toBeDisabled();
+  expect(writes).toBe(1);
+  await page.unroute(endpoint);
+  await page.getByRole("button", { name: "Güncel görev durumunu kontrol et", exact: true }).click();
+  await expect(checkbox).toBeEnabled();
+  expect(writes).toBe(1);
+  await checkbox.click();
+  await expect(checkbox).toBeChecked();
+  expect(writes).toBe(2);
 });

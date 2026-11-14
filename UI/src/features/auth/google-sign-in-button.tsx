@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { LoaderCircle, LockKeyhole } from "lucide-react";
 import { ApiError } from "../../lib/api/errors";
 import { loadGisScript } from "./gis";
 import { useSession } from "./provider";
+import { hasAndroidTimerHost } from "../work/native-timer";
+
+const subscribeHost = () => () => {};
+const serverHost = () => false;
 
 export function GoogleSignInButton({
   mode,
@@ -12,25 +16,30 @@ export function GoogleSignInButton({
   disabledMessage,
   onBusyChange,
   onLinked,
+  onVerified,
 }: {
-  mode: "login" | "register" | "link";
+  mode: "login" | "register" | "link" | "verify";
   disabled?: boolean;
   disabledMessage?: string;
   onBusyChange?: (busy: boolean) => void;
   onLinked?: () => void;
+  onVerified?: (credential: string) => void;
 }) {
   const { session } = useSession();
+  const native =
+    useSyncExternalStore(subscribeHost, hasAndroidTimerHost, serverHost) && (mode === "login" || mode === "register");
   const container = useRef<HTMLDivElement>(null);
-  const callbacks = useRef({ onBusyChange, onLinked });
+  const callbacks = useRef({ onBusyChange, onLinked, onVerified });
   const [attempt, setAttempt] = useState(0);
   const [phase, setPhase] = useState<"loading" | "disabled" | "ready" | "failed" | "busy">("loading");
   const [issue, setIssue] = useState("");
   const [message, setMessage] = useState("");
   useEffect(() => {
-    callbacks.current = { onBusyChange, onLinked };
-  }, [onBusyChange, onLinked]);
+    callbacks.current = { onBusyChange, onLinked, onVerified };
+  }, [onBusyChange, onLinked, onVerified]);
 
   useEffect(() => {
+    if ((mode === "login" || mode === "register") && hasAndroidTimerHost()) return;
     let disposed = false,
       pending = false;
     const controller = new AbortController();
@@ -68,7 +77,10 @@ export function GoogleSignInButton({
             callbacks.current.onBusyChange?.(true);
             void (async () => {
               try {
-                if (mode === "link") {
+                if (mode === "verify") {
+                  callbacks.current.onVerified?.(response.credential);
+                  setMessage("Google hesabın seçildi. Parolanı oluşturabilirsin.");
+                } else if (mode === "link") {
                   await session.linkGoogle(response.credential, epoch);
                   if (current()) {
                     setMessage("Google hesabın bağlandı.");
@@ -89,7 +101,8 @@ export function GoogleSignInButton({
               } finally {
                 if (!disposed) {
                   callbacks.current.onBusyChange?.(false);
-                  setAttempt(value => value + 1);
+                  if (mode === "verify") setPhase("ready");
+                  else setAttempt(value => value + 1);
                 }
               }
             })();
@@ -120,7 +133,11 @@ export function GoogleSignInButton({
       } catch {
         if (current()) {
           setPhase("failed");
-          setIssue("Google ile giriş yüklenemedi. E-posta ve parolanla devam edebilir veya yeniden deneyebilirsin.");
+          setIssue(
+            mode === "verify"
+              ? "Google doğrulaması yüklenemedi. Yeniden deneyebilirsin."
+              : "Google ile giriş yüklenemedi. E-posta ve parolanla devam edebilir veya yeniden deneyebilirsin.",
+          );
         }
       }
     }
@@ -132,7 +149,21 @@ export function GoogleSignInButton({
       element?.replaceChildren();
       if (pending) callbacks.current.onBusyChange?.(false);
     };
-  }, [session, mode, disabled, attempt]);
+  }, [session, mode, disabled, attempt, native]);
+
+  if (mode === "verify" && phase === "disabled")
+    return (
+      <p className="muted" role="status">
+        Google doğrulaması şu anda kullanılamıyor. Şifre oluşturmak için daha sonra yeniden dene.
+      </p>
+    );
+
+  if (native)
+    return (
+      <p className="google-auth-caption" role="status">
+        Google ile giriş uygulamanın ilk ekranından yapılır.
+      </p>
+    );
 
   return (
     <div
@@ -140,7 +171,7 @@ export function GoogleSignInButton({
       hidden={phase === "disabled"}
       aria-busy={phase === "loading" || phase === "busy"}
     >
-      {mode !== "link" && (
+      {(mode === "login" || mode === "register") && (
         <div className="google-auth-divider" aria-hidden="true">
           <span>veya</span>
         </div>

@@ -21,6 +21,7 @@ const titles: [string, string][] = [
   ["/recurrences", "Rutin"],
   ["/analytics", "Analiz"],
   ["/reminders", "Hatırlatmalar"],
+  ["/notifications", "Bildirim ayrıntısı"],
   ["/settings", "Ayarlar"],
   ["/work", "Çalışma kayıtları"],
   ["/categories", "Kategoriler"],

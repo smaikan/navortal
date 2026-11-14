@@ -436,6 +436,10 @@
   border-color: transparent;
   background: var(--note-soft);
 }
+/* Renkli notta hover gri kalmasın: notun kendi rengine yaklaşan bir ton kullanılıyor. */
+.note-card[data-tone="soft"] {
+  --hover: color-mix(in srgb, var(--note-fg) 16%, var(--note-soft));
+}
 .note-card-row {
   display: flex;
   flex-wrap: wrap;
@@ -738,7 +742,8 @@
 }
 .note-detail {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-auto-rows: auto;
   gap: 6px;
   min-width: 0;
 }
@@ -747,6 +752,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+.note-detail-head > .menu {
+  flex-shrink: 0;
 }
 .note-detail-dates {
   margin: 0;
@@ -1052,7 +1060,11 @@
 }
 
 /* Aynı pencere ölçülerinde metne daha çok alan: meta ve işlem satırları sıkı, metin esnek. */
-.note-detail:has(.note-task-link) {
+.note-detail:has(> .note-meta),
+.note-detail:has(> .note-task-link) {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+.note-detail:has(> .note-meta):has(> .note-task-link) {
   grid-template-rows: auto auto auto minmax(0, 1fr);
 }
 .modal-center:has(.note-detail) > .surface-header {

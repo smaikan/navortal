@@ -163,7 +163,15 @@ export function SpecialDaysPage() {
                         <Icon size={15} />
                       </span>
                       <span className="special-text">
-                        <strong>{day.title}</strong>
+                        <strong>
+                          <button
+                            type="button"
+                            className="row-open"
+                            onClick={e => setEdit({ day, trigger: e.currentTarget })}
+                          >
+                            {day.title}
+                          </button>
+                        </strong>
                         <span className="muted">
                           {longDay(day.nextOccurrence!)} · {kinds[day.kind]}
                         </span>
@@ -182,9 +190,22 @@ export function SpecialDaysPage() {
                 {groups.soon.length ? "Daha sonra" : "Özel günlerin"}
               </h2>
               {groups.later.map(group => (
-                <Month key={group.label} label={group.label} items={group.items} menu={row} />
+                <Month
+                  key={group.label}
+                  label={group.label}
+                  items={group.items}
+                  menu={row}
+                  onEdit={(day, trigger) => setEdit({ day, trigger })}
+                />
               ))}
-              {groups.past.length > 0 && <Month label="Geçmiş tek seferlik günler" items={groups.past} menu={row} />}
+              {groups.past.length > 0 && (
+                <Month
+                  label="Geçmiş tek seferlik günler"
+                  items={groups.past}
+                  menu={row}
+                  onEdit={(day, trigger) => setEdit({ day, trigger })}
+                />
+              )}
             </section>
           )}
         </div>
@@ -213,10 +234,12 @@ function Month({
   label,
   items,
   menu,
+  onEdit,
 }: {
   label: string;
   items: SpecialDay[];
   menu: (day: SpecialDay) => React.ReactNode;
+  onEdit: (day: SpecialDay, trigger: HTMLElement) => void;
 }) {
   return (
     <>
@@ -231,7 +254,11 @@ function Month({
                 <small>{monthName(Number(day.month)).slice(0, 3)}</small>
               </span>
               <span className="special-text">
-                <strong>{day.title}</strong>
+                <strong>
+                  <button type="button" className="row-open" onClick={e => onEdit(day, e.currentTarget)}>
+                    {day.title}
+                  </button>
+                </strong>
                 <span className="special-facts">
                   <span className="sr-only">
                     {day.day} {monthName(Number(day.month))}.{" "}

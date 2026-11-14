@@ -1,6 +1,7 @@
 import type { components } from "../../lib/api/generated/schema";
 import { createApiClient, CSRF_HEADER, type ApiIdentity } from "../../lib/api/client";
 import { ApiError } from "../../lib/api/errors";
+import { anySignal } from "../../lib/compat/abort";
 
 export type User = components["schemas"]["UserSummary"];
 export type Credentials = components["schemas"]["LoginRequest"];
@@ -106,7 +107,7 @@ export function createSession(options: {
     identity: () => identity,
     onUnauthorized: forget,
     fetch: (input, init) =>
-      fetcher(input, { ...init, signal: AbortSignal.any([requests.signal, ...(init?.signal ? [init.signal] : [])]) }),
+      fetcher(input, { ...init, signal: anySignal([requests.signal, ...(init?.signal ? [init.signal] : [])]) }),
     online: options.online,
   });
 
@@ -282,7 +283,7 @@ export function createSession(options: {
           credentials: "same-origin",
           cache: "no-store",
           redirect: "error",
-          signal: AbortSignal.any([controller.signal, requests.signal]),
+          signal: anySignal([controller.signal, requests.signal]),
         });
         if (response.status === 204) status = "confirmed";
         else if (response.status === 401 && !allDevices) status = "already-ended";

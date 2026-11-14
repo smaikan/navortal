@@ -132,7 +132,7 @@ describe("UI-R3 command palette filter", () => {
     expect(matches("bugun", "Bugünü hafiflet")).toBe(true);
     expect(matches("HAF bug", "Bugünü hafiflet")).toBe(true);
     expect(matches("ozel", "Özel günler")).toBe(true);
-    expect(matches("kafa bos", "Kafamı boşalt")).toBe(true);
+    expect(matches("coklu gor", "Çoklu görev")).toBe(true);
     expect(matches("takvim gün", "Özel günler")).toBe(false);
     expect(matches("", "Herhangi")).toBe(true);
   });

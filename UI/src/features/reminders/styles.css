@@ -143,3 +143,29 @@
   font-size: 13px;
   color: var(--muted);
 }
+.reminder-empty {
+  max-width: 520px;
+  margin: 24px 0;
+  padding: 36px 24px;
+  border: 1px dashed var(--control);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.reminder-empty h2 {
+  margin: 12px 0 4px;
+  font-size: 16px;
+}
+.reminder-empty-marks {
+  display: inline-flex;
+  gap: 8px;
+}
+.reminder-empty-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary-text);
+}

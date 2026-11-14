@@ -1,46 +1,18 @@
-/* Hızlı ekleme panelindeki toplu giriş; genel panel ölçüleri ve tema tokenları korunur. */
-.quick-dump-entry {
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px;
-  gap: 12px;
-  justify-content: flex-start;
-  text-align: start;
-  border-color: var(--control);
-  background: var(--surface);
+/* Hızlı ekleme kısa bir pencere; mobilde de yan panel veya tam ekran açılmaz. */
+.modal-surface.modal-center:has(.quick-add) {
+  width: min(560px, calc(100vw - 32px));
+  height: fit-content;
+  max-height: 88dvh;
+  border-radius: var(--radius-lg);
 }
-.quick-dump-entry:hover {
-  border-color: var(--primary-text);
-  background: var(--primary-soft);
+.modal-center .quick-add {
+  padding-top: 0;
 }
-.quick-dump-icon {
-  display: grid;
-  place-items: center;
-  flex: 0 0 36px;
-  height: 36px;
-  border-radius: var(--radius);
-  background: var(--primary-soft);
-  color: var(--primary-text);
-}
-.quick-dump-copy {
-  display: grid;
-  gap: 3px;
-  flex: 1;
-  min-width: 0;
-}
-.quick-dump-copy strong {
-  font-size: 14px;
-  font-weight: 600;
-}
-.quick-dump-copy > span {
-  font-size: 12px;
-  line-height: 1.5;
-  font-weight: 400;
-  color: var(--muted);
-}
-.quick-dump-arrow {
-  flex: none;
-  color: var(--muted);
+.quick-dump-entry.r2-quiet-link {
+  margin: 8px 0 0;
+  gap: 6px;
+  font-size: 13px;
+  background: transparent;
 }
 .brain-dump {
   display: grid;

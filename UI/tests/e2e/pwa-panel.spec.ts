@@ -46,10 +46,9 @@ test("permission denial and missing PushManager are explicit; neither sends a su
     window.dispatchEvent(new Event("focus"));
   });
   await expect(
-    page.getByText(
-      "Bu tarayıcı masaüstü bildirimlerini desteklemiyor. Hatırlatmalarını gelen kutusunda görebilirsin.",
-      { exact: true },
-    ),
+    page.getByText("Bu tarayıcıda cihaz bildirimi kullanılamıyor. Hatırlatmalarını gelen kutusunda görebilirsin.", {
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Bu cihazda bildirimleri aç", exact: true })).toHaveCount(0);
 });

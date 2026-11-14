@@ -37,6 +37,44 @@
   gap: 12px;
   justify-items: start;
 }
+.device-install {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.device-install p {
+  margin: 0;
+  color: var(--muted);
+}
+.device-install ol {
+  margin: 0;
+  padding-left: 24px;
+  line-height: 1.7;
+}
+.reminder-push-nudge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.reminder-push-nudge p {
+  margin: 0;
+  color: var(--muted);
+}
+.reminder-push-nudge > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.reminder-push-nudge a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
 .device-details {
   border-top: 1px solid var(--divider);
   padding-top: 16px;

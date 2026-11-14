@@ -493,7 +493,7 @@ test("day bar, first step from the row menu and Tek görev with Sonra bak and Ö
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
 });
 
-test("Ctrl+K palette navigates, Kafamı boşalt adds many tasks in one request and the energy filter is a link", async ({
+test("Ctrl+K palette navigates, Çoklu görev adds many tasks in one request and the energy filter is a link", async ({
   page,
 }) => {
   await page.goto("/tasks");
@@ -518,8 +518,8 @@ test("Ctrl+K palette navigates, Kafamı boşalt adds many tasks in one request a
   ).toHaveAttribute("aria-current", "page");
   // Toplu girişte boş satır ve tekrarlar tek istekten önce ayıklanır.
   await page.getByRole("button", { name: "Görev", exact: true }).click();
-  await page.getByRole("button", { name: "Kafamı boşalt", exact: true }).click();
-  const dump = page.getByRole("dialog", { name: "Kafamı boşalt" });
+  await page.getByRole("button", { name: "Çoklu görev", exact: true }).click();
+  const dump = page.getByRole("dialog", { name: "Çoklu görev" });
   const marker = tag();
   let batches = 0;
   page.on("request", r => {

@@ -3,7 +3,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, ListPlus, MoreHorizontal, Plus } from "lucide-react";
+import { ListPlus, MoreHorizontal, Plus } from "lucide-react";
 import { Account } from "../../features/auth/account";
 import { BrandMark } from "../ui/brand-mark";
 import { Surface } from "../ui/surface";
@@ -184,26 +184,26 @@ function ShellFrame({ children, player }: { children: React.ReactNode; player?: 
       </nav>
       {quick && (
         <Suspense fallback={<p role="status">Hızlı ekleme açılıyor…</p>}>
-          <Surface title="Hızlı görev ekle" modal initialFocus="field" onClose={() => setQuick(null)} returnTo={quick}>
+          <Surface
+            title="Hızlı görev ekle"
+            modal
+            placement="center"
+            initialFocus="field"
+            onClose={() => setQuick(null)}
+            returnTo={quick}
+          >
             <QuickAdd />
             <button
               type="button"
-              className="quick-dump-entry"
-              aria-label="Kafamı boşalt"
+              className="quick-dump-entry r2-quiet-link"
               onClick={() => {
                 const from = quick;
                 setQuick(null);
                 setDump(from);
               }}
             >
-              <span className="quick-dump-icon">
-                <ListPlus size={20} aria-hidden="true" />
-              </span>
-              <span className="quick-dump-copy">
-                <strong>Kafamı boşalt</strong>
-                <span>Aklındaki işleri alt alta yaz, birlikte ekle.</span>
-              </span>
-              <ChevronRight className="quick-dump-arrow" size={18} aria-hidden="true" />
+              <ListPlus size={16} aria-hidden="true" />
+              Çoklu görev
             </button>
           </Surface>
         </Suspense>
@@ -219,11 +219,18 @@ function ShellFrame({ children, player }: { children: React.ReactNode; player?: 
         </Suspense>
       )}
       {dump && (
-        <Surface title="Kafamı boşalt" modal initialFocus="field" onClose={() => setDump(null)} returnTo={dump}>
-          <Suspense fallback={<p role="status">Açılıyor…</p>}>
+        <Suspense fallback={<p role="status">Açılıyor…</p>}>
+          <Surface
+            title="Çoklu görev"
+            modal
+            placement="center"
+            initialFocus="field"
+            onClose={() => setDump(null)}
+            returnTo={dump}
+          >
             <BrainDump />
-          </Suspense>
-        </Surface>
+          </Surface>
+        </Suspense>
       )}
       {settings && (
         <Suspense fallback={null}>

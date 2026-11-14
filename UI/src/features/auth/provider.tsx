@@ -5,12 +5,27 @@ import { createSession, INITIAL_SESSION, type Session } from "./session";
 import { prepareTraversalGuard } from "../../lib/navigation/traversal";
 import { getRecipient, clearRecipient } from "../../../public/recipient-store.js";
 import { rememberLogout } from "./logout-notice";
+import { clearNativeTimer } from "../work/native-timer";
 
 prepareTraversalGuard();
 
 const Context = createContext<Session | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session] = useState(() => createSession({ storage: () => window.localStorage, onLogout: rememberLogout }));
+  useEffect(() => {
+    const clear = () => {
+      clearNativeTimer("");
+    };
+    const unsubscribeIdentity = session.onIdentityChange(clear);
+    const unsubscribe = session.subscribe(() => {
+      const next = session.getSnapshot();
+      if (next.phase === "anonymous" || next.phase === "unavailable") clear();
+    });
+    return () => {
+      unsubscribeIdentity();
+      unsubscribe();
+    };
+  }, [session]);
   useEffect(() => {
     // Başlangıç doğrulanmadıysa eski push alıcısını da kapatıyoruz.
     const clearUnverified = () => {

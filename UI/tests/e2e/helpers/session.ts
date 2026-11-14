@@ -34,7 +34,7 @@ const persistent = () => Math.floor(Date.now() / 1000) + 400 * 86_400;
 async function browserToken(token: string) {
   const account = credentialsFor(token);
   if (!account) return token;
-  const api = await request.newContext({ baseURL: "http://127.0.0.1:5182" });
+  const api = await request.newContext({ baseURL: process.env.UI_E2E_SETUP_URL ?? "http://127.0.0.1:5182" });
   try {
     const response = await api.post("/api/auth/login", { data: account });
     if (response.status() !== 200) throw new Error(`Fixture browser sign-in failed: ${response.status()}`);

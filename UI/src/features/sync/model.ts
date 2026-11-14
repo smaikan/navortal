@@ -21,6 +21,7 @@ export const resources = {
     "task-classification",
     "task-detail",
     "collection-workload",
+    "collections",
     "collection-task-tree",
     "plan-allocation",
     "task-time",
@@ -78,6 +79,9 @@ export const resources = {
     "revision-changes",
   ],
   WorkChanged: [
+    "collections",
+    "collection-workload",
+    "collection-task-tree",
     "day-overview",
     "day-signals",
     "task",
@@ -135,6 +139,7 @@ export const resources = {
     "plan-glance",
   ],
   RecurrenceChanged: [
+    "collections",
     "recurrence",
     "recurrence-projection",
     "day-overview",

@@ -17,13 +17,19 @@ export function CalendarFields({
     <>
       <section className="preferences-section" aria-labelledby="weekly-title">
         <h2 id="weekly-title">Haftalık çalışma saatleri</h2>
+        <p className="muted form-hint">
+          Haftalık saat tanımlamazsan günün tamamı kullanılabilir kabul edilir. Tarih istisnaları ve çalışma dışı özel
+          günler geçerlidir.
+        </p>
         <div className="hours-week">
           {weekOrder.map(day => {
             const items = draft.weekly.filter(item => item.dayOfWeek === day);
             return (
               <fieldset className="hours-day" key={day}>
                 <legend>{days[day]}</legend>
-                {!items.length && <p className="muted">Saat belirlenmedi</p>}
+                {!items.length && (
+                  <p className="muted">{draft.weekly.length ? "Çalışma yok" : "Tüm gün (varsayılan)"}</p>
+                )}
                 {items.map((item, i) => (
                   <RangeFields
                     key={item.id}

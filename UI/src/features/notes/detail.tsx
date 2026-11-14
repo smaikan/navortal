@@ -73,19 +73,33 @@ export function NoteDetail({
         />
       ) : (
         <div className="note-detail">
-          <div className="note-detail-head">
-            <span className="note-meta">
+          {(category || note.display === "Short") && (
+            <div className="note-meta">
               <CategoryBadge category={category} />
               {note.display === "Short" && <span>Kısa not</span>}
-            </span>
+            </div>
+          )}
+          <div className="note-detail-head">
+            <p className="note-detail-dates">
+              Güncellendi: {stamp(note.updatedAt, zone)} · Oluşturuldu: {stamp(note.createdAt, zone)}
+              {due && ` · Tarih: ${due}`}
+            </p>
             <Menu
               label="Not işlemleri"
               floating
               items={[
                 { label: "Düzenle", onSelect: () => setEditing(true) },
-                note.convertedTaskId
-                  ? { label: "Dönüştürülen görevi aç", onSelect: t => openTask(note.convertedTaskId!, t) }
-                  : { label: "Göreve dönüştür", onSelect: t => setConvert(t) },
+                // Yalnız kısa notlar göreve dönüştürülür; ayrıntılı notlarda seçenek yok. Önceden dönüştürülmüşse görev bağlantısı kalır.
+                ...(note.convertedTaskId
+                  ? [
+                      {
+                        label: "Dönüştürülen görevi aç",
+                        onSelect: (t: HTMLElement) => openTask(note.convertedTaskId!, t),
+                      },
+                    ]
+                  : note.display === "Short"
+                    ? [{ label: "Göreve dönüştür", onSelect: (t: HTMLElement) => setConvert(t) }]
+                    : []),
                 {
                   label: "Sil",
                   danger: true,
@@ -98,10 +112,6 @@ export function NoteDetail({
               ]}
             />
           </div>
-          <p className="note-detail-dates">
-            Güncellendi: {stamp(note.updatedAt, zone)} · Oluşturuldu: {stamp(note.createdAt, zone)}
-            {due && ` · Tarih: ${due}`}
-          </p>
           {note.taskId && (
             <button type="button" className="note-task-link" onClick={e => openTask(note.taskId!, e.currentTarget)}>
               <Link2 aria-hidden="true" size={12} />

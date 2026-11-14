@@ -20,7 +20,9 @@
     "test:e2e": "python tools/run-e2e.py",
     "test:browsers": "node tools/install-browsers.mjs",
     "api:generate": "npm --prefix tools/api-types run generate",
-    "api:check": "npm --prefix tools/api-types run check"
+    "api:check": "npm --prefix tools/api-types run check",
+    "check:browser-syntax": "node tools/check-browser-syntax.mjs",
+    "postbuild": "npm run check:browser-syntax"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",
@@ -40,6 +42,7 @@
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "acorn": "8.19.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.2",
     "prettier": "3.9.10",
@@ -51,5 +54,12 @@
     "@typescript-eslint/typescript-estree": {
       "minimatch": "11.0.1"
     }
-  }
+  },
+  "browserslist": [
+    "chrome >= 90",
+    "safari >= 14",
+    "ios_saf >= 14",
+    "firefox >= 88",
+    "edge >= 90"
+  ]
 }

@@ -26,7 +26,7 @@ export function dumpLines(text: string) {
   return { titles: titles.slice(0, dumpLimit), skipped, over: Math.max(0, titles.length - dumpLimit) };
 }
 
-/** Kafamı boşalt satırları tek atomik istekte kök görevlere çevirir. Kayıp yanıtta yalnız aynı anahtar/gövde denenir. Sunucu onaylayana kadar metin kalır. */
+/** Çoklu görev satırları tek atomik istekte kök görevlere çevirir. Kayıp yanıtta yalnız aynı anahtar/gövde denenir. Sunucu onaylayana kadar metin kalır. */
 export function BrainDump({ done }: { done?: () => void }) {
   const { session, state } = useSession();
   const client = useQueryClient();

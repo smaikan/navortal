@@ -61,6 +61,20 @@ const instant = (v: unknown) => {
 function invalid(): never {
   throw new ApiError("protocol", "Bildirim yanıtı eksik veya geçersiz. Yeniden yükle.");
 }
+export type DeliveryStatus = components["schemas"]["NotificationDeliveryStatus"];
+export function readDeliveryStatus(value: DeliveryStatus): DeliveryStatus {
+  if (
+    !value ||
+    typeof value.snoozeCount !== "number" ||
+    !Number.isSafeInteger(value.snoozeCount) ||
+    value.snoozeCount < 0 ||
+    ![value.preparedAt, value.providerAcceptedAt, value.clientDisplayedAt, value.clientOpenedAt, value.readAt].every(
+      v => v === null || instant(v),
+    )
+  )
+    invalid();
+  return value;
+}
 export function readNotification(n: Notification, expectedId?: string): Notification {
   if (
     !n ||

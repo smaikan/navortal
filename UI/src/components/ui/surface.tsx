@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { X } from "lucide-react";
 
 type Props = {
@@ -12,6 +12,8 @@ type Props = {
   children: React.ReactNode;
   initialFocus?: "heading" | "field";
   keepOpenOn?: string;
+  /** Telefonda alttan açılan veya tam ekran pencere, içerik verisi gelene kadar açılmaz; boş açılıp sonradan dolmasın. En fazla holdMax kadar bekler. */
+  pending?: boolean;
   /** center tek şeyi okumak veya düzenlemek için ortadaki pencere. center-wide bölümlü geniş pencere (Ayarlar). confirm tek kararlık küçük pencere, telefonda da ortada. Varsayılan sağ panel telefonda alttan açılıyor. full uzun görev düzenleyicisini telefonda tam ekran tutuyor. */
   placement?: "side" | "center" | "center-wide" | "confirm" | "full";
 };
@@ -28,8 +30,17 @@ export function surfaceClass(placement: keyof typeof placementClass) {
 }
 const sheetSelector = ".modal-surface:not(.modal-center, .modal-full, .modal-confirm)";
 const sheetDuration = 120;
+const holdMax = 600;
 const dragCloseDistance = 80;
 const dragCloseSpeed = 0.5;
+/** Telefonda açılış beklemesi yalnız alttan açılan ve tam ekran pencerelerde geçerli. */
+function canHold(placement: string) {
+  return (
+    typeof window !== "undefined" &&
+    (placement === "side" || placement === "full") &&
+    window.matchMedia("(max-width: 767px)").matches
+  );
+}
 /** Telefonda alttan açılan pencere mi? Görünüm CSS'teki aynı seçici ve kırılımla belirleniyor. */
 function isSheet(element: HTMLElement | null): element is HTMLElement {
   return !!element?.matches(sheetSelector) && window.matchMedia("(max-width: 767px)").matches;
@@ -73,8 +84,20 @@ export function Surface({
   children,
   initialFocus = "heading",
   keepOpenOn,
+  pending = false,
   placement = "side",
 }: Props) {
+  // Bekleme kararı ilk çizimde sabitleniyor; sonradan gelen pending değişimi açık pencereyi kapatmaz.
+  const [holdable] = useState(() => modal && canHold(placement));
+  const [released, setReleased] = useState(false);
+  const waiting = holdable && pending && !released;
+  // Bir kez açıldıktan sonra pending yeniden true olsa da pencere kapanıp beklemeye dönmez.
+  if (!waiting && !released) setReleased(true);
+  useEffect(() => {
+    if (!waiting) return;
+    const timer = window.setTimeout(() => setReleased(true), holdMax);
+    return () => window.clearTimeout(timer);
+  }, [waiting]);
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const closing = useRef(false);
@@ -208,6 +231,7 @@ export function Surface({
     };
   }, [keepOpenOn, modal, requestClose]);
   useEffect(() => {
+    if (waiting) return;
     const element = dialog.current;
     // Ekran boyutu yüzünden aside yerine dialog geldiğinde daha sonra açılan pencere
     // düzenleme odağını zaten almış olabilir. Yeni ana pencerenin üstünde kalsın.
@@ -284,7 +308,7 @@ export function Surface({
         target?.focus({ preventScroll: true });
       });
     };
-  }, [modal, returnTo, initialFocus]);
+  }, [modal, returnTo, initialFocus, waiting]);
   const content = (
     <>
       <header className="surface-header">

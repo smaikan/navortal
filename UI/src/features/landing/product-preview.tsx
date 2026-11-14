@@ -172,8 +172,8 @@ export function ProductPreview() {
                 aria-labelledby={id + "-tab-" + index}
                 hidden={selected !== index}
                 tabIndex={0}
-                // Rutin listesi pencereden uzun; bu sahne kendi içinde kayar.
-                className={styles.scene + (index === 5 ? " " + styles.sceneScroll : "")}
+                // Analizde yalnızca önizleme penceresine sığan bölüm gösterilir.
+                className={styles.scene + (index === 5 ? " " + styles.sceneClipped : "")}
               >
                 {scene}
               </div>

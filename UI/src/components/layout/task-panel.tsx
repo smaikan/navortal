@@ -195,7 +195,7 @@ export function TaskPanelProvider({ children, after }: { children: React.ReactNo
     if (!allow()) return false;
     navigateClose();
   }
-  const surface = (content: React.ReactNode) => (
+  const surface = (content: React.ReactNode, pending = false) => (
     <Surface
       title="Görev ayrıntısı"
       modal={!wide}
@@ -203,6 +203,7 @@ export function TaskPanelProvider({ children, after }: { children: React.ReactNo
       onClose={close}
       returnTo={returnTo}
       keepOpenOn="[data-task-panel-target]"
+      pending={pending}
     >
       {content}
     </Surface>
@@ -221,7 +222,7 @@ export function TaskPanelProvider({ children, after }: { children: React.ReactNo
               <CurrentTaskContext value={visible ? selected : null}>{children}</CurrentTaskContext>
               {visible &&
                 (validTaskId(selected) ? (
-                  <Suspense fallback={surface(<p role="status">Görev okunuyor…</p>)}>
+                  <Suspense fallback={surface(<p role="status">Görev okunuyor…</p>, true)}>
                     <TaskDetail key={selected} id={selected} surface={surface} />
                   </Suspense>
                 ) : (

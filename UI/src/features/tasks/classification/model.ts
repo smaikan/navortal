@@ -105,6 +105,7 @@ export function classificationFailure(error: unknown) {
     return "Kaydın sonucu alınamadı. Sınıflandırma kaydedilmiş olabilir; otomatik tekrar gönderilmedi. Güncel sınıflandırmayı kontrol et.";
   if (error instanceof ApiError) {
     const messages: Record<string, string> = {
+      membership_changed: "Görev artık bu bölümde değil. Liste yenilendi; güncel durumu kontrol et.",
       version_conflict: "Görev başka bir yerde değişti. Seçimlerin korundu; güncel sınıflandırmayı kontrol et.",
       planning_version_conflict:
         "Alt görevler veya planın başka bir yerde değişti. Seçimlerin korundu; alt görevlere uygulamadan önce güncel durumu kontrol et.",

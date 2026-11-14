@@ -7,6 +7,7 @@ import { readEnvelope } from "../../../public/push-protocol.js";
 import { clearRecipient, setRecipient } from "../../../public/recipient-store.js";
 import { claimAlertSound } from "../notifications/alert-claims";
 import { alertAudio } from "../notifications/alert-audio";
+import { clearReceipts, flushReceipts } from "../../../public/delivery-receipts.js";
 
 /** Yalnız doğrulanmış çalışma alanında açılır. Worker kaydetmez veya izin istemez. */
 export function PushBridge() {
@@ -47,6 +48,7 @@ export function PushBridge() {
         const r = await navigator.serviceWorker.getRegistration("/");
         if (r?.active && current()) {
           await setRecipient(owner, generation, current);
+          if (current()) void flushReceipts(owner, current);
           if (current()) notificationPatch(r);
           // Yerel abonelik yalnız kullanıcı açtıktan sonra okunur. Bazı tarayıcılar izinden önce bunu bitiremiyor.
           if ("PushManager" in window && "Notification" in window && Notification.permission === "granted") {
@@ -61,6 +63,7 @@ export function PushBridge() {
     const unsubscribe = session.onIdentityChange(() => {
       // Çevrimdışı çıkışta da kalıcı alıcı hemen silinir. Karşılaştırıp silme yeni hesabı korur.
       void clearRecipient(owner, generation, () => session.getSnapshot().phase !== "authenticated").catch(() => {});
+      void clearReceipts(owner);
       const oldSubscription = ownedSubscription;
       void oldSubscription?.unsubscribe().catch(() => {});
       const message = { kind: "CLEAR_RECIPIENT", owner, generation };
@@ -103,6 +106,11 @@ export function PushBridge() {
         void client.invalidateQueries({ queryKey: queryKeys.resource(owner, name).slice(0, 3) });
     };
     void synchronize();
+    const retryReceipts = () => {
+      if (current()) void flushReceipts(owner, current);
+    };
+    window.addEventListener("online", retryReceipts);
+    document.addEventListener("visibilitychange", retryReceipts);
     navigator.serviceWorker.addEventListener("controllerchange", synchronize);
     navigator.serviceWorker.addEventListener("message", message);
     window.addEventListener("planner-push-registered", synchronize);
@@ -112,6 +120,8 @@ export function PushBridge() {
       unsubscribe();
       navigator.serviceWorker.removeEventListener("controllerchange", synchronize);
       navigator.serviceWorker.removeEventListener("message", message);
+      window.removeEventListener("online", retryReceipts);
+      document.removeEventListener("visibilitychange", retryReceipts);
       window.removeEventListener("planner-push-registered", synchronize);
     };
   }, [session, owner, client]);

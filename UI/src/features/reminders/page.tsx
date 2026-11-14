@@ -1,6 +1,6 @@
 "use client";
 import { lazy, Suspense, useState } from "react";
-import { Plus, RotateCw } from "lucide-react";
+import { Bell, Clock3, Plus, Repeat, RotateCw } from "lucide-react";
 import { Menu } from "../../components/ui/menu";
 import { useDisplayPreferences } from "../workspace/queries";
 import { stamp } from "../notifications/model";
@@ -8,9 +8,15 @@ import { pageSize, reminderFailure, repeatLabel, type Reminder } from "./model";
 import { useReminderCache, useReminders } from "./queries";
 import { ReminderSection } from "./section";
 import { LinkedNotification } from "../notifications/linked-detail";
+import { useSession } from "../auth/provider";
+import { ReminderPushNudge } from "../push/reminder-nudge";
 const Dialog = lazy(() => import("./dialog").then(m => ({ default: m.ReminderDialog })));
 import "./styles.css";
 export function RemindersPage() {
+  const { session, state } = useSession();
+  const owner = state.user!.id,
+    epoch = session.getIdentity().epoch;
+  const [offerPush, setOfferPush] = useState<{ owner: string; epoch: number; intent: string } | null>(null);
   const [action, setAction] = useState<{
     action: "create" | "edit" | "cancel";
     reminder?: Reminder;
@@ -50,6 +56,9 @@ export function RemindersPage() {
       }
     >
       <LinkedNotification />
+      {offerPush?.owner === owner && offerPush.epoch === epoch && (
+        <ReminderPushNudge key={`${owner}:${epoch}:${offerPush.intent}`} />
+      )}
       {prefs.isError && (
         <p role="alert">
           Tercihler okunamadı.<button onClick={() => void prefs.refetch()}>Tercihleri yeniden oku</button>
@@ -59,11 +68,32 @@ export function RemindersPage() {
       {query.isError && <p role="alert">{reminderFailure(query.error)}</p>}
       {items && (
         <>
-          <ul className="reminders-list" aria-label="Özel hatırlatmalar">
+          <ul className="reminders-list" aria-label="Özel hatırlatmalar" hidden={!items.length}>
             {items.map((r, index) => (
               <li key={r.id} data-reminder-id={r.id}>
                 <div className="reminder-copy">
-                  <h2>{r.title}</h2>
+                  <h2>
+                    {r.canceled ? (
+                      r.title
+                    ) : (
+                      // Satırın her yerine basınca düzenleme açılır; düğme satırı kaplar, menü üstte kalır.
+                      <button
+                        type="button"
+                        className="row-open"
+                        disabled={!prefs.data}
+                        onClick={e =>
+                          setAction({
+                            action: "edit",
+                            reminder: r,
+                            trigger: e.currentTarget,
+                            offset: Math.floor(index / pageSize) * pageSize,
+                          })
+                        }
+                      >
+                        {r.title}
+                      </button>
+                    )}
+                  </h2>
                   <p>
                     <time dateTime={r.dueAt}>{stamp(r.dueAt, prefs.data?.values.timeZoneId ?? "Europe/Istanbul")}</time>
                   </p>
@@ -102,7 +132,22 @@ export function RemindersPage() {
               </li>
             ))}
           </ul>
-          {!items.length && <p>Aktif hatırlatma yok.</p>}
+          {!items.length && (
+            <div className="reminder-empty">
+              <span className="reminder-empty-marks" aria-hidden="true">
+                {[Bell, Clock3, Repeat].map(Icon => (
+                  <span key={Icon.displayName} className="reminder-empty-mark">
+                    <Icon size={15} />
+                  </span>
+                ))}
+              </span>
+              <h2>Aktif hatırlatma yok.</h2>
+              <p className="muted">
+                Hatırlamak istediğin işler için tarih ve saat belirle. Tek seferlik veya seçtiğin günlerde tekrarlayan
+                hatırlatmalar oluştur.
+              </p>
+            </div>
+          )}
           {!!items.length && (
             <p className="reminder-list-count">
               {items.length} hatırlatma{query.hasNextPage ? " gösteriliyor" : ""}
@@ -117,7 +162,12 @@ export function RemindersPage() {
       )}
       {action && prefs.data && (
         <Suspense fallback={<p role="status">Hatırlatma formu açılıyor…</p>}>
-          <Dialog {...action} zone={prefs.data.values.timeZoneId} close={() => setAction(null)} />
+          <Dialog
+            {...action}
+            zone={prefs.data.values.timeZoneId}
+            close={() => setAction(null)}
+            onCreated={() => setOfferPush({ owner, epoch, intent: crypto.randomUUID() })}
+          />
         </Suspense>
       )}
     </ReminderSection>

@@ -20,6 +20,7 @@ export function AccountSection({ onDirty }: { onDirty?: (dirty: boolean) => void
   });
   const [confirm, setConfirm] = useState<HTMLButtonElement | null>(null);
   const [busy, setBusy] = useState(false);
+  const [passwordCreated, setPasswordCreated] = useState(false);
   if (!state.user) return null;
   return (
     <section className="preferences-section account-section" aria-labelledby="account-heading">
@@ -69,15 +70,22 @@ export function AccountSection({ onDirty }: { onDirty?: (dirty: boolean) => void
           </>
         )}
       </section>
-      {profile.data?.hasPassword && (
-        <PasswordChange
-          key={`${state.user.id}:${session.getIdentity().epoch}`}
-          owner={state.user.id}
-          onDirty={onDirty}
-        />
+      {passwordCreated && (
+        <p role="status" className="account-password-success">
+          Şifren oluşturuldu. Artık e-posta ve şifrenle de giriş yapabilirsin. Diğer cihazlardaki oturumların kapatıldı.
+        </p>
       )}
-      {profile.data && !profile.data.hasPassword && (
-        <p className="muted account-password-note">Bu hesaba Google ile giriş yapıyorsun. Parola tanımlı değil.</p>
+      {profile.data && (profile.data.hasPassword || profile.data.googleLinked) && (
+        <PasswordChange
+          key={`${state.user.id}:${session.getIdentity().epoch}:${!!profile.data.hasPassword}`}
+          owner={state.user.id}
+          mode={profile.data.hasPassword ? "change" : "create"}
+          onDirty={onDirty}
+          onCreated={() => {
+            setPasswordCreated(true);
+            void client.invalidateQueries({ queryKey: queryKeys.resource(state.user!.id, "profile") });
+          }}
+        />
       )}
       <div className="account-sessions">
         <h3>Oturumlar</h3>

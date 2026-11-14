@@ -25,6 +25,7 @@ type Switch = keyof Pick<
   | "breakEnd"
   | "returnToTask"
   | "custom"
+  | "specialDay"
   | "soundEnabled"
 >;
 const rows: [Switch, string][] = [
@@ -35,6 +36,7 @@ const rows: [Switch, string][] = [
   ["breakEnd", "Mola bitince"],
   ["returnToTask", "İşe dönmeyi hatırlat"],
   ["custom", "Kendi hatırlatmalarım"],
+  ["specialDay", "Özel günler"],
   ["soundEnabled", "Bildirim sesi"],
 ];
 const minuteChoices = (values: number[], current: number) => [...new Set([...values, current])].sort((a, b) => a - b);
@@ -221,7 +223,7 @@ function Form({ initial, onDirty }: { initial: Preferences; onDirty?: (dirty: bo
                   >
                     {minuteChoices([0, 300, 600, 900, 1800], lead).map(v => (
                       <option key={v} value={v}>
-                        {v === 0 ? "Başlarken" : `${minutesText(v)} önce`}
+                        {v === 0 ? "Tam zamanında" : `${minutesText(v)} önce`}
                       </option>
                     ))}
                   </select>
@@ -253,6 +255,9 @@ function Form({ initial, onDirty }: { initial: Preferences; onDirty?: (dirty: bo
             </li>
           ))}
         </ul>
+        <p className="r2-hint">
+          Önceden haber verme süresi plan başlangıcı, plan bitişi ve son teslim bildirimlerine uygulanır.
+        </p>
       </section>
       <SoundCheck settings={draft} disabled={blocked} change={(key, sound) => void save({ ...draft, [key]: sound })} />
       <section aria-labelledby={`${id}-calm`} className="r2-calm">

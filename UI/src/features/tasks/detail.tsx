@@ -5,7 +5,13 @@ import { taskFailure } from "./model";
 import { useDisplayPreferences } from "../workspace/queries";
 import { TaskEditor } from "./editor";
 
-export function TaskDetail({ id, surface }: { id: string; surface: (content: React.ReactNode) => React.ReactNode }) {
+export function TaskDetail({
+  id,
+  surface,
+}: {
+  id: string;
+  surface: (content: React.ReactNode, pending?: boolean) => React.ReactNode;
+}) {
   const task = useTaskDetail(id);
   const preferences = useDisplayPreferences();
   if (task.isError && !task.data)
@@ -22,7 +28,7 @@ export function TaskDetail({ id, surface }: { id: string; surface: (content: Rea
         <button onClick={() => void preferences.refetch()}>Tercihleri yeniden yükle</button>
       </div>,
     );
-  if (!task.data || !preferences.data) return surface(<p role="status">Görev okunuyor…</p>);
+  if (!task.data || !preferences.data) return surface(<p role="status">Görev okunuyor…</p>, true);
   return (
     <TaskReadContext.Provider
       value={{

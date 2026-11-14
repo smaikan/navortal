@@ -82,7 +82,7 @@ export function CommandPalette({
     };
     const actions: Command[] = [
       { id: "new", group: "Eylemler", label: "Yeni görev", hint: "N", run: t => (close(), quickAdd(t)) },
-      { id: "dump", group: "Eylemler", label: "Kafamı boşalt", run: t => (close(), brainDump(t)) },
+      { id: "dump", group: "Eylemler", label: "Çoklu görev", run: t => (close(), brainDump(t)) },
       { id: "add-today", group: "Eylemler", label: "Bugüne görev ekle", run: go("/planning#plana-ekle") },
       { id: "focus", group: "Eylemler", label: "Pomodoro başlat", run: go("/focus") },
     ];

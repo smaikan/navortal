@@ -19,7 +19,8 @@ export class FocusFixture {
     readonly token: string,
   ) {}
   static async create() {
-    const c = await request.newContext({ baseURL: "http://127.0.0.1:5182" });
+    const setupHost = process.env.UI_E2E_SETUP_URL ?? "http://127.0.0.1:5182";
+    const c = await request.newContext({ baseURL: setupHost });
     const r = await registerFixture(c, "/api/auth/register", {
       data: { email: `focus-controls-${randomUUID()}@example.test`, password: randomUUID() },
     });
@@ -28,7 +29,7 @@ export class FocusFixture {
     await c.dispose();
     return new FocusFixture(
       await request.newContext({
-        baseURL: "http://127.0.0.1:5182",
+        baseURL: setupHost,
         extraHTTPHeaders: { Authorization: `Bearer ${token}` },
       }),
       token,

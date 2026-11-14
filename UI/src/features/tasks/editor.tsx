@@ -44,7 +44,7 @@ export function TaskEditor({
 }: {
   initial: Task;
   zone: string;
-  surface: (content: React.ReactNode) => React.ReactNode;
+  surface: (content: React.ReactNode, pending?: boolean) => React.ReactNode;
 }) {
   const [zone] = useState(currentZone);
   const id = useId();

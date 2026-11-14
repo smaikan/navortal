@@ -168,12 +168,12 @@ function Library({ zone, list }: { zone: string; list: CategoryList }) {
   const menu = (note: Note): MenuItem[] => {
     const items: MenuItem[] = [{ label: "Düzenle", onSelect: t => open(note, t, true) }];
     if (note.taskId) items.push({ label: "İlgili görevi aç", onSelect: t => openTask(note.taskId!, t) });
-    items.push(
-      note.convertedTaskId
-        ? { label: "Dönüştürülen görevi aç", onSelect: t => openTask(note.convertedTaskId!, t) }
-        : { label: "Göreve dönüştür", onSelect: t => setConvert({ note, trigger: t }) },
-      { label: "Sil", danger: true, separator: true, onSelect: () => void remove(note) },
-    );
+    // Yalnız kısa notlar göreve dönüştürülür; ayrıntılı notlarda seçenek yok. Önceden dönüştürülmüşse görev bağlantısı kalır.
+    if (note.convertedTaskId)
+      items.push({ label: "Dönüştürülen görevi aç", onSelect: t => openTask(note.convertedTaskId!, t) });
+    else if (note.display === "Short")
+      items.push({ label: "Göreve dönüştür", onSelect: t => setConvert({ note, trigger: t }) });
+    items.push({ label: "Sil", danger: true, separator: true, onSelect: () => void remove(note) });
     return items;
   };
   const bar = active.filter(c => c.showInBar || (view.kind === "category" && view.category.id === c.id));

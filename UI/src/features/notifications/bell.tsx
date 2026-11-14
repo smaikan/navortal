@@ -1,9 +1,24 @@
 "use client";
-import { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { lazy, Suspense, useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { subscribeTraversal } from "../../lib/navigation/traversal";
+import { consumeDismissalClick } from "./panel-dismissal";
 import { Bell } from "lucide-react";
 import { useOptionalWork } from "../work/coordinator";
-import { unreadIds, useNotificationBadge } from "./badge";
+import { useNotificationBadge } from "./badge";
+const mobileMedia = "(max-width: 767px), (max-width: 1024px) and (pointer: coarse)";
+const subscribeMobile = (notify: () => void) => {
+  const media = window.matchMedia(mobileMedia);
+  media.addEventListener("change", notify);
+  return () => media.removeEventListener("change", notify);
+};
+const isMobile = () => window.matchMedia(mobileMedia).matches;
+function inboxUrl(open: boolean) {
+  const url = new URL(location.href);
+  url.searchParams.delete("inbox");
+  if (open) url.searchParams.set("inbox", "open");
+  return url.pathname + url.search + url.hash;
+}
 const NotificationPanel = lazy(() => import("./panel").then(m => ({ default: m.NotificationPanel })));
 
 /** İlk ekran boşta kaldıktan sonra sayıyı okuyoruz, başlangıç isteklerine eklenmiyor. */
@@ -29,41 +44,82 @@ export function NotificationBell() {
   const work = useOptionalWork();
   const synced = !work || ["connected", "fallback", "paused"].includes(work.syncStatus);
   const badge = useNotificationBadge(useIdle(synced));
-  const [open, setOpen] = useState(false);
+  const [desktopOpen, setDesktopOpen] = useState(false);
+  const mobile = useSyncExternalStore(subscribeMobile, isMobile, () => false);
+  const search = useSearchParams();
+  const open = mobile ? search.get("inbox") === "open" : desktopOpen;
+  const closing = useRef(false);
+  const restoreFocus = useRef(false);
   const button = useRef<HTMLButtonElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const unread = unreadIds(badge.data ?? []);
-  const count = unread.length;
-  const close = (restoreFocus: boolean) => {
-    setOpen(false);
-    if (restoreFocus) button.current?.focus();
-  };
+  const count = badge.data?.unreadCount ?? 0;
+  const close = useCallback(
+    (focus: boolean, navigating = false) => {
+      if (mobile && navigating) return;
+      restoreFocus.current = focus;
+      if (mobile) {
+        if (closing.current) return;
+        if (history.state?.navortalInbox === inboxUrl(false)) {
+          closing.current = true;
+          history.back();
+        } else history.replaceState({}, "", inboxUrl(false));
+      } else setDesktopOpen(false);
+    },
+    [mobile],
+  );
+  function show() {
+    if (mobile) history.pushState({ navortalInbox: inboxUrl(false) }, "", inboxUrl(true));
+    else setDesktopOpen(true);
+  }
+  useEffect(() => {
+    if (open) return;
+    closing.current = false;
+    if (restoreFocus.current) {
+      restoreFocus.current = false;
+      button.current?.focus({ preventScroll: true });
+    }
+  }, [open]);
+  useEffect(() => {
+    if (!mobile || !open) return;
+    const base = inboxUrl(false);
+    return subscribeTraversal(event => {
+      // Yalnız panelin kendi geri kaydı; sayfa yönlendirmeleri normal davranır.
+      if (location.pathname + location.search + location.hash !== base) return;
+      event.stopImmediatePropagation();
+      restoreFocus.current = true;
+      history.replaceState({}, "", base);
+    }, 200);
+  }, [mobile, open]);
   // Bağlantıyla gezinme veya Geri/İleri paneli kapatıyor.
   const [shownAt, setShownAt] = useState(pathname);
   if (shownAt !== pathname) {
     setShownAt(pathname);
-    if (open) setOpen(false);
+    if (desktopOpen) setDesktopOpen(false);
   }
   useEffect(() => {
     if (!open) return;
     const outside = (event: PointerEvent) => {
       const target = event.target as Node;
-      if (wrap.current?.contains(target) || (target as Element).closest?.("[role=menu]")) return;
-      setOpen(false);
+      if (wrap.current?.contains(target) || (!mobile && (target as Element).closest?.("[role=menu]"))) return;
+      if (mobile) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        consumeDismissalClick();
+      }
+      close(mobile);
     };
     const escape = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented || document.querySelector("dialog[open]")) return;
-      setOpen(false);
-      button.current?.focus();
+      close(true);
     };
-    document.addEventListener("pointerdown", outside);
+    document.addEventListener("pointerdown", outside, true);
     document.addEventListener("keydown", escape);
     return () => {
-      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("pointerdown", outside, true);
       document.removeEventListener("keydown", escape);
     };
-  }, [open]);
+  }, [open, mobile, close]);
   const shown = count > 9 ? "9+" : String(count);
   return (
     <div className="bell" ref={wrap}>
@@ -74,7 +130,8 @@ export function NotificationBell() {
         aria-label={count ? `Bildirimler, ${count > 9 ? "9'dan fazla" : count} okunmamış` : "Bildirimler"}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => (open ? close(false) : setOpen(true))}
+        aria-controls={open ? id : undefined}
+        onClick={() => (open ? close(false) : show())}
       >
         <Bell aria-hidden="true" size={18} />
         {count > 0 && (

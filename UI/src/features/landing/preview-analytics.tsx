@@ -5,24 +5,6 @@ import styles from "./landing.module.css";
 
 /* Gerçek Analiz sayfasının işaretlemesi ve stilleri, uydurma verilerle. Veri okumaz, kontrol içermez. */
 
-function Header({ period = "Geçen hafta", range = "26 Eki – 1 Kas 2026" }: { period?: string; range?: string }) {
-  return (
-    <>
-      <p className={styles.sceneTitle}>Analiz</p>
-      <div className={report.picker}>
-        <div className={report.chips}>
-          {["Bu hafta", "Geçen hafta", "Bu ay", "Geçen ay", "Özel aralık"].map(label => (
-            <span key={label} className={report.chip} aria-current={label === period ? "page" : undefined}>
-              {label}
-            </span>
-          ))}
-        </div>
-        <p className={`muted ${report.range}`}>{range}</p>
-      </div>
-    </>
-  );
-}
-
 function Tile({ label, value, note }: { label: string; value: string; note: string }) {
   return (
     <div className={report.tile}>
@@ -107,13 +89,12 @@ const inPeriod = (index: number) => index >= 6 && index <= 10;
 export function RoutineAnalyticsScene() {
   return (
     <div className={report.page}>
-      <div>
-        <Header period="Geçen ay" range="1 Eki – 31 Eki 2026" />
-      </div>
       <section className={report.section}>
-        <h2>Rutinler</h2>
-        <p className={report.lead}>Geçen ay 7 rutinde 89 görevden 68 tanesi yapıldı. Önceki ay: 59/85.</p>
-        <div className={report.tiles}>
+        <h2 className={styles.routineOverview}>Rutinler</h2>
+        <p className={`${report.lead} ${styles.routineOverview}`}>
+          Geçen ay 7 rutinde 89 görevden 68 tanesi yapıldı. Önceki ay: 59/85.
+        </p>
+        <div className={`${report.tiles} ${styles.routineOverview}`}>
           <Tile label="Tutarlılık" value="%76" note="Önceki ay: %69" />
           <Tile label="Yapılan" value="68/89" note="9 tanesi sonradan" />
           <Tile label="Zamanında" value="59" note="Gününde bitirilen" />

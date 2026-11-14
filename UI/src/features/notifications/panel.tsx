@@ -47,7 +47,13 @@ const kindIcon: Record<keyof typeof kinds, { icon: LucideIcon; tone: string }> =
 };
 
 /** Panel açılınca mevcut sunucu listesini bir kere işaretliyoruz. Göstergeler doğrulanmış makbuz/readAt değerini izler. Sonradan gelenler, eski GET gelse bile okunmamış kalır. */
-export function NotificationPanel({ id, close }: { id: string; close: (restoreFocus: boolean) => void }) {
+export function NotificationPanel({
+  id,
+  close,
+}: {
+  id: string;
+  close: (restoreFocus: boolean, navigating?: boolean) => void;
+}) {
   const readOnOpen = useReadNotificationsOnOpen();
   const [offset, setOffset] = useState(0),
     [open, setOpen] = useState<string | null>(null);
@@ -132,7 +138,7 @@ export function NotificationPanel({ id, close }: { id: string; close: (restoreFo
                   expanded={open === n.id}
                   toggle={() => setOpen(open === n.id ? null : n.id)}
                   deliveryKey={deliveryKey(state.user!.id, n)}
-                  navigate={() => close(false)}
+                  navigate={() => close(false, true)}
                 />
               ))}
             </ul>
@@ -159,11 +165,11 @@ export function NotificationPanel({ id, close }: { id: string; close: (restoreFo
         )}
       </div>
       <footer className="bell-panel-foot">
-        <Link href="/reminders" prefetch={false} onClick={() => close(false)}>
+        <Link href="/reminders" prefetch={false} onClick={() => close(false, true)}>
           <AlarmClock aria-hidden="true" size={15} />
           Hatırlatmalar
         </Link>
-        <Link href="/reminders/preferences" prefetch={false} onClick={() => close(false)}>
+        <Link href="/reminders/preferences" prefetch={false} onClick={() => close(false, true)}>
           <SlidersHorizontal aria-hidden="true" size={15} />
           Bildirim tercihleri
         </Link>

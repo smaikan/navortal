@@ -25,6 +25,7 @@ export function dayFailure(error: unknown) {
     schedule_move_requires_intent:
       "Planlı bir saati gece yarısını geçecek şekilde değiştiremezsin. Öğeyi başka güne taşı veya bitişi gece yarısından önce seç.",
     schedule_range_invalid: "Saat aralığını kontrol et.",
+    schedule_protected: "Grubun sabit veya kilitli saatli bir öğesi var. Önce bu öğenin kilidini kaldır.",
   };
   if (error.code && messages[error.code]) return messages[error.code];
   if (error.status === 409) return "Plan başka bir yerde değişti. Güncel planı kontrol edip yeniden seç.";
@@ -167,16 +168,31 @@ export function useDayActions(date: string, zone: string) {
     remove(entry: Entry, title: string) {
       return run(entryId(entry), async () => {
         if (entry.kind === "item") {
-          readDayItem(
+          const removed = readDayItem(
             await session.api
               .mutation("/api/day-items/{id}/remove", "post", {
                 path: { id: entry.item.id },
-                body: { version: entry.item.version, completeTask: true },
+                body: { version: entry.item.version },
               })
               .execute(),
           );
-          const taskId = entry.item.taskId;
-          toast({ text: `Plandan kaldırıldı: ${title}`, action: { label: "Geri al", run: () => void add(taskId) } });
+          const changeSetId = removed.changeSetId;
+          if (!changeSetId) throw new ApiError("protocol", "Geri alma kaydı okunamadı. Güncel planı kontrol et.");
+          toast({
+            text: `Plandan kaldırıldı: ${title}`,
+            action: {
+              label: "Geri al",
+              run: () =>
+                void run(`undo:${changeSetId}`, async () => {
+                  const day = await fresh();
+                  await session.api
+                    .mutation("/api/day-items/undo", "post", {
+                      body: { changeSetId, expectedPlanningVersion: day.planningVersion },
+                    })
+                    .execute();
+                }),
+            },
+          });
         } else {
           const day = await fresh();
           readResult(

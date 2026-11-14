@@ -35,7 +35,7 @@ export function DeferredPanel<P extends object>({
   }, [load, attempt]);
   if (Component) return createElement(Component, props);
   return (
-    <Surface title={title} modal returnTo={trigger} onClose={close}>
+    <Surface title={title} modal pending={!failed} returnTo={trigger} onClose={close}>
       <p role={failed ? "alert" : "status"}>
         {failed
           ? "Form yüklenemedi. Bağlantını kontrol edip yeniden deneyebilirsin. Çalışma kaydın korunuyor."

@@ -85,7 +85,9 @@ export function DayItemUndo({ revision, day, lock }: { revision: Revision; day: 
           ? "Havuz işlemini geri alma"
           : revision.trigger === "Defer"
             ? "Ertelemeyi geri alma"
-            : "Saatsiz değişikliği geri alma"
+            : revision.trigger === "DayGroup"
+              ? "Görev grubunu geri alma"
+              : "Saatsiz değişikliği geri alma"
       }
       className="day-item-undo"
     >
@@ -101,7 +103,12 @@ export function DayItemUndo({ revision, day, lock }: { revision: Revision; day: 
           revizyonları korunur.
         </p>
       )}
-      {(revision.trigger === "Pool" || revision.trigger === "Defer") && revision.reversesChangeSetId ? (
+      {revision.trigger === "DayGroup" && (
+        <p>
+          Ana görev ve altındaki saatli/saatsiz plan öğeleri birlikte geri alınır. Görevler ve gerçek çalışma değişmez.
+        </p>
+      )}
+      {["Pool", "Defer", "DayGroup"].includes(revision.trigger) && revision.reversesChangeSetId ? (
         <p role="status">Bu kayıt işlemin geri alınmasıdır; yeni plan değişikliği ayrı bir karardır.</p>
       ) : done ? (
         <p role="status">Değişiklik geri alındı.</p>

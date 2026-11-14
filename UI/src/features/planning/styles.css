@@ -216,6 +216,50 @@
 .r2-option:hover {
   background: var(--primary-soft);
 }
+/* Seçici satırı: başlık | etiketler | "Planda" sütunu. "Planda" sütunu hep ayrılı; etiketlerin sağ kenarı her satırda aynı hizada. */
+.r2-option-rows {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content 4.5rem;
+  align-items: center;
+  column-gap: 8px;
+  min-height: 40px;
+  padding-block: 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--divider) 70%, transparent);
+}
+.r2-option-rows:last-child {
+  border-bottom: 0;
+}
+.r2-picker-tree-line .r2-option-rows {
+  border-bottom: 0;
+}
+.r2-option-rows .picker-facts {
+  justify-content: flex-end;
+}
+.r2-option-rows .r2-option-planned {
+  justify-self: end;
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--raised);
+  font-size: 11px;
+  line-height: 18px;
+}
+.r2-option-rows .r2-option-planned:empty {
+  display: none;
+}
+/* Planda olan görev seçilemez: soluk, imleç ve vurgu yok. Bilgi etiketleri okunur kalır. */
+.r2-option-rows[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+.r2-option-rows[aria-disabled="true"]:hover {
+  background: transparent;
+}
+.r2-option-rows[aria-disabled="true"] .r2-option-title,
+.r2-option-rows[aria-disabled="true"] .picker-facts {
+  opacity: 0.5;
+}
+.r2-option-title {
+  color: var(--muted);
+}
 .r2-option-title {
   min-width: 0;
   overflow: hidden;
@@ -701,8 +745,28 @@
   margin: 6px;
 }
 @media (max-width: 639px) {
+  /* Etiketler alt satıra inince başlık tavana, etiketler komşu satıra yapışmasın. */
   .r2-option {
     flex-wrap: wrap;
+    padding-block: 8px;
+    row-gap: 4px;
+  }
+  .r2-option-rows {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "title planned"
+      "facts facts";
+    row-gap: 4px;
+  }
+  .r2-option-rows .r2-option-title {
+    grid-area: title;
+  }
+  .r2-option-rows .picker-facts {
+    grid-area: facts;
+    justify-content: flex-start;
+  }
+  .r2-option-rows .r2-option-planned {
+    grid-area: planned;
   }
   .picker-facts {
     justify-content: flex-start;
@@ -730,6 +794,8 @@
   grid-column: 2;
   grid-row: 1;
   flex-wrap: wrap;
+  /* Min-yükseklikten kısa içerik (tek satır) veya çok satırlı yazı bloğu kutucukla aynı dikey ortada durur. */
+  align-content: center;
   row-gap: 2px;
   padding-block: 6px;
 }
@@ -988,11 +1054,31 @@
   flex: 1;
   min-width: 0;
 }
-.r2-picker-tree-line > button {
-  flex-shrink: 0;
-  padding: 2px;
+/* Seçicideki aç/kapa işareti kutusuz yalnız ok; satırlar arasında ince ayırıcı var. */
+.r2-picker-tree-line {
+  border-bottom: 1px solid color-mix(in srgb, var(--divider) 70%, transparent);
+}
+.r2-picker-tree-line:last-child {
+  border-bottom: 0;
+}
+.r2-picker-tree-line > .r2-picker-toggle,
+.r2-picker-tree-line > .r2-picker-spacer {
+  flex: none;
+  width: 24px;
   min-width: 24px;
+  padding: 0;
+}
+.r2-picker-tree-line > .r2-picker-toggle {
+  min-height: 0;
+  border: 0;
+  border-radius: 6px;
   background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+}
+.r2-picker-tree-line > .r2-picker-toggle:hover {
+  background: transparent;
+  color: var(--text);
 }
 .r2-picker-tree-line [aria-disabled="true"] {
   color: var(--muted);

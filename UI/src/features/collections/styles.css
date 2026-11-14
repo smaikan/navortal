@@ -245,9 +245,9 @@
 
 .resource-tree-children {
   list-style: none;
-  margin: 0 0 0 12px;
-  padding: 0 0 0 18px;
-  border-left: 1px solid var(--divider);
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 .resource-tree-children > li {
   border-top: 1px solid var(--divider);
@@ -271,4 +271,73 @@
   color: var(--muted);
   font-size: 14px;
   font-weight: 600;
+}
+
+/* Girinti her satırda derinliğe göre hesaplanır; dar ekranda uzun dallar taşmaz. */
+.resource-task-line {
+  position: relative;
+  gap: 2px;
+  padding-inline-start: min(calc(var(--resource-depth, 0) * 24px), 96px);
+}
+.resource-tree-children > li > .resource-task-line::before {
+  content: "";
+  position: absolute;
+  left: calc(min(var(--resource-depth, 0) * 24px, 96px) - 10px);
+  top: 0;
+  width: 9px;
+  height: 50%;
+  border-left: 1px solid var(--control);
+  border-bottom: 1px solid var(--control);
+  border-bottom-left-radius: 4px;
+}
+.resource-tree-spacer {
+  width: 24px;
+  flex: 0 0 24px;
+}
+.resource-task-context {
+  color: var(--muted);
+}
+.resource-task-line .task-row-title {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .resource-task-line {
+    padding-inline-start: min(calc(var(--resource-depth, 0) * 16px), 32px);
+  }
+  .resource-tree-children > li > .resource-task-line::before {
+    left: calc(min(var(--resource-depth, 0) * 16px, 32px) - 8px);
+    width: 7px;
+  }
+  .resource-task-line .resource-tree-toggle,
+  .resource-tree-spacer {
+    min-width: 16px;
+    width: 16px;
+    flex-basis: 16px;
+  }
+}
+
+/* Seçicinin planlama stilleri yüklense de bu satırların hedefleri küçülmez. */
+.resource-task-line > .r2-square-hit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  min-height: 44px;
+  margin: 0;
+  cursor: pointer;
+}
+.resource-task-line .r2-square {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--primary);
+}
+.resource-task-line > .resource-tree-toggle,
+.resource-task-line > .resource-tree-spacer {
+  flex: 0 0 32px;
+  min-width: 32px;
+  width: 32px;
+  min-height: 44px;
 }

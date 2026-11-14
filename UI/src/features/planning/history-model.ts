@@ -130,6 +130,7 @@ export const triggerLabel = (value: string) =>
       Undo: "Geri alma telafisi",
       TaskState: "Görev durumu değişikliği",
       DayItem: "Saatsiz plan değişikliği",
+      DayGroup: "Görev grubu değişikliği",
       Pool: "Havuzda bekletme",
       Defer: "Saati iptal ederek erteleme",
     }) as Record<string, string>

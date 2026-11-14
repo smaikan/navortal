@@ -274,11 +274,10 @@ button.mockNavActive:hover {
   }
 }
 /* Gerçek raporun geniş satır düzeni 820 px kutuda açılıyor; önizleme penceresine orantılı sığdırıyoruz.
-   Bütün rutinler listelenir; liste pencereden uzunsa sahne kendi içinde kayar. */
-.sceneScroll {
+   Pencereye sığan rutinler görünür; önizleme içinde kaydırma yapılmaz. */
+.sceneClipped {
   height: 100%;
-  overflow: hidden auto;
-  scrollbar-width: thin;
+  overflow: clip;
   container-type: inline-size;
 }
 /* 820 / 0,8 ve 820 / 0,75: liste pencerede tek satır düzenine sığdığı sürece küçültülür; daha darda alt alta kalır. */
@@ -1437,6 +1436,9 @@ button.mockNavActive:hover {
 
 /* Telefonda gerçek mobil kabuk: 52px üst çubuk, alt menü ve tek satır oynatıcı. */
 @media (max-width: 760px) {
+  .routineOverview {
+    display: none;
+  }
   .previewSection {
     padding: 0 16px;
   }

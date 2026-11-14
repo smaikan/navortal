@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "../auth/provider";
 import { queryKeys } from "../../lib/api/query-client";
-import { pageSize, readNotification, readPage, readPreferences } from "./model";
+import { pageSize, readDeliveryStatus, readNotification, readPage, readPreferences } from "./model";
 export function useNotifications(offset: number) {
   const { session, state } = useSession();
   return useQuery({
@@ -28,5 +28,14 @@ export function useNotificationPreferences() {
     networkMode: "always",
     queryFn: async ({ signal }) =>
       readPreferences(await session.api.read("/api/notifications/preferences", { signal })),
+  });
+}
+export function useNotificationDelivery(id: string) {
+  const { session, state } = useSession();
+  return useQuery({
+    queryKey: queryKeys.resource(state.user!.id, "notification", { id, kind: "delivery" }),
+    networkMode: "always",
+    queryFn: async ({ signal }) =>
+      readDeliveryStatus(await session.api.read("/api/notifications/{id}/delivery-status", { path: { id }, signal })),
   });
 }

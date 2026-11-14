@@ -210,7 +210,7 @@ export function PreferencesForm({ initial, onDirty }: { initial: Snapshot; onDir
                   </li>
                 ))}
               </ul>
-              {!latest.values.weekly.length && <p>Haftalık saat yok.</p>}
+              {!latest.values.weekly.length && <p>Haftalık saat yok; varsayılan olarak günün tamamı kullanılabilir.</p>}
               <ul>
                 {latest.values.exceptions.map(item => (
                   <li key={item.date}>

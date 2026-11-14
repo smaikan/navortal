@@ -6,6 +6,7 @@ import { useSession } from "../auth/provider";
 import { useNotificationCache } from "./cache";
 import type { components } from "../../lib/api/generated/schema";
 import { queryKeys } from "../../lib/api/query-client";
+import { notificationBadgeKey, readInboxSummary, type InboxSummary } from "./badge";
 
 type ReadReceipt = components["schemas"]["ReadAllNotificationsResult"];
 
@@ -32,6 +33,7 @@ export function useReadNotificationsOnOpen() {
     owner: string;
     epoch: number;
     promise: Promise<ReadReceipt>;
+    applied?: boolean;
   } | null>(null);
   const [issue, setIssue] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -43,8 +45,9 @@ export function useReadNotificationsOnOpen() {
         epoch,
         promise: session.api.mutation("/api/notifications/read-all", "post", {}).execute(),
       };
-    void request.current.promise
-      .then(result => {
+    const pending = request.current;
+    void pending.promise
+      .then(async result => {
         if (
           !latest.current.current() ||
           session.getIdentity().epoch !== epoch ||
@@ -58,6 +61,15 @@ export function useReadNotificationsOnOpen() {
         )
           throw new Error("Invalid read receipt");
         Temporal.Instant.from(result.readAt);
+        const summary = readInboxSummary(result.summary);
+        if (pending.applied || request.current !== pending) return;
+        pending.applied = true;
+        // Eski GET makbuzu ezemez. İyimser sayı yerine aynı transaction'ın sunucu özeti kullanılır.
+        await client.cancelQueries({ queryKey: notificationBadgeKey(owner), exact: true });
+        if (!latest.current.current()) return;
+        client.setQueryData<InboxSummary>(notificationBadgeKey(owner), previous =>
+          previous && Temporal.Instant.compare(previous.asOf, summary.asOf) > 0 ? previous : summary,
+        );
         client.setQueryData<ReadReceipt | null>(
           queryKeys.resource(owner, "notification-read-receipt", { epoch }),
           previous => (previous && Temporal.Instant.compare(previous.readAt, result.readAt) > 0 ? previous : result),

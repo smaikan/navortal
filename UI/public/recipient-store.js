@@ -2,9 +2,21 @@ const database = "adhd-push-recipient-v1";
 function open() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(database, 1);
-    request.onupgradeneeded = () => { const db = request.result; db.createObjectStore("context"); db.createObjectStore("seen").createIndex("at", "at"); };
-    request.onerror = () => reject(new Error("Push alıcı bağlamı açılamadı."));
-    request.onsuccess = () => resolve(request.result);
+    let settled = false;
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(Object.assign(new Error("Push alıcı bağlamı açılamadı."), { name: "PushStorageError" }));
+    };
+    const timer = setTimeout(fail, 1500);
+    request.onupgradeneeded = () => { if (settled) { request.transaction?.abort(); return; } const db = request.result; db.createObjectStore("context"); db.createObjectStore("seen").createIndex("at", "at"); };
+    request.onblocked = request.onerror = fail;
+    request.onsuccess = () => {
+      clearTimeout(timer);
+      if (settled) request.result.close();
+      else { settled = true; request.result.onversionchange = () => request.result.close(); resolve(request.result); }
+    };
   });
 }
 async function transaction(mode, action) {
@@ -28,5 +40,12 @@ export function claimDelivery(owner, key) { return transaction("readwrite", (con
       seen.put({ at: Date.now() }, key); done(true);
       const count = seen.count(); count.onsuccess = () => { let extra = count.result - 256; if (extra <= 0) return; const cursor = seen.index("at").openCursor(); cursor.onsuccess = () => { const value = cursor.result; if (value && extra-- > 0) { value.delete(); value.continue(); } }; };
     };
+  };
+}); }
+/** Native gösterim başarısızsa aynı olay sonraki teslimde yeniden denenebilir. */
+export function releaseDelivery(owner, key) { return transaction("readwrite", (context, seen, done) => {
+  const r = context.get("owner"); r.onsuccess = () => {
+    if (r.result !== owner) { done(false); return; }
+    seen.delete(key); done(true);
   };
 }); }

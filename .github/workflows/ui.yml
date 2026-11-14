@@ -61,6 +61,8 @@ jobs:
         run: |
           EVIDENCE_ROOT="$UI_EVIDENCE_DIR"
           UI_EVIDENCE_DIR="$EVIDENCE_ROOT/chromium-mobile" python -B tools/run-e2e.py --project chromium --project mobile-chromium
+      - name: ES2021 production bundle syntax
+        run: npm run check:browser-syntax -- .local/next-e2e
       - name: WebKit critical journeys
         run: |
           EVIDENCE_ROOT="$UI_EVIDENCE_DIR"

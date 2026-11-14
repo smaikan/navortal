@@ -17,22 +17,12 @@ const rows: { key: SoundKey; label: string; detail: string }[] = [
   { key: "taskEndSound", label: "Görev süresi bitimi", detail: "Planlanan çalışma süresi dolduğunda" },
 ];
 
-export function SoundCheck({
-  settings,
-  disabled,
-  change,
-}: {
-  settings: Settings;
-  disabled: boolean;
-  change: (key: SoundKey, sound: AlertSound) => void;
-}) {
-  const id = useId();
-  const status = useSyncExternalStore(alertAudio.subscribe, alertAudio.getSnapshot, () => "locked");
-  const issue = useSyncExternalStore(alertHealth.subscribe, alertHealth.getSnapshot, () => "");
+/** Ses denemesi: melodiler üst üste binmesin diye kısa süre yeni deneme kilitlenir. */
+export function useSoundPreview() {
   const [message, setMessage] = useState("");
   const [previewing, setPreviewing] = useState(false);
   const preview = useRef(false);
-  async function testSound(sound: AlertSound, label: string) {
+  async function test(sound: AlertSound, label: string) {
     if (preview.current) return;
     preview.current = true;
     setPreviewing(true);
@@ -53,6 +43,77 @@ export function SoundCheck({
       }, 1400);
     }
   }
+  return { message, previewing, test };
+}
+
+/** Ses seçici, "Sesi dene" düğmesi ve ses açıklaması. Hem olay sesleri hem uygulama sesi bölümü kullanır. */
+export function SoundSelect({
+  id,
+  label,
+  sound,
+  options = alertSoundIds as AlertSound[],
+  disabled = false,
+  previewing,
+  change,
+  test,
+}: {
+  id: string;
+  label: string;
+  sound: string;
+  options?: readonly AlertSound[];
+  disabled?: boolean;
+  previewing: boolean;
+  change: (sound: AlertSound) => void;
+  test: (sound: AlertSound, label: string) => void;
+}) {
+  return (
+    <>
+      <div className="notification-sound-controls">
+        <select
+          id={id}
+          aria-label={`${label} sesi`}
+          value={sound}
+          disabled={disabled}
+          onChange={e => {
+            if (isAlertSound(e.target.value)) change(e.target.value);
+          }}
+        >
+          {options.map(value => (
+            <option key={value} value={value}>
+              {alertTones[value].label}
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="btn secondary"
+          disabled={previewing}
+          aria-label={`${label} sesini dene`}
+          onClick={() => {
+            if (isAlertSound(sound)) test(sound, label);
+          }}
+        >
+          <span>Sesi dene</span>
+        </button>
+      </div>
+      {isAlertSound(sound) && <p className="r2-hint notification-sound-description">{alertTones[sound].description}</p>}
+    </>
+  );
+}
+
+export function SoundCheck({
+  settings,
+  disabled,
+  change,
+}: {
+  settings: Settings;
+  disabled: boolean;
+  change: (key: SoundKey, sound: AlertSound) => void;
+}) {
+  const id = useId();
+  const status = useSyncExternalStore(alertAudio.subscribe, alertAudio.getSnapshot, () => "locked");
+  const issue = useSyncExternalStore(alertHealth.subscribe, alertHealth.getSnapshot, () => "");
+  const { message, previewing, test } = useSoundPreview();
   return (
     <section className="notification-sounds" aria-labelledby={`${id}-heading`}>
       <h2 id={`${id}-heading`} className="r2-small-heading">
@@ -67,37 +128,15 @@ export function SoundCheck({
               <strong>{label}</strong>
               <span className="r2-hint">{detail}</span>
             </label>
-            <div className="notification-sound-controls">
-              <select
-                id={`${id}-${key}`}
-                aria-label={`${label} sesi`}
-                value={sound}
-                disabled={disabled}
-                onChange={e => {
-                  if (isAlertSound(e.target.value)) change(key, e.target.value);
-                }}
-              >
-                {alertSoundIds.map(value => (
-                  <option key={value} value={value}>
-                    {alertTones[value].label}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="btn secondary"
-                disabled={previewing}
-                aria-label={`${label} sesini dene`}
-                onClick={() => {
-                  if (isAlertSound(sound)) void testSound(sound, label);
-                }}
-              >
-                <span>Sesi dene</span>
-              </button>
-            </div>
-            {isAlertSound(sound) && (
-              <p className="r2-hint notification-sound-description">{alertTones[sound].description}</p>
-            )}
+            <SoundSelect
+              id={`${id}-${key}`}
+              label={label}
+              sound={sound}
+              disabled={disabled}
+              previewing={previewing}
+              change={value => change(key, value)}
+              test={test}
+            />
           </div>
         );
       })}

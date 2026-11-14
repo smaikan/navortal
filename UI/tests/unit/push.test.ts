@@ -3,7 +3,15 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 import { readEnvelope, notificationPath, deliveryKey } from "../../public/push-protocol.js";
-import { publicKey, readConfig, readSubscription, setupDeadline } from "../../src/features/push/model";
+import {
+  deviceLabel,
+  publicKey,
+  pushFailure,
+  readConfig,
+  readSubscription,
+  setupDeadline,
+  subscriptionMatchesKey,
+} from "../../src/features/push/model";
 const owner = "00000000-0000-0000-0000-000000000001",
   id = "00000000-0000-0000-0000-000000000002",
   other = "00000000-0000-0000-0000-000000000003";
@@ -18,6 +26,48 @@ const envelope = {
   silent: true,
 };
 describe("push wire/privacy boundary", () => {
+  it("detects key rotation, missing keys and expiry instead of trusting a saved device label", () => {
+    const bytes = new Uint8Array(65);
+    bytes[0] = 4;
+    const key = Buffer.from(bytes).toString("base64url");
+    const subscription = { expirationTime: null, options: { applicationServerKey: bytes.buffer } } as PushSubscription;
+    expect(subscriptionMatchesKey(subscription, key, 100)).toBe(true);
+    const changed = bytes.slice();
+    changed[1] = 1;
+    expect(subscriptionMatchesKey(subscription, Buffer.from(changed).toString("base64url"), 100)).toBe(false);
+    expect(subscriptionMatchesKey({ ...subscription, expirationTime: 100 } as PushSubscription, key, 100)).toBe(false);
+    expect(
+      subscriptionMatchesKey(
+        { ...subscription, options: { applicationServerKey: null } } as PushSubscription,
+        key,
+        100,
+      ),
+    ).toBe(false);
+  });
+  it("explains blocked device storage separately and never exposes the storage exception", () => {
+    vi.stubGlobal("localStorage", {
+      getItem: () => {
+        throw new Error("private browser detail");
+      },
+    });
+    try {
+      let failure: unknown;
+      try {
+        deviceLabel();
+      } catch (error) {
+        failure = error;
+      }
+      expect(pushFailure(failure)).toContain("cihaz bilgisi saklanamıyor");
+      expect(pushFailure(failure)).not.toContain("private browser detail");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+  it("distinguishes denied permission from an unavailable browser push provider", () => {
+    expect(pushFailure(new DOMException("private", "NotAllowedError"))).toContain("bildirim izni vermedi");
+    expect(pushFailure(new DOMException("private", "AbortError"))).toContain("bildirim hizmetine bağlanılamadı");
+    expect(pushFailure(new DOMException("private", "NetworkError"))).toContain("bildirim hizmetine bağlanılamadı");
+  });
   it("a blocked native setup rejects at the deadline and releases its timer; an early success clears the deadline", async () => {
     vi.useFakeTimers();
     try {
@@ -91,6 +141,7 @@ describe("push wire/privacy boundary", () => {
     expect(readSubscription(s).version).toBe(s.version);
     expect(() => readSubscription({ ...s, version: 9007199254740992 })).toThrow();
     expect(() => readConfig({ enabled: true, publicKey: null })).toThrow();
+    expect(() => readConfig({ enabled: true, publicKey: "malformed" })).toThrow();
     expect(readConfig({ enabled: false, publicKey: null }).enabled).toBe(false);
   });
   it("decodes only a structural P-256 public key and never treats it as a private key", () => {
@@ -134,6 +185,9 @@ function worker() {
     notificationPath,
     deliveryKey,
     claimAlertSound: claimSound,
+    queueReceipt: vi.fn(async () => {}),
+    clearReceipts: vi.fn(async () => {}),
+    flushReceipts: vi.fn(async () => {}),
     getRecipient: async () => recipient,
     setRecipient: async (o: string) => {
       recipient = o;
@@ -148,6 +202,10 @@ function worker() {
       if (o !== recipient || seen.has(key)) return false;
       seen.add(key);
       return true;
+    },
+    releaseDelivery: async (o: string, key: string) => {
+      if (o !== recipient) return false;
+      return seen.delete(key);
     },
     caches: { match: async () => new Response("offline generic") },
   });
@@ -175,6 +233,15 @@ function worker() {
   };
 }
 describe("worker behavior (browser runtime tested separately)", () => {
+  it("allows redelivery after native display fails and deduplicates after display succeeds", async () => {
+    const w = worker();
+    w.showNotification.mockRejectedValueOnce(new Error("native display unavailable"));
+    const push = { data: { json: () => envelope } };
+    await w.event("push", push);
+    await w.event("push", push);
+    await w.event("push", push);
+    expect(w.showNotification).toHaveBeenCalledTimes(2);
+  });
   it("activates only the matching owner's compatible notification patch, without a page navigation", async () => {
     const w = worker();
     const source = { type: "window", url: "https://planner.test/focus" };
@@ -321,4 +388,35 @@ describe("worker behavior (browser runtime tested separately)", () => {
       expect(respondWith).not.toHaveBeenCalled();
     }
   });
+});
+
+describe("recipient storage availability", () => {
+  it.each(["blocked", "unresponsive"])(
+    "rejects %s storage without hanging and closes a late connection",
+    async mode => {
+      vi.useFakeTimers();
+      try {
+        const request: { onblocked?: () => void; onsuccess?: () => void; result: { close: () => void } } = {
+          result: { close: vi.fn() },
+        };
+        const scope = {
+          indexedDB: { open: () => request },
+          setTimeout,
+          clearTimeout,
+          read: undefined as unknown as () => Promise<unknown>,
+        };
+        const source = readFileSync("public/recipient-store.js", "utf8").replace(/^export /gm, "");
+        runInNewContext(source + "\nglobalThis.read = getRecipient;", scope);
+        const rejected = expect(scope.read()).rejects.toMatchObject({ name: "PushStorageError" });
+        if (mode === "blocked") request.onblocked!();
+        else await vi.advanceTimersByTimeAsync(1500);
+        await rejected;
+        request.onsuccess!();
+        expect(request.result.close).toHaveBeenCalledTimes(1);
+        expect(vi.getTimerCount()).toBe(0);
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
 });

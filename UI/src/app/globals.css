@@ -5823,6 +5823,14 @@ label:has(> .temporal-control) {
 .notification-sound-row strong {
   color: var(--text);
 }
+.native-sound-label {
+  display: grid;
+  gap: 3px;
+  align-content: start;
+}
+.native-sound .notification-sound-row > .r2-switch {
+  align-self: center;
+}
 .notification-sound-controls {
   display: flex;
   align-items: center;
@@ -6051,12 +6059,33 @@ label:has(> .temporal-control) {
     right: 0;
     left: 0;
     width: auto;
-    max-height: calc(100dvh - 140px);
+    max-height: calc(100dvh - 140px - env(safe-area-inset-bottom, 0px));
     border-width: 1px 0;
     border-radius: 0;
   }
   .bell-panel-foot a {
     min-height: 44px;
+  }
+  .bell-panel-pages button {
+    min-height: 44px;
+  }
+  .bell-panel-body {
+    overscroll-behavior: contain;
+  }
+}
+@media (min-width: 768px) and (max-width: 1024px) and (pointer: coarse) {
+  .workspace-header {
+    position: relative;
+  }
+  .bell {
+    position: static;
+  }
+  .bell-panel {
+    top: 100%;
+    left: 12px;
+    right: auto;
+    max-width: calc(100% - 24px);
+    max-height: calc(100dvh - 140px - env(safe-area-inset-bottom, 0px));
   }
 }
 @media (pointer: coarse) {
@@ -6487,4 +6516,47 @@ label:has(> .temporal-control) {
 }
 .account-methods .google-auth-control {
   max-width: 358px;
+}
+
+/* Satırın başlığı gerçek bir düğme; ::after ile satırın tamamı basılabilir olur, menü düğmesi üstte kalır. */
+.row-open {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.row-open:hover:not(:disabled) {
+  background: transparent;
+}
+.row-open:disabled {
+  cursor: default;
+}
+.row-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.row-open:focus-visible {
+  outline: 0;
+}
+.row-open:focus-visible::after {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+  border-radius: var(--radius);
+}
+.reminders-list > li,
+.special-item {
+  position: relative;
+}
+.reminders-list .menu,
+.special-item .menu {
+  position: relative;
+  z-index: 1;
 }

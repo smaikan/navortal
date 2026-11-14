@@ -35,6 +35,7 @@ export function useTaskCache() {
     await Promise.all(
       [
         "collection-task-tree",
+        "collections",
         "analytics",
         "day-items",
         "matrix",

@@ -34,6 +34,7 @@ export function ResourceTaskPicker({
   const [done, setDone] = useState("");
   const [confirmed, setConfirmed] = useState<Record<string, Classification>>({});
   const busy = useRef(false);
+  const selectionFocus = useRef<HTMLInputElement | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const errorBox = useRef<HTMLDivElement>(null);
   const field = membershipField[kind];
@@ -48,6 +49,13 @@ export function ResourceTaskPicker({
     orderBy: "Title",
   });
   useLayoutEffect(() => input.current?.focus(), []);
+  useLayoutEffect(() => {
+    const control = selectionFocus.current;
+    if (pending || !control) return;
+    selectionFocus.current = null;
+    if (control.isConnected && !control.disabled && document.activeElement === document.body)
+      control.focus({ preventScroll: true });
+  }, [pending, confirmed]);
   useLayoutEffect(() => {
     if (failure && !pending) errorBox.current?.focus();
   }, [failure, pending]);
@@ -113,12 +121,9 @@ export function ResourceTaskPicker({
       setFailure(classificationFailure(error));
     } finally {
       busy.current = false;
+      selectionFocus.current = succeeded && restoreFocus ? control : null;
       setPending(null);
       reportPending(false);
-      if (succeeded && restoreFocus)
-        requestAnimationFrame(() => {
-          if (control.isConnected && document.activeElement === document.body) control.focus({ preventScroll: true });
-        });
     }
   }
   async function inspect() {

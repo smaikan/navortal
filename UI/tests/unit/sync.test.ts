@@ -81,6 +81,7 @@ describe("bounded typed signal router", () => {
   it("restricts query predicates to the verified owner and the related resource", async () => {
     const client = new QueryClient();
     client.setQueryData(["user", id(), "task"], "own");
+    client.setQueryData(["user", id(), "collections"], "project summaries");
     client.setQueryData(["user", id(2), "task"], "foreign");
     client.setQueryData(["user", id(), "notifications"], "other");
     const r = changeRouter({
@@ -93,6 +94,7 @@ describe("bounded typed signal router", () => {
     r.accept(event());
     await vi.advanceTimersByTimeAsync(200);
     expect(client.getQueryState(["user", id(), "task"])?.isInvalidated).toBe(true);
+    expect(client.getQueryState(["user", id(), "collections"])?.isInvalidated).toBe(true);
     expect(client.getQueryState(["user", id(2), "task"])?.isInvalidated).toBe(false);
     expect(client.getQueryState(["user", id(), "notifications"])?.isInvalidated).toBe(false);
     r.dispose();

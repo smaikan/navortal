@@ -140,8 +140,11 @@ function WorkloadSummary({ kind, id }: { kind: ResourceKind; id: string }) {
       <details className="resource-workload-note">
         <summary>İş yükü nasıl hesaplanır?</summary>
         <p className="muted form-hint">
-          Arşivlenmemiş görevler sayılır. Üst görev ve alt görevi aynı gruptaysa iş bir kez sayılır. Tahminsiz iş sıfır
-          sayılmaz; gerçek çalışma ve plan burada yer almaz.
+          {kind === "tags"
+            ? "Arşivlenmemiş görevler sayılır."
+            : "Alt görevi olan ana görev sayılmaz; alt görevler ve tekil görevler sayılır."}{" "}
+          Üst görev ve alt görevi aynı gruptaysa iş bir kez sayılır. Tahminsiz iş sıfır sayılmaz; gerçek çalışma ve plan
+          burada yer almaz.
         </p>
       </details>
     </section>
@@ -174,6 +177,10 @@ function ResourceTasks({
   const tasks = useCollectionTasks(kind, id, offset, resourceTaskPageSize);
   const data = tasks.data;
   const count = data?.items.length ?? 0;
+  const parentIds = new Set(data?.nodes.map(task => task.parentTaskId));
+  const taskCount =
+    data?.taskCount ??
+    (kind === "tags" ? data?.nodes.length : data?.nodes.filter(task => !parentIds.has(task.id)).length);
   const [plan, setPlan] = useState<{
     task: { id: string; title: string; scope?: "Single" | "Subtree" };
     trigger: HTMLElement;
@@ -181,8 +188,8 @@ function ResourceTasks({
   return (
     <section className="resource-block" aria-labelledby={`${kind}-tasks-heading`}>
       <div className="resource-section-heading">
-        <h3 id={`${kind}-tasks-heading`}>
-          Görevler {data && <span className="resource-task-count">{data.nodes.length}</span>}
+        <h3 id={`${kind}-tasks-heading`} tabIndex={-1}>
+          Görevler {data && <span className="resource-task-count">{taskCount}</span>}
         </h3>
         {!archived && (kind === "projects" || kind === "pools") && (
           <button
@@ -224,6 +231,8 @@ function ResourceTasks({
           {count ? (
             <ResourceTaskTree
               kind={kind}
+              id={id}
+              contextTaskIds={data.contextTaskIds ?? []}
               roots={data.roots}
               nodes={data.nodes}
               parents={data.parents}

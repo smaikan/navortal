@@ -209,7 +209,7 @@ function Agenda({ zone, format, setupDone }: { zone: string; format: string; set
       )}
       {/* Liste doluyken kurulum metni yer kaplamaz; çalışma saatleri plan menüsünden açılır. */}
       {!setupDone && blocks.data && items.data && Number(blocks.data.total) + Number(items.data.total) === 0 && (
-        <details open className="agenda-setup">
+        <details className="agenda-setup">
           <summary>Çalışma saatleri ve ilk adımlar</summary>
           <FirstSteps />
         </details>

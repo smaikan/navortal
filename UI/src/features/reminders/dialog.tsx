@@ -28,6 +28,7 @@ export function ReminderDialog({
   zone: displayZone,
   trigger,
   close,
+  onCreated,
 }: {
   action: Action;
   reminder?: Reminder;
@@ -35,6 +36,7 @@ export function ReminderDialog({
   zone: string;
   trigger: HTMLElement;
   close: () => void;
+  onCreated?: () => void;
 }) {
   const zone = reminder?.repeat?.timeZoneId ?? displayZone;
   const { session } = useSession();
@@ -121,6 +123,7 @@ export function ReminderDialog({
       setSaved(true);
       guard.markSaved();
       cache.changed();
+      if (action === "create") onCreated?.();
       close();
     } catch (e) {
       if (!cache.current()) return;

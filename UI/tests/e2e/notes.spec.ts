@@ -17,6 +17,39 @@ const tag = () => randomUUID().slice(-8);
 const composer = (p: Page, name = "Yeni not") => p.getByRole("form", { name, exact: true });
 const card = (p: Page, text: string) => p.getByRole("article", { name: text, exact: true });
 const views = (p: Page) => p.getByRole("navigation", { name: "Not görünümü", exact: true });
+
+test("note detail keeps its menu beside dates and gives the remaining height to long linked text", async ({ page }) => {
+  const task = await fx.task();
+  const category = await createCategory(`Yerleşim ${tag()}`);
+  for (const categoryId of [null, category.id]) {
+    const title = `Sıkı not başlığı ${tag()}`;
+    await createNote("Uzun not içeriği. ".repeat(500), { title, display: "Detailed", taskId: task.id, categoryId });
+    await visit(page, "/notes");
+    await card(page, title).getByRole("button", { name: title, exact: true }).click();
+    const win = page.getByRole("dialog", { name: title, exact: true });
+    await expect(win).toBeVisible();
+    const layout = await win.evaluate(d => {
+      const dates = d.querySelector(".note-detail-dates")!.getBoundingClientRect();
+      const menu = d.querySelector(".note-detail-head .menu-trigger")!.getBoundingClientRect();
+      const link = d.querySelector(".note-task-link")!.getBoundingClientRect();
+      const text = d.querySelector<HTMLElement>(".note-detail-scroll")!;
+      return {
+        sameRow: dates.top < menu.bottom && menu.top < dates.bottom,
+        gap: text.getBoundingClientRect().top - link.bottom,
+        windowScrolls: d.scrollHeight > d.clientHeight + 1,
+        textScrolls: text.scrollHeight > text.clientHeight + 1,
+      };
+    });
+    expect(layout.sameRow).toBe(true);
+    expect(layout.gap).toBeLessThanOrEqual(12);
+    expect(layout.windowScrolls).toBe(false);
+    expect(layout.textScrolls).toBe(true);
+    await win.getByRole("button", { name: "Not işlemleri", exact: true }).click();
+    await expect(page.getByRole("menuitem", { name: "Düzenle", exact: true })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Escape");
+  }
+});
 async function act(p: Page, label: string, item: string) {
   await card(p, label)
     .getByRole("button", { name: `Not işlemleri: ${label.slice(0, 40)}`, exact: true })
@@ -424,15 +457,10 @@ test("conversion allows every planning option to stay empty without copying the 
 });
 
 test("conversion normalizes a single selected date to a one-day range", async ({ page }) => {
-  const title = `Ayrıntılı dönüşüm ${tag()}`;
-  const n = await createNote(`Tek gün dönüşüm ${tag()}`, { display: "Detailed", title });
+  // Yalnız kısa notlar göreve dönüştürülür.
+  const n = await createNote(`Tek gün dönüşüm ${tag()}`);
   await visit(page, "/notes");
-  await card(page, title).getByRole("button", { name: title, exact: true }).click();
-  await page
-    .getByRole("dialog", { name: title, exact: true })
-    .getByRole("button", { name: "Not işlemleri", exact: true })
-    .click();
-  await page.getByRole("menuitem", { name: "Göreve dönüştür", exact: true }).click();
+  await act(page, n.text, "Göreve dönüştür");
   const f = page.getByRole("dialog", { name: "Notu göreve dönüştür", exact: true });
   await f.getByLabel("Bitiş tarihi", { exact: true }).fill("2031-10-24");
   await f.getByRole("button", { name: "Göreve dönüştür", exact: true }).click();
@@ -726,8 +754,10 @@ test("R2 menus open whole above their containers; detail and categories are cent
   await card(page, note.title!)
     .getByRole("button", { name: `Not işlemleri: ${note.title}`, exact: true })
     .click();
-  for (const name of ["Düzenle", "Göreve dönüştür", "Sil"])
+  // Ayrıntılı notta "Göreve dönüştür" seçeneği yok.
+  for (const name of ["Düzenle", "Sil"])
     expect(await onTop(page.getByRole("menuitem", { name, exact: true }))).toBe(true);
+  await expect(page.getByRole("menuitem", { name: "Göreve dönüştür", exact: true })).toHaveCount(0);
   await page.getByRole("menuitem", { name: "Düzenle", exact: true }).click();
   const win = page.getByRole("dialog", { name: note.title!, exact: true });
   const f = composer(page, "Notu düzenle");
