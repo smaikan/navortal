@@ -62,6 +62,18 @@ public sealed partial class PlanningStore(PlannerDbContext db, IPreferencesStore
         if (block.Version != command.Version) throw Conflict("version_conflict", "Blok değişmiş; güncel kaydı alın.");
         if (block.State == ScheduleState.Removed) throw Conflict("schedule_removed", "Blok kaldırılmış.");
         if ((block.IsFixed || block.IsLocked) && !command.AllowProtectedChange) throw Conflict("schedule_protected", "Sabit/kilitli bloğu değiştirme niyetini açık belirtin.");
+        if (remove && block.TaskId is { } taskId)
+        {
+            var plan = await db.DailyPlans.SingleAsync(x => x.UserId == userId && x.Id == block.DailyPlanId, ct);
+            if (await RemovePlanGroup(userId, state, plan.LocalDate, taskId, command.AllowProtectedChange, clock.GetUtcNow(), ct) is { } group)
+            {
+                var groupRevisions = await db.PlanRevisions.Where(x => x.UserId == userId && x.ChangeSetId == group.ChangeSetId).Select(x => x.Id).ToArrayAsync(ct);
+                var grouped = new PlanMutation(group.ChangeSetId, state.PlanningVersion, group.Schedules.Select(x => RevisionWriter.View(x.Schedule)).ToArray(), groupRevisions,
+                    await QuantityWarnings(userId, taskId, clock.GetUtcNow(), ct));
+                Remember(userId, scope, key, payload, grouped, clock.GetUtcNow());
+                await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return new(grouped, false);
+            }
+        }
         var before = RevisionWriter.View(block); PlanningWarning[] warnings = [];
         if (remove) block.State = ScheduleState.Removed;
         else

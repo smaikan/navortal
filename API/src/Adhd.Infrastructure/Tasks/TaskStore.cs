@@ -42,7 +42,11 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock, IPreferen
         if (query.ProjectId.HasValue) tasks = tasks.Where(x => x.ProjectId == query.ProjectId);
         if (query.PoolId.HasValue) tasks = tasks.Where(x => x.PoolId == query.PoolId);
         if (query.CategoryId.HasValue) tasks = tasks.Where(x => x.CategoryId == query.CategoryId);
-        if (query.AssignedOn is { } day) tasks = tasks.Where(x => x.PlannedFrom <= day && x.PlannedTo >= day);
+        if (query.AssignedOn is { } day)
+        {
+            var inheriting = await TaskRangeReminders.InheritedOverlapping(db, userId, day, day, ct);
+            tasks = tasks.Where(x => (x.PlannedFrom <= day && x.PlannedTo >= day) || inheriting.Contains(x.Id));
+        }
         // Efor filtresi görevin kendi eforuna bakar. Eforu boş olanlar gelmez.
         if (query.EnergyDemand is { } energy) tasks = tasks.Where(x => x.EnergyDemand == energy);
         // Görevin kendi tahminini kullan. Tahmin yoksa süre filtresiyle eşleştirme.
@@ -52,7 +56,8 @@ public sealed class TaskStore(PlannerDbContext db, TimeProvider clock, IPreferen
         {
             // Atanmış aralık, son tarih veya plan öğesi seçili günlere değiyorsa görevi getir.
             var zone = (await preferences.ReadAsync(userId, ct)).Values.TimeZoneId; var start = PlanTime.DayStart(first, zone); var end = PlanTime.DayStart(last.AddDays(1), zone);
-            tasks = tasks.Where(x => (x.PlannedFrom <= last && x.PlannedTo >= first) || (x.DeadlineAt >= start && x.DeadlineAt < end)
+            var inheriting = await TaskRangeReminders.InheritedOverlapping(db, userId, first, last, ct);
+            tasks = tasks.Where(x => (x.PlannedFrom <= last && x.PlannedTo >= first) || inheriting.Contains(x.Id) || (x.DeadlineAt >= start && x.DeadlineAt < end)
                 || db.DayItems.Any(d => d.UserId == userId && d.TaskId == x.Id && d.State == DayItemState.Planned && d.LocalDate >= first && d.LocalDate <= last)
                 || db.TaskSchedules.Any(s => s.UserId == userId && s.TaskId == x.Id && s.State == ScheduleState.Planned && s.Kind == ScheduleKind.Work && s.StartsAt < end && s.EndsAt > start));
         }

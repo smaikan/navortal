@@ -24,7 +24,7 @@ public sealed class DayGlanceStore(PlannerDbContext db, IPreferencesStore prefer
         DailyPlan? plan, long version, DateTimeOffset now, CancellationToken ct)
     {
         var zone = plan?.TimeZoneId ?? prefs.TimeZoneId;
-        var windows = await calendar.UtcIntervalsAsync(userId, prefs, date, ct);
+        var windows = await calendar.UtcIntervalsAsync(userId, prefs with { TimeZoneId = zone }, date, ct);
         var working = windows.Sum(w => Remaining(w.StartsAt, w.EndsAt, now));
         var blocks = plan is null ? [] : await db.TaskSchedules.AsNoTracking()
             .Where(x => x.UserId == userId && x.DailyPlanId == plan.Id && x.State == ScheduleState.Planned && x.Kind == ScheduleKind.Work).ToArrayAsync(ct);

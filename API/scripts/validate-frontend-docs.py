@@ -125,7 +125,8 @@ for row in coverage['coverage']:
     operation = spec['paths'][row['openApiPath']][row['method'].lower()]
     endpoint = next(x for x in catalog if x['method'] == row['method'] and x['path'] == row['openApiPath'])
     require(bool(operation.get('security')) == endpoint['authRequired'], f'Auth spec mismatch: {header}')
-    require('**Yetki:**' in section and ('JWT Bearer zorunlu' if endpoint['authRequired'] else 'Anonim erişim') in section, f'Auth detail missing: {header}')
+    auth_detail = ('Yalnız oturum çerezi' if endpoint['controller'] == 'MobilePush' else 'JWT Bearer zorunlu') if endpoint['authRequired'] else 'Anonim erişim'
+    require('**Yetki:**' in section and auth_detail in section, f'Auth detail missing: {header}')
     require('**Örnek HTTP:**' in section and '**Hata yanıtları:**' in section, f'HTTP/error detail missing: {header}')
     require('**Tekrar gönderim:**' in section, f'Retry policy absent: {header}')
     for parameter in operation.get('parameters', []):
@@ -177,7 +178,9 @@ for filename in ('SchedulingEngine.cs', 'SchedulingAdvanced.cs', 'PlanUndoEngine
 for code in message_codes | set(schemas['UnplacedReason']['enum']) - {None}:
     require(f'| {code} |' in plan_messages, f'Plan message meaning missing: {code}')
 
-files = sorted(ROOT.rglob('*.md')) + [API.parent / 'README.md', API.parent / 'API-AGENTS.md', API.parent / 'AGENTS.md']
+files = sorted(ROOT.rglob('*.md')) + [API.parent / 'README.md']
+# Repository instructions are optional; validate them when present in this checkout.
+files += [path for name in ('API-AGENTS.md', 'AGENTS.md') if (path := API.parent / name).is_file()]
 for file in files:
     text = read_text(file)
     for block in re.findall(r'```json\n(.*?)\n```', text, re.S):

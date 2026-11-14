@@ -88,14 +88,15 @@ public sealed class NotificationAlertTests
         await using (var stale = s.Context()) await stale.NotificationIntents.Where(x => x.Id == item.Id).ExecuteUpdateAsync(x => x.SetProperty(n => n.State, Adhd.Domain.Jobs.NotificationIntentState.Ready));
         var filtered = await Alerts(s.User, "?limit=1"); Assert.Empty(filtered.Items); Assert.NotNull(filtered.NextCursor);
         Assert.Single((await Alerts(s.User, "?limit=1&cursor=" + filtered.NextCursor)).Items);
-        // Son tarih ileride olsa da uyarı occurredAt eksi LeadSeconds anında uygun olur
+        // Aralık bitişi hatırlatması occurredAt anında uygun olur
         var task = await s.User.Root();
-        await using var db = s.Context(); var row = await db.Tasks.SingleAsync(x => x.Id == task.Id); row.DeadlineAt = due.AddMinutes(1);
-        var intent = new Adhd.Domain.Jobs.NotificationIntent { Id = Guid.CreateVersion7(), UserId = s.User.UserId, Kind = "TaskDeadline", SourceId = task.Id, TaskId = task.Id, SourceKey = $"alert-deadline:{task.Id}", SourceVersion = row.Version, OccurredAt = row.DeadlineAt.Value, CreatedAt = due, ReadyAt = due, State = Adhd.Domain.Jobs.NotificationIntentState.Ready };
+        await using var db = s.Context(); var row = await db.Tasks.SingleAsync(x => x.Id == task.Id); row.PlannedFrom = new DateOnly(2026, 10, 16); row.PlannedTo = new DateOnly(2026, 10, 16); var occurred = new DateTimeOffset(2026, 10, 16, 6, 0, 0, TimeSpan.Zero); var notBefore = new DateTimeOffset(2026, 10, 15, 15, 0, 0, TimeSpan.Zero);
+        var intent = new Adhd.Domain.Jobs.NotificationIntent { Id = Guid.CreateVersion7(), UserId = s.User.UserId, Kind = "TaskDeadline", SourceId = task.Id, TaskId = task.Id, SourceKey = $"alert-deadline:{task.Id}", SourceVersion = row.Version, OccurredAt = occurred, NotBefore = notBefore, CreatedAt = due, ReadyAt = due, State = Adhd.Domain.Jobs.NotificationIntentState.Ready };
         db.NotificationIntents.Add(intent); await db.SaveChangesAsync();
+        // Aralık bitişi hatırlatması öncül süre (LeadSeconds) kullanmaz; kendi saatinde uygun olur.
         Assert.DoesNotContain((await Alerts(s.User)).Items, x => x.Id == intent.Id);
-        await Set(s.User, new(LeadSeconds: 60)); Assert.Contains((await Alerts(s.User)).Items, x => x.Id == intent.Id);
-        s.App.Clock.Now = due.AddSeconds(121); Assert.DoesNotContain((await Alerts(s.User)).Items, x => x.Id == intent.Id);
+        await Set(s.User, new(LeadSeconds: 60)); Assert.DoesNotContain((await Alerts(s.User)).Items, x => x.Id == intent.Id);
+        s.App.Clock.Now = notBefore.AddSeconds(1); Assert.Contains((await Alerts(s.User)).Items, x => x.Id == intent.Id);
     }
     private static async Task Set(TaskScenario s, NotificationSettings settings)
     {

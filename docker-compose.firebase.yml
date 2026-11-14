@@ -1,0 +1,10 @@
+# Production FCM opt-in. The base compose remains usable without the key file.
+services:
+  api:
+    volumes:
+      - type: bind
+        source: ./API/.local/firebase-service-account.json
+        target: /opt/navortal/API/.local/firebase-service-account.json
+        read_only: true
+        bind:
+          create_host_path: false

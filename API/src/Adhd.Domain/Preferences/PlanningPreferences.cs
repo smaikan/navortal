@@ -57,7 +57,8 @@ public static class WorkingCalendar
     }
     public static MinuteRange[] LocalIntervals(PlanningPreferences p, DateOnly date) =>
         (p.Exceptions.SingleOrDefault(x => x.Date == date)?.Intervals
-            ?? p.Weekly.Where(x => x.DayOfWeek == (int)date.DayOfWeek).Select(x => new MinuteRange(x.StartMinute, x.EndMinute)).ToArray())
+            ?? (p.Weekly.Length == 0 ? [new MinuteRange(0, 1440)]
+                : p.Weekly.Where(x => x.DayOfWeek == (int)date.DayOfWeek).Select(x => new MinuteRange(x.StartMinute, x.EndMinute)).ToArray()))
         .OrderBy(x => x.StartMinute).ToArray();
     public static UtcWindow[] UtcIntervals(PlanningPreferences p, DateOnly date)
     {

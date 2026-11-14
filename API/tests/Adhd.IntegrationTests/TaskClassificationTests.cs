@@ -93,7 +93,7 @@ public sealed class TaskClassificationTests(DatabaseFixture fixture) : IClassFix
         Assert.Equal(HttpStatusCode.Conflict, rejected.StatusCode); Assert.Contains("planning_version_conflict", await rejected.Content.ReadAsStringAsync());
         Assert.Equal(p.Id, (await Get(s, child.Id)).Values.ProjectId); Assert.Equal("New child edit", (await s.Get(child.Id)).Title);
         await Assign(s, root.Id, q.Id, subtree: true);
-        Assert.Equal(0, (await Summary(s, "projects", p.Id)).Values.TaskCount); Assert.Equal(3, (await Summary(s, "projects", q.Id)).Values.TaskCount);
+        Assert.Equal(0, (await Summary(s, "projects", p.Id)).Values.TaskCount); Assert.Equal(1, (await Summary(s, "projects", q.Id)).Values.TaskCount);
     }
     [Fact]
     public async Task ForeignOrWrongTypeResourcesCannotBeAttachedAndDatabaseEnforcesOwnership()

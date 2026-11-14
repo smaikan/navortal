@@ -8,7 +8,7 @@ namespace Adhd.Infrastructure.Auth;
 
 public sealed class PasswordChangeStore(PlannerDbContext db, IMemoryCache cache) : IPasswordChangeStore
 {
-    public async Task<(AppUser User, Guid SessionId)?> ChangeAsync(Guid userId, Guid sessionId, string expectedHash, string passwordHash, string family, DateTimeOffset now, CancellationToken ct)
+    public async Task<(AppUser User, Guid SessionId)?> ChangeAsync(Guid userId, Guid sessionId, string? expectedHash, string passwordHash, string family, DateTimeOffset now, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         var user = await db.Users.FromSqlInterpolated($"SELECT * FROM users WHERE \"Id\" = {userId} FOR UPDATE").AsNoTracking().SingleOrDefaultAsync(ct);

@@ -10,7 +10,7 @@ namespace Adhd.Infrastructure.Notifications;
 
 public sealed partial class NotificationStore
 {
-    public async Task<SubscriptionView[]> SubscriptionsAsync(Guid user, CancellationToken ct) => (await db.PushSubscriptions.AsNoTracking().Where(x => x.UserId == user).OrderByDescending(x => x.CreatedAt).Take(100).ToArrayAsync(ct)).Select(View).ToArray();
+    public async Task<SubscriptionView[]> SubscriptionsAsync(Guid user, CancellationToken ct) => (await db.PushSubscriptions.AsNoTracking().Where(x => x.UserId == user).OrderByDescending(x => x.Active).ThenByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id).Take(100).ToArrayAsync(ct)).Select(View).ToArray();
     public async Task<SubscriptionView> SubscribeAsync(Guid user, RegisterSubscription command, CancellationToken ct)
     {
         Uri uri;
@@ -21,9 +21,10 @@ public sealed partial class NotificationStore
         await using var tx = await db.Database.BeginTransactionAsync(ct); await Lock(user, ct);
         var row = await db.PushSubscriptions.SingleOrDefaultAsync(x => x.EndpointHash == hash, ct);
         if (row is not null && row.UserId != user) throw new UseCaseException(ErrorKind.Conflict, "push_endpoint_owned", "Tarayıcı aboneliği önce önceki hesaptan kaldırılmalı ve yeniden oluşturulmalı.");
+        if (row?.Active != true && await db.PushSubscriptions.CountAsync(x => x.UserId == user && x.Active, ct) >= 20)
+            throw Invalid("push_subscription_limit");
         if (row is null)
         {
-            if (await db.PushSubscriptions.CountAsync(x => x.UserId == user && x.Active, ct) >= 20) throw Invalid("push_subscription_limit");
             row = new() { Id = Guid.CreateVersion7(), UserId = user, Endpoint = endpoint, EndpointHash = hash, CreatedAt = clock.GetUtcNow(), Version = 0 }; db.PushSubscriptions.Add(row);
         }
         row.P256dh = command.P256dh; row.Auth = command.Auth; row.Label = command.Label.Trim(); row.ExpiresAt = command.ExpiresAt?.ToUniversalTime(); row.Active = true; row.Version++;

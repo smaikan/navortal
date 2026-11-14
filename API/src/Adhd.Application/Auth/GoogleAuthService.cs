@@ -104,6 +104,13 @@ public sealed class GoogleAuthService(IGoogleTokenVerifier verifier, IGoogleAcco
         throw LinkRequired();
     }
 
+    public async Task VerifyOwnerAsync(Guid userId, string credential, CancellationToken ct, string? expectedNonce = null)
+    {
+        var proof = await Verify(credential, ct, expectedNonce);
+        if ((await accounts.FindAsync(proof.Subject, ct))?.Id != userId)
+            throw new UseCaseException(ErrorKind.Validation, "google_account_mismatch", "Bu hesaba bağlı Google hesabını seç.");
+    }
+
     public async Task LinkAsync(Guid userId, string credential, CancellationToken ct, string? expectedNonce = null)
     {
         var proof = await Verify(credential, ct, expectedNonce);

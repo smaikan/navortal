@@ -26,6 +26,15 @@ public sealed class PushSubscriptionRecord
     public long Version { get; set; } = 1;
 }
 public enum DeliveryState { Pending, Succeeded, Obsolete, InvalidSubscription, Rejected }
+public enum NotificationReceiptStage { Displayed, Opened }
+public sealed class NotificationClientReceipt
+{
+    public Guid UserId { get; set; }
+    public Guid NotificationId { get; set; }
+    public int SnoozeCount { get; set; }
+    public DateTimeOffset? DisplayedAt { get; set; }
+    public DateTimeOffset? OpenedAt { get; set; }
+}
 public sealed class PushDelivery
 {
     public Guid Id { get; set; }

@@ -15,6 +15,11 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options,
     public DbSet<Adhd.Domain.Notifications.NotificationPreferences> NotificationPreferences => Set<Adhd.Domain.Notifications.NotificationPreferences>();
     public DbSet<Adhd.Domain.Notifications.PushSubscriptionRecord> PushSubscriptions => Set<Adhd.Domain.Notifications.PushSubscriptionRecord>();
     public DbSet<Adhd.Domain.Notifications.PushDelivery> PushDeliveries => Set<Adhd.Domain.Notifications.PushDelivery>();
+    public DbSet<Adhd.Domain.Notifications.MobilePushDevice> MobilePushDevices => Set<Adhd.Domain.Notifications.MobilePushDevice>();
+    public DbSet<Adhd.Domain.Notifications.MobilePushPreference> MobilePushPreferences => Set<Adhd.Domain.Notifications.MobilePushPreference>();
+    public DbSet<Adhd.Domain.Notifications.MobilePushRoute> MobilePushRoutes => Set<Adhd.Domain.Notifications.MobilePushRoute>();
+    public DbSet<Adhd.Domain.Notifications.MobilePushDelivery> MobilePushDeliveries => Set<Adhd.Domain.Notifications.MobilePushDelivery>();
+    public DbSet<Adhd.Domain.Notifications.NotificationClientReceipt> NotificationClientReceipts => Set<Adhd.Domain.Notifications.NotificationClientReceipt>();
     public DbSet<Adhd.Domain.Notifications.CustomReminder> CustomReminders => Set<Adhd.Domain.Notifications.CustomReminder>();
     public DbSet<Adhd.Domain.Jobs.OutboxMessage> Outbox => Set<Adhd.Domain.Jobs.OutboxMessage>();
     public DbSet<Adhd.Domain.Jobs.JobEffectReceipt> JobEffects => Set<Adhd.Domain.Jobs.JobEffectReceipt>();
@@ -74,6 +79,7 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options,
     {
         Adhd.Infrastructure.Jobs.JobPersistence.Configure(modelBuilder);
         Adhd.Infrastructure.Notifications.NotificationPersistence.Configure(modelBuilder);
+        Adhd.Infrastructure.Notifications.MobilePushPersistence.Configure(modelBuilder);
         Adhd.Infrastructure.Recurrence.RecurrencePersistence.Configure(modelBuilder);
         Adhd.Infrastructure.Support.SupportPersistence.Configure(modelBuilder);
         Adhd.Infrastructure.Focus.FocusPersistence.Configure(modelBuilder);
@@ -122,6 +128,9 @@ public sealed class PlannerDbContext(DbContextOptions<PlannerDbContext> options,
         });
         modelBuilder.Entity<TaskItem>(b =>
         {
+            b.Property(x => x.ProjectDetached).HasDefaultValue(false);
+            b.Property(x => x.PoolDetached).HasDefaultValue(false);
+            b.Property(x => x.CategoryDetached).HasDefaultValue(false);
             b.ToTable("tasks", t =>
             {
                 t.HasCheckConstraint("CK_tasks_title", "length(btrim(\"Title\")) > 0");

@@ -11,6 +11,12 @@ public static class NotificationRegistration
     {
         services.AddSingleton<IValidateOptions<PushSettings>, PushSettingsValidator>();
         services.AddOptions<PushSettings>().Bind(config.GetSection("Push")).ValidateOnStart();
+        services.Configure<FirebaseSettings>(config.GetSection("Firebase"));
+        services.AddSingleton<IFcmAccessTokenSource, FcmAccessTokenSource>();
+        services.AddSingleton<IFcmTransport>(s => new FcmTransport(new HttpClient(new SocketsHttpHandler { AllowAutoRedirect = false })
+            { Timeout = TimeSpan.FromSeconds(15) }, s.GetRequiredService<IOptions<FirebaseSettings>>(), s.GetRequiredService<IFcmAccessTokenSource>()));
+        services.AddScoped<IMobilePushStore, MobilePushStore>();
+        services.AddScoped<MobilePushEligibility>(); services.AddScoped<MobilePushRouter>(); services.AddScoped<MobilePushJobs>();
         services.AddScoped<INotificationStore, NotificationStore>(); services.AddScoped<INotificationJobs, NotificationJobs>();
         services.AddScoped<Adhd.Application.Sync.ISyncStore, SyncStore>();
         // Ortak HTTP istemcisi istek logu tutmaz. Push adresi ve bilgileri loga girmesin

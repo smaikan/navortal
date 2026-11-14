@@ -5,12 +5,34 @@ namespace Adhd.UnitTests;
 public sealed class WorkingCalendarTests
 {
     [Fact]
-    public void EmptyCalendarNeverInventsWorkingHours()
+    public void UnconfiguredCalendarUsesTheWholeLocalDay()
     {
         var p = new PlanningPreferences();
         Assert.Null(WorkingCalendar.Validate(p));
-        Assert.Empty(WorkingCalendar.UtcIntervals(p, new DateOnly(2026, 10, 15)));
+        var date = new DateOnly(2026, 10, 15);
+        Assert.Equal([new MinuteRange(0, 1440)], WorkingCalendar.LocalIntervals(p, date));
+        var window = Assert.Single(WorkingCalendar.UtcIntervals(p, date));
+        Assert.Equal(new DateTimeOffset(2026, 10, 14, 21, 0, 0, TimeSpan.Zero), window.StartsAt);
+        Assert.Equal(TimeSpan.FromDays(1), window.EndsAt - window.StartsAt);
         Assert.Equal(900, p.MinimumSplitSeconds); Assert.Equal(0, p.TransitionSeconds); Assert.Equal("Preview", p.PlanningMode);
+    }
+    [Fact]
+    public void ExplicitClosedDaysStillOverrideTheFullDayDefault()
+    {
+        var date = new DateOnly(2026, 10, 15);
+        var p = new PlanningPreferences { Exceptions = [new(date, [])] };
+        Assert.Empty(WorkingCalendar.LocalIntervals(p, date));
+        Assert.Single(WorkingCalendar.UtcIntervals(p, date.AddDays(1)));
+        p = p with { Weekly = [new(1, 540, 1020)], Exceptions = [] };
+        Assert.Empty(WorkingCalendar.LocalIntervals(p, date));
+    }
+    [Theory]
+    [InlineData("2026-03-29", 23)]
+    [InlineData("2026-10-25", 25)]
+    public void FullDayDefaultUsesActualDstDayLength(string date, int hours)
+    {
+        var window = Assert.Single(WorkingCalendar.UtcIntervals(new() { TimeZoneId = "Europe/Berlin" }, DateOnly.Parse(date)));
+        Assert.Equal(TimeSpan.FromHours(hours), window.EndsAt - window.StartsAt);
     }
     [Fact]
     public void ExceptionsReplaceWeeklyHoursAndAnEmptyExceptionClosesTheDay()

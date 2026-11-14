@@ -68,6 +68,35 @@ public sealed class NamedResourceTests(DatabaseFixture fixture) : IClassFixture<
         Assert.NotEqual(Guid.Empty, other.Id);
     }
     [Fact]
+    public async Task ProjectProgressCountsLeavesAcrossNestedSubtreesWithoutCountingParentsTwice()
+    {
+        await using var app = new PlannerFactory(fixture.ConnectionString); var s = await TaskScenario.User(app);
+        var project = await TaskScenario.Read<NamedResourceView>(await s.Client.PostAsJsonAsync("/api/projects", new { name = "Alt görev ilerlemesi" }));
+        var parent = await s.Root(); var branch = await s.Child(parent.Id); var leaf = await s.Child(branch.Id);
+        var sibling = await s.Child(parent.Id); var standalone = await s.Root(); var archived = await s.Child(parent.Id);
+        // Yalnız kök, tekil görev ve bir alt görev doğrudan projeye bağlı. Ağaçtaki diğer altlar da sayılmalı.
+        await using (var db = fixture.CreateContext())
+        {
+            foreach (var task in await db.Tasks.Where(x => x.Id == parent.Id || x.Id == leaf.Id || x.Id == standalone.Id).ToArrayAsync()) task.ProjectId = project.Id;
+            (await db.Tasks.SingleAsync(x => x.Id == archived.Id)).ArchivedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+        }
+        async Task Check(int completed)
+        {
+            var page = await TaskScenario.Read<NamedResourcePage>(await s.Client.GetAsync("/api/projects?includeSummary=true"));
+            var summary = Assert.Single(page.Summaries!);
+            var workload = await TaskScenario.Read<NamedResourceWorkload>(await s.Client.GetAsync($"/api/projects/{project.Id}/workload"));
+            Assert.Equal((3, completed), (summary.TaskCount, summary.CompletedCount));
+            Assert.Equal(3, workload.Values.TaskCount);
+            Assert.Equal(workload.Values.OpenComponentCount, summary.OpenComponentCount);
+        }
+        await Check(0);
+        await s.State(leaf.Id, Adhd.Domain.Tasks.TaskAction.Complete); await Check(1);
+        await s.State(parent.Id, Adhd.Domain.Tasks.TaskAction.Complete, Adhd.Domain.Tasks.ParentCompletionChoice.CompleteSubtree); await Check(2);
+        await s.State(standalone.Id, Adhd.Domain.Tasks.TaskAction.Complete); await Check(3);
+        await s.State(sibling.Id, Adhd.Domain.Tasks.TaskAction.Reopen); await Check(2);
+    }
+    [Fact]
     public async Task ConcurrentResourceUpdatesHaveOneWinnerAndPlanningVersionIsAtomic()
     {
         await using var app = new PlannerFactory(fixture.ConnectionString); var s = await TaskScenario.User(app);

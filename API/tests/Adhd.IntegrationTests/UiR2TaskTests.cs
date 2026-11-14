@@ -193,7 +193,10 @@ public sealed class UiR2TaskTests(DatabaseFixture fixture) : IClassFixture<Datab
         Assert.Equal(HttpStatusCode.OK, (await Range(s, a.Id, null, null)).StatusCode);
         Assert.Null((await s.Get(a.Id)).PlannedFrom);
         summary = await TaskScenario.Read<TreeRowSummary>(await s.Client.GetAsync($"/api/tasks/{root.Id}/summary"));
-        Assert.Equal((new DateOnly(2026, 10, 27), new DateOnly(2026, 10, 29)), (summary.EffectiveFrom!.Value, summary.EffectiveTo!.Value));
+        // Aralığı silinen alt görev üst görevinin aralığını kalıtır; üst görev yine kendi aralığını gösterir.
+        Assert.Equal((new DateOnly(2026, 10, 1), new DateOnly(2026, 12, 31)), (summary.EffectiveFrom!.Value, summary.EffectiveTo!.Value));
+        var inherited = await TaskScenario.Read<TaskPage>(await s.Client.GetAsync("/api/tasks?assignedOn=2026-11-15"));
+        Assert.Contains(a.Id, inherited.Items.Select(x => x.Id));
     }
 
     [Theory]

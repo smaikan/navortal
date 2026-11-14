@@ -26,7 +26,7 @@ public sealed class ReminderDispatcher(PlannerDbContext db, TimeProvider clock, 
         await using var tx = await db.Database.BeginTransactionAsync(ct); _ = await db.PlanningStates.FromSqlInterpolated($"SELECT * FROM user_planning_states WHERE \"UserId\"={owner} FOR UPDATE").SingleAsync(ct);
         var work = await db.ReminderWork.SingleAsync(x => x.Id == id && x.UserId == owner, ct); if (work.State != ReminderState.Pending) return;
         var task = await db.Tasks.AsNoTracking().SingleAsync(x => x.UserId == owner && x.Id == work.TaskId, ct); var valid = SupportRules.Open(task);
-        if (work.Kind == ReminderKind.TaskDeadline) valid &= task.DeadlineAt == (work.SourceAt ?? work.DueAt);
+        if (work.Kind == ReminderKind.TaskDeadline) valid &= (await Adhd.Infrastructure.Tasks.TaskRangeReminders.Instants(db, owner, task.Id, ct)).Contains(new(work.SourceAt ?? work.DueAt, work.DueAt));
         else
         {
             var plan = await db.DailyPlans.AsNoTracking().SingleAsync(x => x.UserId == owner && x.Id == work.DailyPlanId, ct);
@@ -36,7 +36,7 @@ public sealed class ReminderDispatcher(PlannerDbContext db, TimeProvider clock, 
         work.State = !valid ? ReminderState.Obsolete : now - work.DueAt > TimeSpan.FromMinutes(2) ? ReminderState.Expired : ReminderState.Ready; work.HandledAt = now;
         if (work.State == ReminderState.Ready)
         {
-            var sourceAt = work.SourceAt ?? work.DueAt; var key = $"{work.Kind}:{work.SourceId}:due:{sourceAt.UtcTicks}"; var intent = await db.NotificationIntents.SingleOrDefaultAsync(x => x.UserId == owner && x.SourceKey == key, ct);
+            var sourceAt = work.SourceAt ?? work.DueAt; var key = work.Kind == ReminderKind.TaskDeadline ? $"{work.Kind}:{work.SourceId}:due:{sourceAt.UtcTicks}:at:{work.DueAt.UtcTicks}" : $"{work.Kind}:{work.SourceId}:due:{sourceAt.UtcTicks}"; var intent = await db.NotificationIntents.SingleOrDefaultAsync(x => x.UserId == owner && x.SourceKey == key, ct);
             if (intent is null)
             {
                 intent = new() { Id = Guid.CreateVersion7(), UserId = owner, SourceKey = key, Kind = work.Kind.ToString(), SourceId = work.SourceId, TaskId = work.TaskId, OccurredAt = sourceAt, NotBefore = work.DueAt, CreatedAt = now }; db.NotificationIntents.Add(intent);

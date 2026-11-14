@@ -17,7 +17,7 @@ public sealed partial class OutboxHandler(PlannerDbContext db, Adhd.Application.
     public async Task<bool> HandleAsync(OutboxClaim claim, CancellationToken ct)
     {
         if (claim.Kind is "RecurrenceChanged" or "RecurrenceWindow") return await Recurrence(claim, ct);
-        if (claim.Kind is "NotificationReady" or "PushDelivery") return await notifications.HandleAsync(claim, ct);
+        if (claim.Kind is "NotificationReady" or "PushDelivery" or "MobilePushDelivery") return await notifications.HandleAsync(claim, ct);
         await using var tx = await db.Database.BeginTransactionAsync(ct); await Lock(claim.UserId, ct); await Lease(claim, ct);
         var receipt = await db.JobEffects.SingleOrDefaultAsync(x => x.UserId == claim.UserId && x.OutboxId == claim.Id, ct);
         if (receipt is not null && receipt.State != JobEffectState.Prepared) return receipt.State == JobEffectState.Obsolete;
@@ -67,16 +67,31 @@ public sealed partial class OutboxHandler(PlannerDbContext db, Adhd.Application.
     {
         var task = await db.Tasks.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == claim.UserId && x.Id == claim.SourceId, ct); if (task is null || task.Version != claim.SourceVersion) return true;
         var now = clock.GetUtcNow(); var open = SupportRules.Open(task);
-        await db.ReminderWork.Where(x => x.UserId == claim.UserId && x.TaskId == task.Id && x.State == ReminderState.Pending && (!open || x.Kind == ReminderKind.TaskDeadline && (x.SourceAt ?? x.DueAt) != task.DeadlineAt))
+        // Görev açık değilse onun bekleyen bütün hatırlatmaları geçersiz olur.
+        await db.ReminderWork.Where(x => x.UserId == claim.UserId && x.TaskId == task.Id && x.State == ReminderState.Pending && !open)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.State, ReminderState.Obsolete).SetProperty(x => x.HandledAt, now), ct);
-        await db.NotificationIntents.Where(x => x.UserId == claim.UserId && x.TaskId == task.Id && x.State == NotificationIntentState.Pending && (!open || x.Kind == "TaskDeadline" && x.OccurredAt != task.DeadlineAt))
+        await db.NotificationIntents.Where(x => x.UserId == claim.UserId && x.TaskId == task.Id && x.State == NotificationIntentState.Pending && !open)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.State, NotificationIntentState.Obsolete), ct);
-        if (open && task.DeadlineAt is { } due && due >= now.AddMinutes(-2))
+        // Aralık bitişi hatırlatmaları görevin ve altındaki bütün görevlerin aralığına bağlı: üst aralık değişince veya görev taşınınca alt ağaç da yeniden hesaplanır.
+        var all = await db.Tasks.AsNoTracking().Where(x => x.UserId == claim.UserId && x.ArchivedAt == null).ToArrayAsync(ct);
+        var children = all.Where(x => x.ParentTaskId.HasValue).ToLookup(x => x.ParentTaskId!.Value);
+        var subtree = new List<Adhd.Domain.Tasks.TaskItem>(); var seen = new HashSet<Guid>(); var queue = new Queue<Adhd.Domain.Tasks.TaskItem>([all.SingleOrDefault(x => x.Id == task.Id) ?? task]);
+        while (queue.TryDequeue(out var node)) { if (!seen.Add(node.Id)) continue; subtree.Add(node); foreach (var child in children[node.Id]) queue.Enqueue(child); }
+        var ranges = Adhd.Domain.Tasks.PlannedRanges.OwnOrInherited(all); var zone = await Adhd.Infrastructure.Tasks.TaskRangeReminders.Zone(db, claim.UserId, ct);
+        var ids = subtree.Select(x => x.Id).ToArray();
+        var pendingWork = await db.ReminderWork.Where(x => x.UserId == claim.UserId && ids.Contains(x.TaskId) && x.Kind == ReminderKind.TaskDeadline && x.State == ReminderState.Pending).ToArrayAsync(ct);
+        var pendingIntents = await db.NotificationIntents.Where(x => x.UserId == claim.UserId && x.TaskId != null && ids.Contains(x.TaskId.Value) && x.Kind == "TaskDeadline" && x.State == NotificationIntentState.Pending).ToArrayAsync(ct);
+        foreach (var node in subtree)
         {
-            var settings = Adhd.Infrastructure.Notifications.NotificationStore.Settings(await db.NotificationPreferences.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == claim.UserId, ct));
-            var key = $"task:{task.Id}:deadline:{due.UtcTicks}";
-            if (!await db.ReminderWork.AnyAsync(x => x.UserId == claim.UserId && x.SourceKey == key, ct))
-                db.ReminderWork.Add(new() { Id = Guid.CreateVersion7(), UserId = claim.UserId, Kind = ReminderKind.TaskDeadline, SourceKey = key, SourceId = task.Id, SourceVersion = task.Version, TaskId = task.Id, SourceAt = due, DueAt = due.AddSeconds(-settings.LeadSeconds), CreatedAt = now });
+            var instants = SupportRules.Open(node) && ranges.TryGetValue(node.Id, out var range) && range is { } r ? Adhd.Infrastructure.Tasks.TaskRangeReminders.Slots(r, zone) : [];
+            foreach (var work in pendingWork.Where(x => x.TaskId == node.Id && !instants.Contains(new(x.SourceAt ?? x.DueAt, x.DueAt)))) { work.State = ReminderState.Obsolete; work.HandledAt = now; }
+            foreach (var intent in pendingIntents.Where(x => x.TaskId == node.Id && !instants.Any(i => i.Occurs == x.OccurredAt && i.Due == (x.NotBefore ?? x.OccurredAt)))) intent.State = NotificationIntentState.Obsolete;
+            foreach (var slot in instants.Where(x => x.Due >= now.AddMinutes(-2)))
+            {
+                var key = $"task:{node.Id}:range-end:{slot.Occurs.UtcTicks}:{slot.Due.UtcTicks}";
+                if (!await db.ReminderWork.AnyAsync(x => x.UserId == claim.UserId && x.SourceKey == key, ct))
+                    db.ReminderWork.Add(new() { Id = Guid.CreateVersion7(), UserId = claim.UserId, Kind = ReminderKind.TaskDeadline, SourceKey = key, SourceId = node.Id, SourceVersion = node.Version, TaskId = node.Id, SourceAt = slot.Occurs, DueAt = slot.Due, CreatedAt = now });
+            }
         }
         return false;
     }

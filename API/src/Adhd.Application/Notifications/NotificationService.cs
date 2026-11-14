@@ -13,11 +13,15 @@ public sealed record NotificationView(Guid Id, string Kind, Guid SourceId, Guid?
     DateTimeOffset OccurredAt, DateTimeOffset? ReadyAt, DateTimeOffset? NotBefore, DateTimeOffset? ReadAt, NotificationIntentState State,
     int SnoozeCount, bool SoundEnabled, long Version, string? Title = null, string? Sound = null);
 public sealed record NotificationPage(NotificationView[] Items, int Offset, int Limit, int Total);
+public sealed record NotificationInboxSummary(int UnreadCount, DateTimeOffset AsOf);
 public sealed record NotificationAlertPage(DateTimeOffset ServerNow, long PreferencesVersion, NotificationView[] Items, string? NextCursor);
 public sealed record SnoozeNotification(long Version, int? Seconds = null);
 public sealed record CustomReminderCommand(string Title, DateTimeOffset DueAt, Guid? TaskId = null, long? Version = null, ReminderRepeat? Repeat = null);
 public sealed record CustomReminderView(Guid Id, string Title, DateTimeOffset DueAt, Guid? TaskId, bool Canceled, long Version, ReminderRepeat? Repeat = null);
-public sealed record ReadAllNotificationsResult(int ReadCount, DateTimeOffset ReadAt);
+public sealed record ReadAllNotificationsResult(int ReadCount, DateTimeOffset ReadAt, NotificationInboxSummary Summary);
+public sealed record RecordNotificationReceipt(Guid ExpectedUserId, int SnoozeCount, NotificationReceiptStage Stage);
+public sealed record NotificationDeliveryStatus(int SnoozeCount, DateTimeOffset? PreparedAt, DateTimeOffset? ProviderAcceptedAt,
+    DateTimeOffset? ClientDisplayedAt, DateTimeOffset? ClientOpenedAt, DateTimeOffset? ReadAt);
 public interface INotificationStore
 {
     Task<NotificationPreferencesView> PreferencesAsync(Guid user, CancellationToken ct);
@@ -26,6 +30,9 @@ public interface INotificationStore
     Task<SubscriptionView> SubscribeAsync(Guid user, RegisterSubscription command, CancellationToken ct);
     Task UnsubscribeAsync(Guid user, Guid id, long version, CancellationToken ct);
     Task<NotificationPage> ListAsync(Guid user, int offset, int limit, CancellationToken ct);
+    Task<NotificationInboxSummary> SummaryAsync(Guid user, CancellationToken ct);
+    Task RecordReceiptAsync(Guid user, Guid id, RecordNotificationReceipt command, CancellationToken ct);
+    Task<NotificationDeliveryStatus> DeliveryStatusAsync(Guid user, Guid id, CancellationToken ct);
     Task<NotificationAlertPage> AlertsAsync(Guid user, int limit, string? cursor, CancellationToken ct);
     Task<NotificationView> GetAsync(Guid user, Guid id, CancellationToken ct);
     Task<NotificationView> SnoozeAsync(Guid user, Guid id, SnoozeNotification command, CancellationToken ct);

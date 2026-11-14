@@ -9,13 +9,21 @@ public sealed class PlannedRangesTests
     private static readonly DateOnly Day = new(2026, 10, 24);
 
     [Fact]
-    public void ParentSpansFirstToLastChildDayAndIgnoresItsOwnRange()
+    public void ParentSpansFirstToLastChildDayAndIgnoresItsOwnRangeWhenEveryChildHasOne()
     {
         var root = Task(from: Day.AddDays(-10), to: Day.AddDays(30));
-        var a = Task(root.Id, Day, Day.AddDays(2)); var b = Task(root.Id, Day.AddDays(3), Day.AddDays(5)); var open = Task(root.Id);
-        var result = PlannedRanges.Effective([root, a, b, open]);
+        var a = Task(root.Id, Day, Day.AddDays(2)); var b = Task(root.Id, Day.AddDays(3), Day.AddDays(5));
+        var result = PlannedRanges.Effective([root, a, b]);
         Assert.Equal(new PlannedRange(Day, Day.AddDays(5)), result[root.Id]);
-        Assert.Null(result[open.Id]);
+    }
+    [Fact]
+    public void ChildWithoutRangeInheritsTheParentOwnRangeAndKeepsTheParentRangeWide()
+    {
+        var root = Task(from: Day.AddDays(-10), to: Day.AddDays(30));
+        var a = Task(root.Id, Day, Day.AddDays(2)); var open = Task(root.Id);
+        var result = PlannedRanges.Effective([root, a, open]);
+        Assert.Equal(new PlannedRange(Day.AddDays(-10), Day.AddDays(30)), result[open.Id]);
+        Assert.Equal(new PlannedRange(Day.AddDays(-10), Day.AddDays(30)), result[root.Id]);
     }
 
     [Fact]

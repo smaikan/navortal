@@ -28,7 +28,7 @@ public sealed partial class NotificationStore
             {
                 Notification = n,
                 DueAt = n.SnoozeCount > 0 ? n.NotBefore ?? n.OccurredAt :
-                    n.Kind == "ScheduleStart" || n.Kind == "ScheduleEnd" || n.Kind == "TaskDeadline" ? n.OccurredAt - lead : n.NotBefore ?? n.OccurredAt
+                    n.Kind == "ScheduleStart" || n.Kind == "ScheduleEnd" ? n.OccurredAt - lead : n.NotBefore ?? n.OccurredAt
             }).Where(x => x.DueAt >= since && x.DueAt <= asOf);
         if (after is { } position)
             query = query.Where(x => x.DueAt > position.At || (x.DueAt == position.At && x.Notification.Id.CompareTo(position.Id) > 0));

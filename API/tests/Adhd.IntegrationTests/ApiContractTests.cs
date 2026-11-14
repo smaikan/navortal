@@ -19,7 +19,20 @@ public sealed class ApiContractTests(DatabaseFixture fixture) : IClassFixture<Da
             var path = "/" + description.RelativePath!.Split('?')[0]; Assert.True(paths.TryGetProperty(path, out var p), path); Assert.True(p.TryGetProperty(description.HttpMethod!.ToLowerInvariant(), out var operation), path);
             var metadata = description.ActionDescriptor.EndpointMetadata;
             var authenticated = metadata.OfType<IAuthorizeData>().Any() && !metadata.OfType<IAllowAnonymous>().Any();
-            var hasBearer = operation.TryGetProperty("security", out var security) && security.EnumerateArray().Any(x => x.TryGetProperty("Bearer", out _)); Assert.Equal(authenticated, hasBearer);
+            var scheme = path.StartsWith("/api/mobile/push", StringComparison.Ordinal) ? "MobileSessionCookie" : "Bearer";
+            var hasSecurity = operation.TryGetProperty("security", out var security) && security.EnumerateArray().Any(x => x.TryGetProperty(scheme, out _)); Assert.Equal(authenticated, hasSecurity);
+            if (path.StartsWith("/api/mobile/push", StringComparison.Ordinal))
+            {
+                Assert.All(security.EnumerateArray(), item => Assert.False(item.TryGetProperty("Bearer", out _)));
+                Assert.True(operation.GetProperty("responses").TryGetProperty("403", out _));
+                Assert.True(operation.GetProperty("responses").TryGetProperty("429", out _));
+                if (description.HttpMethod != "GET")
+                {
+                    var csrf = operation.GetProperty("parameters").EnumerateArray().Single(x => x.GetProperty("name").GetString() == "X-ADHD-CSRF");
+                    Assert.True(csrf.GetProperty("required").GetBoolean());
+                    Assert.Equal("1", csrf.GetProperty("schema").GetProperty("enum")[0].GetString());
+                }
+            }
             var declared = metadata.OfType<ProducesResponseTypeAttribute>().Where(x => x.StatusCode is >= 200 and < 300).ToArray(); var responses = operation.GetProperty("responses");
             foreach (var response in declared) Assert.True(responses.TryGetProperty(response.StatusCode.ToString(), out _), $"{description.HttpMethod} {path} status {response.StatusCode}");
             if (operation.TryGetProperty("parameters", out var parameters)) foreach (var parameter in parameters.EnumerateArray().Where(x => x.GetProperty("name").GetString() == "Idempotency-Key")) Assert.True(parameter.GetProperty("required").GetBoolean());

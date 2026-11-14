@@ -11,7 +11,7 @@ public sealed class TaskClassificationController(TaskClassificationService servi
     private Guid UserId => Guid.Parse(User.FindFirst("sub")!.Value);
     [HttpGet] public Task<ClassificationView> Get(Guid id, CancellationToken ct) => service.ReadAsync(UserId, id, ct);
     [HttpPut] public Task<ClassificationView> Put(Guid id, ClassificationRequest request, CancellationToken ct) =>
-        service.WriteAsync(UserId, id, new(request.Version, new(request.ProjectId, request.PoolId, request.CategoryId, request.TagIds), request.ApplyToSubtree, request.ExpectedPlanningVersion), ct);
+        service.WriteAsync(UserId, id, new(request.Version, new(request.ProjectId, request.PoolId, request.CategoryId, request.TagIds), request.ApplyToSubtree, request.ExpectedPlanningVersion, request.DetachKind, request.DetachResourceId), ct);
 }
 public sealed class ClassificationRequest
 {
@@ -21,5 +21,7 @@ public sealed class ClassificationRequest
     public Guid? CategoryId { get; set; }
     [Required, MaxLength(50)] public Guid[] TagIds { get; set; } = [];
     public bool ApplyToSubtree { get; set; }
+    public string? DetachKind { get; set; }
+    public Guid? DetachResourceId { get; set; }
     [Range(0, long.MaxValue)] public long? ExpectedPlanningVersion { get; set; }
 }

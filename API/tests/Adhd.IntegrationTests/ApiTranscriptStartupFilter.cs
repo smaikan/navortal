@@ -11,7 +11,7 @@ public sealed class ApiTranscriptStartupFilter : IStartupFilter
 {
     private static readonly SemaphoreSlim Writer = new(1, 1);
     private static readonly HashSet<string> Sensitive = new(StringComparer.OrdinalIgnoreCase)
-    { "accessToken", "access_token", "idToken", "token", "password", "currentPassword", "newPassword", "auth", "p256dh", "endpoint", "signingKey", "authorization" };
+    { "accessToken", "access_token", "idToken", "token", "fcmToken", "protectedToken", "password", "currentPassword", "newPassword", "auth", "p256dh", "endpoint", "signingKey", "authorization" };
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
     {
         app.Use(async (context, continuation) =>

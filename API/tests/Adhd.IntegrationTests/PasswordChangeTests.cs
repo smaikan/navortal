@@ -109,16 +109,20 @@ public sealed class PasswordChangeTests(DatabaseFixture fixture) : IClassFixture
         Assert.Equal(1, await db.AuthSessions.CountAsync(x => x.UserId == owner.Id && x.RevokedAt == null));
     }
 
-    [Fact]
-    public async Task FailedSessionInsertRollsBackPasswordResetLinksAndSessionRevocations()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FailedSessionInsertRollsBackPasswordResetLinksAndSessionRevocations(bool creating)
     {
         await using var app = new PlannerFactory(fixture.ConnectionString);
         var browser = Browser(app); var owner = await Register(browser);
-        var token = new string('B', 64);
-        string oldHash; Guid sid;
+        var token = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+        string? oldHash; Guid sid;
         await using (var before = fixture.CreateContext())
         {
-            oldHash = (await before.Users.SingleAsync(x => x.Id == owner.Id)).PasswordHash!;
+            var account = await before.Users.SingleAsync(x => x.Id == owner.Id);
+            if (creating) account.PasswordHash = null;
+            oldHash = account.PasswordHash;
             sid = await before.AuthSessions.Where(x => x.UserId == owner.Id).Select(x => x.Id).SingleAsync();
             before.PasswordResets.Add(new PasswordResetRequest { Id = Guid.CreateVersion7(), UserId = owner.Id, TokenHash = PasswordResetService.Hash(token), CreatedAt = app.Clock.Now, ExpiresAt = app.Clock.Now.AddMinutes(30) });
             await before.SaveChangesAsync();

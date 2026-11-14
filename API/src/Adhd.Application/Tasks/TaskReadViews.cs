@@ -21,4 +21,4 @@ public sealed record TaskPickerRow(Guid Id, string Title, Guid? ParentTaskId, st
 public sealed record TaskPickerPage(TaskPickerRow[] Items, int Offset, int Limit, int Total);
 public sealed record TaskPickerView(TaskPickerPage Assigned, TaskPickerPage Other, bool HasExactMatch, Adhd.Application.Sync.ReadCoverage? Coverage = null);
 
-public sealed record ResourceTaskTreePage(TaskView[] Roots, TaskView[] Nodes, TaskAncestorRow[] Parents, int Offset, int Limit, int Total);
+public sealed record ResourceTaskTreePage(TaskView[] Roots, TaskView[] Nodes, TaskAncestorRow[] Parents, int Offset, int Limit, int Total, Guid[]? ContextTaskIds = null, int? TaskCount = null);

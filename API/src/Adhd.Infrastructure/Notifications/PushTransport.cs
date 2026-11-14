@@ -13,6 +13,8 @@ namespace Adhd.Infrastructure.Notifications;
 public sealed class PushSettings
 {
     public bool Enabled { get; set; }
+    // P2 gönderim kuralı P1 arayüzünden ayrı açılıp geri alınabilir.
+    public bool SuppressReadDeliveries { get; set; }
     public string Subject { get; set; } = "";
     public string PublicKey { get; set; } = "";
     public string PrivateKey { get; set; } = "";

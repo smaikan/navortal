@@ -13,7 +13,7 @@ namespace Adhd.Infrastructure.Notifications;
 internal static class NotificationSources
 {
     internal static DateTimeOffset Due(NotificationIntent n, NotificationSettings s) => n.SnoozeCount > 0 ? n.NotBefore ?? n.OccurredAt :
-        n.Kind is "ScheduleStart" or "ScheduleEnd" or "TaskDeadline" ? n.OccurredAt.AddSeconds(-s.LeadSeconds) : n.NotBefore ?? n.OccurredAt;
+        n.Kind is "ScheduleStart" or "ScheduleEnd" ? n.OccurredAt.AddSeconds(-s.LeadSeconds) : n.NotBefore ?? n.OccurredAt;
     internal static async Task<bool> SoundEnabled(PlannerDbContext db, NotificationIntent n, NotificationSettings settings, CancellationToken ct)
     {
         if (!settings.SoundEnabled) return false;
@@ -36,7 +36,7 @@ internal static class NotificationSources
                 return plan?.CurrentRevisionId == n.RevisionId && block?.State == ScheduleState.Planned && block.Version == n.SourceVersion && block.TaskId == n.TaskId &&
                     (n.Kind == "ScheduleStart" ? block.StartsAt : block.EndsAt) == n.OccurredAt;
             case "TaskDeadline":
-                return await db.Tasks.AnyAsync(x => x.UserId == n.UserId && x.Id == n.SourceId && x.DeadlineAt == n.OccurredAt, ct);
+                return (await Adhd.Infrastructure.Tasks.TaskRangeReminders.Instants(db, n.UserId, n.SourceId, ct)).Any(x => x.Occurs == n.OccurredAt);
             case "FocusTarget": case "BreakEnd":
                 var focus = await db.FocusSessions.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == n.UserId && x.Id == n.SourceId, ct);
                 if (focus is null || focus.State is FocusState.Finished or FocusState.Interrupted || !FocusLifecycle.Settings(focus).NotificationsEnabled) return false;

@@ -32,6 +32,8 @@ public static class AuthRegistration
         services.AddScoped<AuthService>();
         services.Configure<GoogleSettings>(config.GetSection("Google"));
         services.AddDataProtection();
+        services.AddSingleton<Adhd.Application.Notifications.IMobilePushTokenProtector, MobilePushTokenProtector>();
+        services.AddScoped<MobilePushCookieFilter>();
         services.AddScoped<GoogleChallenge>();
         services.AddScoped<IGoogleTokenVerifier, GoogleTokenVerifier>();
         services.AddScoped<IGoogleAccountStore, GoogleAccountStore>();
@@ -104,6 +106,18 @@ public static class AuthRegistration
         services.AddRateLimiter(o =>
         {
             o.RejectionStatusCode = 429;
+            o.OnRejected = async (context, _) =>
+            {
+                var http = context.HttpContext;
+                if (!http.Request.Path.StartsWithSegments("/api/mobile/push")) return;
+                var seconds = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retry) ? Math.Max(1, Math.Ceiling(retry.TotalSeconds)) : 60;
+                http.Response.Headers.RetryAfter = seconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                await Results.Problem(statusCode: 429, title: "Biraz bekleyip yeniden dene.",
+                    extensions: new Dictionary<string, object?> { ["code"] = "mobile_rate_limited", ["traceId"] = http.TraceIdentifier }).ExecuteAsync(http);
+            };
+            o.AddPolicy("mobile-push", context => RateLimitPartition.GetFixedWindowLimiter(
+                context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
             o.AddPolicy("auth", context =>
             {
                 var limit = context.RequestServices.GetRequiredService<IOptions<AuthRateLimitSettings>>().Value;

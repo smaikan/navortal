@@ -31,6 +31,8 @@ services:
       - ./API/.local/api.env
       - {path: ./API/.local/smtp.env, required: false}
       - {path: ./API/.local/cloudinary.env, required: false}
+      - {path: ./API/.local/push.env, required: false}
+      - {path: ./API/.local/firebase.env, required: false}
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production

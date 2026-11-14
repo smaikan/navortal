@@ -17,6 +17,10 @@ public sealed class NotificationsController(INotificationStore store, IOptions<P
     [HttpPost("subscriptions")] public Task<SubscriptionView> Subscribe(RegisterSubscription command, CancellationToken ct) => store.SubscribeAsync(UserId, command, ct);
     [HttpPost("subscriptions/{id:guid}/remove"), ProducesResponseType(204)] public async Task<IActionResult> Unsubscribe(Guid id, TaskVersionRequest command, CancellationToken ct) { await store.UnsubscribeAsync(UserId, id, command.Version, ct); return NoContent(); }
     [HttpGet] public Task<NotificationPage> List([FromQuery] int offset = 0, [FromQuery] int limit = 50, CancellationToken ct = default) => store.ListAsync(UserId, offset, limit, ct);
+    [HttpGet("summary")] public Task<NotificationInboxSummary> Summary(CancellationToken ct) => store.SummaryAsync(UserId, ct);
+    [HttpGet("{id:guid}/delivery-status")] public Task<NotificationDeliveryStatus> DeliveryStatus(Guid id, CancellationToken ct) => store.DeliveryStatusAsync(UserId, id, ct);
+    [HttpPost("{id:guid}/delivery-receipts"), ProducesResponseType(204)] public async Task<IActionResult> Receipt(Guid id, RecordNotificationReceipt command, CancellationToken ct)
+    { await store.RecordReceiptAsync(UserId, id, command, ct); return NoContent(); }
     [HttpGet("alerts")] public Task<NotificationAlertPage> Alerts([FromQuery] int limit = 25, [FromQuery] string? cursor = null, CancellationToken ct = default) => store.AlertsAsync(UserId, limit, cursor, ct);
     [HttpPost("read-all")] public Task<ReadAllNotificationsResult> ReadAll(CancellationToken ct) => store.ReadAllAsync(UserId, ct);
     [HttpGet("{id:guid}")] public Task<NotificationView> Get(Guid id, CancellationToken ct) => store.GetAsync(UserId, id, ct);

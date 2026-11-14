@@ -33,9 +33,17 @@ public sealed partial class NotificationStore(PlannerDbContext db, TimeProvider 
     public async Task<NotificationPage> ListAsync(Guid user, int offset, int limit, CancellationToken ct)
     {
         Page(offset, limit); await using var tx = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, ct);
-        var q = db.NotificationIntents.AsNoTracking().Where(x => x.UserId == user && x.State == NotificationIntentState.Ready && x.Kind != "ScheduleStart" && x.Kind != "ScheduleEnd"); var total = await q.CountAsync(ct);
+        var q = Inbox(user); var total = await q.CountAsync(ct);
         var rows = await q.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id).Skip(offset).Take(limit).ToArrayAsync(ct); var settings = (await PreferencesAsync(user, ct)).Settings;
         return new(rows.Select(x => View(x, settings)).ToArray(), offset, limit, total);
+    }
+    private IQueryable<NotificationIntent> Inbox(Guid user) => db.NotificationIntents.AsNoTracking()
+        .Where(x => x.UserId == user && x.State == NotificationIntentState.Ready && x.Kind != "ScheduleStart" && x.Kind != "ScheduleEnd");
+    public async Task<NotificationInboxSummary> SummaryAsync(Guid user, CancellationToken ct)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead, ct);
+        var now = clock.GetUtcNow();
+        return new(await Inbox(user).CountAsync(x => x.ReadAt == null, ct), now);
     }
     public async Task<NotificationView> GetAsync(Guid user, Guid id, CancellationToken ct) => View(await Notification(user, id, ct), (await PreferencesAsync(user, ct)).Settings);
     public async Task<NotificationView> SnoozeAsync(Guid user, Guid id, SnoozeNotification command, CancellationToken ct)
@@ -55,9 +63,10 @@ public sealed partial class NotificationStore(PlannerDbContext db, TimeProvider 
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct); await Lock(user, ct);
         var now = clock.GetUtcNow();
-        var count = await db.NotificationIntents.Where(x => x.UserId == user && x.State == NotificationIntentState.Ready && x.ReadAt == null && x.ReadyAt <= now)
+        var count = await Inbox(user).Where(x => x.ReadAt == null && x.ReadyAt <= now)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.ReadAt, now).SetProperty(x => x.Version, x => x.Version + 1), ct);
-        await tx.CommitAsync(ct); return new(count, now);
+        var unread = await Inbox(user).CountAsync(x => x.ReadAt == null, ct);
+        await tx.CommitAsync(ct); return new(count, now, new(unread, now));
     }
     private Task<NotificationIntent> Notification(Guid user, Guid id, CancellationToken ct) => FindNotification(user, id, ct);
     private async Task<NotificationIntent> FindNotification(Guid user, Guid id, CancellationToken ct) => await db.NotificationIntents.SingleOrDefaultAsync(x => x.UserId == user && x.Id == id, ct) ?? throw Missing();

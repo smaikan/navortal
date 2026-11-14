@@ -18,7 +18,7 @@ public sealed class TaskLifecycleTests
         Assert.Equal(TaskState.Completed, parent.State); Assert.Equal(CompletionOrigin.Automatic, parent.CompletionOrigin); Assert.Equal(Now, parent.CompletedAt);
     }
     [Fact]
-    public void ReopenedChildReopensAutomaticAncestorsButPreservesManualAncestorDecision()
+    public void ReopenedChildReopensAutomaticAndManualAncestors()
     {
         var root = Node(direct: false); var parent = Node(root, false); var child = Node(parent); TaskItem[] nodes = [root, parent, child];
         TaskLifecycle.Apply(nodes, child.Id, TaskAction.Complete, null, Now);
@@ -26,8 +26,35 @@ public sealed class TaskLifecycleTests
         TaskLifecycle.Apply(nodes, root.Id, TaskAction.Complete, ParentCompletionChoice.ParentOnly, Now);
         TaskLifecycle.Apply(nodes, child.Id, TaskAction.Reopen, null, Now.AddMinutes(1));
         Assert.Equal(TaskState.Pending, parent.State); Assert.Null(parent.CompletedAt);
-        Assert.Equal(TaskState.Completed, root.State); Assert.Equal(CompletionOrigin.Manual, root.CompletionOrigin);
+        Assert.Equal(TaskState.Pending, root.State); Assert.Null(root.CompletedAt); Assert.Null(root.CompletionOrigin);
         Assert.True(TaskProgressCalculator.Calculate(nodes, root.Id).HasOpenDescendants);
+    }
+    [Fact]
+    public void ReopeningAParentReopensCompletedDescendantsButKeepsCanceledAndSkippedOnes()
+    {
+        var root = Node(direct: false); var mid = Node(root, false); var leaf = Node(mid); var dropped = Node(root); var skipped = Node(root); TaskItem[] nodes = [root, mid, leaf, dropped, skipped];
+        TaskLifecycle.Apply(nodes, root.Id, TaskAction.Complete, ParentCompletionChoice.CompleteSubtree, Now);
+        TaskLifecycle.Apply(nodes, dropped.Id, TaskAction.Cancel, null, Now); TaskLifecycle.Apply(nodes, skipped.Id, TaskAction.Skip, null, Now);
+        Assert.All(new[] { root, mid, leaf }, x => Assert.Equal(TaskState.Completed, x.State));
+        TaskLifecycle.Apply(nodes, root.Id, TaskAction.Reopen, null, Now.AddMinutes(1));
+        Assert.All(new[] { root, mid, leaf }, x => { Assert.Equal(TaskState.Pending, x.State); Assert.Null(x.CompletedAt); Assert.False(x.DirectWorkCompleted); });
+        Assert.Equal(TaskState.Canceled, dropped.State); Assert.Equal(TaskState.Skipped, skipped.State);
+    }
+    [Fact]
+    public void ReopeningAGrandchildReopensEveryCompletedAncestorAfterSubtreeCompletion()
+    {
+        var root = Node(direct: false); var mid = Node(root, false); var leaf = Node(mid); TaskItem[] nodes = [root, mid, leaf];
+        TaskLifecycle.Apply(nodes, root.Id, TaskAction.Complete, ParentCompletionChoice.CompleteSubtree, Now);
+        TaskLifecycle.Apply(nodes, leaf.Id, TaskAction.Reopen, null, Now.AddMinutes(1));
+        Assert.Equal(TaskState.Pending, leaf.State); Assert.Equal(TaskState.Pending, mid.State); Assert.Equal(TaskState.Pending, root.State);
+    }
+    [Fact]
+    public void ReopeningAnOptionalChildDoesNotReopenCompletedAncestors()
+    {
+        var root = Node(direct: false); var optional = Node(root); optional.RequiredForParent = false; TaskItem[] nodes = [root, optional];
+        TaskLifecycle.Apply(nodes, root.Id, TaskAction.Complete, ParentCompletionChoice.CompleteSubtree, Now);
+        TaskLifecycle.Apply(nodes, optional.Id, TaskAction.Reopen, null, Now.AddMinutes(1));
+        Assert.Equal(TaskState.Pending, optional.State); Assert.Equal(TaskState.Completed, root.State);
     }
     [Fact]
     public void ParentOnlySubtreeAndCancelChoicesHaveDistinctOutcomes()

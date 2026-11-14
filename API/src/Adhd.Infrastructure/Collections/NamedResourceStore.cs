@@ -33,19 +33,20 @@ public sealed class NamedResourceStore<T>(PlannerDbContext db, TimeProvider cloc
     // Sayfadaki özetleri tek görev sorgusunda al. Sayıları iş yüküyle aynı şekilde hesapla.
     private async Task<NamedResourceSummary[]> SummariesAsync(Guid userId, Guid[] ids, CancellationToken ct)
     {
-        var query = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.ArchivedAt == null);
-        Func<TaskItem, Guid?> owner;
-        if (typeof(T) == typeof(TaskProject)) { query = query.Where(x => x.ProjectId != null && ids.Contains(x.ProjectId.Value)); owner = x => x.ProjectId; }
-        else if (typeof(T) == typeof(TaskPool)) { query = query.Where(x => x.PoolId != null && ids.Contains(x.PoolId.Value)); owner = x => x.PoolId; }
-        else if (typeof(T) == typeof(TaskCategory)) { query = query.Where(x => x.CategoryId != null && ids.Contains(x.CategoryId.Value)); owner = x => x.CategoryId; }
-        else return [];
-        var groups = (await query.ToArrayAsync(ct)).ToLookup(owner);
+        var query = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.ArchivedAt == null && x.DeletedAt == null);
+        var kind = typeof(T) == typeof(TaskProject) ? "projects" : typeof(T) == typeof(TaskPool) ? "pools" : typeof(T) == typeof(TaskCategory) ? "categories" : null;
+        if (kind is null) return [];
+        var all = await query.ToArrayAsync(ct); var owners = CollectionTaskScope.Resolve(all, kind);
+        var groups = all.ToLookup(x => owners[x.Id]);
+        var children = all.Where(x => x.ParentTaskId.HasValue).ToLookup(x => x.ParentTaskId!.Value);
         try
         {
             return ids.Select(id =>
             {
-                var tasks = groups[id].ToArray(); var values = WorkloadForestCalculator.Calculate(tasks);
-                return new NamedResourceSummary(id, values.TaskCount, tasks.Count(x => x.State == TaskState.Completed), values.OpenComponentCount, values.KnownEstimatedSeconds, values.UnknownEstimateCount);
+                var tasks = groups[id].ToArray();
+                var values = WorkloadForestCalculator.Calculate(tasks);
+                var counted = tasks.Where(x => !children[x.Id].Any()).ToArray();
+                return new NamedResourceSummary(id, counted.Length, counted.Count(x => x.State == TaskState.Completed), values.OpenComponentCount, values.KnownEstimatedSeconds, values.UnknownEstimateCount);
             }).ToArray();
         }
         catch (OverflowException) { throw new UseCaseException(ErrorKind.Validation, "workload_overflow", "Toplam süre desteklenen sayı aralığını aşıyor."); }
@@ -72,10 +73,16 @@ public sealed class NamedResourceStore<T>(PlannerDbContext db, TimeProvider cloc
     public async Task<NamedResourceWorkload> WorkloadAsync(Guid userId, Guid id, CancellationToken ct)
     {
         _ = await Find(userId, id, ct);
-        var query = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.ArchivedAt == null);
-        if (typeof(T) == typeof(TaskProject)) query = query.Where(x => x.ProjectId == id);
-        else if (typeof(T) == typeof(TaskPool)) query = query.Where(x => x.PoolId == id);
-        else if (typeof(T) == typeof(TaskCategory)) query = query.Where(x => x.CategoryId == id);
+        var query = db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.ArchivedAt == null && x.DeletedAt == null);
+        if (typeof(T) == typeof(TaskProject) || typeof(T) == typeof(TaskPool) || typeof(T) == typeof(TaskCategory))
+        {
+            var kind = typeof(T) == typeof(TaskProject) ? "projects" : typeof(T) == typeof(TaskPool) ? "pools" : "categories";
+            var all = await query.ToArrayAsync(ct); var owners = CollectionTaskScope.Resolve(all, kind);
+            var parents = all.Where(x => x.ParentTaskId.HasValue).Select(x => x.ParentTaskId!.Value).ToHashSet();
+            var tasks = all.Where(x => owners[x.Id] == id).ToArray();
+            try { return new(id, WorkloadForestCalculator.Calculate(tasks) with { TaskCount = tasks.Count(x => !parents.Contains(x.Id)) }); }
+            catch (OverflowException) { throw new UseCaseException(ErrorKind.Validation, "workload_overflow", "Toplam süre desteklenen sayı aralığını aşıyor."); }
+        }
         else if (typeof(T) == typeof(TaskTag)) query = query.Where(x => db.TaskTagLinks.Any(tag => tag.UserId == userId && tag.TaskId == x.Id && tag.TagId == id));
         else throw new InvalidOperationException("Unknown collection type.");
         try { return new(id, WorkloadForestCalculator.Calculate(await query.ToArrayAsync(ct))); }

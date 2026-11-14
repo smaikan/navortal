@@ -28,7 +28,7 @@ public sealed class TaskLifecycleTests(DatabaseFixture fixture) : IClassFixture<
         Assert.Equal(a.Id, Assert.Single(components.Items).TaskId);
     }
     [Fact]
-    public async Task ParentChoicesDoNotEraseChildrenAndManualCompletionSurvivesChildReopen()
+    public async Task ParentChoicesDoNotEraseChildrenAndChildReopenReopensTheCompletedParent()
     {
         await using var app = new PlannerFactory(fixture.ConnectionString); var s = await TaskScenario.User(app);
         var root = await s.Root(); var child = await s.Child(root.Id); root = await s.Get(root.Id);
@@ -39,10 +39,12 @@ public sealed class TaskLifecycleTests(DatabaseFixture fixture) : IClassFixture<
         Assert.Equal(TaskState.Pending, (await s.Get(child.Id)).State);
         Assert.True((await TaskScenario.Read<TaskProgress>(await s.Client.GetAsync($"/api/tasks/{root.Id}/progress"))).HasOpenChildren);
         await s.State(child.Id, TaskAction.Complete); await s.State(child.Id, TaskAction.Reopen);
-        root = await s.Get(root.Id); Assert.Equal(TaskState.Completed, root.State); Assert.Equal(CompletionOrigin.Manual, root.CompletionOrigin);
+        root = await s.Get(root.Id); Assert.Equal(TaskState.Pending, root.State); Assert.Null(root.CompletedAt);
         await s.State(root.Id, TaskAction.Complete, ParentCompletionChoice.CompleteSubtree);
         Assert.Equal(TaskState.Completed, (await s.Get(child.Id)).State);
         Assert.False((await TaskScenario.Read<TaskProgress>(await s.Client.GetAsync($"/api/tasks/{root.Id}/progress"))).HasOpenDescendants);
+        await s.State(root.Id, TaskAction.Reopen);
+        Assert.Equal(TaskState.Pending, (await s.Get(child.Id)).State);
     }
     [Fact]
     public async Task SavedParentCompletionPolicyCanChooseSubtreeWithoutExtraDialog()

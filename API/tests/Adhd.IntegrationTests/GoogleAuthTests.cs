@@ -56,6 +56,127 @@ public sealed class GoogleAuthTests(DatabaseFixture fixture) : IClassFixture<Dat
         return (await response.Content.ReadFromJsonAsync<AuthResponse>())!;
     }
 
+    private static HttpRequestMessage SetPassword(Guid owner, string proof, string password = "new-password", bool csrf = true, string origin = "http://localhost")
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/auth/set-password")
+        { Content = JsonContent.Create(new { expectedUserId = owner, idToken = proof, newPassword = password }) };
+        request.Headers.Add("Origin", origin);
+        if (csrf) request.Headers.Add(SessionCookie.CsrfHeader, "1");
+        return request;
+    }
+
+    private static async Task<UserSummary> GoogleUser(HttpClient browser, Proofs proofs, GoogleIdentity identity)
+    {
+        var proof = await BrowserProof(browser, proofs, identity);
+        var response = await browser.SendAsync(Post("/api/auth/session/google", proof));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<UserSummary>())!;
+    }
+
+    [Fact]
+    public async Task GoogleUserCanCreatePasswordAndKeepBothLoginMethodsOnTheSameAccount()
+    {
+        var proofs = new Proofs(); await using var app = App(proofs);
+        using var browser = Browser(app); var identity = Identity();
+        var user = await GoogleUser(browser, proofs, identity);
+        using var other = Browser(app); await GoogleUser(other, proofs, identity);
+        await other.GetAsync("/api/auth/me"); // warm the revoked session cache
+        var proof = await BrowserProof(browser, proofs, identity);
+        var response = await browser.SendAsync(SetPassword(user.Id, proof));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.DoesNotContain("accessToken", await response.Content.ReadAsStringAsync());
+        Assert.True(response.Headers.CacheControl!.NoStore);
+        Assert.Contains(response.Headers.GetValues("Set-Cookie"), x => x.StartsWith("adhd_session=") && x.Contains("httponly", StringComparison.OrdinalIgnoreCase));
+        var updated = (await response.Content.ReadFromJsonAsync<UserSummary>())!;
+        Assert.Equal(user.Id, updated.Id); Assert.Equal(user.ProfileVersion + 1, updated.ProfileVersion);
+        var profile = (await browser.GetFromJsonAsync<ProfileView>("/api/account/profile"))!;
+        Assert.True(profile.HasPassword); Assert.True(profile.GoogleLinked);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await other.GetAsync("/api/auth/me")).StatusCode);
+        using var login = app.CreateClient();
+        var passwordLogin = await login.PostAsJsonAsync("/api/auth/session/login", new { email = user.Email, password = "new-password" });
+        Assert.Equal(HttpStatusCode.OK, passwordLogin.StatusCode);
+        Assert.Equal(user.Id, (await passwordLogin.Content.ReadFromJsonAsync<UserSummary>())!.Id);
+        Assert.Equal(user.Id, (await GoogleUser(other, proofs, identity)).Id);
+        // Once a password exists, the existing reset path can change it too.
+        var token = new string('D', 64);
+        await using (var db = fixture.CreateContext())
+        {
+            db.PasswordResets.Add(new Adhd.Domain.Users.PasswordResetRequest { Id = Guid.CreateVersion7(), UserId = user.Id, TokenHash = PasswordResetService.Hash(token), CreatedAt = app.Clock.Now, ExpiresAt = app.Clock.Now.AddMinutes(30) });
+            await db.SaveChangesAsync();
+        }
+        Assert.Equal(HttpStatusCode.NoContent, (await login.PostAsJsonAsync("/api/auth/reset-password", new { token, newPassword = "reset-password" })).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await login.PostAsJsonAsync("/api/auth/session/login", new { email = user.Email, password = "reset-password" })).StatusCode);
+    }
+
+    [Theory]
+    [InlineData("invalid-proof")]
+    [InlineData("wrong-account")]
+    [InlineData("same-email-different-subject")]
+    [InlineData("expired")]
+    [InlineData("missing-challenge")]
+    [InlineData("missing-nonce")]
+    [InlineData("wrong-nonce")]
+    [InlineData("short-password")]
+    public async Task PasswordCreationRequiresFreshProofOfTheLinkedGoogleIdentity(string failure)
+    {
+        var proofs = new Proofs(); await using var app = App(proofs); using var browser = Browser(app);
+        var identity = Identity(); var user = await GoogleUser(browser, proofs, identity);
+        var proof = await BrowserProof(browser, proofs, identity);
+        if (failure == "invalid-proof") proof = "unknown";
+        if (failure == "wrong-account") proof = await BrowserProof(browser, proofs, Identity());
+        if (failure == "same-email-different-subject") proof = await BrowserProof(browser, proofs, Identity(identity.Email));
+        if (failure == "expired") app.Clock.Now += GoogleChallenge.Lifetime;
+        if (failure == "missing-nonce") proofs.Values[proof] = identity;
+        if (failure == "wrong-nonce") proofs.Values[proof] = identity with { Nonce = "wrong" };
+        if (failure == "missing-challenge")
+        {
+            // The successful Google sign-in clears its challenge cookie.
+            await GoogleUser(browser, proofs, identity);
+        }
+        var response = await browser.SendAsync(SetPassword(user.Id, proof, failure == "short-password" ? "short" : "new-password"));
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await browser.GetAsync("/api/auth/me")).StatusCode);
+        await using var db = fixture.CreateContext();
+        Assert.Null((await db.Users.SingleAsync(x => x.Id == user.Id)).PasswordHash);
+        Assert.Equal(1, await db.ExternalLogins.CountAsync(x => x.UserId == user.Id));
+    }
+
+    [Fact]
+    public async Task PasswordCreationRequiresAuthenticationCsrfOriginAndMatchingOwnerAndCannotOverwrite()
+    {
+        var proofs = new Proofs(); await using var app = App(proofs); using var browser = Browser(app);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await app.CreateClient().SendAsync(SetPassword(Guid.NewGuid(), "proof"))).StatusCode);
+        var identity = Identity(); var user = await GoogleUser(browser, proofs, identity);
+        var proof = await BrowserProof(browser, proofs, identity);
+        Assert.Equal(HttpStatusCode.Forbidden, (await browser.SendAsync(SetPassword(user.Id, proof, csrf: false))).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await browser.SendAsync(SetPassword(user.Id, proof, origin: "https://evil.test"))).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await browser.SendAsync(SetPassword(Guid.NewGuid(), proof))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await browser.SendAsync(SetPassword(user.Id, proof))).StatusCode);
+        proof = await BrowserProof(browser, proofs, identity);
+        var overwrite = await browser.SendAsync(SetPassword(user.Id, proof, "replacement-password"));
+        Assert.Equal(HttpStatusCode.Conflict, overwrite.StatusCode);
+        Assert.Contains("password_already_set", await overwrite.Content.ReadAsStringAsync());
+        Assert.Equal(HttpStatusCode.OK, (await browser.GetAsync("/api/auth/me")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await app.CreateClient().PostAsJsonAsync("/api/auth/session/login", new { email = user.Email, password = "new-password" })).StatusCode);
+    }
+
+    [Fact]
+    public async Task ConcurrentPasswordCreationHasOnlyOneWinner()
+    {
+        var proofs = new Proofs(); await using var app = App(proofs); using var browser = Browser(app);
+        var identity = Identity(); proofs.Values["race-password"] = identity;
+        var response = await browser.PostAsJsonAsync("/api/auth/google", new { idToken = "race-password" });
+        var auth = (await response.Content.ReadFromJsonAsync<AuthResponse>())!;
+        var clients = Enumerable.Range(0, 2).Select(_ => app.CreateClient()).ToArray();
+        foreach (var client in clients) client.DefaultRequestHeaders.Authorization = new("Bearer", auth.AccessToken);
+        var results = await Task.WhenAll(clients.Select((client, i) => client.SendAsync(SetPassword(auth.User.Id, "race-password", $"password-{i}"))));
+        Assert.Single(results, x => x.StatusCode == HttpStatusCode.OK);
+        Assert.All(results.Where(x => x.StatusCode != HttpStatusCode.OK), x => Assert.Contains(x.StatusCode, new[] { HttpStatusCode.Conflict, HttpStatusCode.Unauthorized }));
+        await using var db = fixture.CreateContext();
+        Assert.Equal(1, await db.AuthSessions.CountAsync(x => x.UserId == auth.User.Id && x.RevokedAt == null));
+        foreach (var client in clients) client.Dispose();
+    }
+
     [Fact]
     public async Task BrowserCreatesProfileAndHttpOnlySessionWithoutExposingTokens()
     {

@@ -30,6 +30,7 @@ public static class TaskLifecycle
             Reconcile(nodes, action == TaskAction.CompleteDirectWork ? [id] : AncestorSeed(selected), now);
             return;
         }
+        var previous = selected.State;
         selected.DirectWorkCompleted = false;
         selected.State = action switch
         {
@@ -38,7 +39,28 @@ public static class TaskLifecycle
             _ => throw new ArgumentOutOfRangeException(nameof(action))
         };
         selected.CompletedAt = null; selected.CompletionOrigin = null;
+        if (action == TaskAction.Reopen) { ReopenDescendants(selected, children); if (previous != TaskState.Pending) ReopenAncestors(selected, index); }
         Reconcile(nodes, AncestorSeed(selected), now);
+    }
+    /// <summary>Üst görev yeniden açılınca tamamlanmış alt görevleri de açılır; iptal, atlama ve erteleme durumları korunur.</summary>
+    private static void ReopenDescendants(TaskItem root, ILookup<Guid, TaskItem> children)
+    {
+        var queue = new Queue<TaskItem>(children[root.Id]);
+        while (queue.TryDequeue(out var task))
+        {
+            if (task.State == TaskState.Completed) { Open(task); task.DirectWorkCompleted = false; }
+            foreach (var child in children[task.Id]) queue.Enqueue(child);
+        }
+    }
+    /// <summary>Alt görev açılınca onu gerekli sayan tamamlanmış üst görevler, elle tamamlanmış olsa da açılır. Gerekli sayılmayan halkada zincir durur.</summary>
+    private static void ReopenAncestors(TaskItem task, IReadOnlyDictionary<Guid, TaskItem> index)
+    {
+        var current = task;
+        while (current.RequiredForParent && current.ParentTaskId is { } parentId && index.TryGetValue(parentId, out var parent))
+        {
+            if (parent.State == TaskState.Completed) Open(parent);
+            current = parent;
+        }
     }
     public static void Reconcile(IReadOnlyCollection<TaskItem> nodes, IEnumerable<Guid> starts, DateTimeOffset now)
     {

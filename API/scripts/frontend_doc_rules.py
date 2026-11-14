@@ -1,6 +1,25 @@
 """Kontrol edilmiş API alan anlamları ve uç şartları. Kaynak ve gerçek testlerle aynı tutulmalı."""
 
 EXTRA_FIELD_NOTES = {
+    'userId': 'Oturumun sahibi kullanıcı UUID kimliği; istemcinin yetki vermek için seçtiği bir hesap değildir.',
+    'permission': 'Android bildirim izni: granted/denied/notDetermined. Gönderim için granted gerekir.',
+    'remindersChannelEnabled': 'Android reminders-v1 kanalının açık olması; uygulama izniyle birlikte gönderim uygunluğunda kullanılır.',
+    'platform': 'Native mobil hedef platformu; Aşama 1 yalnız android kabul eder.',
+    'packageName': 'Native hedef paket adı; Aşama 1 yalnız tr.com.navortal kabul eder.',
+    'appVersion': 'Android uygulama sürümü; 1–32 karakterlik sürüm metni.',
+    'buildNumber': 'Android uygulama derleme numarası; pozitif Int64.',
+    'osVersion': 'Android işletim sistemi sürüm metni; en çok 64 karakter, varsayılan boş.',
+    'lastSeenAt': 'Sunucunun son başarılı cihaz kayıt/yenileme zamanı; UTC.',
+    'deliveryId': 'Tek sağlayıcı tesliminin UUID kimliği; gösterim kontrolü ve makbuzlarda kullanılır.',
+    'notificationId': 'Owner kapsamındaki bildirim niyetinin UUID kimliği; teslim kimliğinden ayrıdır.',
+    'silent': 'Güncel ortak/odak ses tercihi nedeniyle ses çıkarılmaması gerektiğini belirtir; Android kanal ayarları da geçerlidir.',
+    'stage': 'İstemci makbuz aşaması: Displayed yerel gösterim, Opened kullanıcı tıklaması. Okundu durumu değildir.',
+    'fcmToken': 'Native Android FCM kayıt hedefi; yalnız sunucuya gönderilir, yanıta/belge kanıtına/loga alınmaz. 1..4096 karakter, boşluk/kontrol karakteri yok.',
+    'installationId': 'Android kurulumunun rastgele kalıcı UUID kimliği; donanım kimliği değildir. Kullanıcı/oturum ve bindingVersion ile denetlenir.',
+    'bindingVersion': 'Sunucunun mobil hesap/oturum/token bağı sürümü. İlk PUT 0; devamında son yanıttaki değer. Hesap/oturum/token değişiminde artar.',
+    'clientSequence': 'Kurulum başına kalıcı, monoton artan pozitif Int64 sıra. Hesap değişiminde sıfırlanmaz; gecikmiş yazmalar409.',
+    'fcmAvailable': 'FCM gönderimi sunucuda etkin ve hizmet hesabı dosyası mevcut; gerçek Google IAM/ağ/anahtar geçerliliği kanıtı değildir.',
+    'displayAllowed': 'Güncel oturum, cihaz bağı, izin, tercihler, okunmuşluk, kaynak ve son kullanım zamanı üzerinden gösterim kararı. Ağ hatasında göstermeyin.',
     'expectedUserId': 'me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404.',
     'mediaType': 'Profil fotoğrafının MIME türü: yalnız image/jpeg, image/png veya image/webp. Byte imzası ayrıca denetlenir.',
     'pomodoroSound': 'Pomodoro hedefi (FocusTarget) ve mola bitişi (BreakEnd) uygulama sesi. bell (varsayılan), marimba, digital, glass, pulse veya soft; null/geçersiz kimlik reddedilir.',
@@ -418,13 +437,18 @@ EXTRA_FIELD_NOTES = {
 }
 
 SCHEMA_FIELD_NOTES = {
+    'SetPasswordRequest': {
+        'expectedUserId': 'me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse409 account_changed. Yazı hedefini seçmez.',
+        'idToken': 'Aynı hesaba bağlı Google sub için taze doğrulama kanıtı; tarayıcıda Google challenge cookie/nonce ile eşleşir. URL, log veya storage alanına yazılmaz.',
+        'newPassword': 'Hesabın ilk parolası; en az6 karakter, trim veya ek karmaşıklık yoktur. Mevcut parola varsa409; eski oturumlar/reset bağlantıları iptal edilip yeni HttpOnly cookie verilir.',
+    },
     'ChangePasswordRequest': {
         'expectedUserId': 'me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse409 account_changed. Yazı hedefini seçmez.',
         'currentPassword': 'Mevcut parola; sunucudaki hash ile doğrulanır, hatalıysa400 current_password_invalid. Sırdır, log/URL/storage alanına yazılmaz.',
         'newPassword': 'En az6 karakter, trim/ek karmaşıklık yoktur; mevcut paroladan farklıdır. Eski oturumlar/reset bağlantıları iptal edilir, yeni HttpOnly cookie verilir.',
     },
     'NamedResourcePage': {'summaries': 'includeSummary=true ise sayfadaki her kayıt için özet; aksi halde null. Etiketlerde boş dizidir.'},
-    'NamedResourceSummary': {'resourceId': 'Özetin ait olduğu kayıt.', 'taskCount': 'Arşivlenmemiş bağlı görev sayısı; iş yükü ucuyla aynıdır.', 'completedCount': 'Bu görevlerden tamamlananların sayısı.', 'openComponentCount': 'Açık iş bileşeni sayısı; iş yükü ucuyla aynıdır.', 'knownEstimatedSeconds': 'Bilinen tahmin toplamı, saniye.', 'unknownEstimateCount': 'Tahmini olmayan iş sayısı; süre sıfır sayılmaz.'},
+    'NamedResourceSummary': {'resourceId': 'Özetin ait olduğu kayıt.', 'taskCount': 'Arşivlenmemiş görev sayısı; projede bağlı görevlerin bütün altları dahil edilir ve yalnız altı olmayan görevler sayılır. İş yükü ucuyla aynıdır.', 'completedCount': 'Bu görevlerden tamamlananların sayısı.', 'openComponentCount': 'Açık iş bileşeni sayısı; iş yükü ucuyla aynıdır.', 'knownEstimatedSeconds': 'Bilinen tahmin toplamı, saniye.', 'unknownEstimateCount': 'Tahmini olmayan iş sayısı; süre sıfır sayılmaz.'},
     'RecurrenceCounts': {'onTime': 'Görev, oluşum gününün sonunda tamamlanmıştı; sonradan yeniden açılması bunu değiştirmez.', 'late': 'Gün sonunda açıktı, serverNow anına kadar tamamlandı.', 'notDone': 'Günü geçti, görev açık veya ertelenmiş.', 'todayPending': 'Bugünkü açık görev; orana girmez.', 'skipped': 'Kullanıcı atladı/iptal etti veya görev silindi; orana girmez.', 'notGenerated': 'Kurala göre rutin günü, kullanıcıya görev oluşmadı; orana girmez.', 'completed': 'onTime + late.', 'total': 'completed + notDone; yalnız sonucu belli görevler.', 'consistency': 'completed / total; payda0 ise null. Örnek sınırı minimumSamples ile UI tarafından uygulanır.'},
     'RecurrenceAnalyticsView': {'compareFromDate': 'İstekte verilen karşılaştırma başlangıcı; yoksa null.', 'compareToDate': 'İstekte verilen karşılaştırma bitişi; yoksa null.', 'activeCount': 'Dönemde sonucu belli veya bugün bekleyen görevi olan rutin sayısı.', 'compare': 'compareFromDate/compareToDate verildiyse aynı hesap; verilmediyse null.', 'minimumSamples': 'Bu sayının altında yüzde gösterilmez.'},
     'RecurrenceAnalyticsDay': {'class': 'Günün tek analiz sınıfı; tanımı RecurrenceCounts alanlarıyla aynıdır.'},
@@ -501,7 +525,7 @@ SCHEMA_FIELD_NOTES = {
     'CustomReminderCommand': {'version': 'Create için gerekmez; PUT için güncel sürüm zorunlu, eksikse409.', 'repeat': 'İsteğe bağlı haftalık tekrar; null tek seferdir. timeZoneId IANA, localTime dakika hassasiyetinde, weekDays 0=Pazar..6=Cumartesi farklı 1..7 gün. Aynı yerel saat sunucuda sürdürülür; geçmiş tarihlerde alarm seli yaratılmaz.'},
     'CustomReminderView': {'repeat': 'Kalıcı haftalık tekrar veya null. dueAt tekrarlayan etkin kayıtta sonraki zamanı gösterir; taskId eski istemciler içindir, yeni UI görev bağlamaz.'},
     'ReminderRepeat': {'weekDays': '0=Pazar, 1=Pazartesi..6=Cumartesi; farklı en az bir gün.', 'localTime': 'Her seçili günde aynı yerel saat; yalnız dakika hassasiyeti. DST boşluğunda ilk geçerli dakika, tekrarlanan saatte sonraki oluşum.', 'timeZoneId': 'Tekrarın kayıt sırasında sabitlenen IANA saat dilimi.'},
-    'ReadAllNotificationsResult': {'readCount': 'Bu owner için o anda Ready ve okunmamış olup okundu yapılan kayıt sayısı.', 'readAt': 'Sunucudaki toplu okuma zamanı; sonraki Ready kayıtlar ve Pending hatırlatmalar etkilenmez.'},
+    'ReadAllNotificationsResult': {'readCount': 'Bu owner gelen kutusunda o anda Ready ve okunmamış olup okundu yapılan kayıt sayısı; ScheduleStart/ScheduleEnd hariç.', 'readAt': 'Sunucudaki toplu okuma zamanı; sonraki Ready kayıtlar ve Pending hatırlatmalar etkilenmez.', 'summary': 'Aynı owner kilidi ve transaction içinde toplu okuma sonrasındaki gerçek gelen kutusu özeti; iyimser sıfır değildir.'},
     'RecurrenceTemplateView': {'version': 'Template version; occurrence skip/cancel body version da template sürümüdür.'},
     'ChangeOccurrence': {'version': 'Template sürümü; TaskView.version değildir.', 'taskVersion': 'Occurrence taskı varsa zorunlu güncel task sürümü; henüz task yoksa gönderilmez.'},
     'SchedulingPreviewView': {'expiresAt': 'Snapshot serverNow+2dk. Aynı key replay süresini uzatmaz; Expired veya stale ise yeni preview.'},
@@ -535,6 +559,8 @@ SCHEMA_FIELD_NOTES['NoteConversion'] = {
 }
 
 def operation_notes(method, path):
+    if path.startswith('/api/mobile/push/'):
+        return ['Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.']
     if method == 'POST' and path == '/api/notes/{id}/convert':
         return ['Not korunarak yeni göreve bağlanır. Yeni UI plannedFrom/plannedTo, energyDemand ve priority alanlarını isteğe bağlı gönderir; inheritNoteDueAt=false ile notun tarihi son teslim tarihine aktarılmaz. Aralık iki tarih birlikte veya ikisi null; tek gün için aynı tarih, en çok367 gün. Efor null, aciliyet null/eksikse Normal olabilir. Eski payload/son teslim ve kaydedilmiş idempotency makbuzları uyumludur. Aynı anahtar ve içerik aynı görevi döndürür; farklı içerik409, geçersiz seçim400; kayıt tek transaction içindedir.']
     if path == '/api/{kind}/{id}/task-tree':
@@ -550,6 +576,8 @@ def operation_notes(method, path):
         return ['Oturum açmış kullanıcıya Google kimliğini bağlar. Cookie isteklerinde expectedUserId zorunludur ve oturum sahibiyle eşleşmelidir (404); Bearer istemcide gönderilirse kontrol edilir. Tarayıcı isteklerinde challenge cookie doğrulanır, Bearer uyumludur. Geçersiz Google kanıtı/challenge 400 döner, mevcut uygulama oturumu kapanmaz. Bağlantı sonrası UserSummary.googlePictureUrl güncellenebilir. Başka hesaba bağlı sub için 409 google_already_linked döner.']
     if method == 'POST' and path == '/api/auth/google':
         return ['Harici ve mobil istemciler için Bearer uyumluluk ucu. Doğrulanmış idToken ile JWT AccessToken ve UserSummary döner; tarayıcı /api/auth/session/google kullanır. Google kapalıysa 503 döner.']
+    if method == 'POST' and path == '/api/auth/set-password':
+        return ['Google ile açılmış, henüz parolası olmayan hesap için ilk parola oluşturur. expectedUserId oturum sahibiyle eşleşir; idToken sub aynı hesaba önceden bağlı Google kimliği olmalıdır, e-posta eşleşmesi yeterli değildir. Tarayıcıda taze Google challenge cookie/nonce zorunludur. Geçersiz kanıt 400 döner ve mevcut oturumu kapatmaz. Google kapalıysa 503, parola varsa 409 password_already_set döner. En az6 karakter parola trim edilmez. Hash/version, reset kodu iptali, eski oturumların kapanması ve yeni oturum tek transaction içindedir. Yanıt yalnız UserSummary; yeni JWT HttpOnly cookie içindedir. Google bağlantısı korunur; artık iki giriş yöntemi kullanılabilir. Cookie CSRF/Origin ve auth rate limit uygulanır. Otomatik yazım retry yok; belirsiz sonuçta yeni parolayla giriş yap.']
     if method == 'POST' and path == '/api/auth/change-password':
         return ['Mevcut parola ve expectedUserId doğrulanır. En az6 karakter yeni parola trim edilmez; mevcut paroladan farklıdır. Hash/version, reset bağlantıları, bütün eski sid iptalleri ve yeni sid tek transaction içindedir. Response yalnız UserSummary; yeni JWT HttpOnly cookie içindedir. Eski cookie/Bearer kopyaları ve diğer cihazlar kapanır. Cookie CSRF/Origin ve auth rate limit geçerlidir. Key/otomatik retry yok; belirsiz sonuçta yeni parolayla giriş yap. GET me parola değişikliğini kanıtlamaz.']
     if path.startswith('/api/analytics/recurrences'):
@@ -572,7 +600,7 @@ def operation_notes(method, path):
     if method == 'POST' and path == '/api/notes/{id}/restore':
         notes.append('Geri al: silinmiş notu aynı alanlarla geri getirir; version silme yanıtındaki sürümdür. Silinmemiş not için 409 note_not_deleted.')
     if method == 'POST' and path == '/api/notifications/read-all':
-        notes.append('Gelen kutusu açıldığında bir kez çağrılır. Owner lock altında o anda Ready/okunmamış kayıtları topluca okur; sürümleri artar. Pending/başka owner/sonraki Ready kayıtlar değişmez. Belirsiz sonuçta kendiliğinden tekrar yok; açık kullanıcı niyetiyle yeniden gönderilebilir.')
+        notes.append('Gelen kutusu açıldığında bir kez çağrılır. Owner lock altında gelen kutusuyla aynı filtredeki Ready/okunmamış kayıtları topluca okur; sürümleri artar. Gelen kutusunda görünmeyen ScheduleStart/ScheduleEnd plan sinyalleri etkilenmez. Pending/başka owner/sonraki Ready kayıtlar değişmez. Belirsiz sonuçta kendiliğinden tekrar yok; açık kullanıcı niyetiyle yeniden gönderilebilir.')
     if path == '/api/notifications/reminders' or path == '/api/notifications/reminders/{id}':
         notes.append('repeat null veya verilmemişse tek sefer. Haftalık tekrar seçili günlerde aynı kayıt/sürüm altında yeni intent üretir; ilk uygun gelecek günden başlar. Idempotency tekrarında özgün sonuç döner; düzenleme/iptal eski sürümün intentlerini geçersiz kılar. Sonraki intent sunucuda atomik üretilir; gecikmiş alarm tekrarları atlanır, kullanıcıya geçmiş alarm seli gönderilmez.')
     if method == 'GET' and path in ('/api/tasks', '/api/tasks/children'):
@@ -631,6 +659,8 @@ def operation_notes(method, path):
         notes.append('Açık, arşivsiz görevi (kapsayıcı dahil) güne saatsiz ekler; kapalı görev409 task_not_plannable. Aynı gün aynı görev için tek Planned öğe vardır:409 day_item_exists. Idempotency-Key yoktur; belirsiz sonuçta yeniden göndermeyin, listeyi GET ile okuyun.')
     if path.startswith('/api/day-items/{id}/'):
         notes.append('Gün öğesinin version değeri gönderilir; eski version409 version_conflict, Planned olmayan öğe409 day_item_not_planned, başka hesap veya silinmiş görev404. completeTask=false varsayılanında complete/reopen yalnız plan öğesini işaretler. completeTask=true tamamlamada görev alt ağacını da tamamlar ve açık sayaçları kapatır; yeniden açmada yalnız seçili görev açılır. Bu görev durumu değişikliği genel plan undo yerine tamamlanma kutusuyla geri açılır.')
+    if method == 'POST' and path in ('/api/day-items/{id}/remove', '/api/schedules/{id}/remove'):
+        notes.append('Kaydedilmiş gün grubunda alt öğeleri bulunan görev kaldırılırsa aynı gün bu görevin altındaki saatli ve saatsiz öğeler tek transaction ve DayGroup revizyonuyla birlikte kaldırılır. Üyelik gün planında saklanan hiyerarşiden okunur; bağımsız öğeler ve başka günler değişmez. Görev kayıtları ve gerçek çalışma korunur. Saatsiz kökten kaldırmada sabit/kilitli alt blok409 schedule_protected verir; saatli uç mevcut allowProtectedChange iznini bütün gruba uygular. Yaprak öğe kaldırma mevcut tekil davranışını korur.')
     if path == '/api/day-items/{id}/move':
         notes.append('Öğeyi saatsiz olarak hedef güne taşır ve tamamlanma işaretini kaldırır. Aynı gün400 day_item_same_day; hedefte aynı görev varsa409 day_item_exists.')
     if method == 'POST' and path in ('/api/schedules/{id}/complete', '/api/schedules/{id}/reopen'):
@@ -653,6 +683,16 @@ def operation_notes(method, path):
         notes.append('CustomReminderCommand.version nullable şemaya rağmen update için davranışsal olarak gereklidir; eksik/stale409. DueAt serverNowdan ileri ve en çok bir yıl, title1..200.')
     if method == 'GET' and path == '/api/notifications':
         notes.append('Gelen kutusu yalnız Ready bildirimleri listeler. ScheduleStart/ScheduleEnd gönderimleri sürer fakat gelen kutusuna dahil edilmez; teknik intentler veri tabanında korunur. Total bu sorgunun toplamıdır; Pending/Suppressed/Obsolete/Expired kayıtlar sayılmaz. Açılışta read-all ayrı açık komuttur.')
+    if method == 'GET' and path == '/api/notifications/summary':
+        notes.append('Owner kapsamında, gelen kutusuyla aynı Ready/tür filtresinde ReadAt null olan bütün kayıtları sayar; son sayfaya veya 10 kayda bağlı değildir. asOf sunucu okuma zamanıdır. Read-all summary aynı transaction içinde komut sonrası sayıdır; geç kalan GET ile komut makbuzunu ezmeyin, ardından yeni kayıtlar için yenileyin.')
+    if path.endswith('/delivery-receipts'):
+        notes.append('expectedUserId oturum owner ile aynı olmalı; yabancı kimlik/kayıt404. Negatif/gelecek tur, bilinmeyen aşama veya o turda hazırlanmış PushDelivery yoksa400 notification_receipt_invalid. Displayed/Opened ilk makbuzu sunucu saatiyle idempotent kaydeder; içerik, endpoint, token veya istemci saati almaz. Bildirimi okundu yapmaz; provider kabulü veya fiziksel görülme kanıtı değildir. Cookie istemci aynı-origin CSRF başlığı gönderir. Aynı owner/bildirim/tur/aşama makbuzu uygulama olayında sınırlı teknik yeniden denemeye uygundur; Idempotency-Key gerekmez.')
+    if path.endswith('/delivery-status'):
+        notes.append('Yalnız owner ve güncel erteleme turu. preparedAt güncel turdaki ilk PushDelivery hazırlığıdır; ilk turda teslim yoksa ReadyAt, sonraki turda henüz teslim yoksa null, providerAcceptedAt başarılı dış gönderimin sunucu zamanı, clientDisplayedAt/clientOpenedAt en az bir tarayıcının ayrı iddiası, readAt uygulama okundu işaretidir. Eksik aşama null; sağlayıcı 201 fiziksel gösterim/ses garantisi değildir.')
+    if method == 'GET' and path == '/api/notifications/subscriptions':
+        notes.append('Liste en çok100 kayıt döndürür; aktif cihazlar önce, her grupta CreatedAt/Id azalan sıradadır. Pasif geçmiş aktif cihazları liste dışına itemez. Endpoint ve anahtarlar geri dönmez.')
+    if method == 'POST' and path == '/api/notifications/subscriptions':
+        notes.append('En çok20 aktif cihaz sınırı yeni kayıt ve pasif aboneliği yeniden açmada uygulanır. Mevcut aktif aboneliğin yenilenmesi sınırda da mümkündür. Sınır aşımı400 push_subscription_limit; başka hesabın endpoint sahibi değiştirilmez.')
     if method == 'GET' and path == '/api/notifications/alerts':
         notes.append('Ön plan alarmı için salt okunur sunucu otoritesi: limit varsayılan25,1..50 aday; Ready ve unread, dueAt≤serverNow ve en çok120sn eski, güncel kaynak/version/revision/tür/enabled/sessiz saat kontrolleri. Ses kapalı öğe kalır; soundEnabled global ses ve FocusTarget/BreakEnd için focus snapshot sesinin birleşimidir. PushEnabled bu yerel kanalı kapatmaz. dueAt açık snooze turunda NotBefore, schedule/deadline için OccurredAt−LeadSeconds, diğerlerinde NotBefore??OccurredAt. Artan (dueAt,id) keyset cursor ilk sayfanın sabit üst sınırını korur; her sayfa güncel tazelik/policy kontrolünü yeniden yapar. Geçersiz adaylar yüzünden boş items ile nextCursor gelebilir; null bitiştir. Yeni poll/sync turunda cursor kullanma. İmleç auth tokenı değildir; bozuk/yabancı/eski (>120sn) cursor400 notification_alert_cursor_invalid. GET job tetiklemez, readAt veya receipt yazmaz. ReadyAt ilk hazırlama anıdır; yeni snooze turunun baseline anı NotBefore olur. Browser unlock/mount öncesi tarihçeyi çalmama ve owner/id/snoozeCount kanal dedupu frontend sorumluluğudur.')
     if method == 'GET' and path == '/api/notifications/reminders':
@@ -667,8 +707,20 @@ def operation_notes(method, path):
     if method == 'POST' and path == '/api/calendar/days/{date}/pool-batch':
         notes.append('UI-R3 Hafiflet: 1–50 farklı tasks[{id,version}], poolId ve expectedPlanningVersion; zorunlu Idempotency-Key. Tek transaction/ChangeSet: seçilen görevlerin kendi havuzu değişir, gelecekteki saatli tahsisleri ve kaynak günün açık saatsiz öğeleri kaldırılır; tamamlanmış öğeler/gerçek çalışma korunur. Owner/stale/running/protected hatasında tamamı rollback olur. PlanMutation receipt sonrası GET ile güncelleyin; aynı key yeniden etki uygulamaz.')
     if method == 'POST' and path == '/api/day-items/undo':
+        notes.append('DayGroup kaldırması da changeSetId + expectedPlanningVersion ile bu uçtan geri alınır; grubun saatli/saatsiz öğeleri aynı kimlik ve saatlerle birlikte döner. Daha sonra değişmiş plan/öğe, yeniden eklenmiş aynı görev veya tekrarlanan geri alma409 verir; çalışan sayaç ve gerçek çalışma değiştirilmez.')
         notes.append('Defer erteleme grubu da saatli iptal ve saatsiz öğeleri birlikte geri alır; mevcut hedef öğeyi bozmaz, sonradan hedefe verilen saati geri sarmaz. Görev tanımı, actual ve eski revizyonlar değişmez. Sonraki sürüm/plan değişikliği ya da çalışan iş 409 verir.')
         notes.append('UI-R3 Pool grubu da bu uçtan changeSetId + expectedPlanningVersion ile geri alınır: havuz bağı + saatli/saatsiz öğe kimlikleri birlikte telafi edilir. Sonraki kullanıcı değişikliği veya başlayan saatli tahsis 409 verir; görev tamamlanması ya da gerçek çalışma geri sarılmaz.')
     if path.startswith('/api/account/profile'):
         notes.append('Profil sahibi JWT/cookie kimliğidir; istemci owner veya Cloudinary URL vermez. Ad (1–50) ve isteğe bağlı soyad (0–50) ayrı alanlardır; displayName sunucuda ad + soyaddan türetilir. Eski kayıtta firstName görünen adın tamamı (e-postaya eşitse boş), lastName boştur; ad bölünerek tahmin edilmez. Ad ve fotoğraf yazıları mevcut user.profileVersion ister; stale409. Key yok; belirsiz yazı otomatik tekrarlanmaz, GET ile uzlaştırılır. Fotoğraf en fazla2MiB JPEG/PNG/WebP base64; uploadId istemcinin niyet kimliği, Cloudinary asset kimliği sunucuda rastgele üretilir. Authenticated Cloudinary p1/<user-id>/ altında256px JPEG; signed URL/anahtar tarayıcıya dönmez. GET photo?version=<photoVersion> yalnız güncel kullanıcının aynı sürümünü image/jpeg ve private/no-store sunar. Kaldırma profil bağını CAS ile keser, eski varlık temizliği best-effort; sağlayıcı/DB belirsizliğinde korumalı yetim varlık kalabilir.')
     return notes
+
+SCHEMA_FIELD_NOTES.setdefault('ClassificationRequest', {}).update({
+    'detachKind': 'projects, pools veya categories: seçili görevi ve bu bölüme bağlı alt dalını atomik çıkarır. Diğer bağ ve etiketler her görevde korunur; applyToSubtree false olmalı.',
+    'detachResourceId': 'Çıkarılacak owner kaynağının kimliği; detachKind ile birlikte ve expectedPlanningVersion ile gönderilir.',
+})
+SCHEMA_FIELD_NOTES['ResourceTaskTreePage'].update({
+    'contextTaskIds': 'Yalnız hiyerarşiyi göstermek için eklenen üst görev kimlikleri. Bölüm üyesi değildir; sayılmaz ve bölümden kaldırılmaz.',
+    'taskCount': 'Bütün sayfalardaki kapsama ait görev sayısı. Proje/havuz/kategoride aktif alt görevi olan ana görev sayılmaz.',
+    'nodes': 'Üyelik, miras ve açık kaldırma işaretlerine göre görünen görevler ile üst bağlam satırları. Başka bölüme bağlı kardeşler eklenmez.',
+    'parents': 'Eski istemciler için küçük üst bağlam alanı; yeni ağaç üst görevleri nodes içinde taşır.',
+})

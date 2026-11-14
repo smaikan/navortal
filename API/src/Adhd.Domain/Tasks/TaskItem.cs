@@ -10,6 +10,9 @@ public sealed class TaskItem
     public Guid? ProjectId { get; set; }
     public Guid? PoolId { get; set; }
     public Guid? CategoryId { get; set; }
+    public bool ProjectDetached { get; set; }
+    public bool PoolDetached { get; set; }
+    public bool CategoryDetached { get; set; }
     public Guid? ParentTaskId { get; set; }
     public decimal SortOrder { get; set; }
     public bool HasDirectWork { get; set; } = true;

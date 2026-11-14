@@ -627,6 +627,199 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.ToTable("custom_reminders", (string)null);
                 });
 
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("BindingVersion")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("DisplayedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InstallationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastErrorCode")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("OpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ProviderAcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SnoozeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstallationId");
+
+                    b.HasIndex("UserId", "NotificationId", "SnoozeCount")
+                        .IsUnique();
+
+                    b.ToTable("mobile_push_deliveries", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushDevice", b =>
+                {
+                    b.Property<Guid>("InstallationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("AppVersion")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<long>("BindingVersion")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BuildNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ClientSequence")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OsVersion")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ProtectedToken")
+                        .HasMaxLength(8192)
+                        .HasColumnType("character varying(8192)");
+
+                    b.Property<bool>("RemindersChannelEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("InstallationId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "Active");
+
+                    b.ToTable("mobile_push_devices", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushPreference", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("mobile_push_preferences", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushRoute", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SnoozeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("UserId", "NotificationId", "SnoozeCount");
+
+                    b.ToTable("mobile_push_routes", (string)null);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.NotificationClientReceipt", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SnoozeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("DisplayedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("OpenedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "NotificationId", "SnoozeCount");
+
+                    b.ToTable("notification_client_receipts", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_notification_receipt_round", "\"SnoozeCount\">=0");
+                        });
+                });
+
             modelBuilder.Entity("Adhd.Domain.Notifications.NotificationPreferences", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -1683,6 +1876,11 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<bool>("CanSplit")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("CategoryDetached")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid");
 
@@ -1728,6 +1926,11 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly?>("PlannedTo")
                         .HasColumnType("date");
 
+                    b.Property<bool>("PoolDetached")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<Guid?>("PoolId")
                         .HasColumnType("uuid");
 
@@ -1735,6 +1938,11 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<bool>("ProjectDetached")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<Guid?>("ProjectId")
                         .HasColumnType("uuid");
@@ -2589,6 +2797,59 @@ namespace Adhd.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId", "TaskId")
                         .HasPrincipalKey("UserId", "Id")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushDelivery", b =>
+                {
+                    b.HasOne("Adhd.Domain.Notifications.MobilePushDevice", null)
+                        .WithMany()
+                        .HasForeignKey("InstallationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Adhd.Domain.Notifications.MobilePushRoute", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "NotificationId", "SnoozeCount")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushDevice", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushPreference", b =>
+                {
+                    b.HasOne("Adhd.Domain.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.MobilePushRoute", b =>
+                {
+                    b.HasOne("Adhd.Domain.Jobs.NotificationIntent", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "NotificationId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Adhd.Domain.Notifications.NotificationClientReceipt", b =>
+                {
+                    b.HasOne("Adhd.Domain.Jobs.NotificationIntent", null)
+                        .WithMany()
+                        .HasForeignKey("UserId", "NotificationId")
+                        .HasPrincipalKey("UserId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Adhd.Domain.Notifications.NotificationPreferences", b =>

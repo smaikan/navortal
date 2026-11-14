@@ -29,9 +29,9 @@ internal static class NotificationPresentationReader
             breakStarted = focus?.BreakStartedAt.HasValue == true;
         }
         else if (n.Kind == "TaskDeadline")
-            // Görevde başka bir alan değişti diye son tarih uyarısı bozulmasın. Görev sürümü yerine tarih anına bak
-            name = await db.Tasks.AsNoTracking().Where(x => x.UserId == n.UserId && x.Id == n.SourceId && x.DeadlineAt == n.OccurredAt)
-                .Select(x => x.Title).SingleOrDefaultAsync(ct);
+            // Görevde başka bir alan değişti diye aralık bitişi uyarısı bozulmasın. Görev sürümü yerine hatırlatma anına bak
+            name = (await Adhd.Infrastructure.Tasks.TaskRangeReminders.Instants(db, n.UserId, n.SourceId, ct)).Any(x => x.Occurs == n.OccurredAt)
+                ? await db.Tasks.AsNoTracking().Where(x => x.UserId == n.UserId && x.Id == n.SourceId).Select(x => x.Title).SingleOrDefaultAsync(ct) : null;
         else if (n.TaskId is { } taskId && n.Kind is "ScheduleStart" or "ScheduleEnd" or "ReturnToTask")
             name = await db.Tasks.AsNoTracking().Where(x => x.UserId == n.UserId && x.Id == taskId).Select(x => x.Title).SingleOrDefaultAsync(ct);
 

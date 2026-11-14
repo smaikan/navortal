@@ -34,10 +34,11 @@ public sealed class NotificationPresentationTests
         await Snooze(s, "ScheduleEnd"); s.App.Clock.Now = now.AddMinutes(20); await s.Pump();
         Assert.Equal(("Planlı işin bitiş zamanı geldi", "Güncel görev adı"), (sent.Sent.Last().Title, sent.Sent.Last().Body));
         task = await s.User.Get(task.Id);
-        Assert.Equal(HttpStatusCode.OK, (await s.User.Client.PutAsJsonAsync($"/api/tasks/{task.Id}", new { version = task.Version, title = task.Title, deadlineAt = now.AddMinutes(30) })).StatusCode);
-        await s.Pump(); s.App.Clock.Now = now.AddMinutes(25); await s.Reminders(); await s.Pump();
+        // Aralık bitişi: olay anı bitiş günü 09:00; bir gün önce 18:00'deki bildirim "yaklaşıyor", bitiş günündeki "zamanı geldi" der.
+        Assert.Equal(HttpStatusCode.OK, (await s.User.Client.PutAsJsonAsync($"/api/tasks/{task.Id}/planned-range", new { version = task.Version, plannedFrom = "2026-10-16", plannedTo = "2026-10-16" })).StatusCode);
+        await s.Pump(); s.App.Clock.Now = new DateTimeOffset(2026, 10, 15, 15, 0, 0, TimeSpan.Zero); await s.Reminders(); await s.Pump();
         Assert.Equal(("Son teslim yaklaşıyor", "Güncel görev adı"), (sent.Sent.Last().Title, sent.Sent.Last().Body));
-        await Snooze(s, "TaskDeadline"); s.App.Clock.Now = now.AddMinutes(30); await s.Pump();
+        s.App.Clock.Now = new DateTimeOffset(2026, 10, 16, 6, 0, 0, TimeSpan.Zero); await s.Reminders(); await s.Pump();
         Assert.Equal(("Son teslim zamanı geldi", "Güncel görev adı"), (sent.Sent.Last().Title, sent.Sent.Last().Body));
         Assert.Equal(6, sent.Sent.Count);
     }

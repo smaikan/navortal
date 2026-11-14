@@ -2,6 +2,7 @@ using System.Data;
 using Adhd.Application.Common;
 using Adhd.Application.Tasks;
 using Adhd.Domain.Tasks;
+using Adhd.Infrastructure.Collections;
 using Microsoft.EntityFrameworkCore;
 
 namespace Adhd.Infrastructure.Tasks;
@@ -15,6 +16,51 @@ public sealed partial class TaskReadStore
         return nodes;
     }
     public async Task<ResourceTaskTreePage> CollectionAsync(Guid userId, string kind, Guid id, int offset, int limit, CancellationToken ct)
+    {
+        if (kind == "tags") return await TagCollectionAsync(userId, kind, id, offset, limit, ct);
+        if (offset is < 0 or > 100000 || limit is < 1 or > 100) throw new UseCaseException(ErrorKind.Validation, "tree_query_invalid", "Sayfa sınırları geçersiz.");
+        await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct);
+        var owned = kind switch {
+            "projects" => await db.Projects.AnyAsync(x => x.UserId == userId && x.Id == id, ct),
+            "pools" => await db.Pools.AnyAsync(x => x.UserId == userId && x.Id == id, ct),
+            "categories" => await db.Categories.AnyAsync(x => x.UserId == userId && x.Id == id, ct),
+            "tags" => await db.Tags.AnyAsync(x => x.UserId == userId && x.Id == id, ct), _ => false };
+        if (!owned) throw new UseCaseException(ErrorKind.NotFound, "resource_not_found", "Kayıt bulunamadı.");
+        var all = await HierarchyNodes(userId, ct); var byId = all.ToDictionary(x => x.Id);
+        var tags = kind == "tags" ? await db.TaskTagLinks.Where(x => x.UserId == userId && x.TagId == id).Select(x => x.TaskId).ToArrayAsync(ct) : [];
+        var owners = kind == "tags" ? null : CollectionTaskScope.Resolve(all, kind);
+        var members = all.Where(x => owners is null ? tags.Contains(x.Id) : owners[x.Id] == id).ToArray();
+        var memberIds = members.Select(x => x.Id).ToHashSet();
+        var display = members.ToDictionary(x => x.Id);
+        // Yalnız alt görev bu bölüme bağlı olsa bile bütün üst yolu koru. Bağlam
+        // satırları sayaçlara girmez; başka bölümlerdeki kardeşler listeye sızmaz.
+        foreach (var task in members)
+        {
+            var seen = new HashSet<Guid> { task.Id }; var parent = task.ParentTaskId;
+            while (parent is {} ancestor && byId.TryGetValue(ancestor, out var node))
+            {
+                if (!seen.Add(ancestor)) throw new UseCaseException(ErrorKind.Conflict, "task_tree_cycle", "Görev ağacında döngü var.");
+                if (!display.TryAdd(ancestor, node)) break;
+                parent = node.ParentTaskId;
+            }
+        }
+        var roots = display.Values.Where(x => x.ParentTaskId is null || !display.ContainsKey(x.ParentTaskId.Value))
+            .OrderBy(x => x.State == TaskState.Completed).ThenBy(x => x.Title).ThenBy(x => x.Id).ToArray();
+        var page = roots.Skip(offset).Take(limit).ToArray();
+        var children = display.Values.Where(x => x.ParentTaskId.HasValue).ToLookup(x => x.ParentTaskId!.Value);
+        var included = new Dictionary<Guid, TaskItem>(); var queue = new Queue<TaskItem>(page);
+        while (queue.TryDequeue(out var node))
+        {
+            if (!included.TryAdd(node.Id, node)) throw new UseCaseException(ErrorKind.Conflict, "task_tree_cycle", "Görev ağacında döngü var.");
+            foreach (var child in children[node.Id]) queue.Enqueue(child);
+        }
+        var parents = all.Where(x => x.ParentTaskId.HasValue).Select(x => x.ParentTaskId!.Value).ToHashSet();
+        var taskCount = kind == "tags" ? members.Length : members.Count(x => !parents.Contains(x.Id));
+        return new(page.Select(TaskStore.View).ToArray(), included.Values.Select(TaskStore.View).ToArray(), [], offset, limit, roots.Length,
+            included.Keys.Where(x => !memberIds.Contains(x)).ToArray(), taskCount);
+    }
+
+    private async Task<ResourceTaskTreePage> TagCollectionAsync(Guid userId, string kind, Guid id, int offset, int limit, CancellationToken ct)
     {
         if (offset is < 0 or > 100000 || limit is < 1 or > 100) throw new UseCaseException(ErrorKind.Validation, "tree_query_invalid", "Sayfa sınırları geçersiz.");
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct);
@@ -63,7 +109,8 @@ public sealed partial class TaskReadStore
             return new(node.Id, node.Title, node.ParentTaskId, node.ParentTaskId is {} p && byId.TryGetValue(p, out var parent) ? parent.Title : null, node.DirectEstimatedSeconds, node.Priority, node.EnergyDemand, nested);
         }
         var roots = all.Where(x => x.ParentTaskId is null || !byId.ContainsKey(x.ParentTaskId.Value)).OrderBy(x => x.Title).ThenBy(x => x.Id).Select(x => Build(x)).OfType<TaskPickerRow>().ToArray();
-        bool Assigned(TaskPickerRow row) => date is {} day && (byId[row.Id].PlannedFrom <= day && byId[row.Id].PlannedTo >= day || (row.Children ?? []).Any(Assigned));
+        var inherited = PlannedRanges.OwnOrInherited(all);
+        bool Assigned(TaskPickerRow row) => date is {} day && (inherited.TryGetValue(row.Id, out var own) && own is { } r && r.From <= day && r.To >= day || (row.Children ?? []).Any(Assigned));
         var a = roots.Where(Assigned).ToArray(); var b = roots.Where(x => !Assigned(x)).ToArray();
         return new(new(a.Skip(assignedOffset).Take(limit).ToArray(), assignedOffset, limit, a.Length), new(b.Skip(offset).Take(limit).ToArray(), offset, limit, b.Length), term.Length > 0 && all.Any(x => string.Equals(x.Title, term, comparison)), new(new(state.PlanningVersion, state.NotesVersion, state.SpecialDaysVersion), clock.GetUtcNow()));
     }

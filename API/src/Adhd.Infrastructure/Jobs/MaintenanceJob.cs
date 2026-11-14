@@ -22,6 +22,7 @@ public sealed class MaintenanceJob(PlannerDbContext db, IServiceScopeFactory sco
     {
         var now = clock.GetUtcNow();
         await db.ClientErrors.Where(x => x.ReceivedAt < now - ClientErrorService.Retention).ExecuteDeleteAsync(ct);
+        await db.IdempotencyRecords.Where(x => x.Scope.StartsWith("mobile-") && x.CreatedAt <= now.AddHours(-24)).ExecuteDeleteAsync(ct);
         var rows = await db.SpecialDays.FromSqlInterpolated($"SELECT * FROM special_days WHERE \"Id\">{cursor} AND \"DeletedAt\" IS NULL AND \"Reminder\"<>'None' ORDER BY \"Id\" LIMIT 50")
             .AsNoTracking().ToArrayAsync(ct);
         foreach (var row in rows)

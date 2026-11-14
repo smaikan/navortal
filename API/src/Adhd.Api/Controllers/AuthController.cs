@@ -24,6 +24,29 @@ public sealed class AuthController(AuthService auth, IUserStore users, GoogleAut
         SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
         return signIn.Response.User;
     }
+    [Authorize, HttpPost("set-password"), EnableRateLimiting("auth")]
+    [ProducesResponseType(typeof(UserSummary), 200)]
+    public async Task<UserSummary> SetPassword(SetPasswordRequest request, CancellationToken ct)
+    {
+        EnsureGoogleEnabled();
+        if (request.ExpectedUserId != UserId)
+            throw new UseCaseException(ErrorKind.Conflict, "account_changed", "Hesap değişti. Hesap ayarlarını yeniden aç.");
+        var sid = SessionId ?? throw new UseCaseException(ErrorKind.Unauthenticated, "unauthorized", "Yeniden giriş yap.");
+        var browser = HttpContext.Items.ContainsKey(SessionCookie.FromCookieItem);
+        try
+        {
+            await google.VerifyOwnerAsync(UserId, request.IdToken, ct, browser ? challenge.Read(HttpContext) : null);
+        }
+        catch (UseCaseException error) when (error.Code is "google_invalid" or "google_challenge_invalid")
+        {
+            throw new UseCaseException(ErrorKind.Validation, error.Code, error.Message);
+        }
+        var signIn = await passwordChange.CreateAsync(UserId, sid, request.ExpectedUserId, request.NewPassword, Family(), ct);
+        if (browser) challenge.Clear(HttpContext);
+        SessionCookie.Write(HttpContext, signIn.Response.AccessToken);
+        return signIn.Response.User;
+    }
+
     // Tarayıcı yanıtı yalnız kullanıcı özeti taşır. Token HttpOnly cookie dışına çıkmaz.
     [HttpPost("session/register"), EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(UserSummary), 201)]
@@ -178,5 +201,12 @@ public sealed class ChangePasswordRequest
 {
     [Required] public Guid ExpectedUserId { get; set; }
     [Required(AllowEmptyStrings = true)] public string CurrentPassword { get; set; } = "";
+    [Required(AllowEmptyStrings = true), MinLength(6)] public string NewPassword { get; set; } = "";
+}
+
+public sealed class SetPasswordRequest
+{
+    [Required] public Guid ExpectedUserId { get; set; }
+    [Required, StringLength(20000)] public string IdToken { get; set; } = "";
     [Required(AllowEmptyStrings = true), MinLength(6)] public string NewPassword { get; set; } = "";
 }

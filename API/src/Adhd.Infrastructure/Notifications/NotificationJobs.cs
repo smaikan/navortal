@@ -9,9 +9,11 @@ using Microsoft.Extensions.Options;
 
 namespace Adhd.Infrastructure.Notifications;
 
-public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore preferences, IPushTransport transport, IOptions<PushSettings> push, TimeProvider clock) : INotificationJobs
+public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore preferences, IPushTransport transport, IOptions<PushSettings> push, TimeProvider clock,
+    MobilePushRouter mobileRouter, MobilePushJobs mobileJobs) : INotificationJobs
 {
-    public async Task<bool> HandleAsync(OutboxClaim claim, CancellationToken ct) => claim.Kind == "NotificationReady" ? await Ready(claim, ct) : await Deliver(claim, ct);
+    public async Task<bool> HandleAsync(OutboxClaim claim, CancellationToken ct) => claim.Kind == "MobilePushDelivery"
+        ? await mobileJobs.HandleAsync(claim, ct) : claim.Kind == "NotificationReady" ? await Ready(claim, ct) : await Deliver(claim, ct);
     private async Task<bool> Ready(OutboxClaim claim, CancellationToken ct)
     {
         var now = clock.GetUtcNow(); await using var tx = await db.Database.BeginTransactionAsync(ct); await Lock(claim, ct);
@@ -27,12 +29,7 @@ public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore pref
         {
             var until = await DeferredUntil(n, settings, now, ct); if (until.HasValue) throw new JobDeferredException(until.Value);
             if (n.State == NotificationIntentState.Pending) { n.State = NotificationIntentState.Ready; n.ReadyAt ??= now; n.Version++; }
-            if (settings.PushEnabled && push.Value.Enabled)
-            {
-                var subscriptions = await db.PushSubscriptions.AsNoTracking().Where(x => x.UserId == n.UserId && x.Active && (x.ExpiresAt == null || x.ExpiresAt > now)).ToArrayAsync(ct);
-                var existing = await db.PushDeliveries.Where(x => x.UserId == n.UserId && x.NotificationId == n.Id && x.SnoozeCount == n.SnoozeCount).Select(x => x.SubscriptionId).ToArrayAsync(ct);
-                foreach (var s in subscriptions.Where(x => !existing.Contains(x.Id))) db.PushDeliveries.Add(new() { Id = Guid.CreateVersion7(), UserId = n.UserId, NotificationId = n.Id, SubscriptionId = s.Id, SnoozeCount = n.SnoozeCount, CreatedAt = now });
-            }
+            await mobileRouter.PrepareAsync(n, settings, ct);
         }
         if (validSource && n.Kind == "Custom") await ScheduleNext(n, now, ct);
         var obsolete = n.State != NotificationIntentState.Ready; await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return obsolete;
@@ -59,7 +56,7 @@ public sealed class NotificationJobs(PlannerDbContext db, IPreferencesStore pref
             if (delivery.State != DeliveryState.Pending) return delivery.State != DeliveryState.Succeeded;
             n = await db.NotificationIntents.SingleAsync(x => x.UserId == claim.UserId && x.Id == delivery.NotificationId, ct);
             subscription = await db.PushSubscriptions.SingleAsync(x => x.UserId == claim.UserId && x.Id == delivery.SubscriptionId, ct); settings = await Settings(claim.UserId, ct);
-            var valid = push.Value.Enabled && settings.PushEnabled && NotificationPolicy.Allows(settings, n.Kind) && subscription.Active && (subscription.ExpiresAt is null || subscription.ExpiresAt > now) && n.State == NotificationIntentState.Ready && n.SnoozeCount == delivery.SnoozeCount && await NotificationSources.Valid(db, n, now, ct);
+            var valid = push.Value.Enabled && settings.PushEnabled && NotificationPolicy.Allows(settings, n.Kind) && subscription.Active && (subscription.ExpiresAt is null || subscription.ExpiresAt > now) && n.State == NotificationIntentState.Ready && (!push.Value.SuppressReadDeliveries || n.ReadAt == null) && n.SnoozeCount == delivery.SnoozeCount && await NotificationSources.Valid(db, n, now, ct);
             if (!valid || now - Due(n, settings) > TimeSpan.FromMinutes(2))
             {
                 delivery.State = DeliveryState.Obsolete; await db.SaveChangesAsync(ct); await tx.CommitAsync(ct); return true;

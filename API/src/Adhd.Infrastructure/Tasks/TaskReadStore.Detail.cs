@@ -43,7 +43,7 @@ public sealed partial class TaskReadStore
         var urgent=source.Urgent;
         var row=new TreeRowSummary(taskId,directChildren.Length,directChildren.Count(x=>x.State==TaskState.Completed),
             sum?.KnownEstimatedSeconds,sum?.UnknownEstimateCount??0,range?.From,range?.To,
-            directChildren.Any(x=>ranges.TryGetValue(x.Id,out var r) && r is not null),urgent);
+            PlannedRanges.DerivedFromChildren(rowTasks).Contains(taskId),urgent);
         var ids=all.Select(x=>x.Id).ToArray();
         var segments=await (from s in db.WorkSegments.AsNoTracking() join w in db.WorkSessions.AsNoTracking()
             on new {s.UserId,Id=s.SessionId} equals new {w.UserId,w.Id}

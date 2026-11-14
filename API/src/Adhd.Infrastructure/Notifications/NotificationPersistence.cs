@@ -37,5 +37,12 @@ internal static class NotificationPersistence
             b.HasOne<NotificationIntent>().WithMany().HasForeignKey(x => new { x.UserId, Id = x.NotificationId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
             b.HasOne<PushSubscriptionRecord>().WithMany().HasForeignKey(x => new { x.UserId, Id = x.SubscriptionId }).HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         });
+        model.Entity<NotificationClientReceipt>(b =>
+        {
+            b.ToTable("notification_client_receipts", t => t.HasCheckConstraint("CK_notification_receipt_round", "\"SnoozeCount\">=0"));
+            b.HasKey(x => new { x.UserId, x.NotificationId, x.SnoozeCount });
+            b.HasOne<NotificationIntent>().WithMany().HasForeignKey(x => new { x.UserId, Id = x.NotificationId })
+                .HasPrincipalKey(x => new { x.UserId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

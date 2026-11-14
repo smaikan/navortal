@@ -52,8 +52,13 @@ public sealed class AuthSessionStore(PlannerDbContext db, IMemoryCache cache) : 
 
     public async Task<bool> RevokeAsync(Guid userId, Guid sessionId, DateTimeOffset now, CancellationToken ct)
     {
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
         var changed = await db.AuthSessions.Where(x => x.Id == sessionId && x.UserId == userId && x.RevokedAt == null)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.RevokedAt, now), ct);
+        await db.MobilePushDevices.Where(x => x.UserId == userId && x.SessionId == sessionId)
+            .ExecuteUpdateAsync(s => s.SetProperty(x => x.Active, false).SetProperty(x => x.ProtectedToken, (string?)null)
+                .SetProperty(x => x.TokenHash, (string?)null).SetProperty(x => x.Version, x => x.Version + 1), ct);
+        await tx.CommitAsync(ct);
         cache.Remove(Key(sessionId));
         return changed == 1;
     }
@@ -67,6 +72,9 @@ public sealed class AuthSessionStore(PlannerDbContext db, IMemoryCache cache) : 
         var ids = await db.AuthSessions.Where(x => x.UserId == userId && x.RevokedAt == null).Select(x => x.Id).ToArrayAsync(ct);
         var changed = await db.AuthSessions.Where(x => x.UserId == userId && x.RevokedAt == null)
             .ExecuteUpdateAsync(s => s.SetProperty(x => x.RevokedAt, now), ct);
+        await db.MobilePushDevices.Where(x => x.UserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(x => x.Active, false).SetProperty(x => x.ProtectedToken, (string?)null)
+                .SetProperty(x => x.TokenHash, (string?)null).SetProperty(x => x.Version, x => x.Version + 1), ct);
         var cutoff = await db.AuthSessionCutoffs.SingleOrDefaultAsync(x => x.UserId == userId, ct);
         if (cutoff is null) db.AuthSessionCutoffs.Add(new() { UserId = userId, ValidAfter = now }); else cutoff.ValidAfter = now;
         await db.SaveChangesAsync(ct);

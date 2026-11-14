@@ -21,12 +21,13 @@ public sealed partial class TaskReadStore
             // Rutin görevini yalnız kendi tarihinde seçilebilir yap. Yoksa aynı başlık her gün için çıkar.
             && !db.RecurrenceOccurrences.Any(o => o.UserId == userId && o.TaskId == x.Id && (date == null || o.LocalDate != date)));
         var exact = term.Length > 0 && await eligible.AnyAsync(x => EF.Functions.Collate(x.Title, "adhd_search").ToLower() == EF.Functions.Collate(term, "adhd_search").ToLower(), ct);
+        var inheriting = date is { } assignedDay ? await TaskRangeReminders.InheritedOverlapping(db, userId, assignedDay, assignedDay, ct) : [];
         var rows = from t in eligible
                    join p in db.Tasks.AsNoTracking().Where(x => x.UserId == userId && x.DeletedAt == null) on t.ParentTaskId equals (Guid?)p.Id into parents
                    from parent in parents.DefaultIfEmpty()
                    where term == "" || EF.Functions.Collate(t.Title, "adhd_search").ToLower().Contains(EF.Functions.Collate(term, "adhd_search").ToLower())
                        || (parent != null && EF.Functions.Collate(parent.Title, "adhd_search").ToLower().Contains(EF.Functions.Collate(term, "adhd_search").ToLower()))
-                   select new { Task = t, Parent = parent, Assigned = date != null && t.PlannedFrom <= date && t.PlannedTo >= date };
+                   select new { Task = t, Parent = parent, Assigned = date != null && ((t.PlannedFrom <= date && t.PlannedTo >= date) || inheriting.Contains(t.Id)) };
         var assigned = rows.Where(x => x.Assigned);
         var other = rows.Where(x => !x.Assigned);
         var assignedTotal = await assigned.CountAsync(ct); var otherTotal = await other.CountAsync(ct);

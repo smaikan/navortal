@@ -48,6 +48,11 @@ public sealed partial class PlanningStore
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct); var state = await Lock(userId, ct);
         var item = await Current(userId, id, version, ct); var now = clock.GetUtcNow(); var before = RevisionWriter.Snapshot(item);
+        if (action == DayItemAction.Remove && await RemovePlanGroup(userId, state, item.LocalDate, item.TaskId, false, now, ct) is { } group)
+        {
+            await tx.CommitAsync(ct);
+            return View(item, await TaskOf(userId, item.TaskId, ct)) with { ChangeSetId = group.ChangeSetId, PlanningVersion = state.PlanningVersion };
+        }
         if (completeTask && action is DayItemAction.Complete or DayItemAction.Reopen) {
             var task = await db.Tasks.SingleAsync(x => x.UserId == userId && x.Id == item.TaskId, ct);
             if (action == DayItemAction.Complete) await MarkCurrentPlanBlocks(userId, task.Id, item.LocalDate, now, ct);
@@ -69,7 +74,7 @@ public sealed partial class PlanningStore
         var plan = await Plan(userId, item.LocalDate, null, ct);
         var type = action switch { DayItemAction.Complete => "DayItemCompleted", DayItemAction.Reopen => "DayItemReopened", _ => "DayItemRemoved" };
         var reason = action switch { DayItemAction.Complete => "Plan öğesi bitti", DayItemAction.Reopen => "Plan öğesi yeniden açıldı", _ => "Plandan kaldırıldı" };
-        var changeSet = await History(userId, state, [new(item, before, type, plan.Id)], now, reason, null, ct, completeTask ? "TaskState" : "DayItem");
+        var changeSet = await History(userId, state, [new(item, before, type, plan.Id)], now, reason, null, ct, completeTask && action != DayItemAction.Remove ? "TaskState" : "DayItem");
         await tx.CommitAsync(ct);
         var view = action == DayItemAction.Remove ? View(item, await TaskOf(userId, item.TaskId, ct)) : await Read(userId, item.Id, ct);
         return view with { ChangeSetId = changeSet, PlanningVersion = state.PlanningVersion };
@@ -116,6 +121,12 @@ public sealed partial class PlanningStore
         if (revisions.Any(x => x.Trigger == "TaskState")) throw Conflict("undo_task_state", "Görev durumunu görevdeki tamamlanma kutusuyla geri açın.");
         var revisionIds = revisions.Select(x => x.Id).ToArray();
         var changes = await db.PlanRevisionChanges.Where(x => x.UserId == userId && revisionIds.Contains(x.RevisionId)).OrderBy(x => x.Id).ToArrayAsync(ct);
+        if (revisions.All(x => x.Trigger == "DayGroup"))
+        {
+            var result = await UndoPlanGroup(userId, changeSetId, state, revisions, changes, ct);
+            await tx.CommitAsync(ct);
+            return result;
+        }
         if (revisions.All(x => x.Trigger == "Defer"))
         {
             var result = await UndoDeferral(userId, changeSetId, state, revisions, changes, ct);
@@ -175,10 +186,10 @@ public sealed partial class PlanningStore
         return [new(item, before, "DayItemMovedOut", from.Id), new(item, before, "DayItemMovedIn", to.Id)];
     }
     // Etkilenen gün başına tek plan revizyonu yazar, plan sürümünü ilerletir.
-    private async Task<Guid> History(Guid userId, Adhd.Domain.Users.UserPlanningState state, IReadOnlyCollection<DayDelta> deltas, DateTimeOffset now, string reason, Guid? reverses, CancellationToken ct, string trigger = "DayItem")
+    private async Task<Guid> History(Guid userId, Adhd.Domain.Users.UserPlanningState state, IReadOnlyCollection<DayDelta> deltas, DateTimeOffset now, string reason, Guid? reverses, CancellationToken ct, string trigger = "DayItem", IReadOnlyCollection<PlanDelta>? scheduleDeltas = null)
     {
         var changeSet = Guid.CreateVersion7();
-        await RevisionWriter.Write(db, userId, [], now, trigger, reason, changeSet, false, ct, reversesChangeSetId: reverses, dayDeltas: deltas);
+        await RevisionWriter.Write(db, userId, scheduleDeltas ?? [], now, trigger, reason, changeSet, false, ct, reversesChangeSetId: reverses, dayDeltas: deltas);
         state.PlanningVersion++; state.UpdatedAt = now;
         await db.SaveChangesAsync(ct);
         return changeSet;

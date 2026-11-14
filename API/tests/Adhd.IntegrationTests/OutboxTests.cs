@@ -77,10 +77,10 @@ public sealed class OutboxTests
     [Fact]
     public async Task EffectCommitThenLostAckSurvivesHostRestartLeaseExpiryAndDoesNotDuplicateReminder()
     {
-        await using var s = await JobScenario.Create(); var task = await s.User.Root(); task = await s.User.Get(task.Id); await s.User.Client.PutAsJsonAsync($"/api/tasks/{task.Id}", new { version = task.Version, title = task.Title, deadlineAt = Morning.AddMinutes(30) });
+        await using var s = await JobScenario.Create(); var task = await s.User.Root(); task = await s.User.Get(task.Id); await s.User.Client.PutAsJsonAsync($"/api/tasks/{task.Id}/planned-range", new { version = task.Version, plannedFrom = "2026-10-16", plannedTo = "2026-10-18" });
         var claims = await s.Claim(); var current = claims.OrderByDescending(x => x.SourceVersion).First(x => x.SourceId == task.Id); Assert.False(await s.Effect(current));
-        await using (var db = s.Context()) { Assert.Equal(1, await db.ReminderWork.CountAsync()); Assert.Equal(JobEffectState.Completed, (await db.JobEffects.SingleAsync(x => x.OutboxId == current.Id)).State); Assert.Equal(OutboxState.Processing, (await db.Outbox.SingleAsync(x => x.Id == current.Id)).State); }
-        await s.Restart(Morning.AddMinutes(3)); await s.Pump(); await using var after = s.Context(); Assert.Equal(1, await after.ReminderWork.CountAsync()); Assert.Equal(OutboxState.Completed, (await after.Outbox.SingleAsync(x => x.Id == current.Id)).State); Assert.Equal(2, (await after.Outbox.SingleAsync(x => x.Id == current.Id)).Attempts);
+        await using (var db = s.Context()) { Assert.Equal(2, await db.ReminderWork.CountAsync()); Assert.Equal(JobEffectState.Completed, (await db.JobEffects.SingleAsync(x => x.OutboxId == current.Id)).State); Assert.Equal(OutboxState.Processing, (await db.Outbox.SingleAsync(x => x.Id == current.Id)).State); }
+        await s.Restart(Morning.AddMinutes(3)); await s.Pump(); await using var after = s.Context(); Assert.Equal(2, await after.ReminderWork.CountAsync()); Assert.Equal(OutboxState.Completed, (await after.Outbox.SingleAsync(x => x.Id == current.Id)).State); Assert.Equal(2, (await after.Outbox.SingleAsync(x => x.Id == current.Id)).Attempts);
     }
     [Fact]
     public async Task RetryIsBoundedFailuresAreVisibleAndOnlyOwnerCanExplicitlyRetry()
