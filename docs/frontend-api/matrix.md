@@ -136,7 +136,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:0..9,223372036854776E+18 |
+| `version` | Int64 | range:0..9.223372036854776E+18 |
 | `quadrant` | MatrixQuadrant | required |
 | `beforeTaskId` | Guid? | DTO/modül iş kuralı |
 
@@ -189,7 +189,7 @@ Content-Type: application/json
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:0..9,223372036854776E+18 |
+| `version` | Int64 | range:0..9.223372036854776E+18 |
 | `quadrant` | MatrixQuadrant | required |
 | `beforeTaskId` | Guid? | DTO/modül iş kuralı |
 

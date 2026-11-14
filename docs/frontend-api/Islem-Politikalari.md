@@ -1,6 +1,6 @@
 # İşlem bazında tekrar, sürüm ve key politikası
 
-Bu tablo 228 somut işlemi kapsar; kaynak OpenAPI223operationdır. 33 OpenAPI operation key ister (focus altı komut açıldığında38 somut key işlemi). Diğer190operationda header tanımlı değildir. GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.
+Bu tablo 239 somut işlemi kapsar; kaynak OpenAPI234operationdır. 36 OpenAPI operation key ister (focus altı komut açıldığında41 somut key işlemi). Diğer198operationda header tanımlı değildir. GET sayıları yazım sayısı değildir. Sınırlar, koşullu sürümler ve no-store için [entegrasyon kuralları](Entegrasyon-Kurallari.md). Replay özgün snapshotı döndürebilir; güncel state ayrıca okunur.
 
 | HTTP işlemi | Key / üst sınır | Body sürüm alanları | Tekrar / toparlanma |
 | --- | --- | --- | --- |
@@ -29,6 +29,7 @@ Bu tablo 228 somut işlemi kapsar; kaynak OpenAPI223operationdır. 33 OpenAPI op
 | `POST /api/auth/session/google` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/session/login` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/auth/session/register` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
+| `POST /api/auth/set-password` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `GET /api/preferences` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `PUT /api/preferences` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
 | `GET /api/preferences/working-hours` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
@@ -206,6 +207,13 @@ Bu tablo 228 somut işlemi kapsar; kaynak OpenAPI223operationdır. 33 OpenAPI op
 | `GET /api/jobs/outbox` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `POST /api/jobs/outbox/{id}/retry` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
 | `GET /api/jobs/reminders` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
+| `GET /api/mobile/push/deliveries/{deliveryId}` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
+| `POST /api/mobile/push/deliveries/{deliveryId}/receipts` | Tanımlı değil | `bindingVersion` | Otomatik yazım retry yok; güncel GET |
+| `DELETE /api/mobile/push/devices/{installationId}` | Zorunlu / 128 | `bindingVersion` | Aynı payload/key; sonra güncel GET |
+| `GET /api/mobile/push/devices/{installationId}` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
+| `PUT /api/mobile/push/devices/{installationId}` | Zorunlu / 128 | `bindingVersion`, `appVersion`, `osVersion` | Aynı payload/key; sonra güncel GET |
+| `GET /api/mobile/push/preferences` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
+| `PUT /api/mobile/push/preferences` | Zorunlu / 128 | `version` | Aynı payload/key; sonra güncel GET |
 | `GET /api/notifications` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `GET /api/notifications/alerts` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `GET /api/notifications/preferences` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
@@ -219,7 +227,10 @@ Bu tablo 228 somut işlemi kapsar; kaynak OpenAPI223operationdır. 33 OpenAPI op
 | `GET /api/notifications/subscriptions` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `POST /api/notifications/subscriptions` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
 | `POST /api/notifications/subscriptions/{id}/remove` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
+| `GET /api/notifications/summary` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `GET /api/notifications/{id}` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
+| `POST /api/notifications/{id}/delivery-receipts` | Tanımlı değil | — | Otomatik yazım retry yok; güncel GET |
+| `GET /api/notifications/{id}/delivery-status` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |
 | `POST /api/notifications/{id}/read` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
 | `POST /api/notifications/{id}/snooze` | Tanımlı değil | `version` | Otomatik yazım retry yok; güncel GET |
 | `GET /api/sync` | Tanımlı değil | — | Sınırlı okuma; focus gözlemi ayrı |

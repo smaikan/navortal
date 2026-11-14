@@ -80,7 +80,7 @@ Payload yalnız notificationId, recipientUserId, snoozeCount, sabit tag, Türkç
 | BreakEnd | Mola bitti | Yeni bir pomodoroya başlayabilirsin. |
 | ScheduleStart | Olaydan önce “Planlı iş yaklaşıyor”; olay anı/sonrasında “Planlı iş başlıyor” | Güncel owner görev adı |
 | ScheduleEnd | Olaydan önce “Planlı işin bitişi yaklaşıyor”; olay anı/sonrasında “Planlı işin bitiş zamanı geldi” | Güncel owner görev adı; görevin tamamlandığı iddia edilmez |
-| TaskDeadline | Olaydan önce “Son teslim yaklaşıyor”; olay anı/sonrasında “Son teslim zamanı geldi” | Güncel owner görev adı |
+| TaskDeadline | Olaydan önce “Son teslim yaklaşıyor”; olay anı/sonrasında “Son teslim zamanı geldi”. Kaynak görevin tarih aralığının bitişidir (görevin kendi aralığı, yoksa en yakın aralıklı üst görevden kalıtılan); eski `deadlineAt` alanı bildirim üretmez. İki an: bitişten bir önceki gün 18:00 ve bitiş günü 09:00 (kullanıcı saat diliminde), `LeadSeconds` uygulanmaz | Güncel owner görev adı |
 | ReturnToTask | İşe dönüş hatırlatması | Güncel owner görev adı |
 | SpecialDay | Özel gün hatırlatması | Geçerli özel gün adı |
 

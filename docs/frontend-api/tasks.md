@@ -46,7 +46,7 @@ Yalnız title ile task oluşturulur; tahmin null kalabilir. PUT task alan belges
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks?poolId=01a16bfd-ab66-7f94-a6d1-29fcb8e10081
+GET /api/tasks
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -56,203 +56,24 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bfd-ab94-7e1f-b1a7-9f0325bcc293",
-      "title": "Three steps",
-      "description": null,
-      "state": "Completed",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:39:08.183442+00:00",
-      "updatedAt": "2026-10-24T03:39:08.183442+00:00",
-      "archivedAt": null,
-      "version": 6,
-      "parentTaskId": null,
-      "sortOrder": 1024.0,
-      "hasDirectWork": false,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": "Automatic",
-      "completedAt": "2026-10-24T03:39:08.183442+00:00",
-      "projectId": "01a16bfd-ab2a-726a-8d77-0f92f69477b2",
-      "poolId": "01a16bfd-ab66-7f94-a6d1-29fcb8e10081",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bfd-acfc-7ae9-9972-88f31691ee28",
-      "title": "A",
-      "description": null,
-      "state": "Completed",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": 1200,
-      "createdAt": "2026-10-24T03:39:08.183442+00:00",
-      "updatedAt": "2026-10-24T03:39:08.183442+00:00",
-      "archivedAt": null,
-      "version": 3,
-      "parentTaskId": "01a16bfd-ab94-7e1f-b1a7-9f0325bcc293",
-      "sortOrder": 1024.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": true,
-      "requiredForParent": true,
-      "completionOrigin": "Manual",
-      "completedAt": "2026-10-24T03:39:08.183442+00:00",
-      "projectId": "01a16bfd-ab2a-726a-8d77-0f92f69477b2",
-      "poolId": "01a16bfd-ab66-7f94-a6d1-29fcb8e10081",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bfd-ad59-73b4-b819-4853261f5eb2",
-      "title": "B",
-      "description": null,
-      "state": "Completed",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:39:08.183442+00:00",
-      "updatedAt": "2026-10-24T03:39:08.183442+00:00",
-      "archivedAt": null,
-      "version": 4,
-      "parentTaskId": "01a16bfd-ab94-7e1f-b1a7-9f0325bcc293",
-      "sortOrder": 2048.0,
-      "hasDirectWork": false,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": "Automatic",
-      "completedAt": "2026-10-24T03:39:08.183442+00:00",
-      "projectId": "01a16bfd-ab2a-726a-8d77-0f92f69477b2",
-      "poolId": "01a16bfd-ab66-7f94-a6d1-29fcb8e10081",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bfd-adbe-75da-9a64-86f6c5a1b1c4",
-      "title": "C",
-      "description": null,
-      "state": "Completed",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": 1800,
-      "createdAt": "2026-10-24T03:39:08.183442+00:00",
-      "updatedAt": "2026-10-24T03:39:08.183442+00:00",
-      "archivedAt": null,
-      "version": 4,
-      "parentTaskId": "01a16bfd-ab94-7e1f-b1a7-9f0325bcc293",
-      "sortOrder": 3072.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": true,
-      "requiredForParent": true,
-      "completionOrigin": "Manual",
-      "completedAt": "2026-10-24T03:39:08.183442+00:00",
-      "projectId": "01a16bfd-ab2a-726a-8d77-0f92f69477b2",
-      "poolId": "01a16bfd-ab66-7f94-a6d1-29fcb8e10081",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bfd-adf9-7dff-a242-3462be063f20",
-      "title": "B1",
-      "description": null,
-      "state": "Completed",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": 900,
-      "createdAt": "2026-10-24T03:39:08.183442+00:00",
-      "updatedAt": "2026-10-24T03:39:08.183442+00:00",
-      "archivedAt": null,
-      "version": 3,
-      "parentTaskId": "01a16bfd-ad59-73b4-b819-4853261f5eb2",
-      "sortOrder": 1024.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": true,
-      "requiredForParent": true,
-      "completionOrigin": "Manual",
-      "completedAt": "2026-10-24T03:39:08.183442+00:00",
-      "projectId": "01a16bfd-ab2a-726a-8d77-0f92f69477b2",
-      "poolId": "01a16bfd-ab66-7f94-a6d1-29fcb8e10081",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bfd-ae29-7e3a-be8d-03a222766561",
-      "title": "B2",
-      "description": null,
-      "state": "Completed",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": 1200,
-      "createdAt": "2026-10-24T03:39:08.183442+00:00",
-      "updatedAt": "2026-10-24T03:39:08.183442+00:00",
-      "archivedAt": null,
-      "version": 3,
-      "parentTaskId": "01a16bfd-ad59-73b4-b819-4853261f5eb2",
-      "sortOrder": 2048.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": true,
-      "requiredForParent": true,
-      "completionOrigin": "Manual",
-      "completedAt": "2026-10-24T03:39:08.183442+00:00",
-      "projectId": "01a16bfd-ab2a-726a-8d77-0f92f69477b2",
-      "poolId": "01a16bfd-ab66-7f94-a6d1-29fcb8e10081",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
-  "total": 6
+  "limit": 1,
+  "total": 1,
+  "coverage": {
+    "versions": {
+      "planning": 1,
+      "notes": 1,
+      "specialDays": 1
+    },
+    "serverNow": "2026-10-16T06:00:00Z"
+  }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 401:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.2",
-  "title": "Giriş yapmanız gerekiyor.",
-  "status": 401,
-  "code": "unauthorized",
-  "traceId": "00-12e9bc803605ce9cd450298b55dc73d6-76a1eeecb0c618f5-00"
-}
-```
 
 ## POST /api/tasks
 
@@ -276,7 +97,11 @@ Gerçek test hata örneği — HTTP 401:
 
 ```json
 {
-  "title": "Classification rollback sentinel"
+  "title": "Raporu yaz",
+  "description": "örnek",
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false
 }
 ```
 
@@ -294,55 +119,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfa-8c1c-79cd-b668-5a6fe17da679",
-  "title": "Classification rollback sentinel",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:35:43.633008+00:00",
-  "updatedAt": "2026-10-24T03:35:43.633008+00:00",
-  "archivedAt": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
   "version": 1,
-  "parentTaskId": null,
-  "sortOrder": 1024,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 400:
-
-```json
-{
-  "title": "Gönderilen alanları kontrol edin.",
-  "status": 400,
-  "errors": {
-    "Title": [
-      "The Title field is required."
-    ]
-  },
-  "code": "validation_failed",
-  "traceId": "0HNPHFU9URQMA"
-}
-```
 
 ## POST /api/tasks/batch
 
@@ -368,11 +177,9 @@ Gerçek test hata örneği — HTTP 400:
 ```json
 {
   "titles": [
-    "Fatura öde",
-    " Annemi ara ",
-    "Fatura öde"
+    "örnek"
   ],
-  "poolId": "01a16bfe-6c1d-7a22-af1f-80cb4612deee"
+  "poolId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
@@ -391,114 +198,14 @@ Content-Type: application/json
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bfe-6c7f-7945-8ea3-8b6f6dae8970",
-      "title": "Fatura öde",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-15T06:00:00+00:00",
-      "updatedAt": "2026-10-15T06:00:00+00:00",
-      "archivedAt": null,
-      "version": 1,
-      "parentTaskId": null,
-      "sortOrder": 1024,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": "01a16bfe-6c1d-7a22-af1f-80cb4612deee",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bfe-6c7f-7bcc-8861-cb9e5f54eaae",
-      "title": "Annemi ara",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-15T06:00:00+00:00",
-      "updatedAt": "2026-10-15T06:00:00+00:00",
-      "archivedAt": null,
-      "version": 1,
-      "parentTaskId": null,
-      "sortOrder": 2048,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": "01a16bfe-6c1d-7a22-af1f-80cb4612deee",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bfe-6c7f-7a14-a145-bd0152c48c69",
-      "title": "Fatura öde",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-15T06:00:00+00:00",
-      "updatedAt": "2026-10-15T06:00:00+00:00",
-      "archivedAt": null,
-      "version": 1,
-      "parentTaskId": null,
-      "sortOrder": 3072,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": "01a16bfe-6c1d-7a22-af1f-80cb4612deee",
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    }
-  ],
-  "planningVersion": 2
+  "items": [],
+  "planningVersion": 0
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Anahtar başka bir komutta kullanılmış.",
-  "status": 409,
-  "code": "idempotency_conflict",
-  "traceId": "00-07716758a11562cf7f01448758b71f9c-5aa6540d5fc0794e-00"
-}
-```
 
 ## GET /api/tasks/children
 
@@ -526,7 +233,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/children?parentId=01a16bf9-ba48-7a3b-8a9a-09bd2ed95536
+GET /api/tasks/children
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -536,158 +243,27 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bf9-bd48-7289-88a7-c5f4d8b8c08f",
-      "title": "Three",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:34:49.694104+00:00",
-      "updatedAt": "2026-10-24T03:34:49.694104+00:00",
-      "archivedAt": null,
-      "version": 2,
-      "parentTaskId": "01a16bf9-ba48-7a3b-8a9a-09bd2ed95536",
-      "sortOrder": 1024.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": null,
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bf9-bba0-7d50-8093-d2b9d9c11f5d",
-      "title": "One",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:34:49.694104+00:00",
-      "updatedAt": "2026-10-24T03:34:49.694104+00:00",
-      "archivedAt": null,
-      "version": 2,
-      "parentTaskId": "01a16bf9-ba48-7a3b-8a9a-09bd2ed95536",
-      "sortOrder": 2048.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": null,
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bf9-bc6c-786e-9665-bd19192abeed",
-      "title": "Two",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:34:49.694104+00:00",
-      "updatedAt": "2026-10-24T03:34:49.694104+00:00",
-      "archivedAt": null,
-      "version": 2,
-      "parentTaskId": "01a16bf9-ba48-7a3b-8a9a-09bd2ed95536",
-      "sortOrder": 3072.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": null,
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
+  "limit": 1,
   "hasMore": false,
-  "summaries": [
-    {
-      "taskId": "01a16bf9-bd48-7289-88a7-c5f4d8b8c08f",
-      "childCount": 0,
-      "completedChildCount": 0,
-      "knownEstimatedSeconds": 0,
-      "unknownEstimateCount": 1,
-      "effectiveFrom": null,
-      "effectiveTo": null,
-      "rangeFromChildren": false
-    },
-    {
-      "taskId": "01a16bf9-bba0-7d50-8093-d2b9d9c11f5d",
-      "childCount": 0,
-      "completedChildCount": 0,
-      "knownEstimatedSeconds": 0,
-      "unknownEstimateCount": 1,
-      "effectiveFrom": null,
-      "effectiveTo": null,
-      "rangeFromChildren": false
-    },
-    {
-      "taskId": "01a16bf9-bc6c-786e-9665-bd19192abeed",
-      "childCount": 0,
-      "completedChildCount": 0,
-      "knownEstimatedSeconds": 0,
-      "unknownEstimateCount": 1,
-      "effectiveFrom": null,
-      "effectiveTo": null,
-      "rangeFromChildren": false
-    }
-  ]
+  "summaries": null
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-2026172d037646e1884cbd10566f61f0-da7a3b238d152d9e-00"
-}
-```
 
 ## GET /api/tasks/picker
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Varsayılan düz seçici uyumludur. hierarchy=true kapsayıcı kökleri ve Children ağacını da döndürür; sayfalama kökler üzerinden, arama üst bağlamı koruyarak yapılır. date atanmış/diğer grupları ayrılır. offset/assignedOffset bağımsız, limit1..100; UI25. Ebeveyn başlığı aynı sorguda, HasExactMatch bütün uygun kümede. Literal Türkçe substring; her satır için ek parent GET yok. Coverage aynı repeatable-read snapshot içindeki owner sürümleridir; UI yalnız bütün sayfalar güncel planning sürümü ve ±15sn tazelik taşıyorsa handshake tekrar okumasını atlar; eksik/eski sertifika yeniden okunur.
+**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
 
 **Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
 
-**Ek entegrasyon kuralı:** UI-R4: owner açık/doğrudan işler; date atanmış/diğer grupları ayrılır. offset/assignedOffset bağımsız, limit1..100; UI25. Ebeveyn başlığı aynı sorguda, HasExactMatch bütün uygun kümede. Literal Türkçe substring; her satır için ek parent GET yok. Coverage aynı repeatable-read snapshot içindeki owner sürümleridir; UI yalnız bütün sayfalar güncel planning sürümü ve ±15sn tazelik taşıyorsa handshake tekrar okumasını atlar; eksik/eski sertifika yeniden okunur.
+**Ek entegrasyon kuralı:** Varsayılan düz seçici uyumludur. hierarchy=true kapsayıcı kökleri ve Children ağacını da döndürür; sayfalama kökler üzerinden, arama üst bağlamı koruyarak yapılır. date atanmış/diğer grupları ayrılır. offset/assignedOffset bağımsız, limit1..100; UI25. Ebeveyn başlığı aynı sorguda, HasExactMatch bütün uygun kümede. Literal Türkçe substring; her satır için ek parent GET yok. Coverage aynı repeatable-read snapshot içindeki owner sürümleridir; UI yalnız bütün sayfalar güncel planning sürümü ve ±15sn tazelik taşıyorsa handshake tekrar okumasını atlar; eksik/eski sertifika yeniden okunur.
 
 | Parametre | Yer | Zorunlu | Tip / sınır |
 | --- | --- | --- | --- |
@@ -841,7 +417,7 @@ Content-Type: application/json
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bfa-7bec-77d6-9a06-3fd56881f8e2
+GET /api/tasks/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -851,51 +427,39 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "id": "01a16bfa-7bec-77d6-9a06-3fd56881f8e2",
-  "title": "A child",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:35:38.478503+00:00",
-  "updatedAt": "2026-10-24T03:35:38.478503+00:00",
-  "archivedAt": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
   "version": 1,
-  "parentTaskId": "01a16bfa-797c-769f-8585-29a2c0063eed",
-  "sortOrder": 1024.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": "01a16bfa-77b2-7120-ad3f-6a01a7bd6596",
-  "poolId": "01a16bfa-77fa-72f4-9231-a12e34d4b885",
-  "categoryId": "01a16bfa-78b1-73d6-9062-da70b69e143f",
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-0e88266db2e7e93442efe0f41cb41c74-332893c03ad72309-00"
-}
-```
 
 ## PUT /api/tasks/{id}
 
@@ -911,7 +475,7 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `title` | String | required; length:0..300 |
 | `description` | String | length:0..10000 |
 | `priority` | TaskPriority | DTO/modül iş kuralı |
@@ -925,18 +489,18 @@ Gerçek test hata örneği — HTTP 404:
 ```json
 {
   "version": 1,
-  "title": "Read two pages",
-  "description": "One step at a time",
-  "priority": "High",
-  "canSplit": false,
-  "deadlineAt": "2026-11-01T12:00:00+03:00"
+  "title": "Raporu yaz",
+  "description": "örnek",
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/tasks/01a16bf9-ad4a-7e3e-aad4-9afcaa5f67ca
+PUT /api/tasks/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -947,51 +511,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bf9-ad4a-7e3e-aad4-9afcaa5f67ca",
-  "title": "Read two pages",
-  "description": "One step at a time",
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "High",
-  "deadlineAt": "2026-11-01T09:00:00+00:00",
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
   "canSplit": false,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:34:47.005275+00:00",
-  "updatedAt": "2026-10-24T03:36:47.005275+00:00",
-  "archivedAt": null,
-  "version": 2,
-  "parentTaskId": null,
-  "sortOrder": 1024.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Arşivlenmiş görev düzenlenemez.",
-  "status": 409,
-  "code": "task_archived",
-  "traceId": "00-700b2db7f7ae9cb64735732a1f9becb6-ebab6fb202189fa2-00"
-}
-```
 
 ## GET /api/tasks/{id}/ancestors
 
@@ -1051,7 +603,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [TaskVersionRequest](DTO-Sozlugu.md#taskversionrequest).
 
@@ -1059,14 +611,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "version": 2
+  "version": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16bf9-ad4a-7e3e-aad4-9afcaa5f67ca/archive
+POST /api/tasks/11111111-1111-4111-8111-111111111111/archive
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1077,51 +629,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bf9-ad4a-7e3e-aad4-9afcaa5f67ca",
-  "title": "Read two pages",
-  "description": "One step at a time",
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "High",
-  "deadlineAt": "2026-11-01T09:00:00+00:00",
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
   "canSplit": false,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:34:47.005275+00:00",
-  "updatedAt": "2026-10-24T03:36:47.005275+00:00",
-  "archivedAt": "2026-10-24T03:36:47.005275+00:00",
-  "version": 3,
-  "parentTaskId": null,
-  "sortOrder": 1024.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Önce açık alt görevleri taşıyın veya arşivleyin.",
-  "status": 409,
-  "code": "task_has_children",
-  "traceId": "00-296e468c701192d3ccc0e9741a3ddb2a-54433f2d65b13e43-00"
-}
-```
 
 ## PUT /api/tasks/{id}/auto-complete
 
@@ -1139,7 +679,7 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `autoCompleteFromChildren` | Boolean? | required |
 
 **Request şeması:** [TaskAutoCompleteRequest](DTO-Sozlugu.md#taskautocompleterequest).
@@ -1148,7 +688,7 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "version": 5,
+  "version": 1,
   "autoCompleteFromChildren": false
 }
 ```
@@ -1156,7 +696,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-PUT /api/tasks/01a16bff-eed5-7dfd-b138-964e826e7a32/auto-complete
+PUT /api/tasks/11111111-1111-4111-8111-111111111111/auto-complete
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1167,51 +707,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bff-eed5-7dfd-b138-964e826e7a32",
-  "title": "Project",
-  "description": null,
-  "state": "Completed",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:41:36.3916+00:00",
-  "updatedAt": "2026-10-24T03:41:36.3916+00:00",
-  "archivedAt": null,
-  "version": 6,
-  "parentTaskId": null,
-  "sortOrder": 1024.0,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
+  "state": "Pending",
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
   "hasDirectWork": false,
-  "targetBudgetSeconds": null,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": "Automatic",
-  "completedAt": "2026-10-24T03:41:36.3916+00:00",
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
-  "autoCompleteFromChildren": false,
-  "plannedFrom": null,
-  "plannedTo": null
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
+  "autoCompleteFromChildren": true,
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Görev değişmiş; güncel kaydı alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-41c90ca3c3169cefd8f8e306ffce2210-26e24ab388bb79e8-00"
-}
-```
 
 ## POST /api/tasks/{id}/children
 
@@ -1229,7 +757,7 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `parentVersion` | Int64 | range:1..9,223372036854776E+18 |
+| `parentVersion` | Int64 | range:1..9.223372036854776E+18 |
 | `parentWorkDisposition` | ParentWorkDisposition? | DTO/modül iş kuralı |
 | `title` | String | required; length:0..300 |
 | `description` | String | length:0..10000 |
@@ -1243,16 +771,20 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
-  "title": "Unknown step",
-  "parentVersion": 5,
-  "parentWorkDisposition": "PreserveDirect"
+  "parentVersion": 1,
+  "parentWorkDisposition": "PreserveDirect",
+  "title": "Raporu yaz",
+  "description": "örnek",
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16bfa-797c-769f-8585-29a2c0063eed/children
+POST /api/tasks/11111111-1111-4111-8111-111111111111/children
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1263,51 +795,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfa-7f5a-7f81-ae2e-ffe1e5fa084d",
-  "title": "Unknown step",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:35:38.478503+00:00",
-  "updatedAt": "2026-10-24T03:35:38.478503+00:00",
-  "archivedAt": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
   "version": 1,
-  "parentTaskId": "01a16bfa-797c-769f-8585-29a2c0063eed",
-  "sortOrder": 2048.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": "01a16bfa-77b2-7120-ad3f-6a01a7bd6596",
-  "poolId": "01a16bfa-77fa-72f4-9231-a12e34d4b885",
-  "categoryId": "01a16bfa-78b1-73d6-9062-da70b69e143f",
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Üst görevin kendi işini korumayı veya konteynere çevirmeyi seçin.",
-  "status": 409,
-  "code": "parent_work_decision_required",
-  "traceId": "00-959d3faa8266a5d3a358792b3ecd2260-69f2e17e7e71ab4e-00"
-}
-```
 
 ## GET /api/tasks/{id}/classification
 
@@ -1326,7 +846,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bfa-7bec-77d6-9a06-3fd56881f8e2/classification
+GET /api/tasks/11111111-1111-4111-8111-111111111111/classification
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -1336,36 +856,21 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "taskId": "01a16bfa-7bec-77d6-9a06-3fd56881f8e2",
-  "version": 2,
-  "planningVersion": 10,
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "version": 1,
+  "planningVersion": 0,
   "values": {
-    "projectId": "01a16bfa-77b2-7120-ad3f-6a01a7bd6596",
-    "poolId": "01a16bfa-77fa-72f4-9231-a12e34d4b885",
-    "categoryId": "01a16bfa-78b1-73d6-9062-da70b69e143f",
-    "tagIds": [
-      "01a16bfa-78df-73d4-bf12-de393a860579",
-      "01a16bfa-7944-71c9-9b63-bf8c4943a5d7"
-    ]
+    "projectId": "11111111-1111-4111-8111-111111111111",
+    "poolId": "11111111-1111-4111-8111-111111111111",
+    "categoryId": "11111111-1111-4111-8111-111111111111",
+    "tagIds": []
   }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-0248a1b145771a1870ca57f2329522fa-5d31606079882a52-00"
-}
-```
 
 ## PUT /api/tasks/{id}/classification
 
@@ -1381,13 +886,15 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `projectId` | Guid? | DTO/modül iş kuralı |
 | `poolId` | Guid? | DTO/modül iş kuralı |
 | `categoryId` | Guid? | DTO/modül iş kuralı |
 | `tagIds` | Guid[] | required; maxLength:50 |
 | `applyToSubtree` | Boolean | DTO/modül iş kuralı |
-| `expectedPlanningVersion` | Int64? | range:0..9,223372036854776E+18 |
+| `detachKind` | String | DTO/modül iş kuralı |
+| `detachResourceId` | Guid? | DTO/modül iş kuralı |
+| `expectedPlanningVersion` | Int64? | range:0..9.223372036854776E+18 |
 
 **Request şeması:** [ClassificationRequest](DTO-Sozlugu.md#classificationrequest).
 
@@ -1395,23 +902,22 @@ Gerçek test hata örneği — HTTP 404:
 
 ```json
 {
-  "version": 2,
-  "projectId": "01a16bfa-77b2-7120-ad3f-6a01a7bd6596",
-  "poolId": "01a16bfa-77fa-72f4-9231-a12e34d4b885",
-  "categoryId": "01a16bfa-78b1-73d6-9062-da70b69e143f",
-  "tagIds": [
-    "01a16bfa-78df-73d4-bf12-de393a860579",
-    "01a16bfa-7944-71c9-9b63-bf8c4943a5d7"
-  ],
+  "version": 1,
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "tagIds": [],
   "applyToSubtree": false,
-  "expectedPlanningVersion": 7
+  "detachKind": "örnek",
+  "detachResourceId": "11111111-1111-4111-8111-111111111111",
+  "expectedPlanningVersion": 0
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/tasks/01a16bfa-797c-769f-8585-29a2c0063eed/classification
+PUT /api/tasks/11111111-1111-4111-8111-111111111111/classification
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1422,36 +928,21 @@ Content-Type: application/json
 
 ```json
 {
-  "taskId": "01a16bfa-797c-769f-8585-29a2c0063eed",
-  "version": 3,
-  "planningVersion": 8,
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "version": 1,
+  "planningVersion": 0,
   "values": {
-    "projectId": "01a16bfa-77b2-7120-ad3f-6a01a7bd6596",
-    "poolId": "01a16bfa-77fa-72f4-9231-a12e34d4b885",
-    "categoryId": "01a16bfa-78b1-73d6-9062-da70b69e143f",
-    "tagIds": [
-      "01a16bfa-78df-73d4-bf12-de393a860579",
-      "01a16bfa-7944-71c9-9b63-bf8c4943a5d7"
-    ]
+    "projectId": "11111111-1111-4111-8111-111111111111",
+    "poolId": "11111111-1111-4111-8111-111111111111",
+    "categoryId": "11111111-1111-4111-8111-111111111111",
+    "tagIds": []
   }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Alt ağaç değişmiş; güncel bağlamı alın.",
-  "status": 409,
-  "code": "planning_version_conflict",
-  "traceId": "00-7da2e8d591c1a9e1c04eefe6ce5370ee-89bc1adb40936a13-00"
-}
-```
 
 ## POST /api/tasks/{id}/delete
 
@@ -1469,7 +960,7 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [TaskVersionRequest](DTO-Sozlugu.md#taskversionrequest).
 
@@ -1484,7 +975,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16bff-d2d7-7a69-92b6-271f487f3ce7/delete
+POST /api/tasks/11111111-1111-4111-8111-111111111111/delete
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1495,51 +986,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bff-d2d7-7a69-92b6-271f487f3ce7",
-  "title": "Step",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:41:29.012115+00:00",
-  "updatedAt": "2026-10-24T03:41:29.012115+00:00",
-  "archivedAt": "2026-10-24T03:41:29.012115+00:00",
-  "version": 2,
-  "parentTaskId": "01a16bff-d077-7c9f-bdef-e3e844e1a80f",
-  "sortOrder": 2048.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Arşivlenmiş görev silinemez.",
-  "status": 409,
-  "code": "task_archived",
-  "traceId": "00-faf3d1d065ec7b2819ec8398a7ad86f4-b105147cdb4c3de1-00"
-}
-```
 
 ## GET /api/tasks/{id}/dependencies
 
@@ -1560,7 +1039,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16c00-9f9f-74ea-8af3-8a2a61e69cb6/dependencies
+GET /api/tasks/11111111-1111-4111-8111-111111111111/dependencies
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -1570,41 +1049,16 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16c00-a0b8-7dd0-9224-483bddc44071",
-      "sourceTaskId": "01a16c00-9f41-7961-8633-a63a1dd33ccc",
-      "targetTaskId": "01a16c00-9f9f-74ea-8af3-8a2a61e69cb6",
-      "kind": "FinishToStart"
-    },
-    {
-      "id": "01a16c00-a24d-7f49-ad18-12080db573e0",
-      "sourceTaskId": "01a16c00-9fb2-7b98-8274-e53ed7c0b016",
-      "targetTaskId": "01a16c00-9f9f-74ea-8af3-8a2a61e69cb6",
-      "kind": "FinishToStart"
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
-  "total": 2
+  "limit": 1,
+  "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-a3b1b1051e1ebecd0a4da6d6dc6dd5d4-58d4941bfab29ebf-00"
-}
-```
 
 ## POST /api/tasks/{id}/dependencies
 
@@ -1620,7 +1074,7 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `predecessorTaskId` | Guid | DTO/modül iş kuralı |
 
 **Request şeması:** [DependencyRequest](DTO-Sozlugu.md#dependencyrequest).
@@ -1629,15 +1083,15 @@ Gerçek test hata örneği — HTTP 404:
 
 ```json
 {
-  "version": 2,
-  "predecessorTaskId": "01a16bfc-ac1d-7392-9a25-2563eb3443b2"
+  "version": 1,
+  "predecessorTaskId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16bfc-ac5c-7d00-97d3-e83f17096f58/dependencies
+POST /api/tasks/11111111-1111-4111-8111-111111111111/dependencies
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1648,28 +1102,16 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfc-ad69-7e5d-9fda-6eb016779dc1",
-  "sourceTaskId": "01a16bfc-ac1d-7392-9a25-2563eb3443b2",
-  "targetTaskId": "01a16bfc-ac5c-7d00-97d3-e83f17096f58",
-  "kind": "FinishToStart"
+  "id": "11111111-1111-4111-8111-111111111111",
+  "sourceTaskId": "11111111-1111-4111-8111-111111111111",
+  "targetTaskId": "11111111-1111-4111-8111-111111111111",
+  "kind": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Görev değişmiş; güncel kaydı alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-66c2e7337ca07cfb4c738b7ff0f6fb4a-fe770106828e515b-00"
-}
-```
 
 ## DELETE /api/tasks/{id}/dependencies/{sourceId}
 
@@ -1692,7 +1134,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-DELETE /api/tasks/01a16c00-9f9f-74ea-8af3-8a2a61e69cb6/dependencies/01a16c00-9f41-7961-8633-a63a1dd33ccc?version=4
+DELETE /api/tasks/11111111-1111-4111-8111-111111111111/dependencies/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -1701,7 +1143,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 Response body yok; JSON parse etmeyin.
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -1850,9 +1292,9 @@ Authorization: Bearer <APPLICATION_JWT>
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `parentTaskId` | Guid? | DTO/modül iş kuralı |
-| `parentVersion` | Int64? | range:1..9,223372036854776E+18 |
+| `parentVersion` | Int64? | range:1..9.223372036854776E+18 |
 | `beforeSiblingId` | Guid? | DTO/modül iş kuralı |
 | `parentWorkDisposition` | ParentWorkDisposition? | DTO/modül iş kuralı |
 
@@ -1863,16 +1305,17 @@ Authorization: Bearer <APPLICATION_JWT>
 ```json
 {
   "version": 1,
-  "parentTaskId": "01a16bf9-ba48-7a3b-8a9a-09bd2ed95536",
-  "parentVersion": 4,
-  "beforeSiblingId": "01a16bf9-bba0-7d50-8093-d2b9d9c11f5d"
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "parentVersion": 1,
+  "beforeSiblingId": "11111111-1111-4111-8111-111111111111",
+  "parentWorkDisposition": "PreserveDirect"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16bf9-bd48-7289-88a7-c5f4d8b8c08f/move
+POST /api/tasks/11111111-1111-4111-8111-111111111111/move
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1883,51 +1326,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bf9-bd48-7289-88a7-c5f4d8b8c08f",
-  "title": "Three",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:34:49.694104+00:00",
-  "updatedAt": "2026-10-24T03:34:49.694104+00:00",
-  "archivedAt": null,
-  "version": 2,
-  "parentTaskId": "01a16bf9-ba48-7a3b-8a9a-09bd2ed95536",
-  "sortOrder": 1024,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Görev değişmiş; güncel kaydı alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-f8d1b014c0df642d21798178910c4cd8-c31fd4830a9f96e7-00"
-}
-```
 
 ## GET /api/tasks/{id}/ordering
 
@@ -1948,7 +1379,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16c00-9f9f-74ea-8af3-8a2a61e69cb6/ordering
+GET /api/tasks/11111111-1111-4111-8111-111111111111/ordering
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -1958,21 +1389,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16c00-a026-73db-a2d1-38bb7fcfb71d",
-      "sourceTaskId": "01a16c00-9f41-7961-8633-a63a1dd33ccc",
-      "targetTaskId": "01a16c00-9f9f-74ea-8af3-8a2a61e69cb6",
-      "kind": "PreferredBefore"
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
+  "limit": 1,
   "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -1990,7 +1414,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `beforeTaskId` | Guid | DTO/modül iş kuralı |
 
 **Request şeması:** [OrderingRequest](DTO-Sozlugu.md#orderingrequest).
@@ -2000,14 +1424,14 @@ Authorization: Bearer <APPLICATION_JWT>
 ```json
 {
   "version": 1,
-  "beforeTaskId": "01a16c00-9f41-7961-8633-a63a1dd33ccc"
+  "beforeTaskId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16c00-9f9f-74ea-8af3-8a2a61e69cb6/ordering
+POST /api/tasks/11111111-1111-4111-8111-111111111111/ordering
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -2018,28 +1442,16 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16c00-a026-73db-a2d1-38bb7fcfb71d",
-  "sourceTaskId": "01a16c00-9f41-7961-8633-a63a1dd33ccc",
-  "targetTaskId": "01a16c00-9f9f-74ea-8af3-8a2a61e69cb6",
-  "kind": "PreferredBefore"
+  "id": "11111111-1111-4111-8111-111111111111",
+  "sourceTaskId": "11111111-1111-4111-8111-111111111111",
+  "targetTaskId": "11111111-1111-4111-8111-111111111111",
+  "kind": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-395801035e7a03960597d2c26469e9b2-8962678b9450a811-00"
-}
-```
 
 ## DELETE /api/tasks/{id}/ordering/{sourceId}
 
@@ -2062,7 +1474,7 @@ Gerçek test hata örneği — HTTP 404:
 **Örnek HTTP:**
 
 ```http
-DELETE /api/tasks/01a16c00-e556-7f2f-960d-b5ecf24436f4/ordering/01a16c00-e52a-7705-a392-77a3ad45075b?version=2
+DELETE /api/tasks/11111111-1111-4111-8111-111111111111/ordering/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -2071,7 +1483,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 Response body yok; JSON parse etmeyin.
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -2091,7 +1503,7 @@ Response body yok; JSON parse etmeyin.
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `plannedFrom` | DateOnly? | DTO/modül iş kuralı |
 | `plannedTo` | DateOnly? | DTO/modül iş kuralı |
 
@@ -2102,15 +1514,15 @@ Response body yok; JSON parse etmeyin.
 ```json
 {
   "version": 1,
-  "plannedFrom": "2026-10-24",
-  "plannedTo": "2026-10-26"
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/tasks/01a16bff-deff-7ba8-bc6a-82986fc5ac82/planned-range
+PUT /api/tasks/11111111-1111-4111-8111-111111111111/planned-range
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -2121,51 +1533,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bff-deff-7ba8-bc6a-82986fc5ac82",
-  "title": "A",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:41:30.994076+00:00",
-  "updatedAt": "2026-10-24T03:41:30.994076+00:00",
-  "archivedAt": null,
-  "version": 2,
-  "parentTaskId": "01a16bff-dc11-7773-9976-47964b47efc6",
-  "sortOrder": 1024.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": "2026-10-24",
-  "plannedTo": "2026-10-26"
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Görev değişmiş; güncel kaydı alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-7eefd2c7ee7e840329a4aadc58b0164d-e12b4046c125f74a-00"
-}
-```
 
 ## GET /api/tasks/{id}/progress
 
@@ -2184,7 +1584,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16c00-93f9-7d1c-8db3-61f86ad38604/progress
+GET /api/tasks/11111111-1111-4111-8111-111111111111/progress
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -2194,38 +1594,26 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "taskId": "01a16c00-93f9-7d1c-8db3-61f86ad38604",
-  "totalTaskCount": 3,
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "totalTaskCount": 1,
   "completedTaskCount": 1,
-  "componentCount": 3,
-  "completedComponentCount": 2,
-  "countProgress": 0.6666666666666666,
-  "knownEstimatedSeconds": 2400,
-  "knownCompletedEstimatedSeconds": 1800,
-  "unknownEstimateCount": 0,
-  "durationProgress": 0.75,
-  "requiredChildCount": 2,
+  "componentCount": 1,
+  "completedComponentCount": 1,
+  "countProgress": 1,
+  "knownEstimatedSeconds": 1,
+  "knownCompletedEstimatedSeconds": 1,
+  "unknownEstimateCount": 1,
+  "durationProgress": 1,
+  "requiredChildCount": 1,
   "incompleteRequiredChildCount": 1,
-  "hasOpenChildren": true,
-  "hasOpenDescendants": true
+  "hasOpenChildren": false,
+  "hasOpenDescendants": false
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-a23c24bafe41e3a45590e76ed4ec85ac-2ab3e2a7fcd60b14-00"
-}
-```
 
 ## PUT /api/tasks/{id}/required
 
@@ -2241,7 +1629,7 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `requiredForParent` | Boolean? | required |
 
 **Request şeması:** [TaskRequiredRequest](DTO-Sozlugu.md#taskrequiredrequest).
@@ -2258,7 +1646,7 @@ Gerçek test hata örneği — HTTP 404:
 **Örnek HTTP:**
 
 ```http
-PUT /api/tasks/01a16bfb-c872-77be-b009-2fca1ca1d098/required
+PUT /api/tasks/11111111-1111-4111-8111-111111111111/required
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -2269,51 +1657,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfb-c872-77be-b009-2fca1ca1d098",
-  "title": "Step",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:37:03.950919+00:00",
-  "updatedAt": "2026-10-24T03:37:03.950919+00:00",
-  "archivedAt": null,
-  "version": 2,
-  "parentTaskId": "01a16bfb-c64d-7938-b378-8ea44bc8538e",
-  "sortOrder": 2048.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
   "requiredForParent": false,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-5cd865e270825a301fca336401ce95eb-9716c900ecf347af-00"
-}
-```
 
 ## POST /api/tasks/{id}/restore
 
@@ -2331,7 +1707,7 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [TaskVersionRequest](DTO-Sozlugu.md#taskversionrequest).
 
@@ -2339,14 +1715,14 @@ Gerçek test hata örneği — HTTP 404:
 
 ```json
 {
-  "version": 2
+  "version": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16bff-d2d7-7a69-92b6-271f487f3ce7/restore
+POST /api/tasks/11111111-1111-4111-8111-111111111111/restore
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -2357,51 +1733,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bff-d2d7-7a69-92b6-271f487f3ce7",
-  "title": "Step",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": null,
-  "createdAt": "2026-10-24T03:41:29.012115+00:00",
-  "updatedAt": "2026-10-24T03:41:29.012115+00:00",
-  "archivedAt": null,
-  "version": 3,
-  "parentTaskId": "01a16bff-d077-7c9f-bdef-e3e844e1a80f",
-  "sortOrder": 2048.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": null,
-  "poolId": null,
-  "categoryId": null,
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Önce üst görevi geri alın.",
-  "status": 409,
-  "code": "parent_deleted",
-  "traceId": "00-5b9e14f9c913e32a8e51274ea3cc1de0-2c9250ff77221e47-00"
-}
-```
 
 ## GET /api/tasks/{id}/start-eligibility
 
@@ -2420,7 +1784,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bfd-adbe-75da-9a64-86f6c5a1b1c4/start-eligibility
+GET /api/tasks/11111111-1111-4111-8111-111111111111/start-eligibility
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -2430,32 +1794,16 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "taskId": "01a16bfd-adbe-75da-9a64-86f6c5a1b1c4",
+  "taskId": "11111111-1111-4111-8111-111111111111",
   "canStart": false,
-  "reasons": [
-    "predecessor_incomplete"
-  ],
-  "blockingPredecessorIds": [
-    "01a16bfd-acfc-7ae9-9972-88f31691ee28"
-  ]
+  "reasons": [],
+  "blockingPredecessorIds": []
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-e011f8c083b96809fcc6cc966476afa8-f94e902dcfe82c90-00"
-}
-```
 
 ## POST /api/tasks/{id}/state
 
@@ -2473,7 +1821,7 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `action` | TaskAction? | required |
 | `parentCompletionChoice` | ParentCompletionChoice? | DTO/modül iş kuralı |
 | `reason` | String | length:0..2000 |
@@ -2484,16 +1832,17 @@ Gerçek test hata örneği — HTTP 404:
 
 ```json
 {
-  "version": 2,
+  "version": 1,
   "action": "Complete",
-  "parentCompletionChoice": null
+  "parentCompletionChoice": "CompleteSubtree",
+  "reason": "Takvim düzenlendi"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/tasks/01a16bfd-ae29-7e3a-be8d-03a222766561/state
+POST /api/tasks/11111111-1111-4111-8111-111111111111/state
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -2504,51 +1853,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfd-ae29-7e3a-be8d-03a222766561",
-  "title": "B2",
-  "description": null,
-  "state": "Completed",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": 1200,
-  "createdAt": "2026-10-24T03:39:08.183442+00:00",
-  "updatedAt": "2026-10-24T03:39:08.183442+00:00",
-  "archivedAt": null,
-  "version": 3,
-  "parentTaskId": "01a16bfd-ad59-73b4-b819-4853261f5eb2",
-  "sortOrder": 2048.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
-  "directWorkCompleted": true,
-  "requiredForParent": true,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
+  "state": "Pending",
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
+  "directWorkCompleted": false,
+  "requiredForParent": false,
   "completionOrigin": "Manual",
-  "completedAt": "2026-10-24T03:39:08.183442+00:00",
-  "projectId": "01a16bfd-ab2a-726a-8d77-0f92f69477b2",
-  "poolId": "01a16bfd-ab66-7f94-a6d1-29fcb8e10081",
-  "categoryId": null,
-  "energyDemand": null,
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Sunucu zamanÄ± Ã¶nceki kayÄ±ttan geride; tekrar deneyin.",
-  "status": 409,
-  "code": "server_clock_conflict",
-  "traceId": "00-21d7dd952428ea8d613a854982b65d3d-e5f79c0e50f90b4c-00"
-}
-```
 
 ## GET /api/tasks/{id}/subtree
 
@@ -2570,7 +1907,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bf9-b094-735f-83af-41740e02a9f4/subtree
+GET /api/tasks/11111111-1111-4111-8111-111111111111/subtree
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -2580,117 +1917,17 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bf9-b094-735f-83af-41740e02a9f4",
-      "title": "A",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:34:47.42115+00:00",
-      "updatedAt": "2026-10-24T03:34:47.42115+00:00",
-      "archivedAt": null,
-      "version": 2,
-      "parentTaskId": null,
-      "sortOrder": 1024.0,
-      "hasDirectWork": false,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": null,
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bf9-b1a9-78d5-85c3-64d14662b6bd",
-      "title": "Child",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:34:47.42115+00:00",
-      "updatedAt": "2026-10-24T03:34:47.42115+00:00",
-      "archivedAt": null,
-      "version": 2,
-      "parentTaskId": "01a16bf9-b094-735f-83af-41740e02a9f4",
-      "sortOrder": 1024.0,
-      "hasDirectWork": false,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": null,
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    },
-    {
-      "id": "01a16bf9-b29e-77fe-9bf7-66d1060126af",
-      "title": "Grandchild",
-      "description": null,
-      "state": "Pending",
-      "priority": "Normal",
-      "deadlineAt": null,
-      "canSplit": true,
-      "directEstimatedSeconds": null,
-      "createdAt": "2026-10-24T03:34:47.42115+00:00",
-      "updatedAt": "2026-10-24T03:34:47.42115+00:00",
-      "archivedAt": null,
-      "version": 1,
-      "parentTaskId": "01a16bf9-b1a9-78d5-85c3-64d14662b6bd",
-      "sortOrder": 1024.0,
-      "hasDirectWork": true,
-      "targetBudgetSeconds": null,
-      "directWorkCompleted": false,
-      "requiredForParent": true,
-      "completionOrigin": null,
-      "completedAt": null,
-      "projectId": null,
-      "poolId": null,
-      "categoryId": null,
-      "energyDemand": null,
-      "autoCompleteFromChildren": true,
-      "plannedFrom": null,
-      "plannedTo": null
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
+  "limit": 1,
   "hasMore": false,
   "summaries": null
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-e7dee71510ed90b995d72b9158a682d0-db8cbb52a2b13d84-00"
-}
-```
 
 ## GET /api/tasks/{id}/summary
 
@@ -2711,7 +1948,7 @@ Gerçek test hata örneği — HTTP 404:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bff-dc11-7773-9976-47964b47efc6/summary
+GET /api/tasks/11111111-1111-4111-8111-111111111111/summary
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -2721,32 +1958,21 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "taskId": "01a16bff-dc11-7773-9976-47964b47efc6",
-  "childCount": 2,
-  "completedChildCount": 0,
-  "knownEstimatedSeconds": 0,
-  "unknownEstimateCount": 2,
-  "effectiveFrom": "2026-10-01",
-  "effectiveTo": "2026-12-31",
-  "rangeFromChildren": false
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "childCount": 1,
+  "completedChildCount": 1,
+  "knownEstimatedSeconds": 1,
+  "unknownEstimateCount": 1,
+  "effectiveFrom": "2026-10-16",
+  "effectiveTo": "2026-10-16",
+  "rangeFromChildren": false,
+  "urgentPlanDate": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-fa5d3079d76fdbd83c9856c3ab68ec3c-d692960b7e0f9507-00"
-}
-```
 
 ## GET /api/tasks/{id}/work-components
 
@@ -2767,7 +1993,7 @@ Gerçek test hata örneği — HTTP 404:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bfb-0d8d-7e57-986a-f8b9da29b200/work-components
+GET /api/tasks/11111111-1111-4111-8111-111111111111/work-components
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -2777,49 +2003,16 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "taskId": "01a16bfb-0e18-7f19-8adb-5a63d1134f84",
-      "estimatedSeconds": 1800
-    },
-    {
-      "taskId": "01a16bfb-0eb5-7dbf-8366-f7cf3e52fa0a",
-      "estimatedSeconds": 1500
-    },
-    {
-      "taskId": "01a16bfb-1038-7c47-887a-293c7aaa4144",
-      "estimatedSeconds": 900
-    },
-    {
-      "taskId": "01a16bfb-10df-764b-9bc9-7f610e0fb837",
-      "estimatedSeconds": 1200
-    },
-    {
-      "taskId": "01a16bfb-1133-78e3-9c82-3d8e420cb9e3",
-      "estimatedSeconds": 1500
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
-  "total": 5
+  "limit": 1,
+  "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-6e24549ee7278f06569bb827f9b4aae7-be657ac2f0b044e1-00"
-}
-```
 
 ## PUT /api/tasks/{id}/work-definition
 
@@ -2835,10 +2028,10 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `hasDirectWork` | Boolean? | required |
-| `directEstimatedSeconds` | Int64? | range:0..9,223372036854776E+18 |
-| `targetBudgetSeconds` | Int64? | range:0..9,223372036854776E+18 |
+| `directEstimatedSeconds` | Int64? | range:0..9.223372036854776E+18 |
+| `targetBudgetSeconds` | Int64? | range:0..9.223372036854776E+18 |
 
 **Request şeması:** [WorkDefinitionRequest](DTO-Sozlugu.md#workdefinitionrequest).
 
@@ -2847,16 +2040,16 @@ Gerçek test hata örneği — HTTP 404:
 ```json
 {
   "version": 1,
-  "hasDirectWork": true,
-  "directEstimatedSeconds": 1200,
-  "targetBudgetSeconds": null
+  "hasDirectWork": false,
+  "directEstimatedSeconds": 1,
+  "targetBudgetSeconds": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/tasks/01a16bfa-7bec-77d6-9a06-3fd56881f8e2/work-definition
+PUT /api/tasks/11111111-1111-4111-8111-111111111111/work-definition
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -2867,51 +2060,39 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfa-7bec-77d6-9a06-3fd56881f8e2",
-  "title": "A child",
-  "description": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "description": "örnek",
   "state": "Pending",
-  "priority": "Normal",
-  "deadlineAt": null,
-  "canSplit": true,
-  "directEstimatedSeconds": 1200,
-  "createdAt": "2026-10-24T03:35:38.478503+00:00",
-  "updatedAt": "2026-10-24T03:35:38.478503+00:00",
-  "archivedAt": null,
-  "version": 2,
-  "parentTaskId": "01a16bfa-797c-769f-8585-29a2c0063eed",
-  "sortOrder": 1024.0,
-  "hasDirectWork": true,
-  "targetBudgetSeconds": null,
+  "priority": "Low",
+  "deadlineAt": "2026-10-16T06:00:00Z",
+  "canSplit": false,
+  "directEstimatedSeconds": 1,
+  "createdAt": "2026-10-16T06:00:00Z",
+  "updatedAt": "2026-10-16T06:00:00Z",
+  "archivedAt": "2026-10-16T06:00:00Z",
+  "version": 1,
+  "parentTaskId": "11111111-1111-4111-8111-111111111111",
+  "sortOrder": 1,
+  "hasDirectWork": false,
+  "targetBudgetSeconds": 1,
   "directWorkCompleted": false,
-  "requiredForParent": true,
-  "completionOrigin": null,
-  "completedAt": null,
-  "projectId": "01a16bfa-77b2-7120-ad3f-6a01a7bd6596",
-  "poolId": "01a16bfa-77fa-72f4-9231-a12e34d4b885",
-  "categoryId": "01a16bfa-78b1-73d6-9062-da70b69e143f",
-  "energyDemand": null,
+  "requiredForParent": false,
+  "completionOrigin": "Manual",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "projectId": "11111111-1111-4111-8111-111111111111",
+  "poolId": "11111111-1111-4111-8111-111111111111",
+  "categoryId": "11111111-1111-4111-8111-111111111111",
+  "energyDemand": "Low",
   "autoCompleteFromChildren": true,
-  "plannedFrom": null,
-  "plannedTo": null
+  "plannedFrom": "2026-10-16",
+  "plannedTo": "2026-10-16"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Görev değişmiş; güncel kaydı alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-d2fac0abfa421e85ad951da440668dd2-832d22befc9a3cb3-00"
-}
-```
 
 ## GET /api/tasks/{id}/workload
 
@@ -2930,7 +2111,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bfb-2818-7619-b218-41aac16e8e8c/workload
+GET /api/tasks/11111111-1111-4111-8111-111111111111/workload
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -2940,37 +2121,28 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "taskId": "01a16bfb-2818-7619-b218-41aac16e8e8c",
-  "knownEstimatedSeconds": 9223372036854775807,
-  "unknownEstimateCount": 0,
-  "calculatedTotalSeconds": 9223372036854775807,
-  "targetBudgetSeconds": null,
-  "targetDifferenceSeconds": null
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "knownEstimatedSeconds": 1,
+  "unknownEstimateCount": 1,
+  "calculatedTotalSeconds": 1,
+  "targetBudgetSeconds": 1,
+  "targetDifferenceSeconds": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Görev bulunamadı.",
-  "status": 404,
-  "code": "task_not_found",
-  "traceId": "00-2da5bf37ad65b244e83b392c18feedfa-7ed62cc1dbe3278a-00"
-}
-```
 ## GET /api/{kind}/{id}/task-tree
 
 **Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
 
-**Amaç/koşul:** Projeler/havuzlar/kategoriler/etiketler için owner kapsamlı görev ağacı. Offset/limit kök gruplarına uygulanır; alt görevler bölünmez, aynı görev tek kök altında görünür. Alt görevlerin mevcut sınıflandırması değiştirilmez; bitmiş kökler sonradır.
+**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
 
 **Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+**Ek entegrasyon kuralı:** Projeler/havuzlar/kategoriler/etiketler için owner kapsamlı görev ağacı. Offset/limit kök gruplarına uygulanır; alt görevler bölünmez, aynı görev tek kök altında görünür. Alt görevlerin mevcut sınıflandırması değiştirilmez; bitmiş kökler sonradır.
 
 | Parametre | Yer | Zorunlu | Tip / sınır |
 | --- | --- | --- | --- |
@@ -2999,7 +2171,9 @@ Authorization: Bearer <APPLICATION_JWT>
   "parents": [],
   "offset": 0,
   "limit": 1,
-  "total": 1
+  "total": 1,
+  "contextTaskIds": null,
+  "taskCount": 1
 }
 ```
 

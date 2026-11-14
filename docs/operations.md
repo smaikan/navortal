@@ -62,6 +62,14 @@ Proxy `X-Forwarded-For` başlığını gelen değere eklemez, istemcinin kendi a
 | `Push__Enabled=false` | Başlangıçta dış Web Push kapalı; in-app/SignalR bağımsız çalışır. |
 | `Push__Subject`, `Push__PublicKey`, `Push__PrivateKey` | Açılırsa ayrı kalıcı P-256 VAPID keypair ve gerçek iletişim adresi gerekir. JWT secret'ı değildir. |
 
+### Docker Compose ile kalıcı Web Push yapılandırması
+
+Repo kökünde `node API/scripts/configure-web-push.mjs mailto:GERCEK-ILETISIM-ADRESI` çalıştırılır. Node 24 scripti ayrı P-256 anahtarı üretir, imzayı doğrular ve `API/.local/push.env` dosyasını yalnız yoksa `0600` izniyle oluşturur. Tekrar çalıştırma mevcut anahtar çiftini doğrular; değiştirmez. Geçersiz dosya sessizce yenilenmez. Dosyayı diğer üretim sırlarıyla birlikte koruyun; içeriğini terminale veya loga yazdırmayın.
+
+Kök Compose yalnız API servisine bu isteğe bağlı dosyayı yükler. Yapılandırma değişince API konteyneri yeniden oluşturulmalıdır; salt `restart` yeni env değerlerini almaz. Dosya bulunmazsa varsayılan kapalı davranış korunur. Cihaz etkinleştirme için sunucunun açık olması, genel/tür tercihi, tarayıcı izni ve güncel tarayıcı aboneliği ayrı koşullardır; hizmetin açılması kullanıcıları otomatik abone yapmaz.
+
+Yayın kabulünde oturum açılmış `/api/notifications/push-config` yanıtının `enabled=true` ve geçerli public key taşıdığını kontrol edin. Private key HTTP'ye dönmez. Abonelik oluşturma, kapatma ve gerçek yeni hatırlatma teslimini ayrı doğrulayın. Provider'ın HTTP 201 cevabı cihazda görünme veya sesin duyulma kanıtı değildir; işletim sistemi sessiz modu ve tarayıcı hizmetine ağ erişimi ayrıca etkiler.
+
 Env, `.env`, JWT/VAPID private key, SMTP parola ve DB backup'larını repo/HTTP/loglara almayın. `.local` yalnız geliştirici geçici alanıdır; üretim secret store/backup saklaması ayrıca sağlanır. JWT exp'sizdir; signing key kaybı/değişimi eski token'ların doğrulanmasını etkiler. Logout ve parola reset eski kopyaları revoke etmez. VAPID key değişirse browser subscription yenilenir.
 
 17 Ekim JWT/SMTP güvenlik düzeltmesi: API Git/Docker ignore `.env*` çeşitlerini kapsar; Docker ayrıca nested `**/.env*` dosyalarını dışlar. Ignore, önceden yayımlanmış sırrı geri almaz; harici credential/key değiştirilmedi. JWT anahtarı en az32byte ve boş olmayan değer olmalı; üretimde32rastgelebyte veya fazlasını güvenli kaynaktan sağlayın. SMTP açıkken startup validation Host/Port/From/ResetPageUrl/Security alanlarını kontrol eder. Zorunlu TLS StartTls/SslOnConnect; Auto/StartTlsWhenAvailable reddedilir. None ve HTTP reset URL yalnız Development/Testing loopback istisnasıdır; localhost benzeri uzak alan adları istisna sayılmaz. Production reset adresi HTTPS, user info/query içermeyen URL olmalı; güncel frontend için `https://<uygulama-origin>/parola-yenile#`. Sertifika doğrulamasını kapatan callback eklenmez. Ayar hataları değer/parola içermeyen alan adlarıyla bildirilir. [Odaklı test kanıtı](verification/auth-security.md).
@@ -111,3 +119,25 @@ Bu makinede Docker Desktop bulunmadığı için resmî Docker29.9.1 statik binar
 Sıra: build-test-images → container-smoke → own daemon stop → native full regression. SDK/migration image ve runtime image aynı Dockerfile kaynağından gelir. Linux smoke clean migration, API/DB restart, eski JWT, plan/work/focus/not/preference restore, TLS SignalR ve HTTP tick olmadan Quartz focus alarmını doğrular. Güncel somut sonuçlar [MVP-29 kanıtındadır](verification/mvp-29.md).
 
 Temsilî performans [motor](verification/mvp-29-performance.json) ve [HTTP/DB sorguları](verification/mvp-29-query-performance.json) olarak saklanır. Saf motor p95 hedefi HTTP/DB/network/browser toplam SLA değildir. Bu ölçümler tek kullanıcı/sınırlı referans fixture'dır; çok kiracılı production kapasite testi yerine geçmez.
+
+### Mobil bildirim iyileştirmeleri
+
+`20261110194716_AddNotificationClientReceipts` migration'ı yalnız içeriksiz istemci makbuz tablosunu ekler; mevcut görev, plan, tercih ve abonelikleri değiştirmez. `/api/notifications/summary` gerçek owner kapsamlı okunmamış sayacıdır. `read-all` yanıtındaki `summary` aynı transaction'ın komut sonrası sonucudur. Yeni arayüzden önce API/migration yayımlanır; eski istemciler ek alanları kullanmadan çalışabilir.
+
+P1 izin/kurulum, sayaç ve panel akışı yayımlandıktan sonra P2 okundu gönderim kuralı `Push__SuppressReadDeliveries=true` ile ayrıca açılabilir (varsayılan `false`). Bu değeri mevcut `API/.local/push.env` içine diğer VAPID değerlerini koruyarak ekleyin ve yalnız API'yi yeniden oluşturun: `docker compose up -d --no-deps api`. `false` değeri önceki gönderim kuralına geri döner. Anahtarları yeniden üretmeyin. Açık erteleme `ReadAt` değerini sıfırlayıp yeni tur açar; başlamış dış ağ isteği geri alınamaz.
+
+Makbuzlar kullanıcı/bildirim/tur/aşama ve sunucu zamanlarından oluşur; başlık, gövde, endpoint ve token içermez. Tarayıcı kuyruğu ayrı IndexedDB'dedir: en çok 256 kayıt, 24 saat ömür, her tetikte en çok 20 gönderim ve 5 saniye ağ bütçesi. Oturum/hesap doğrulaması ve cookie CSRF uygulanır; ağ hataları gösterilen bildirimi başarısız saymaz. Sağlayıcı kabulü, tarayıcı gösterim/açılma bildirimi ve uygulamada okunma ayrı kanıtlardır; fiziksel kilit ekranı/ses garantisi değildir.
+
+Taşıyıcı önceliği ve toplulaştırma değiştirilmemiştir. Gerçek iOS/Android arka plan, kilit ekranı, pil tasarrufu ve ekran okuyucu kabulü ayrıca kaydedilmelidir.
+
+### Native FCM Aşama 1 (12 Kasım 2026: canlı)
+
+Yukarıdaki Web Push tesliminden sonraki native ekin sözleşmesi [Android FCM API Aşama 1](android-fcm-api-stage1.md) belgesindedir. `20261111214523_AddMobilePush` üretime uygulanmıştır; dört tablo ekler ve mevcut abonelikleri korur. Yayından önce alınan yedek izole veritabanına geri yüklenmiş, migration orada doğrulanmış ve üretim uygulamasında mevcut tabloların kayıt sayıları korunmuştur.
+
+Uygulama varsayılanı `Firebase__Enabled=false` olarak kalır. Üretimde `API/.local/firebase.env` üzerinden `Firebase__Enabled=true`, `Firebase__ProjectId=navortal`, `Firebase__ServiceAccountPath=/opt/navortal/API/.local/firebase-service-account.json` ve `Firebase__AndroidPackageName=tr.com.navortal` ayarlanmıştır. `Firebase__TimerSyncEnabled=false` yalnız ayrılmış ayardır. Anahtar dosyası root sahibi, API grubuna okunabilir ve diğer kullanıcılara kapalıdır; içeriği image/repository/mobil pakete eklenmez.
+
+Üretimde anahtarı salt okunur bağlayan ek dosyayla API güncellenir: `docker compose -f docker-compose.yml -f docker-compose.firebase.yml up -d --no-deps --no-build api`. Anahtar yokken temel Compose yine kullanılabilir; ek FCM dosyası yalnız anahtar hazırlanmış üretim için seçilir. FCM kapalıysa veya uygulama dosyayı bulamıyorsa mevcut Web Push yolu çalışır. JSON içeriğini terminale veya loga yazdırmayın.
+
+Yayın kabulünde Google OAuth erişimi doğrulandı; `validate_only` FCM isteği sentetik hedef için beklenen INVALID_ARGUMENT yanıtını döndürdü. Gerçek Android tokenıyla teslim/gösterim ayrıca sınanmalıdır. Geri dönüş imajı ve yedek bilgileri `API/.local/current-fcm-stage1-deployment` işaretçisinin gösterdiği özel klasördedir; eklemeli migration için otomatik tablo silme/downgrade yapılmaz.
+
+Etkin FCM ile uygun mobil kayıt varsa teslim başına kalıcı mobil önceliği uygulanır; hedef yoksa veya kesin ret varsa Web Push'a düşülür. Belirsiz ağ sonucu çift bildirimi önlemek için Web Push'a düşürülmez. Ayrıntılar ve bu tercihin teslim kaybı sınırı sözleşmede açıklanır.

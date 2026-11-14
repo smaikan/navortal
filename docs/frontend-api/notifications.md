@@ -23,7 +23,7 @@ In-app kaynak NotificationIntent Ready kayıtlarıdır; SignalR değişiklik iş
 **Örnek HTTP:**
 
 ```http
-GET /api/jobs/outbox?state=Failed
+GET /api/jobs/outbox
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -33,29 +33,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "0d509e4f-84e0-48b7-b06b-093e1661d9a0",
-      "kind": "Unknown",
-      "sourceId": "0d509e4f-84e0-48b7-b06b-093e1661d9a0",
-      "sourceVersion": 0,
-      "state": "Failed",
-      "attempts": 5,
-      "occurredAt": "2026-10-15T06:00:00+00:00",
-      "availableAt": "2026-10-15T06:01:02+00:00",
-      "leaseUntil": null,
-      "lastErrorCode": "unknown_outbox_kind",
-      "completedAt": null,
-      "version": 11
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
+  "limit": 1,
   "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -73,7 +58,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [TaskVersionRequest](DTO-Sozlugu.md#taskversionrequest).
 
@@ -81,14 +66,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "version": 11
+  "version": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/jobs/outbox/0d509e4f-84e0-48b7-b06b-093e1661d9a0/retry
+POST /api/jobs/outbox/11111111-1111-4111-8111-111111111111/retry
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -99,36 +84,24 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "0d509e4f-84e0-48b7-b06b-093e1661d9a0",
-  "kind": "Unknown",
-  "sourceId": "0d509e4f-84e0-48b7-b06b-093e1661d9a0",
-  "sourceVersion": 0,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "kind": "örnek",
+  "sourceId": "11111111-1111-4111-8111-111111111111",
+  "sourceVersion": 1,
   "state": "Pending",
-  "attempts": 0,
-  "occurredAt": "2026-10-15T06:00:00+00:00",
-  "availableAt": "2026-10-15T06:01:02+00:00",
-  "leaseUntil": null,
-  "lastErrorCode": null,
-  "completedAt": null,
-  "version": 12
+  "attempts": 1,
+  "occurredAt": "2026-10-16T06:00:00Z",
+  "availableAt": "2026-10-16T06:00:00Z",
+  "leaseUntil": "2026-10-16T06:00:00Z",
+  "lastErrorCode": "örnek",
+  "completedAt": "2026-10-16T06:00:00Z",
+  "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Yalnız güncel başarısız işi yeniden deneyebilirsiniz.",
-  "status": 409,
-  "code": "job_retry_conflict",
-  "traceId": "00-15c1f009fcf1f0800776e068e3860c1a-40ab4db191d171e7-00"
-}
-```
 
 ## GET /api/jobs/reminders
 
@@ -161,14 +134,409 @@ Authorization: Bearer <APPLICATION_JWT>
 {
   "items": [],
   "offset": 0,
-  "limit": 50,
-  "total": 0
+  "limit": 1,
+  "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
+
+## GET /api/mobile/push/deliveries/{deliveryId}
+
+**Yetki:** Yalnız oturum çerezi; Bearer kabul edilmez. Yazmada X-ADHD-CSRF: 1 ve aynı-host Origin/Referer zorunlu.
+
+**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+
+**Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+**Ek entegrasyon kuralı:** Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `deliveryId` | path | evet | string (uuid); — |
+| `installationId` | query | evet | string (uuid); — |
+| `bindingVersion` | query | evet | integer\|string (int64); minimum=1; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" |
+
+**Request body:** yok.
+
+**Örnek HTTP:**
+
+```http
+GET /api/mobile/push/deliveries/11111111-1111-4111-8111-111111111111?installationId=11111111-1111-4111-8111-111111111111&bindingVersion=1
+Accept: application/json
+Cookie: __Host-adhd_session=<SESSION_COOKIE>
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [MobilePushDisplayView](DTO-Sozlugu.md#mobilepushdisplayview).
+
+```json
+{
+  "deliveryId": "11111111-1111-4111-8111-111111111111",
+  "notificationId": "11111111-1111-4111-8111-111111111111",
+  "snoozeCount": 1,
+  "displayAllowed": false,
+  "reason": "Takvim düzenlendi",
+  "serverNow": "2026-10-16T06:00:00Z",
+  "expiresAt": "2026-10-16T06:00:00Z",
+  "silent": false
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 403 (csrf_required veya csrf_origin; başlıkları kontrol edin.), 429 (mobile_rate_limited; IP başına dakikada60 istek. Retry-After saniyesini bekleyin.).
+
+## POST /api/mobile/push/deliveries/{deliveryId}/receipts
+
+**Yetki:** Yalnız oturum çerezi; Bearer kabul edilmez. Yazmada X-ADHD-CSRF: 1 ve aynı-host Origin/Referer zorunlu.
+
+**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+
+**Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
+
+**Ek entegrasyon kuralı:** Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `deliveryId` | path | evet | string (uuid); — |
+| `X-ADHD-CSRF` | header | evet | string: 1; — |
+| `Origin` | header | hayır | string; — |
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `expectedUserId` | Guid | DTO/modül iş kuralı |
+| `installationId` | Guid | DTO/modül iş kuralı |
+| `bindingVersion` | Int64 | DTO/modül iş kuralı |
+| `snoozeCount` | Int32 | DTO/modül iş kuralı |
+| `stage` | String | DTO/modül iş kuralı |
+
+**Request şeması:** [MobilePushReceipt](DTO-Sozlugu.md#mobilepushreceipt).
+
+**Örnek request body:**
+
+```json
+{
+  "expectedUserId": "11111111-1111-4111-8111-111111111111",
+  "installationId": "11111111-1111-4111-8111-111111111111",
+  "bindingVersion": 1,
+  "snoozeCount": 1,
+  "stage": "Displayed"
+}
+```
+
+**Örnek HTTP:**
+
+```http
+POST /api/mobile/push/deliveries/11111111-1111-4111-8111-111111111111/receipts
+Accept: application/json
+Cookie: __Host-adhd_session=<SESSION_COOKIE>
+X-ADHD-CSRF: 1
+Origin: https://www.navortal.com.tr
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 204.
+
+Response body yok; JSON parse etmeyin.
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 403 (csrf_required veya csrf_origin; başlıkları kontrol edin.), 429 (mobile_rate_limited; IP başına dakikada60 istek. Retry-After saniyesini bekleyin.).
+
+## DELETE /api/mobile/push/devices/{installationId}
+
+**Yetki:** Yalnız oturum çerezi; Bearer kabul edilmez. Yazmada X-ADHD-CSRF: 1 ve aynı-host Origin/Referer zorunlu.
+
+**Amaç/koşul:** Beklenen sürümü alın. Başka owner ID404;204 yanıtı JSON olarak parse etmeyin.
+
+**Tekrar gönderim:** Sözleşmede key zorunlu; aynı normalize edilmiş payload + aynı key. Replay özgün yanıtı döndürebilir; ardından güncel kaydı okuyun.
+
+**Ek entegrasyon kuralı:** Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `installationId` | path | evet | string (uuid); — |
+| `Idempotency-Key` | header | evet | string; minLength=1; maxLength=128; aynı niyet için değişmeyen benzersiz key; genel üst sınır128 (carry/rescue prefix bağlamında100 olabilir) |
+| `X-ADHD-CSRF` | header | evet | string: 1; — |
+| `Origin` | header | hayır | string; — |
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `expectedUserId` | Guid | DTO/modül iş kuralı |
+| `bindingVersion` | Int64 | DTO/modül iş kuralı |
+| `clientSequence` | Int64 | DTO/modül iş kuralı |
+
+**Request şeması:** [RemoveMobilePushDevice](DTO-Sozlugu.md#removemobilepushdevice).
+
+**Örnek request body:**
+
+```json
+{
+  "expectedUserId": "11111111-1111-4111-8111-111111111111",
+  "bindingVersion": 1,
+  "clientSequence": 1
+}
+```
+
+**Örnek HTTP:**
+
+```http
+DELETE /api/mobile/push/devices/11111111-1111-4111-8111-111111111111
+Accept: application/json
+Cookie: __Host-adhd_session=<SESSION_COOKIE>
+X-ADHD-CSRF: 1
+Origin: https://www.navortal.com.tr
+Idempotency-Key: <SAME_INTENT_KEY>
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 204.
+
+Response body yok; JSON parse etmeyin.
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 403 (csrf_required veya csrf_origin; başlıkları kontrol edin.), 429 (mobile_rate_limited; IP başına dakikada60 istek. Retry-After saniyesini bekleyin.).
+
+## GET /api/mobile/push/devices/{installationId}
+
+**Yetki:** Yalnız oturum çerezi; Bearer kabul edilmez. Yazmada X-ADHD-CSRF: 1 ve aynı-host Origin/Referer zorunlu.
+
+**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+
+**Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+**Ek entegrasyon kuralı:** Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `installationId` | path | evet | string (uuid); — |
+
+**Request body:** yok.
+
+**Örnek HTTP:**
+
+```http
+GET /api/mobile/push/devices/11111111-1111-4111-8111-111111111111
+Accept: application/json
+Cookie: __Host-adhd_session=<SESSION_COOKIE>
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [MobilePushDeviceView](DTO-Sozlugu.md#mobilepushdeviceview).
+
+```json
+{
+  "installationId": "11111111-1111-4111-8111-111111111111",
+  "userId": "11111111-1111-4111-8111-111111111111",
+  "bindingVersion": 1,
+  "clientSequence": 1,
+  "version": 1,
+  "active": false,
+  "permission": "granted",
+  "remindersChannelEnabled": false,
+  "platform": "android",
+  "packageName": "tr.com.navortal",
+  "appVersion": "1.0.0",
+  "buildNumber": 1,
+  "osVersion": "12",
+  "lastSeenAt": "2026-10-16T06:00:00Z",
+  "fcmAvailable": false
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 403 (csrf_required veya csrf_origin; başlıkları kontrol edin.), 429 (mobile_rate_limited; IP başına dakikada60 istek. Retry-After saniyesini bekleyin.).
+
+## PUT /api/mobile/push/devices/{installationId}
+
+**Yetki:** Yalnız oturum çerezi; Bearer kabul edilmez. Yazmada X-ADHD-CSRF: 1 ve aynı-host Origin/Referer zorunlu.
+
+**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+
+**Tekrar gönderim:** Sözleşmede key zorunlu; aynı normalize edilmiş payload + aynı key. Replay özgün yanıtı döndürebilir; ardından güncel kaydı okuyun.
+
+**Ek entegrasyon kuralı:** Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `installationId` | path | evet | string (uuid); — |
+| `Idempotency-Key` | header | evet | string; minLength=1; maxLength=128; aynı niyet için değişmeyen benzersiz key; genel üst sınır128 (carry/rescue prefix bağlamında100 olabilir) |
+| `X-ADHD-CSRF` | header | evet | string: 1; — |
+| `Origin` | header | hayır | string; — |
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `expectedUserId` | Guid | required |
+| `fcmToken` | String | required; length:1..4096 |
+| `bindingVersion` | Int64 | range:0..9.223372036854776E+18 |
+| `clientSequence` | Int64 | range:1..9.223372036854776E+18 |
+| `platform` | String | required; RegularExpression |
+| `packageName` | String | required; RegularExpression |
+| `appVersion` | String | required; length:1..32 |
+| `buildNumber` | Int64 | range:1..9.223372036854776E+18 |
+| `osVersion` | String | length:0..64 |
+| `permission` | String | required; RegularExpression |
+| `remindersChannelEnabled` | Boolean | DTO/modül iş kuralı |
+
+**Request şeması:** [RegisterMobilePushDevice](DTO-Sozlugu.md#registermobilepushdevice).
+
+**Örnek request body:**
+
+```json
+{
+  "expectedUserId": "11111111-1111-4111-8111-111111111111",
+  "fcmToken": "<FCM_REGISTRATION_TOKEN>",
+  "bindingVersion": 1,
+  "clientSequence": 1,
+  "platform": "android",
+  "packageName": "tr.com.navortal",
+  "appVersion": "1.0.0",
+  "buildNumber": 1,
+  "osVersion": "12",
+  "permission": "granted",
+  "remindersChannelEnabled": false
+}
+```
+
+**Örnek HTTP:**
+
+```http
+PUT /api/mobile/push/devices/11111111-1111-4111-8111-111111111111
+Accept: application/json
+Cookie: __Host-adhd_session=<SESSION_COOKIE>
+X-ADHD-CSRF: 1
+Origin: https://www.navortal.com.tr
+Idempotency-Key: <SAME_INTENT_KEY>
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [MobilePushDeviceView](DTO-Sozlugu.md#mobilepushdeviceview).
+
+```json
+{
+  "installationId": "11111111-1111-4111-8111-111111111111",
+  "userId": "11111111-1111-4111-8111-111111111111",
+  "bindingVersion": 1,
+  "clientSequence": 1,
+  "version": 1,
+  "active": false,
+  "permission": "granted",
+  "remindersChannelEnabled": false,
+  "platform": "android",
+  "packageName": "tr.com.navortal",
+  "appVersion": "1.0.0",
+  "buildNumber": 1,
+  "osVersion": "12",
+  "lastSeenAt": "2026-10-16T06:00:00Z",
+  "fcmAvailable": false
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 403 (csrf_required veya csrf_origin; başlıkları kontrol edin.), 429 (mobile_rate_limited; IP başına dakikada60 istek. Retry-After saniyesini bekleyin.).
+
+## GET /api/mobile/push/preferences
+
+**Yetki:** Yalnız oturum çerezi; Bearer kabul edilmez. Yazmada X-ADHD-CSRF: 1 ve aynı-host Origin/Referer zorunlu.
+
+**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+
+**Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+**Ek entegrasyon kuralı:** Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.
+
+**Request body:** yok.
+
+**Örnek HTTP:**
+
+```http
+GET /api/mobile/push/preferences
+Accept: application/json
+Cookie: __Host-adhd_session=<SESSION_COOKIE>
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [MobilePushPreferencesView](DTO-Sozlugu.md#mobilepushpreferencesview).
+
+```json
+{
+  "enabled": false,
+  "version": 1,
+  "fcmAvailable": false
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 403 (csrf_required veya csrf_origin; başlıkları kontrol edin.), 429 (mobile_rate_limited; IP başına dakikada60 istek. Retry-After saniyesini bekleyin.).
+
+## PUT /api/mobile/push/preferences
+
+**Yetki:** Yalnız oturum çerezi; Bearer kabul edilmez. Yazmada X-ADHD-CSRF: 1 ve aynı-host Origin/Referer zorunlu.
+
+**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+
+**Tekrar gönderim:** Sözleşmede key zorunlu; aynı normalize edilmiş payload + aynı key. Replay özgün yanıtı döndürebilir; ardından güncel kaydı okuyun.
+
+**Ek entegrasyon kuralı:** Aşama1 native FCM: yalnız HttpOnly oturum çerezi; Authorization/Bearer göndermeyin. Yazmalarda X-ADHD-CSRF:1 ve aynı-host Origin/Referer gerekir. Mobil varsayılan açık, Web Push tercihi ayrıdır. Kurulum/hesap/oturum/token bağı bindingVersion ve kalıcı clientSequence ile korunur. Ayrıntılı kesin Android sözleşmesi: ../android-fcm-api-stage1.md. Gösterim/makbuz bildirim okundu anlamına gelmez; ağ sonucu belirsizse gösterimden önce teslimi doğrulayın.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `Idempotency-Key` | header | evet | string; minLength=1; maxLength=128; aynı niyet için değişmeyen benzersiz key; genel üst sınır128 (carry/rescue prefix bağlamında100 olabilir) |
+| `X-ADHD-CSRF` | header | evet | string: 1; — |
+| `Origin` | header | hayır | string; — |
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `expectedUserId` | Guid | DTO/modül iş kuralı |
+| `version` | Int64 | DTO/modül iş kuralı |
+| `enabled` | Boolean | DTO/modül iş kuralı |
+
+**Request şeması:** [UpdateMobilePushPreferences](DTO-Sozlugu.md#updatemobilepushpreferences).
+
+**Örnek request body:**
+
+```json
+{
+  "expectedUserId": "11111111-1111-4111-8111-111111111111",
+  "version": 1,
+  "enabled": false
+}
+```
+
+**Örnek HTTP:**
+
+```http
+PUT /api/mobile/push/preferences
+Accept: application/json
+Cookie: __Host-adhd_session=<SESSION_COOKIE>
+X-ADHD-CSRF: 1
+Origin: https://www.navortal.com.tr
+Idempotency-Key: <SAME_INTENT_KEY>
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [MobilePushPreferencesView](DTO-Sozlugu.md#mobilepushpreferencesview).
+
+```json
+{
+  "enabled": false,
+  "version": 1,
+  "fcmAvailable": false
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 403 (csrf_required veya csrf_origin; başlıkları kontrol edin.), 429 (mobile_rate_limited; IP başına dakikada60 istek. Retry-After saniyesini bekleyin.).
 
 ## GET /api/notifications
 
@@ -202,45 +570,16 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bfa-6552-7448-92c4-a25d5dfcf004",
-      "kind": "Custom",
-      "sourceId": "01a16bfa-6551-7c8b-9d8f-24e8b8f16a4f",
-      "taskId": null,
-      "dailyPlanId": null,
-      "revisionId": null,
-      "occurredAt": "2026-10-15T06:01:00+00:00",
-      "readyAt": "2026-10-15T06:01:00+00:00",
-      "notBefore": "2026-10-15T06:01:00+00:00",
-      "readAt": null,
-      "state": "Ready",
-      "snoozeCount": 0,
-      "soundEnabled": true,
-      "version": 2
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
+  "limit": 1,
   "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 400:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "Bildirim alanlarını kontrol edin.",
-  "status": 400,
-  "code": "pagination_invalid",
-  "traceId": "00-2bb72029c735f0820eb57b7874538f60-9fc64af2f70835eb-00"
-}
-```
 
 ## GET /api/notifications/alerts
 
@@ -321,18 +660,21 @@ Authorization: Bearer <APPLICATION_JWT>
     "breakEnd": true,
     "returnToTask": true,
     "custom": true,
-    "leadSeconds": 300,
+    "leadSeconds": 0,
     "snoozeSeconds": 300,
-    "quietStart": null,
-    "quietEnd": null,
+    "quietStart": "örnek",
+    "quietEnd": "örnek",
     "returnAfterSeconds": 0,
-    "specialDay": true
+    "specialDay": true,
+    "pomodoroSound": "örnek",
+    "reminderSound": "örnek",
+    "taskEndSound": "örnek"
   },
   "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -357,7 +699,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "version": 0,
+  "version": 1,
   "settings": {
     "enabled": true,
     "pushEnabled": false,
@@ -371,10 +713,13 @@ Authorization: Bearer <APPLICATION_JWT>
     "custom": true,
     "leadSeconds": 0,
     "snoozeSeconds": 300,
-    "quietStart": "22:00:00",
-    "quietEnd": "08:00:00",
+    "quietStart": "örnek",
+    "quietEnd": "örnek",
     "returnAfterSeconds": 0,
-    "specialDay": true
+    "specialDay": true,
+    "pomodoroSound": "örnek",
+    "reminderSound": "örnek",
+    "taskEndSound": "örnek"
   }
 }
 ```
@@ -406,16 +751,19 @@ Content-Type: application/json
     "custom": true,
     "leadSeconds": 0,
     "snoozeSeconds": 300,
-    "quietStart": "22:00:00",
-    "quietEnd": "08:00:00",
+    "quietStart": "örnek",
+    "quietEnd": "örnek",
     "returnAfterSeconds": 0,
-    "specialDay": true
+    "specialDay": true,
+    "pomodoroSound": "örnek",
+    "reminderSound": "örnek",
+    "taskEndSound": "örnek"
   },
   "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -445,11 +793,11 @@ Authorization: Bearer <APPLICATION_JWT>
 ```json
 {
   "enabled": false,
-  "publicKey": null
+  "publicKey": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -461,7 +809,7 @@ Authorization: Bearer <APPLICATION_JWT>
 
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
-**Ek entegrasyon kuralı:** Gelen kutusu açıldığında bir kez çağrılır. Owner lock altında o anda Ready/okunmamış kayıtları topluca okur; sürümleri artar. Pending/başka owner/sonraki Ready kayıtlar değişmez. Belirsiz sonuçta kendiliğinden tekrar yok; açık kullanıcı niyetiyle yeniden gönderilebilir.
+**Ek entegrasyon kuralı:** Gelen kutusu açıldığında bir kez çağrılır. Owner lock altında gelen kutusuyla aynı filtredeki Ready/okunmamış kayıtları topluca okur; sürümleri artar. Gelen kutusunda görünmeyen ScheduleStart/ScheduleEnd plan sinyalleri etkilenmez. Pending/başka owner/sonraki Ready kayıtlar değişmez. Belirsiz sonuçta kendiliğinden tekrar yok; açık kullanıcı niyetiyle yeniden gönderilebilir.
 
 **Ek entegrasyon kuralı:** UI-R4: özel hatırlatmanın title alanı oluşturulan notification intent içinde snapshot olarak saklanır ve NotificationView.title ile okunur; düzenleme eski bildirimi yeniden adlandırmaz. Önceki kayıtlar null title ile tür etiketine düşer. Hazır/okundu/cihaza teslim ayrı durumlardır.
 
@@ -481,7 +829,11 @@ Authorization: Bearer <APPLICATION_JWT>
 ```json
 {
   "readCount": 1,
-  "readAt": "2026-10-16T06:00:00Z"
+  "readAt": "2026-10-16T06:00:00Z",
+  "summary": {
+    "unreadCount": 1,
+    "asOf": "2026-10-16T06:00:00Z"
+  }
 }
 ```
 
@@ -523,19 +875,10 @@ Authorization: Bearer <APPLICATION_JWT>
 Şema: [CustomReminderView](DTO-Sozlugu.md#customreminderview)[].
 
 ```json
-[
-  {
-    "id": "01a16c00-e656-78ad-a1fe-259c2240cb5c",
-    "title": "Düzenlenen hatırlatma",
-    "dueAt": "2026-10-15T06:20:00+00:00",
-    "taskId": null,
-    "canceled": false,
-    "version": 2
-  }
-]
+[]
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -569,9 +912,15 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "title": "Hatırlat",
-  "dueAt": "2026-10-15T06:01:00+00:00",
-  "taskId": null
+  "title": "Raporu yaz",
+  "dueAt": "2026-10-16T06:00:00Z",
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "version": 1,
+  "repeat": {
+    "timeZoneId": "Europe/Istanbul",
+    "localTime": "örnek",
+    "weekDays": []
+  }
 }
 ```
 
@@ -590,30 +939,23 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bf9-2816-78f9-9bd3-eeb46bc63204",
-  "title": "Hatırlat",
-  "dueAt": "2026-10-15T06:01:00+00:00",
-  "taskId": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "dueAt": "2026-10-16T06:00:00Z",
+  "taskId": "11111111-1111-4111-8111-111111111111",
   "canceled": false,
-  "version": 1
+  "version": 1,
+  "repeat": {
+    "timeZoneId": "Europe/Istanbul",
+    "localTime": "örnek",
+    "weekDays": []
+  }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Anahtar farklı komutta kullanılmış.",
-  "status": 409,
-  "code": "idempotency_conflict",
-  "traceId": "00-bec51808557f8637fc5c98daa58c7394-23ed21ec67eb323d-00"
-}
-```
 
 ## PUT /api/notifications/reminders/{id}
 
@@ -648,16 +990,22 @@ Gerçek test hata örneği — HTTP 409:
 
 ```json
 {
+  "title": "Raporu yaz",
+  "dueAt": "2026-10-16T06:00:00Z",
+  "taskId": "11111111-1111-4111-8111-111111111111",
   "version": 1,
-  "title": "Düzenlenen hatırlatma",
-  "dueAt": "2026-10-15T06:20:00+00:00"
+  "repeat": {
+    "timeZoneId": "Europe/Istanbul",
+    "localTime": "örnek",
+    "weekDays": []
+  }
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/notifications/reminders/01a16c00-e656-78ad-a1fe-259c2240cb5c
+PUT /api/notifications/reminders/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -669,30 +1017,23 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16c00-e656-78ad-a1fe-259c2240cb5c",
-  "title": "Düzenlenen hatırlatma",
-  "dueAt": "2026-10-15T06:20:00+00:00",
-  "taskId": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "dueAt": "2026-10-16T06:00:00Z",
+  "taskId": "11111111-1111-4111-8111-111111111111",
   "canceled": false,
-  "version": 2
+  "version": 1,
+  "repeat": {
+    "timeZoneId": "Europe/Istanbul",
+    "localTime": "örnek",
+    "weekDays": []
+  }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Kayıt değişmiş; güncel sürümü alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-af1da2f6bed91b07b1043c773d9810da-e9b319caee852f58-00"
-}
-```
 
 ## POST /api/notifications/reminders/{id}/cancel
 
@@ -710,7 +1051,7 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [TaskVersionRequest](DTO-Sozlugu.md#taskversionrequest).
 
@@ -725,7 +1066,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-POST /api/notifications/reminders/01a16bf9-288c-7d32-a2f8-245bb63c2314/cancel
+POST /api/notifications/reminders/11111111-1111-4111-8111-111111111111/cancel
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -736,16 +1077,21 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bf9-288c-7d32-a2f8-245bb63c2314",
-  "title": "Hatırlat",
-  "dueAt": "2026-10-15T06:01:00+00:00",
-  "taskId": null,
-  "canceled": true,
-  "version": 2
+  "id": "11111111-1111-4111-8111-111111111111",
+  "title": "Raporu yaz",
+  "dueAt": "2026-10-16T06:00:00Z",
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "canceled": false,
+  "version": 1,
+  "repeat": {
+    "timeZoneId": "Europe/Istanbul",
+    "localTime": "örnek",
+    "weekDays": []
+  }
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -758,6 +1104,8 @@ Content-Type: application/json
 **Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
 
 **Ek entegrasyon kuralı:** UI-R4: özel hatırlatmanın title alanı oluşturulan notification intent içinde snapshot olarak saklanır ve NotificationView.title ile okunur; düzenleme eski bildirimi yeniden adlandırmaz. Önceki kayıtlar null title ile tür etiketine düşer. Hazır/okundu/cihaza teslim ayrı durumlardır.
+
+**Ek entegrasyon kuralı:** Liste en çok100 kayıt döndürür; aktif cihazlar önce, her grupta CreatedAt/Id azalan sıradadır. Pasif geçmiş aktif cihazları liste dışına itemez. Endpoint ve anahtarlar geri dönmez.
 
 **Request body:** yok.
 
@@ -773,19 +1121,10 @@ Authorization: Bearer <APPLICATION_JWT>
 Şema: [SubscriptionView](DTO-Sozlugu.md#subscriptionview)[].
 
 ```json
-[
-  {
-    "id": "01a16c00-e6c5-7b01-97bb-33585d44c829",
-    "providerHost": "push.example.test",
-    "label": "Masaüstü",
-    "active": true,
-    "expiresAt": null,
-    "version": 1
-  }
-]
+[]
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -798,6 +1137,8 @@ Authorization: Bearer <APPLICATION_JWT>
 **Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
 
 **Ek entegrasyon kuralı:** UI-R4: özel hatırlatmanın title alanı oluşturulan notification intent içinde snapshot olarak saklanır ve NotificationView.title ile okunur; düzenleme eski bildirimi yeniden adlandırmaz. Önceki kayıtlar null title ile tür etiketine düşer. Hazır/okundu/cihaza teslim ayrı durumlardır.
+
+**Ek entegrasyon kuralı:** En çok20 aktif cihaz sınırı yeni kayıt ve pasif aboneliği yeniden açmada uygulanır. Mevcut aktif aboneliğin yenilenmesi sınırda da mümkündür. Sınır aşımı400 push_subscription_limit; başka hesabın endpoint sahibi değiştirilmez.
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
@@ -813,11 +1154,11 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "endpoint": "<REPLACE_ENDPOINT>",
-  "p256dh": "<REPLACE_P256DH>",
-  "auth": "<REPLACE_AUTH>",
-  "label": "Masaüstü",
-  "expiresAt": null
+  "endpoint": "örnek",
+  "p256dh": "örnek",
+  "auth": "örnek",
+  "label": "örnek",
+  "expiresAt": "2026-10-16T06:00:00Z"
 }
 ```
 
@@ -835,30 +1176,18 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfa-bef0-7ca7-978e-2b42ef61656c",
-  "providerHost": "push.example.test",
-  "label": "Masaüstü",
-  "active": true,
-  "expiresAt": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "providerHost": "örnek",
+  "label": "örnek",
+  "active": false,
+  "expiresAt": "2026-10-16T06:00:00Z",
   "version": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Tarayıcı aboneliği önce önceki hesaptan kaldırılmalı ve yeniden oluşturulmalı.",
-  "status": 409,
-  "code": "push_endpoint_owned",
-  "traceId": "00-b1f8165864717a93593cd4671a25a2c9-7909a586a591b800-00"
-}
-```
 
 ## POST /api/notifications/subscriptions/{id}/remove
 
@@ -876,7 +1205,7 @@ Gerçek test hata örneği — HTTP 409:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [TaskVersionRequest](DTO-Sozlugu.md#taskversionrequest).
 
@@ -891,7 +1220,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-POST /api/notifications/subscriptions/01a16c00-e6c5-7b01-97bb-33585d44c829/remove
+POST /api/notifications/subscriptions/11111111-1111-4111-8111-111111111111/remove
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -901,21 +1230,45 @@ Content-Type: application/json
 
 Response body yok; JSON parse etmeyin.
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
-Gerçek test hata örneği — HTTP 404:
+## GET /api/notifications/summary
+
+**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
+
+**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+
+**Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+**Ek entegrasyon kuralı:** UI-R4: özel hatırlatmanın title alanı oluşturulan notification intent içinde snapshot olarak saklanır ve NotificationView.title ile okunur; düzenleme eski bildirimi yeniden adlandırmaz. Önceki kayıtlar null title ile tür etiketine düşer. Hazır/okundu/cihaza teslim ayrı durumlardır.
+
+**Ek entegrasyon kuralı:** Owner kapsamında, gelen kutusuyla aynı Ready/tür filtresinde ReadAt null olan bütün kayıtları sayar; son sayfaya veya 10 kayda bağlı değildir. asOf sunucu okuma zamanıdır. Read-all summary aynı transaction içinde komut sonrası sayıdır; geç kalan GET ile komut makbuzunu ezmeyin, ardından yeni kayıtlar için yenileyin.
+
+**Request body:** yok.
+
+**Örnek HTTP:**
+
+```http
+GET /api/notifications/summary
+Accept: application/json
+Authorization: Bearer <APPLICATION_JWT>
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [NotificationInboxSummary](DTO-Sozlugu.md#notificationinboxsummary).
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Bildirim kaydı bulunamadı.",
-  "status": 404,
-  "code": "notification_not_found",
-  "traceId": "00-9a91a43e9a5513d6a24fc62d23e47bec-886b047b263c2bc0-00"
+  "unreadCount": 1,
+  "asOf": "2026-10-16T06:00:00Z"
 }
 ```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
 ## GET /api/notifications/{id}
 
@@ -936,7 +1289,7 @@ Gerçek test hata örneği — HTTP 404:
 **Örnek HTTP:**
 
 ```http
-GET /api/notifications/01a16bfa-6552-7448-92c4-a25d5dfcf004
+GET /api/notifications/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -946,38 +1299,123 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "id": "01a16bfa-6552-7448-92c4-a25d5dfcf004",
-  "kind": "Custom",
-  "sourceId": "01a16bfa-6551-7c8b-9d8f-24e8b8f16a4f",
-  "taskId": null,
-  "dailyPlanId": null,
-  "revisionId": null,
-  "occurredAt": "2026-10-15T06:01:00+00:00",
-  "readyAt": "2026-10-15T06:01:00+00:00",
-  "notBefore": "2026-10-15T06:02:00+00:00",
-  "readAt": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "kind": "örnek",
+  "sourceId": "11111111-1111-4111-8111-111111111111",
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "dailyPlanId": "11111111-1111-4111-8111-111111111111",
+  "revisionId": "11111111-1111-4111-8111-111111111111",
+  "occurredAt": "2026-10-16T06:00:00Z",
+  "readyAt": "2026-10-16T06:00:00Z",
+  "notBefore": "2026-10-16T06:00:00Z",
+  "readAt": "2026-10-16T06:00:00Z",
   "state": "Pending",
   "snoozeCount": 1,
-  "soundEnabled": true,
-  "version": 3
+  "soundEnabled": false,
+  "version": 1,
+  "title": "Raporu yaz",
+  "sound": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
-Gerçek test hata örneği — HTTP 404:
+## POST /api/notifications/{id}/delivery-receipts
+
+**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
+
+**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+
+**Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
+
+**Ek entegrasyon kuralı:** UI-R4: özel hatırlatmanın title alanı oluşturulan notification intent içinde snapshot olarak saklanır ve NotificationView.title ile okunur; düzenleme eski bildirimi yeniden adlandırmaz. Önceki kayıtlar null title ile tür etiketine düşer. Hazır/okundu/cihaza teslim ayrı durumlardır.
+
+**Ek entegrasyon kuralı:** expectedUserId oturum owner ile aynı olmalı; yabancı kimlik/kayıt404. Negatif/gelecek tur, bilinmeyen aşama veya o turda hazırlanmış PushDelivery yoksa400 notification_receipt_invalid. Displayed/Opened ilk makbuzu sunucu saatiyle idempotent kaydeder; içerik, endpoint, token veya istemci saati almaz. Bildirimi okundu yapmaz; provider kabulü veya fiziksel görülme kanıtı değildir. Cookie istemci aynı-origin CSRF başlığı gönderir. Aynı owner/bildirim/tur/aşama makbuzu uygulama olayında sınırlı teknik yeniden denemeye uygundur; Idempotency-Key gerekmez.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `id` | path | evet | string (uuid); — |
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `expectedUserId` | Guid | DTO/modül iş kuralı |
+| `snoozeCount` | Int32 | DTO/modül iş kuralı |
+| `stage` | NotificationReceiptStage | DTO/modül iş kuralı |
+
+**Request şeması:** [RecordNotificationReceipt](DTO-Sozlugu.md#recordnotificationreceipt).
+
+**Örnek request body:**
 
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Bildirim kaydı bulunamadı.",
-  "status": 404,
-  "code": "notification_not_found",
-  "traceId": "00-3c959791769b0fdd973790e6d22318f9-34cc067a41fefa21-00"
+  "expectedUserId": "11111111-1111-4111-8111-111111111111",
+  "snoozeCount": 1,
+  "stage": "Displayed"
 }
 ```
+
+**Örnek HTTP:**
+
+```http
+POST /api/notifications/11111111-1111-4111-8111-111111111111/delivery-receipts
+Accept: application/json
+Authorization: Bearer <APPLICATION_JWT>
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 204.
+
+Response body yok; JSON parse etmeyin.
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
+
+## GET /api/notifications/{id}/delivery-status
+
+**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
+
+**Amaç/koşul:** Owner kapsamı JWT sub’tan gelir. Sayfalı yanıtta Total bütün sorgudur, Items yalnız bu sayfadır. Kaynağın null/boş durumunu DTO ve modül sözleşmesine göre gösterin.
+
+**Tekrar gönderim:** Okuma çağrısı; sınırlı ağ retry yapılabilir. Focus current/detail hedef/mola değerlendirmesi yapabilir; no-store kullanın.
+
+**Ek entegrasyon kuralı:** UI-R4: özel hatırlatmanın title alanı oluşturulan notification intent içinde snapshot olarak saklanır ve NotificationView.title ile okunur; düzenleme eski bildirimi yeniden adlandırmaz. Önceki kayıtlar null title ile tür etiketine düşer. Hazır/okundu/cihaza teslim ayrı durumlardır.
+
+**Ek entegrasyon kuralı:** Yalnız owner ve güncel erteleme turu. preparedAt güncel turdaki ilk PushDelivery hazırlığıdır; ilk turda teslim yoksa ReadyAt, sonraki turda henüz teslim yoksa null, providerAcceptedAt başarılı dış gönderimin sunucu zamanı, clientDisplayedAt/clientOpenedAt en az bir tarayıcının ayrı iddiası, readAt uygulama okundu işaretidir. Eksik aşama null; sağlayıcı 201 fiziksel gösterim/ses garantisi değildir.
+
+| Parametre | Yer | Zorunlu | Tip / sınır |
+| --- | --- | --- | --- |
+| `id` | path | evet | string (uuid); — |
+
+**Request body:** yok.
+
+**Örnek HTTP:**
+
+```http
+GET /api/notifications/11111111-1111-4111-8111-111111111111/delivery-status
+Accept: application/json
+Authorization: Bearer <APPLICATION_JWT>
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [NotificationDeliveryStatus](DTO-Sozlugu.md#notificationdeliverystatus).
+
+```json
+{
+  "snoozeCount": 1,
+  "preparedAt": "2026-10-16T06:00:00Z",
+  "providerAcceptedAt": "2026-10-16T06:00:00Z",
+  "clientDisplayedAt": "2026-10-16T06:00:00Z",
+  "clientOpenedAt": "2026-10-16T06:00:00Z",
+  "readAt": "2026-10-16T06:00:00Z"
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
 ## POST /api/notifications/{id}/read
 
@@ -995,7 +1433,7 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 
 **Request şeması:** [TaskVersionRequest](DTO-Sozlugu.md#taskversionrequest).
 
@@ -1003,14 +1441,14 @@ Gerçek test hata örneği — HTTP 404:
 
 ```json
 {
-  "version": 4
+  "version": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/notifications/01a16bfa-6552-7448-92c4-a25d5dfcf004/read
+POST /api/notifications/11111111-1111-4111-8111-111111111111/read
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1021,24 +1459,26 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bfa-6552-7448-92c4-a25d5dfcf004",
-  "kind": "Custom",
-  "sourceId": "01a16bfa-6551-7c8b-9d8f-24e8b8f16a4f",
-  "taskId": null,
-  "dailyPlanId": null,
-  "revisionId": null,
-  "occurredAt": "2026-10-15T06:01:00+00:00",
-  "readyAt": "2026-10-15T06:01:00+00:00",
-  "notBefore": "2026-10-15T06:02:00+00:00",
-  "readAt": "2026-10-15T06:02:00+00:00",
-  "state": "Ready",
+  "id": "11111111-1111-4111-8111-111111111111",
+  "kind": "örnek",
+  "sourceId": "11111111-1111-4111-8111-111111111111",
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "dailyPlanId": "11111111-1111-4111-8111-111111111111",
+  "revisionId": "11111111-1111-4111-8111-111111111111",
+  "occurredAt": "2026-10-16T06:00:00Z",
+  "readyAt": "2026-10-16T06:00:00Z",
+  "notBefore": "2026-10-16T06:00:00Z",
+  "readAt": "2026-10-16T06:00:00Z",
+  "state": "Pending",
   "snoozeCount": 1,
-  "soundEnabled": true,
-  "version": 5
+  "soundEnabled": false,
+  "version": 1,
+  "title": "Raporu yaz",
+  "sound": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -1067,15 +1507,15 @@ Content-Type: application/json
 
 ```json
 {
-  "version": 2,
-  "seconds": 60
+  "version": 1,
+  "seconds": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/notifications/01a16bf9-9b03-7f7b-9e42-364605874657/snooze
+POST /api/notifications/11111111-1111-4111-8111-111111111111/snooze
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Content-Type: application/json
@@ -1086,38 +1526,28 @@ Content-Type: application/json
 
 ```json
 {
-  "id": "01a16bf9-9b03-7f7b-9e42-364605874657",
-  "kind": "ReturnToTask",
-  "sourceId": "01a16bf9-9303-7a15-aa39-00e863923e98",
-  "taskId": "01a16bf9-9286-7900-8a96-5b945112fde2",
-  "dailyPlanId": null,
-  "revisionId": null,
-  "occurredAt": "2026-10-15T06:03:00+00:00",
-  "readyAt": "2026-10-15T06:03:00+00:00",
-  "notBefore": "2026-10-15T06:04:00+00:00",
-  "readAt": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "kind": "örnek",
+  "sourceId": "11111111-1111-4111-8111-111111111111",
+  "taskId": "11111111-1111-4111-8111-111111111111",
+  "dailyPlanId": "11111111-1111-4111-8111-111111111111",
+  "revisionId": "11111111-1111-4111-8111-111111111111",
+  "occurredAt": "2026-10-16T06:00:00Z",
+  "readyAt": "2026-10-16T06:00:00Z",
+  "notBefore": "2026-10-16T06:00:00Z",
+  "readAt": "2026-10-16T06:00:00Z",
   "state": "Pending",
   "snoozeCount": 1,
-  "soundEnabled": true,
-  "version": 3
+  "soundEnabled": false,
+  "version": 1,
+  "title": "Raporu yaz",
+  "sound": "örnek"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Kayıt değişmiş; güncel sürümü alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-703a7483bad647188cf9d53e9595f8fd-d6fecfff88d3d8f8-00"
-}
-```
 
 ## GET /api/sync
 
@@ -1142,14 +1572,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "serverNow": "2026-10-15T06:02:00+00:00",
-  "planningVersion": 2,
-  "workSessionId": "01a16bfc-3e07-73ff-8646-6d3020a2dad4",
-  "focusSessionId": "01a16bfc-3e0f-7d29-8e64-a991c34edff8"
+  "serverNow": "2026-10-16T06:00:00Z",
+  "planningVersion": 0,
+  "workSessionId": "11111111-1111-4111-8111-111111111111",
+  "focusSessionId": "11111111-1111-4111-8111-111111111111"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 

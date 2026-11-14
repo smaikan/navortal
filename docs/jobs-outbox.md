@@ -35,7 +35,7 @@ Normal API'de Jobs:Enabled varsayılan true, ortamdan false yapılabilir. Entegr
 
 ## Reminder çekirdeği ve geçerlilik
 
-Accepted current revision → gelecekteki açık Work bloklarının ScheduleStart/ScheduleEnd işleri. Current task deadline → TaskDeadline işi. Task/pool/status değişince eski current kaynaklar işlenmez; kapanan işin pending reminder/intent'leri obsolete. Her source yazımı ve receipt aynı user-lock transaction'ında yapılır.
+Accepted current revision → gelecekteki açık Work bloklarının ScheduleStart/ScheduleEnd işleri. Görevin (veya kalıtılan) tarih aralığı bitişi → iki TaskDeadline işi (bitişten önceki gün 18:00, bitiş günü 09:00); üst aralık değişince veya görev taşınınca alt ağaç da yeniden hesaplanır. Doğrudan işi olmayan konteyner görevler hatırlatma üretmez. Task/pool/status değişince eski current kaynaklar işlenmez; kapanan işin pending reminder/intent'leri obsolete. Her source yazımı ve receipt aynı user-lock transaction'ında yapılır.
 
 Due gönderim hazırlığında task hâlâ açık mı, blok current/Planned ve aynı version mı, DailyPlan current revision aynı mı tekrar denetlenir. Deadline için ilgili deadline instant'ı ve task açıklığı denetlenir; sırf başlık değişimi aynı deadline'ı ikinci mantıksal bildirime çevirmez. İki dakikadan eski due iş Expired olur. Geçerli due, tek durable NotificationIntent oluşturur; gerçek push26'dadır. Mantıksal intent anahtarı kind/source/due instant; başka blok eklenip revision değişince aynı blok/aynı due için ikinci intent kimliği oluşmaz. Pending intent güncel revision'a bağlanabilir.
 

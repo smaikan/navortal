@@ -24,7 +24,7 @@
 **Örnek HTTP:**
 
 ```http
-GET /api/recurrence-templates?limit=1
+GET /api/recurrence-templates
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -34,46 +34,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bfd-2600-7df6-9c57-6a781075d1e7",
-      "enabled": false,
-      "version": 2,
-      "definitionId": "01a16bfd-2600-7a22-af09-753b2c6233ec",
-      "definitionNumber": 1,
-      "effectiveFrom": "2026-10-15",
-      "rule": {
-        "startDate": "2026-10-15",
-        "timeZoneId": "Europe/Istanbul",
-        "frequency": "Daily",
-        "interval": 1,
-        "weekDays": [],
-        "monthDay": null,
-        "monthEnd": null,
-        "untilDate": null,
-        "dueTime": null,
-        "gap": "Reject",
-        "overlap": "Reject"
-      },
-      "task": {
-        "title": "Tekrar",
-        "description": null,
-        "estimatedSeconds": 3600,
-        "priority": "Normal",
-        "canSplit": true,
-        "poolId": null,
-        "energyDemand": null
-      },
-      "createdAt": "2026-10-15T06:00:00+00:00"
-    }
-  ],
+  "items": [],
   "offset": 0,
   "limit": 1,
   "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -103,29 +71,28 @@ Authorization: Bearer <APPLICATION_JWT>
 ```json
 {
   "rule": {
-    "startDate": "2026-10-14",
+    "startDate": "2026-10-16",
     "timeZoneId": "Europe/Istanbul",
-    "frequency": "Weekly",
-    "interval": 2,
-    "weekDays": [
-      1,
-      3
-    ],
-    "monthDay": null,
-    "monthEnd": null,
-    "untilDate": null,
-    "dueTime": null,
+    "frequency": "Daily",
+    "interval": 1,
+    "weekDays": null,
+    "monthDay": 1,
+    "monthEnd": "Skip",
+    "untilDate": "2026-10-16",
+    "dueTime": "örnek",
     "gap": "Reject",
-    "overlap": "Reject"
+    "overlap": "Reject",
+    "startTime": "örnek",
+    "autoAddToPlan": false
   },
   "task": {
-    "title": "Tekrar",
-    "description": null,
-    "estimatedSeconds": 3600,
-    "priority": "Normal",
+    "title": "Raporu yaz",
+    "description": "örnek",
+    "estimatedSeconds": 1,
+    "priority": "Low",
     "canSplit": true,
-    "poolId": null,
-    "energyDemand": null
+    "poolId": "11111111-1111-4111-8111-111111111111",
+    "energyDemand": "Low"
   }
 }
 ```
@@ -146,62 +113,50 @@ Content-Type: application/json
 ```json
 {
   "template": {
-    "id": "01a16bfd-0dc5-790e-86cb-7eeb9b756eb3",
-    "enabled": true,
+    "id": "11111111-1111-4111-8111-111111111111",
+    "enabled": false,
     "version": 1,
-    "definitionId": "01a16bfd-0dc5-71ec-bc36-69d9cce34f0c",
+    "definitionId": "11111111-1111-4111-8111-111111111111",
     "definitionNumber": 1,
-    "effectiveFrom": "2026-10-14",
+    "effectiveFrom": "2026-10-16",
     "rule": {
-      "startDate": "2026-10-14",
+      "startDate": "2026-10-16",
       "timeZoneId": "Europe/Istanbul",
-      "frequency": "Weekly",
-      "interval": 2,
-      "weekDays": [
-        1,
-        3
-      ],
-      "monthDay": null,
-      "monthEnd": null,
-      "untilDate": null,
-      "dueTime": null,
+      "frequency": "Daily",
+      "interval": 1,
+      "weekDays": null,
+      "monthDay": 1,
+      "monthEnd": "Skip",
+      "untilDate": "2026-10-16",
+      "dueTime": "örnek",
       "gap": "Reject",
-      "overlap": "Reject"
+      "overlap": "Reject",
+      "startTime": "örnek",
+      "autoAddToPlan": false
     },
     "task": {
-      "title": "Tekrar",
-      "description": null,
-      "estimatedSeconds": 3600,
-      "priority": "Normal",
+      "title": "Raporu yaz",
+      "description": "örnek",
+      "estimatedSeconds": 1,
+      "priority": "Low",
       "canSplit": true,
-      "poolId": null,
-      "energyDemand": null
+      "poolId": "11111111-1111-4111-8111-111111111111",
+      "energyDemand": "Low"
     },
-    "createdAt": "2026-10-15T06:00:00+00:00"
+    "createdAt": "2026-10-16T06:00:00Z"
   },
   "occurrences": [],
   "refreshedTaskIds": [],
   "protectedTaskIds": [],
   "planningVersion": 0,
-  "replayed": false
+  "replayed": false,
+  "retractedDayItemCount": 0
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 400:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-  "title": "Idempotency-Key gerekli; en çok128 karakter.",
-  "status": 400,
-  "code": "idempotency_key_required",
-  "traceId": "00-8e42aad79d90cbb356d153d2361d1720-59cdb179758d1992-00"
-}
-```
 
 ## GET /api/recurrence-templates/projection
 
@@ -264,7 +219,7 @@ Authorization: Bearer <APPLICATION_JWT>
 **Örnek HTTP:**
 
 ```http
-GET /api/recurrence-templates/01a16bfd-2fe7-786e-9786-38e40f011238
+GET /api/recurrence-templates/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -274,39 +229,41 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "id": "01a16bfd-2fe7-786e-9786-38e40f011238",
-  "enabled": true,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "enabled": false,
   "version": 1,
-  "definitionId": "01a16bfd-2fe7-7f5f-bee4-73313af4486c",
+  "definitionId": "11111111-1111-4111-8111-111111111111",
   "definitionNumber": 1,
-  "effectiveFrom": "2026-10-15",
+  "effectiveFrom": "2026-10-16",
   "rule": {
-    "startDate": "2026-10-15",
+    "startDate": "2026-10-16",
     "timeZoneId": "Europe/Istanbul",
     "frequency": "Daily",
     "interval": 1,
-    "weekDays": [],
-    "monthDay": null,
-    "monthEnd": null,
-    "untilDate": null,
-    "dueTime": null,
+    "weekDays": null,
+    "monthDay": 1,
+    "monthEnd": "Skip",
+    "untilDate": "2026-10-16",
+    "dueTime": "örnek",
     "gap": "Reject",
-    "overlap": "Reject"
+    "overlap": "Reject",
+    "startTime": "örnek",
+    "autoAddToPlan": false
   },
   "task": {
-    "title": "Tekrar",
-    "description": null,
-    "estimatedSeconds": 3600,
-    "priority": "Normal",
+    "title": "Raporu yaz",
+    "description": "örnek",
+    "estimatedSeconds": 1,
+    "priority": "Low",
     "canSplit": true,
-    "poolId": null,
-    "energyDemand": null
+    "poolId": "11111111-1111-4111-8111-111111111111",
+    "energyDemand": "Low"
   },
-  "createdAt": "2026-10-15T06:00:00+00:00"
+  "createdAt": "2026-10-16T06:00:00Z"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -343,36 +300,38 @@ Authorization: Bearer <APPLICATION_JWT>
   "version": 1,
   "effectiveFrom": "2026-10-16",
   "rule": {
-    "startDate": "2026-10-15",
+    "startDate": "2026-10-16",
     "timeZoneId": "Europe/Istanbul",
-    "frequency": "IntervalDays",
-    "interval": 2,
+    "frequency": "Daily",
+    "interval": 1,
     "weekDays": null,
-    "monthDay": null,
-    "monthEnd": null,
-    "untilDate": null,
-    "dueTime": null,
+    "monthDay": 1,
+    "monthEnd": "Skip",
+    "untilDate": "2026-10-16",
+    "dueTime": "örnek",
     "gap": "Reject",
-    "overlap": "Reject"
+    "overlap": "Reject",
+    "startTime": "örnek",
+    "autoAddToPlan": false
   },
   "task": {
-    "title": "Yeni seri",
-    "description": null,
-    "estimatedSeconds": 1800,
-    "priority": "Normal",
+    "title": "Raporu yaz",
+    "description": "örnek",
+    "estimatedSeconds": 1,
+    "priority": "Low",
     "canSplit": true,
-    "poolId": null,
-    "energyDemand": null
+    "poolId": "11111111-1111-4111-8111-111111111111",
+    "energyDemand": "Low"
   },
-  "refreshExisting": true,
-  "refreshThrough": "2026-10-20"
+  "refreshExisting": false,
+  "refreshThrough": "2026-10-16"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-PUT /api/recurrence-templates/01a16bfd-3a17-798c-9c59-c59dbe2024b9
+PUT /api/recurrence-templates/11111111-1111-4111-8111-111111111111
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -385,152 +344,50 @@ Content-Type: application/json
 ```json
 {
   "template": {
-    "id": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-    "enabled": true,
-    "version": 2,
-    "definitionId": "01a16bfd-3e5e-7396-b7fd-0931296e698c",
-    "definitionNumber": 2,
+    "id": "11111111-1111-4111-8111-111111111111",
+    "enabled": false,
+    "version": 1,
+    "definitionId": "11111111-1111-4111-8111-111111111111",
+    "definitionNumber": 1,
     "effectiveFrom": "2026-10-16",
     "rule": {
-      "startDate": "2026-10-15",
+      "startDate": "2026-10-16",
       "timeZoneId": "Europe/Istanbul",
-      "frequency": "IntervalDays",
-      "interval": 2,
-      "weekDays": [],
-      "monthDay": null,
-      "monthEnd": null,
-      "untilDate": null,
-      "dueTime": null,
+      "frequency": "Daily",
+      "interval": 1,
+      "weekDays": null,
+      "monthDay": 1,
+      "monthEnd": "Skip",
+      "untilDate": "2026-10-16",
+      "dueTime": "örnek",
       "gap": "Reject",
-      "overlap": "Reject"
+      "overlap": "Reject",
+      "startTime": "örnek",
+      "autoAddToPlan": false
     },
     "task": {
-      "title": "Yeni seri",
-      "description": null,
-      "estimatedSeconds": 1800,
-      "priority": "Normal",
+      "title": "Raporu yaz",
+      "description": "örnek",
+      "estimatedSeconds": 1,
+      "priority": "Low",
       "canSplit": true,
-      "poolId": null,
-      "energyDemand": null
+      "poolId": "11111111-1111-4111-8111-111111111111",
+      "energyDemand": "Low"
     },
-    "createdAt": "2026-10-15T06:00:00+00:00"
+    "createdAt": "2026-10-16T06:00:00Z"
   },
-  "occurrences": [
-    {
-      "id": "01a16bfd-3a93-70cb-90ea-f48926e01174",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-16",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a93-78eb-9692-acd4663051ad",
-      "taskState": "Completed",
-      "taskVersion": 2,
-      "taskChangedSinceSync": true,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-7f8f-b861-4f1db757166b",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-17",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-73ce-b8fb-f0747641addd",
-      "taskState": "Pending",
-      "taskVersion": 2,
-      "taskChangedSinceSync": true,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-785e-9803-e12b3f03eb38",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-18",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-7987-b04e-2974e64dfd50",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-7cd1-a906-5d4e40fe4730",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3e5e-7396-b7fd-0931296e698c",
-      "localDate": "2026-10-19",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-7578-847d-c456dad34312",
-      "taskState": "Pending",
-      "taskVersion": 2,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-7b07-9815-e003bdf2272c",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-20",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-79fa-9656-e45b5e5ef4ee",
-      "taskState": "Pending",
-      "taskVersion": 2,
-      "taskChangedSinceSync": true,
-      "state": "Materialized",
-      "reason": null
-    }
-  ],
-  "refreshedTaskIds": [
-    "01a16bfd-3a94-7578-847d-c456dad34312"
-  ],
-  "protectedTaskIds": [
-    "01a16bfd-3a93-78eb-9692-acd4663051ad",
-    "01a16bfd-3a94-73ce-b8fb-f0747641addd",
-    "01a16bfd-3a94-7987-b04e-2974e64dfd50",
-    "01a16bfd-3a94-79fa-9656-e45b5e5ef4ee"
-  ],
-  "planningVersion": 6,
-  "replayed": false
+  "occurrences": [],
+  "refreshedTaskIds": [],
+  "protectedTaskIds": [],
+  "planningVersion": 0,
+  "replayed": false,
+  "retractedDayItemCount": 0
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Tekrar şablonu değişmiş; güncel kaydı alın.",
-  "status": 409,
-  "code": "version_conflict",
-  "traceId": "00-5209981e24398833a6eab06dba5733a2-8aa3fe841854e2af-00"
-}
-```
 
 ## GET /api/recurrence-templates/{id}/definitions
 
@@ -553,7 +410,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/recurrence-templates/01a16bfd-3a17-798c-9c59-c59dbe2024b9/definitions
+GET /api/recurrence-templates/11111111-1111-4111-8111-111111111111/definitions
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -563,85 +420,16 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bfd-3e5e-7396-b7fd-0931296e698c",
-      "number": 2,
-      "effectiveFrom": "2026-10-16",
-      "rule": {
-        "startDate": "2026-10-15",
-        "timeZoneId": "Europe/Istanbul",
-        "frequency": "IntervalDays",
-        "interval": 2,
-        "weekDays": [],
-        "monthDay": null,
-        "monthEnd": null,
-        "untilDate": null,
-        "dueTime": null,
-        "gap": "Reject",
-        "overlap": "Reject"
-      },
-      "task": {
-        "title": "Yeni seri",
-        "description": null,
-        "estimatedSeconds": 1800,
-        "priority": "Normal",
-        "canSplit": true,
-        "poolId": null,
-        "energyDemand": null
-      },
-      "createdAt": "2026-10-16T06:00:00+00:00"
-    },
-    {
-      "id": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "number": 1,
-      "effectiveFrom": "2026-10-15",
-      "rule": {
-        "startDate": "2026-10-15",
-        "timeZoneId": "Europe/Istanbul",
-        "frequency": "Daily",
-        "interval": 1,
-        "weekDays": [],
-        "monthDay": null,
-        "monthEnd": null,
-        "untilDate": null,
-        "dueTime": null,
-        "gap": "Reject",
-        "overlap": "Reject"
-      },
-      "task": {
-        "title": "Tekrar",
-        "description": null,
-        "estimatedSeconds": 3600,
-        "priority": "Normal",
-        "canSplit": true,
-        "poolId": null,
-        "energyDemand": null
-      },
-      "createdAt": "2026-10-15T06:00:00+00:00"
-    }
-  ],
+  "items": [],
   "offset": 0,
-  "limit": 50,
-  "total": 2
+  "limit": 1,
+  "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Tekrar kaydı bulunamadı.",
-  "status": 404,
-  "code": "recurrence_not_found",
-  "traceId": "00-6f26f66e857663b9215fff10d48cc1b2-1cac09aac0d0455b-00"
-}
-```
 
 ## PUT /api/recurrence-templates/{id}/enabled
 
@@ -660,7 +448,7 @@ Gerçek test hata örneği — HTTP 404:
 
 | Request alanı | C# tip karşılığı | Ek annotation |
 | --- | --- | --- |
-| `version` | Int64 | range:1..9,223372036854776E+18 |
+| `version` | Int64 | range:1..9.223372036854776E+18 |
 | `enabled` | Boolean? | required |
 
 **Request şeması:** [RecurrenceEnableRequest](DTO-Sozlugu.md#recurrenceenablerequest).
@@ -677,7 +465,7 @@ Gerçek test hata örneği — HTTP 404:
 **Örnek HTTP:**
 
 ```http
-PUT /api/recurrence-templates/01a16bfd-2600-7df6-9c57-6a781075d1e7/enabled
+PUT /api/recurrence-templates/11111111-1111-4111-8111-111111111111/enabled
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -690,45 +478,48 @@ Content-Type: application/json
 ```json
 {
   "template": {
-    "id": "01a16bfd-2600-7df6-9c57-6a781075d1e7",
+    "id": "11111111-1111-4111-8111-111111111111",
     "enabled": false,
-    "version": 2,
-    "definitionId": "01a16bfd-2600-7a22-af09-753b2c6233ec",
+    "version": 1,
+    "definitionId": "11111111-1111-4111-8111-111111111111",
     "definitionNumber": 1,
-    "effectiveFrom": "2026-10-15",
+    "effectiveFrom": "2026-10-16",
     "rule": {
-      "startDate": "2026-10-15",
+      "startDate": "2026-10-16",
       "timeZoneId": "Europe/Istanbul",
       "frequency": "Daily",
       "interval": 1,
-      "weekDays": [],
-      "monthDay": null,
-      "monthEnd": null,
-      "untilDate": null,
-      "dueTime": null,
+      "weekDays": null,
+      "monthDay": 1,
+      "monthEnd": "Skip",
+      "untilDate": "2026-10-16",
+      "dueTime": "örnek",
       "gap": "Reject",
-      "overlap": "Reject"
+      "overlap": "Reject",
+      "startTime": "örnek",
+      "autoAddToPlan": false
     },
     "task": {
-      "title": "Tekrar",
-      "description": null,
-      "estimatedSeconds": 3600,
-      "priority": "Normal",
+      "title": "Raporu yaz",
+      "description": "örnek",
+      "estimatedSeconds": 1,
+      "priority": "Low",
       "canSplit": true,
-      "poolId": null,
-      "energyDemand": null
+      "poolId": "11111111-1111-4111-8111-111111111111",
+      "energyDemand": "Low"
     },
-    "createdAt": "2026-10-15T06:00:00+00:00"
+    "createdAt": "2026-10-16T06:00:00Z"
   },
   "occurrences": [],
   "refreshedTaskIds": [],
   "protectedTaskIds": [],
-  "planningVersion": 1,
-  "replayed": false
+  "planningVersion": 0,
+  "replayed": false,
+  "retractedDayItemCount": 0
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -760,15 +551,15 @@ Content-Type: application/json
 ```json
 {
   "version": 1,
-  "fromDate": "2026-10-15",
-  "toDate": "2026-10-20"
+  "fromDate": "2026-10-16",
+  "toDate": "2026-10-16"
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/recurrence-templates/01a16bfd-3a17-798c-9c59-c59dbe2024b9/materialize
+POST /api/recurrence-templates/11111111-1111-4111-8111-111111111111/materialize
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -781,162 +572,50 @@ Content-Type: application/json
 ```json
 {
   "template": {
-    "id": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-    "enabled": true,
+    "id": "11111111-1111-4111-8111-111111111111",
+    "enabled": false,
     "version": 1,
-    "definitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
+    "definitionId": "11111111-1111-4111-8111-111111111111",
     "definitionNumber": 1,
-    "effectiveFrom": "2026-10-15",
+    "effectiveFrom": "2026-10-16",
     "rule": {
-      "startDate": "2026-10-15",
+      "startDate": "2026-10-16",
       "timeZoneId": "Europe/Istanbul",
       "frequency": "Daily",
       "interval": 1,
-      "weekDays": [],
-      "monthDay": null,
-      "monthEnd": null,
-      "untilDate": null,
-      "dueTime": null,
+      "weekDays": null,
+      "monthDay": 1,
+      "monthEnd": "Skip",
+      "untilDate": "2026-10-16",
+      "dueTime": "örnek",
       "gap": "Reject",
-      "overlap": "Reject"
+      "overlap": "Reject",
+      "startTime": "örnek",
+      "autoAddToPlan": false
     },
     "task": {
-      "title": "Tekrar",
-      "description": null,
-      "estimatedSeconds": 3600,
-      "priority": "Normal",
+      "title": "Raporu yaz",
+      "description": "örnek",
+      "estimatedSeconds": 1,
+      "priority": "Low",
       "canSplit": true,
-      "poolId": null,
-      "energyDemand": null
+      "poolId": "11111111-1111-4111-8111-111111111111",
+      "energyDemand": "Low"
     },
-    "createdAt": "2026-10-15T06:00:00+00:00"
+    "createdAt": "2026-10-16T06:00:00Z"
   },
-  "occurrences": [
-    {
-      "id": "01a16bfd-3a93-768e-9744-54257ca32734",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-15",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a93-7024-aa9b-c8da631ef523",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a93-70cb-90ea-f48926e01174",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-16",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a93-78eb-9692-acd4663051ad",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-7f8f-b861-4f1db757166b",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-17",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-73ce-b8fb-f0747641addd",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-785e-9803-e12b3f03eb38",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-18",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-7987-b04e-2974e64dfd50",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-7cd1-a906-5d4e40fe4730",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-19",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-7578-847d-c456dad34312",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    },
-    {
-      "id": "01a16bfd-3a94-7b07-9815-e003bdf2272c",
-      "templateId": "01a16bfd-3a17-798c-9c59-c59dbe2024b9",
-      "originalDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "appliedDefinitionId": "01a16bfd-3a17-791b-8dca-c8233b76cfcb",
-      "localDate": "2026-10-20",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-3a94-79fa-9656-e45b5e5ef4ee",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    }
-  ],
+  "occurrences": [],
   "refreshedTaskIds": [],
   "protectedTaskIds": [],
-  "planningVersion": 1,
-  "replayed": false
+  "planningVersion": 0,
+  "replayed": false,
+  "retractedDayItemCount": 0
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 409:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
-  "title": "Şablon pasif; yeni örnek üretilmez.",
-  "status": 409,
-  "code": "recurrence_disabled",
-  "traceId": "00-05ce8b1977f6cb061d25a32a6d55410e-56d32e6fbfa3a33e-00"
-}
-```
 
 ## GET /api/recurrence-templates/{id}/occurrences
 
@@ -961,7 +640,7 @@ Gerçek test hata örneği — HTTP 409:
 **Örnek HTTP:**
 
 ```http
-GET /api/recurrence-templates/01a16bfd-2600-7df6-9c57-6a781075d1e7/occurrences?fromDate=2026-10-15&toDate=2026-10-17&limit=1
+GET /api/recurrence-templates/11111111-1111-4111-8111-111111111111/occurrences
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -971,32 +650,14 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "items": [
-    {
-      "id": "01a16bfd-2665-71fe-87a1-819b03bf4480",
-      "templateId": "01a16bfd-2600-7df6-9c57-6a781075d1e7",
-      "originalDefinitionId": "01a16bfd-2600-7a22-af09-753b2c6233ec",
-      "appliedDefinitionId": "01a16bfd-2600-7a22-af09-753b2c6233ec",
-      "localDate": "2026-10-15",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-2665-7671-afdc-3f535d803c47",
-      "taskState": "Pending",
-      "taskVersion": 1,
-      "taskChangedSinceSync": false,
-      "state": "Materialized",
-      "reason": null
-    }
-  ],
+  "items": [],
   "offset": 0,
   "limit": 1,
   "total": 1
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -1030,14 +691,14 @@ Authorization: Bearer <APPLICATION_JWT>
 ```json
 {
   "version": 1,
-  "taskVersion": null
+  "taskVersion": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/recurrence-templates/01a16bfd-2fe7-786e-9786-38e40f011238/occurrences/2026-10-17/cancel
+POST /api/recurrence-templates/11111111-1111-4111-8111-111111111111/occurrences/11111111-1111-4111-8111-111111111111/cancel
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -1050,63 +711,48 @@ Content-Type: application/json
 ```json
 {
   "template": {
-    "id": "01a16bfd-2fe7-786e-9786-38e40f011238",
-    "enabled": true,
+    "id": "11111111-1111-4111-8111-111111111111",
+    "enabled": false,
     "version": 1,
-    "definitionId": "01a16bfd-2fe7-7f5f-bee4-73313af4486c",
+    "definitionId": "11111111-1111-4111-8111-111111111111",
     "definitionNumber": 1,
-    "effectiveFrom": "2026-10-15",
+    "effectiveFrom": "2026-10-16",
     "rule": {
-      "startDate": "2026-10-15",
+      "startDate": "2026-10-16",
       "timeZoneId": "Europe/Istanbul",
       "frequency": "Daily",
       "interval": 1,
-      "weekDays": [],
-      "monthDay": null,
-      "monthEnd": null,
-      "untilDate": null,
-      "dueTime": null,
+      "weekDays": null,
+      "monthDay": 1,
+      "monthEnd": "Skip",
+      "untilDate": "2026-10-16",
+      "dueTime": "örnek",
       "gap": "Reject",
-      "overlap": "Reject"
+      "overlap": "Reject",
+      "startTime": "örnek",
+      "autoAddToPlan": false
     },
     "task": {
-      "title": "Tekrar",
-      "description": null,
-      "estimatedSeconds": 3600,
-      "priority": "Normal",
+      "title": "Raporu yaz",
+      "description": "örnek",
+      "estimatedSeconds": 1,
+      "priority": "Low",
       "canSplit": true,
-      "poolId": null,
-      "energyDemand": null
+      "poolId": "11111111-1111-4111-8111-111111111111",
+      "energyDemand": "Low"
     },
-    "createdAt": "2026-10-15T06:00:00+00:00"
+    "createdAt": "2026-10-16T06:00:00Z"
   },
-  "occurrences": [
-    {
-      "id": "01a16bfd-30e8-7ea8-b9de-88e653a92f0e",
-      "templateId": "01a16bfd-2fe7-786e-9786-38e40f011238",
-      "originalDefinitionId": "01a16bfd-2fe7-7f5f-bee4-73313af4486c",
-      "appliedDefinitionId": "01a16bfd-2fe7-7f5f-bee4-73313af4486c",
-      "localDate": "2026-10-17",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": null,
-      "taskState": null,
-      "taskVersion": null,
-      "taskChangedSinceSync": false,
-      "state": "Canceled",
-      "reason": "User"
-    }
-  ],
+  "occurrences": [],
   "refreshedTaskIds": [],
   "protectedTaskIds": [],
   "planningVersion": 0,
-  "replayed": false
+  "replayed": false,
+  "retractedDayItemCount": 0
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -1140,14 +786,14 @@ Content-Type: application/json
 ```json
 {
   "version": 1,
-  "taskVersion": 2
+  "taskVersion": 1
 }
 ```
 
 **Örnek HTTP:**
 
 ```http
-POST /api/recurrence-templates/01a16bfd-51c1-7ecb-b006-4f2c3be52df6/occurrences/2026-10-15/skip
+POST /api/recurrence-templates/11111111-1111-4111-8111-111111111111/occurrences/11111111-1111-4111-8111-111111111111/skip
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 Idempotency-Key: <SAME_INTENT_KEY>
@@ -1160,63 +806,48 @@ Content-Type: application/json
 ```json
 {
   "template": {
-    "id": "01a16bfd-51c1-7ecb-b006-4f2c3be52df6",
-    "enabled": true,
+    "id": "11111111-1111-4111-8111-111111111111",
+    "enabled": false,
     "version": 1,
-    "definitionId": "01a16bfd-51c1-7626-a4b4-9c201626872b",
+    "definitionId": "11111111-1111-4111-8111-111111111111",
     "definitionNumber": 1,
-    "effectiveFrom": "2026-10-15",
+    "effectiveFrom": "2026-10-16",
     "rule": {
-      "startDate": "2026-10-15",
+      "startDate": "2026-10-16",
       "timeZoneId": "Europe/Istanbul",
       "frequency": "Daily",
       "interval": 1,
-      "weekDays": [],
-      "monthDay": null,
-      "monthEnd": null,
-      "untilDate": null,
-      "dueTime": null,
+      "weekDays": null,
+      "monthDay": 1,
+      "monthEnd": "Skip",
+      "untilDate": "2026-10-16",
+      "dueTime": "örnek",
       "gap": "Reject",
-      "overlap": "Reject"
+      "overlap": "Reject",
+      "startTime": "örnek",
+      "autoAddToPlan": false
     },
     "task": {
-      "title": "Tekrar",
-      "description": null,
-      "estimatedSeconds": 3600,
-      "priority": "Normal",
+      "title": "Raporu yaz",
+      "description": "örnek",
+      "estimatedSeconds": 1,
+      "priority": "Low",
       "canSplit": true,
-      "poolId": null,
-      "energyDemand": null
+      "poolId": "11111111-1111-4111-8111-111111111111",
+      "energyDemand": "Low"
     },
-    "createdAt": "2026-10-15T06:00:00+00:00"
+    "createdAt": "2026-10-16T06:00:00Z"
   },
-  "occurrences": [
-    {
-      "id": "01a16bfd-52c4-7a2e-ad09-2a289d80da41",
-      "templateId": "01a16bfd-51c1-7ecb-b006-4f2c3be52df6",
-      "originalDefinitionId": "01a16bfd-51c1-7626-a4b4-9c201626872b",
-      "appliedDefinitionId": "01a16bfd-51c1-7626-a4b4-9c201626872b",
-      "localDate": "2026-10-15",
-      "originalTimeZoneId": "Europe/Istanbul",
-      "originalDueTime": null,
-      "originalDueAt": null,
-      "timeAdjusted": false,
-      "taskId": "01a16bfd-52c4-762c-a8d8-dc951a577e71",
-      "taskState": "Skipped",
-      "taskVersion": 3,
-      "taskChangedSinceSync": true,
-      "state": "Skipped",
-      "reason": "User"
-    }
-  ],
+  "occurrences": [],
   "refreshedTaskIds": [],
   "protectedTaskIds": [],
-  "planningVersion": 4,
-  "replayed": false
+  "planningVersion": 0,
+  "replayed": false,
+  "retractedDayItemCount": 0
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
 
@@ -1237,7 +868,7 @@ Content-Type: application/json
 **Örnek HTTP:**
 
 ```http
-GET /api/tasks/01a16bfd-52c4-762c-a8d8-dc951a577e71/recurrence
+GET /api/tasks/11111111-1111-4111-8111-111111111111/recurrence
 Accept: application/json
 Authorization: Bearer <APPLICATION_JWT>
 ```
@@ -1247,36 +878,24 @@ Authorization: Bearer <APPLICATION_JWT>
 
 ```json
 {
-  "id": "01a16bfd-52c4-7a2e-ad09-2a289d80da41",
-  "templateId": "01a16bfd-51c1-7ecb-b006-4f2c3be52df6",
-  "originalDefinitionId": "01a16bfd-51c1-7626-a4b4-9c201626872b",
-  "appliedDefinitionId": "01a16bfd-51c1-7626-a4b4-9c201626872b",
-  "localDate": "2026-10-15",
-  "originalTimeZoneId": "Europe/Istanbul",
-  "originalDueTime": null,
-  "originalDueAt": null,
+  "id": "11111111-1111-4111-8111-111111111111",
+  "templateId": "11111111-1111-4111-8111-111111111111",
+  "originalDefinitionId": "11111111-1111-4111-8111-111111111111",
+  "appliedDefinitionId": "11111111-1111-4111-8111-111111111111",
+  "localDate": "2026-10-16",
+  "originalTimeZoneId": "örnek",
+  "originalDueTime": "örnek",
+  "originalDueAt": "2026-10-16T06:00:00Z",
   "timeAdjusted": false,
-  "taskId": "01a16bfd-52c4-762c-a8d8-dc951a577e71",
+  "taskId": "11111111-1111-4111-8111-111111111111",
   "taskState": "Pending",
-  "taskVersion": 4,
-  "taskChangedSinceSync": true,
+  "taskVersion": 1,
+  "taskChangedSinceSync": false,
   "state": "Materialized",
-  "reason": "User"
+  "reason": "Takvim düzenlendi"
 }
 ```
 
-Örnek kaynağı: Sentetik gerçek HTTP/PG test yanıtından; credentials değiştirme işaretiyle redakte.
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.).
-
-Gerçek test hata örneği — HTTP 404:
-
-```json
-{
-  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
-  "title": "Tekrar kaydı bulunamadı.",
-  "status": 404,
-  "code": "occurrence_not_found",
-  "traceId": "00-dcfc600cf56d04ec251beefbf77ed9ea-497035f0bac38b10-00"
-}
-```

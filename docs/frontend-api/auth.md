@@ -929,3 +929,58 @@ Content-Type: application/json
 Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
 
 **Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).
+
+## POST /api/auth/set-password
+
+**Yetki:** JWT Bearer zorunlu; owner doğrulanmış sub.
+
+**Amaç/koşul:** Beklenen sürümleri en son HTTP yanıtından alın; veri ve plan ilişkilerini istemcide ikinci otorite olarak hesaplamayın. Hata yanıtında code/traceId kullanın.
+
+**Tekrar gönderim:** Idempotency-Key tanımlı değil. Yazımda otomatik retry yok; timeout sonucu belirsizse güncel kaynakları okuyun. Header eklemek duplicate koruması sağlamaz.
+
+**Ek entegrasyon kuralı:** Google ile açılmış, henüz parolası olmayan hesap için ilk parola oluşturur. expectedUserId oturum sahibiyle eşleşir; idToken sub aynı hesaba önceden bağlı Google kimliği olmalıdır, e-posta eşleşmesi yeterli değildir. Tarayıcıda taze Google challenge cookie/nonce zorunludur. Geçersiz kanıt 400 döner ve mevcut oturumu kapatmaz. Google kapalıysa 503, parola varsa 409 password_already_set döner. En az6 karakter parola trim edilmez. Hash/version, reset kodu iptali, eski oturumların kapanması ve yeni oturum tek transaction içindedir. Yanıt yalnız UserSummary; yeni JWT HttpOnly cookie içindedir. Google bağlantısı korunur; artık iki giriş yöntemi kullanılabilir. Cookie CSRF/Origin ve auth rate limit uygulanır. Otomatik yazım retry yok; belirsiz sonuçta yeni parolayla giriş yap.
+
+| Request alanı | C# tip karşılığı | Ek annotation |
+| --- | --- | --- |
+| `expectedUserId` | Guid | required |
+| `idToken` | String | required; length:0..20000 |
+| `newPassword` | String | required; minLength:6 |
+
+**Request şeması:** [SetPasswordRequest](DTO-Sozlugu.md#setpasswordrequest).
+
+**Örnek request body:**
+
+```json
+{
+  "expectedUserId": "11111111-1111-4111-8111-111111111111",
+  "idToken": "<GOOGLE_ID_TOKEN_FROM_GIS>",
+  "newPassword": "123456"
+}
+```
+
+**Örnek HTTP:**
+
+```http
+POST /api/auth/set-password
+Accept: application/json
+Authorization: Bearer <APPLICATION_JWT>
+Content-Type: application/json
+```
+
+**Başarılı response:** HTTP 200.
+Şema: [UserSummary](DTO-Sozlugu.md#usersummary).
+
+```json
+{
+  "id": "11111111-1111-4111-8111-111111111111",
+  "email": "developer@example.test",
+  "displayName": "örnek",
+  "profileVersion": 1,
+  "photoVersion": "11111111-1111-4111-8111-111111111111",
+  "googlePictureUrl": "https://lh3.googleusercontent.com/a/example"
+}
+```
+
+Örnek kaynağı: Şemadan üretilmiş yapısal örnek; bu endpoint için kayıtlı başarılı HTTP örneği bulunmadı. ID/sürüm/koşulları modül akışından tamamlayın.
+
+**Hata yanıtları:** 400 (Alan/domain doğrulama hatası; code/traceId, alan hatalarında errors.), 401 (JWT veya giriş bilgisi gerekli/geçersiz.), 404 (Kaynak yok veya bu kullanıcıya ait değil.), 409 (Sürüm/idempotency/domain çatışması; güncel durumu okuyun.), 503 (Gerekli sağlayıcı/özellik kullanılamıyor.), 500 (Beklenmeyen hata; traceId ile takip edilir.), 429 (Auth istek limiti; boş gövde. Süre sonunda yeniden deneyin.).

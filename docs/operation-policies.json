@@ -1,8 +1,8 @@
 {
-  "openApiOperations": 223,
-  "concreteOperations": 228,
-  "schemas": 312,
-  "sourceSha256": "d74990fa9c4cd66d06f78d9c6478a6fcc8b2e938c41b5c2ca1b506f33cab66d5",
+  "openApiOperations": 234,
+  "concreteOperations": 239,
+  "schemas": 324,
+  "sourceSha256": "e0885f13b2c65121726fb9ec2d8a07226e58bf4484c8546d52f08de9a82254fc",
   "operations": [
     {
       "method": "GET",
@@ -283,6 +283,17 @@
       "openApiPath": "/api/auth/session/register",
       "path": "/api/auth/session/register",
       "authRequired": false,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/auth.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/auth/set-password",
+      "path": "/api/auth/set-password",
+      "authRequired": true,
       "idempotencyKeyRequired": false,
       "maxKeyLength": null,
       "bodyVersionFields": [],
@@ -2422,6 +2433,93 @@
     },
     {
       "method": "GET",
+      "openApiPath": "/api/mobile/push/deliveries/{deliveryId}",
+      "path": "/api/mobile/push/deliveries/{deliveryId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/mobile/push/deliveries/{deliveryId}/receipts",
+      "path": "/api/mobile/push/deliveries/{deliveryId}/receipts",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [
+        "bindingVersion"
+      ],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "DELETE",
+      "openApiPath": "/api/mobile/push/devices/{installationId}",
+      "path": "/api/mobile/push/devices/{installationId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "bindingVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/mobile/push/devices/{installationId}",
+      "path": "/api/mobile/push/devices/{installationId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/mobile/push/devices/{installationId}",
+      "path": "/api/mobile/push/devices/{installationId}",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "bindingVersion",
+        "appVersion",
+        "osVersion"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/mobile/push/preferences",
+      "path": "/api/mobile/push/preferences",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "PUT",
+      "openApiPath": "/api/mobile/push/preferences",
+      "path": "/api/mobile/push/preferences",
+      "authRequired": true,
+      "idempotencyKeyRequired": true,
+      "maxKeyLength": 128,
+      "bodyVersionFields": [
+        "version"
+      ],
+      "retryPolicy": "same-key-same-payload",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
       "openApiPath": "/api/notifications",
       "path": "/api/notifications",
       "authRequired": true,
@@ -2575,8 +2673,41 @@
     },
     {
       "method": "GET",
+      "openApiPath": "/api/notifications/summary",
+      "path": "/api/notifications/summary",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
       "openApiPath": "/api/notifications/{id}",
       "path": "/api/notifications/{id}",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "bounded-read",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "POST",
+      "openApiPath": "/api/notifications/{id}/delivery-receipts",
+      "path": "/api/notifications/{id}/delivery-receipts",
+      "authRequired": true,
+      "idempotencyKeyRequired": false,
+      "maxKeyLength": null,
+      "bodyVersionFields": [],
+      "retryPolicy": "no-automatic-write-retry",
+      "contract": "frontend-api/notifications.md"
+    },
+    {
+      "method": "GET",
+      "openApiPath": "/api/notifications/{id}/delivery-status",
+      "path": "/api/notifications/{id}/delivery-status",
       "authRequired": true,
       "idempotencyKeyRequired": false,
       "maxKeyLength": null,

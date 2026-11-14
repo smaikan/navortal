@@ -57,7 +57,7 @@ Google tarayıcı testleri GIS callback'ini kontrollü taklit eder; bu doğrulam
 ## Davranış sınırları
 
 - Bir gün grubu en çok 2000 görev; hiyerarşik seçici en çok 128 seviye, okunabilir aktif görev kümesi en çok 50.000 görev.
-- Ana satırı plandan kaldırmak görevleri silmez; çocukların kendi plan kayıtları bağımsız kalır. Bir çocuğu kaldırmak kardeşleri kaldırmaz.
+- Ana satırı plandan kaldırmak, kaydedilmiş aynı gün grubunda altındaki saatli ve saatsiz öğeleri birlikte kaldırır. Görevler, başka günler ve gerçek çalışma değişmez; geri alma grubu aynı kimliklerle geri getirir. Bir alt dalı kaldırmak kardeşlerini kaldırmaz; yaprak öğeler tekil kaldırılır.
 - Eski tamamlanma geçmişinde sınıflandırma adı snapshotı yoksa geçmiş ad açıkça bilinmiyor olarak gösterilir; güncel ad geçmişe uydurulmaz.
 - Hesap bağlama ve mevcut güvenlik doğrulamaları korunur; yeni parola oluşturma veya Google bağlantısı kaldırma bu kapsamda eklenmedi.
 
@@ -105,3 +105,11 @@ Google tarayıcı testleri GIS callback'ini kontrollü taklit eder; bu doğrulam
 - Toplu giriş formunda etiket ve 50 görev sınırı metin alanının üzerine alındı; alan panel genişliğini kullanır, örnek satırlar ve okunaklı satır aralığı sunar. Görev/tekrar sayacı, başarı mesajı ve tam genişlikte ekleme düğmesi ayrıştırıldı. Mevcut panel ölçüleri korundu.
 - 24 ilgili birim testi ile mevcut masaüstü/mobil toplu ekleme senaryoları başarılı. Playwright ile açık/koyu tema ve masaüstü/mobil toplam dört görünüm incelendi; sekiz dar/yatay ekran kontrolünde taşma görülmedi. Dört erişilebilirlik taramasında ihlal bulunmadı.
 - Üretim derlemesi/TypeScript, ESLint ve biçim kontrolleri başarılı. UI canlıya alındı; yeni stiller, giriş ekranı ve API readiness HTTP 200 olarak doğrulandı. Önceki UI imajı geri dönüş için korundu.
+
+## Gün planından görev grubunu birlikte kaldırma
+
+- Ana görev plandan kaldırıldığında, o gün kaydedilmiş grubundaki alt görevler saatli ve saatsiz öğeleriyle tek işlemde kaldırılır. İç dalı kaldırmak üst görevi ve kardeş dalları etkilemez; yaprak öğelerin tekil kaldırma davranışı korunur.
+- Görev kayıtları, başka günlerin planları ve gerçek çalışma kayıtları korunur. Sabit/kilitli saatlerin koruması geçerlidir. Geri alma grubu aynı kimlikler, sıralama ve saatlerle geri getirir.
+- Dokuzu yeni olmak üzere 42 API entegrasyon testi ve 26 ilgili UI birim testi başarılıdır. Son kodda dokuz yeni API testi ayrıca tekrar geçmiştir. TypeScript, ilgili dosyalarda ESLint/biçim ve diff kontrolleri başarılıdır.
+- Gerçek yerel API ve veritabanıyla masaüstü/mobil, saatli/saatsiz toplam dört tarayıcı senaryosunda kaldırma, geri alma ve sayfa yenileme doğrulanmıştır. Chrome DevTools MCP üzerinden mobil kapalı grubu kaldırma/geri alma da kontrol edilmiştir.
+- Bu düzeltme 10 Kasım 2026 masaüstü bildirim yayınıyla birlikte canlıya alınmıştır. Commit ve push yapılmamıştır.

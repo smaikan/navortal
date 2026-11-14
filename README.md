@@ -123,6 +123,8 @@ The local API launcher reads these keys from the ignored `API/.local/smtp.env` w
 
 **Web push.** Generate a key pair once with `./scripts/new-web-push-keys.ps1 -Subject 'mailto:you@example.com'` (it goes to the ignored `API/.local/web-push.json`), then start the API with `./scripts/run-api.ps1 -EnablePush`. On localhost no domain is needed; the browser still asks for permission. More in `docs/notifications-realtime.md`.
 
+For the root Docker Compose deployment, run `node API/scripts/configure-web-push.mjs mailto:you@example.com` from the repository root, using a real contact address, then recreate the API. This creates the ignored `API/.local/push.env` with mode `0600`; Compose loads it only into the API. Running the script again verifies and preserves the same keys. Keep this private file with the deployment secrets so browser subscriptions survive rebuilds. Users still enable notifications explicitly on each browser.
+
 **Profile photos.** Put `Cloudinary__Enabled`, `Cloudinary__CloudName`, `Cloudinary__ApiKey` and `Cloudinary__ApiSecret` in `API/.local/cloudinary.env` (see `API/.env.example`). Photos go through the API, the frontend never sees the keys. Max 2 MiB, JPEG/PNG/WebP. More in `docs/profile.md`.
 
 ### Frontend settings

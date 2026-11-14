@@ -1,5 +1,7 @@
 # Frontend geliştirici API rehberi
 
+12 Kasım 2026: native Android FCM Aşama 1 için yedi yeni, yalnız oturum çerezi kabul eden uç eklendi ve API üretime alındı. Android uygulaması için tek sözleşme [Android FCM API Aşama 1](android-fcm-api-stage1.md); makine sözleşmesi ve toplamlar [endpoint indeksinde](frontend-api/Endpoint-Indeksi.md) bulunur.
+
 Google giriş entegrasyonuyla güncel makine sözleşmesi **222 controller işlemi / 227 somut işlem / 308 DTO ve enum şeması** içerir. [Google kurulumu ve hesap bağlama kuralları](google-auth-setup.md). Hesap ayarları `POST /api/auth/change-password` ile mevcut parolayı doğrular; yeni HttpOnly oturum oluştururken eski oturumları ve reset bağlantılarını tek transaction içinde kapatır. [Auth sözleşmesi](frontend-api/auth.md#post-apiauthchange-password), [tasarım ve test planı](../UI-docs/design/Parola%20Değiştirme%20Planı.md). Aşağıdaki tarihli envanterler kendi teslim dönemlerini gösterir.
 
 Temel sözleşme: **16 Ekim 2026** · Son ek: **29 Ekim 2026**. Backend kökü `API/`, frontend kökü `UI/`. Bu rehber çalışan ASP.NET Core uygulamasının sözleşmesini anlatır. Türkçe, masaüstü öncelikli, çevrimiçi ürün geliştirin. API, görev/plan/gerçek çalışma hesaplarının otoritesidir.

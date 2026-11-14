@@ -1,8 +1,8 @@
 # Bütün HTTP yolları
 
-223 OpenAPI controller işlemi, focus komutunun altı yolu ayrı gösterildiğinde228 somut işlem. Her satırın modülünde aynı method/path başlığını bulun. Auth evet ise uygulama JWT Bearer gerekir; başka owner kaynakları404. Health/OpenAPI/SignalR taşıma uçları [ana rehberde](../Frontend%20API%20Rehberi.md) ayrıca açıklanır.
+234 OpenAPI controller işlemi, focus komutunun altı yolu ayrı gösterildiğinde239 somut işlem. Her satırın modülünde aynı method/path başlığını bulun. Mobil push yalnız oturum çerezi, diğer auth evet uçları mevcut JWT/cookie sözleşmesini kullanır; başka owner kaynakları404. Health/OpenAPI/SignalR taşıma uçları [ana rehberde](../Frontend%20API%20Rehberi.md) ayrıca açıklanır.
 
-| Method | Yol | JWT | Referans |
+| Method | Yol | Auth | Referans |
 | --- | --- | --- | --- |
 | GET | `/api/matrix` | evet | [Matrix](matrix.md) |
 | GET | `/api/matrix/candidates` | evet | [Matrix](matrix.md) |
@@ -29,6 +29,7 @@
 | POST | `/api/auth/session/google` | hayır | [Auth](auth.md) |
 | POST | `/api/auth/session/login` | hayır | [Auth](auth.md) |
 | POST | `/api/auth/session/register` | hayır | [Auth](auth.md) |
+| POST | `/api/auth/set-password` | evet | [Auth](auth.md) |
 | GET | `/api/preferences` | evet | [Preferences](preferences.md) |
 | PUT | `/api/preferences` | evet | [Preferences](preferences.md) |
 | GET | `/api/preferences/working-hours` | evet | [Preferences](preferences.md) |
@@ -206,6 +207,13 @@
 | GET | `/api/jobs/outbox` | evet | [Jobs](notifications.md) |
 | POST | `/api/jobs/outbox/{id}/retry` | evet | [Jobs](notifications.md) |
 | GET | `/api/jobs/reminders` | evet | [Jobs](notifications.md) |
+| GET | `/api/mobile/push/deliveries/{deliveryId}` | cookie | [MobilePush](notifications.md) |
+| POST | `/api/mobile/push/deliveries/{deliveryId}/receipts` | cookie | [MobilePush](notifications.md) |
+| DELETE | `/api/mobile/push/devices/{installationId}` | cookie | [MobilePush](notifications.md) |
+| GET | `/api/mobile/push/devices/{installationId}` | cookie | [MobilePush](notifications.md) |
+| PUT | `/api/mobile/push/devices/{installationId}` | cookie | [MobilePush](notifications.md) |
+| GET | `/api/mobile/push/preferences` | cookie | [MobilePush](notifications.md) |
+| PUT | `/api/mobile/push/preferences` | cookie | [MobilePush](notifications.md) |
 | GET | `/api/notifications` | evet | [Notifications](notifications.md) |
 | GET | `/api/notifications/alerts` | evet | [Notifications](notifications.md) |
 | GET | `/api/notifications/preferences` | evet | [Notifications](notifications.md) |
@@ -219,7 +227,10 @@
 | GET | `/api/notifications/subscriptions` | evet | [Notifications](notifications.md) |
 | POST | `/api/notifications/subscriptions` | evet | [Notifications](notifications.md) |
 | POST | `/api/notifications/subscriptions/{id}/remove` | evet | [Notifications](notifications.md) |
+| GET | `/api/notifications/summary` | evet | [Notifications](notifications.md) |
 | GET | `/api/notifications/{id}` | evet | [Notifications](notifications.md) |
+| POST | `/api/notifications/{id}/delivery-receipts` | evet | [Notifications](notifications.md) |
+| GET | `/api/notifications/{id}/delivery-status` | evet | [Notifications](notifications.md) |
 | POST | `/api/notifications/{id}/read` | evet | [Notifications](notifications.md) |
 | POST | `/api/notifications/{id}/snooze` | evet | [Notifications](notifications.md) |
 | GET | `/api/sync` | evet | [Sync](notifications.md) |

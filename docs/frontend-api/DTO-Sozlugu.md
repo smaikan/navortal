@@ -306,6 +306,8 @@ Değerler: `Timed`, `Untimed`.
 | `categoryId` | null\|string (uuid) | hayır | — | Tek kategori bağı; historical snapshot bugünkü ada göre yeniden yazılmaz. |
 | `tagIds` | string (uuid)[] | evet | maxItems=50 | Görevin etiket kimlikleri; sınıflandırma komutunun gönderdiği seti temsil eder. |
 | `applyToSubtree` | boolean | hayır | — | Sınıflandırmayı alt ağaca yayma açık niyeti; expectedPlanningVersion gerekir. |
+| `detachKind` | null\|string | hayır | — | projects, pools veya categories: seçili görevi ve bu bölüme bağlı alt dalını atomik çıkarır. Diğer bağ ve etiketler her görevde korunur; applyToSubtree false olmalı. |
+| `detachResourceId` | null\|string (uuid) | hayır | — | Çıkarılacak owner kaynağının kimliği; detachKind ile birlikte ve expectedPlanningVersion ile gönderilir. |
 | `expectedPlanningVersion` | null\|integer\|string (int64) | hayır | minimum=0; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Owner koordinasyon sürümü; entity version yerine geçmez. |
 
 ## ClassificationValues
@@ -1154,6 +1156,57 @@ Değerler: `Inbox`, `Do`, `Schedule`, `Delegate`, `Eliminate`.
 | `startMinute` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Yerel gece yarısından itibaren dahil dakika,0..1439; endMinute değerinden küçük. |
 | `endMinute` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Yerel gece yarısından itibaren hariç dakika,1..1440;1440ertesi gün00:00. |
 
+## MobilePushDeviceView
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `installationId` | string (uuid) | evet | — | Android kurulumunun rastgele kalıcı UUID kimliği; donanım kimliği değildir. Kullanıcı/oturum ve bindingVersion ile denetlenir. |
+| `userId` | string (uuid) | evet | — | Oturumun sahibi kullanıcı UUID kimliği; istemcinin yetki vermek için seçtiği bir hesap değildir. |
+| `bindingVersion` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sunucunun mobil hesap/oturum/token bağı sürümü. İlk PUT 0; devamında son yanıttaki değer. Hesap/oturum/token değişiminde artar. |
+| `clientSequence` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Kurulum başına kalıcı, monoton artan pozitif Int64 sıra. Hesap değişiminde sıfırlanmaz; gecikmiş yazmalar409. |
+| `version` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
+| `active` | boolean | evet | — | Subscription aktif kayıt durumu; OS izni/teslim kanıtı değildir. |
+| `permission` | string | evet | — | Android bildirim izni: granted/denied/notDetermined. Gönderim için granted gerekir. |
+| `remindersChannelEnabled` | boolean | evet | — | Android reminders-v1 kanalının açık olması; uygulama izniyle birlikte gönderim uygunluğunda kullanılır. |
+| `platform` | string | evet | — | Native mobil hedef platformu; Aşama 1 yalnız android kabul eder. |
+| `packageName` | string | evet | — | Native hedef paket adı; Aşama 1 yalnız tr.com.navortal kabul eder. |
+| `appVersion` | string | evet | — | Android uygulama sürümü; 1–32 karakterlik sürüm metni. |
+| `buildNumber` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Android uygulama derleme numarası; pozitif Int64. |
+| `osVersion` | string | evet | — | Android işletim sistemi sürüm metni; en çok 64 karakter, varsayılan boş. |
+| `lastSeenAt` | string (date-time) | evet | — | Sunucunun son başarılı cihaz kayıt/yenileme zamanı; UTC. |
+| `fcmAvailable` | boolean | evet | — | FCM gönderimi sunucuda etkin ve hizmet hesabı dosyası mevcut; gerçek Google IAM/ağ/anahtar geçerliliği kanıtı değildir. |
+
+## MobilePushDisplayView
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `deliveryId` | string (uuid) | evet | — | Tek sağlayıcı tesliminin UUID kimliği; gösterim kontrolü ve makbuzlarda kullanılır. |
+| `notificationId` | string (uuid) | evet | — | Owner kapsamındaki bildirim niyetinin UUID kimliği; teslim kimliğinden ayrıdır. |
+| `snoozeCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Aynı notificationId için açık erteleme sayacı; client/push dedup bağlamı. |
+| `displayAllowed` | boolean | evet | — | Güncel oturum, cihaz bağı, izin, tercihler, okunmuşluk, kaynak ve son kullanım zamanı üzerinden gösterim kararı. Ağ hatasında göstermeyin. |
+| `reason` | string | evet | — | Kullanıcı veya domain gerekçesi; null yok/bilinmiyor olabilir, uygunluk koduyla karıştırmayın. |
+| `serverNow` | string (date-time) | evet | — | UTC server instant; sayaç ekranı bu referansla hesaplanır. |
+| `expiresAt` | string (date-time) | evet | — | Proposal için2dkgeçerlilik; subscription için opsiyonel browser bitişi. DTO bağlamını ayırın. |
+| `silent` | boolean | evet | — | Güncel ortak/odak ses tercihi nedeniyle ses çıkarılmaması gerektiğini belirtir; Android kanal ayarları da geçerlidir. |
+
+## MobilePushPreferencesView
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `enabled` | boolean | evet | — | İlgili tercih/özelliğin açık olması; Google/Push sunucu config’i ayrıca belirleyicidir. |
+| `version` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
+| `fcmAvailable` | boolean | evet | — | FCM gönderimi sunucuda etkin ve hizmet hesabı dosyası mevcut; gerçek Google IAM/ağ/anahtar geçerliliği kanıtı değildir. |
+
+## MobilePushReceipt
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404. |
+| `installationId` | string (uuid) | evet | — | Android kurulumunun rastgele kalıcı UUID kimliği; donanım kimliği değildir. Kullanıcı/oturum ve bindingVersion ile denetlenir. |
+| `bindingVersion` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sunucunun mobil hesap/oturum/token bağı sürümü. İlk PUT 0; devamında son yanıttaki değer. Hesap/oturum/token değişiminde artar. |
+| `snoozeCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Aynı notificationId için açık erteleme sayacı; client/push dedup bağlamı. |
+| `stage` | string | evet | — | İstemci makbuz aşaması: Displayed yerel gösterim, Opened kullanıcı tıklaması. Okundu durumu değildir. |
+
 ## MonthEndPolicy
 
 Değerler: `Skip`, `ClampToLastDay`, `null`.
@@ -1211,7 +1264,7 @@ Değerler: `Skip`, `ClampToLastDay`, `null`.
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
 | --- | --- | --- | --- | --- |
 | `resourceId` | string (uuid) | evet | — | Özetin ait olduğu kayıt. |
-| `taskCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Arşivlenmemiş bağlı görev sayısı; iş yükü ucuyla aynıdır. |
+| `taskCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Arşivlenmemiş görev sayısı; projede bağlı görevlerin bütün altları dahil edilir ve yalnız altı olmayan görevler sayılır. İş yükü ucuyla aynıdır. |
 | `completedCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Bu görevlerden tamamlananların sayısı. |
 | `openComponentCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Açık iş bileşeni sayısı; iş yükü ucuyla aynıdır. |
 | `knownEstimatedSeconds` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Bilinen tahmin toplamı, saniye. |
@@ -1385,6 +1438,24 @@ Değerler: `Cards`, `List`.
 | `items` | [NotificationView](DTO-Sozlugu.md#notificationview)[] | evet | — | En çok limit adaydan güncel kaynak/tür/sessiz saat kontrollerini geçen Ready, okunmamış, gönderim zamanı son120sn içindeki alarmlar. Ses kapalı öğe soundEnabled=false ile kalır; boş sayfanın devamı olabilir. |
 | `nextCursor` | null\|string | evet | — | Devam varsa owner ve ilk sayfanın asOf kesimiyle artan (dueAt,id) keyset pozisyonu; token/sır değildir. Her yeni gözlem turunda cursorsuz başla; stale/bozuk/yabancı imleç400. |
 
+## NotificationDeliveryStatus
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `snoozeCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Aynı notificationId için açık erteleme sayacı; client/push dedup bağlamı. |
+| `preparedAt` | null\|string (date-time) | evet | — | İlgili endpoint/modül kapsamındaki değer. |
+| `providerAcceptedAt` | null\|string (date-time) | evet | — | İlgili endpoint/modül kapsamındaki değer. |
+| `clientDisplayedAt` | null\|string (date-time) | evet | — | İlgili endpoint/modül kapsamındaki değer. |
+| `clientOpenedAt` | null\|string (date-time) | evet | — | İlgili endpoint/modül kapsamındaki değer. |
+| `readAt` | null\|string (date-time) | evet | — | Kullanıcının okundu işareti; null henüz işaretlenmedi. |
+
+## NotificationInboxSummary
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `unreadCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | İlgili endpoint/modül kapsamındaki değer. |
+| `asOf` | string (date-time) | evet | — | İlgili endpoint/modül kapsamındaki değer. |
+
 ## NotificationIntentState
 
 Değerler: `Pending`, `Obsolete`, `Ready`, `Suppressed`, `Expired`.
@@ -1404,6 +1475,10 @@ Değerler: `Pending`, `Obsolete`, `Ready`, `Suppressed`, `Expired`.
 | --- | --- | --- | --- | --- |
 | `settings` | [NotificationSettings](DTO-Sozlugu.md#notificationsettings) | evet | — | Preset veya bildirim ayarlarının tam snapshotı; bunlar farklı tiplerdir. |
 | `version` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
+
+## NotificationReceiptStage
+
+Değerler: `Displayed`, `Opened`.
 
 ## NotificationReceiptView
 
@@ -1731,8 +1806,9 @@ Değerler: `Single`, `Subtree`.
 
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
 | --- | --- | --- | --- | --- |
-| `readCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Bu owner için o anda Ready ve okunmamış olup okundu yapılan kayıt sayısı. |
+| `readCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Bu owner gelen kutusunda o anda Ready ve okunmamış olup okundu yapılan kayıt sayısı; ScheduleStart/ScheduleEnd hariç. |
 | `readAt` | string (date-time) | evet | — | Sunucudaki toplu okuma zamanı; sonraki Ready kayıtlar ve Pending hatırlatmalar etkilenmez. |
+| `summary` | [NotificationInboxSummary](DTO-Sozlugu.md#notificationinboxsummary) | evet | — | Aynı owner kilidi ve transaction içinde toplu okuma sonrasındaki gerçek gelen kutusu özeti; iyimser sıfır değildir. |
 
 ## ReadCoverage
 
@@ -1740,6 +1816,14 @@ Değerler: `Single`, `Subtree`.
 | --- | --- | --- | --- | --- |
 | `versions` | [DayReadVersions](DTO-Sozlugu.md#dayreadversions) | evet | — | Bu yanıtla aynı PostgreSQL snapshot/owner transaction sınırındaki planning, notes ve specialDays sayaçları. |
 | `serverNow` | string (date-time) | evet | — | Bu okumanın backend zaman referansı; sürüm eşitliğinin yanında kısa tazelik bütçesiyle kullanılır, aktif süreyi dondurmak için kullanılamaz. |
+
+## RecordNotificationReceipt
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404. |
+| `snoozeCount` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Aynı notificationId için açık erteleme sayacı; client/push dedup bağlamı. |
+| `stage` | [NotificationReceiptStage](DTO-Sozlugu.md#notificationreceiptstage) | evet | — | İstemci makbuz aşaması: Displayed yerel gösterim, Opened kullanıcı tıklaması. Okundu durumu değildir. |
 
 ## RecurrenceAnalyticsDay
 
@@ -1972,6 +2056,22 @@ Değerler: `Daily`, `IntervalDays`, `Weekly`, `Monthly`.
 | `poolId` | null\|string (uuid) | hayır | — | Görev havuzu bağı; plan bloklarından bağımsızdır. |
 | `energyDemand` | null / [EnergyLevel](DTO-Sozlugu.md#energylevel) | hayır | — | Görevin isteğe bağlı efor ihtiyacı; null tercih yok. |
 
+## RegisterMobilePushDevice
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404. |
+| `fcmToken` | string | evet | minLength=1; maxLength=4096 | Native Android FCM kayıt hedefi; yalnız sunucuya gönderilir, yanıta/belge kanıtına/loga alınmaz. 1..4096 karakter, boşluk/kontrol karakteri yok. |
+| `bindingVersion` | integer\|string (int64) | evet | minimum=0; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Sunucunun mobil hesap/oturum/token bağı sürümü. İlk PUT 0; devamında son yanıttaki değer. Hesap/oturum/token değişiminde artar. |
+| `clientSequence` | integer\|string (int64) | evet | minimum=1; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Kurulum başına kalıcı, monoton artan pozitif Int64 sıra. Hesap değişiminde sıfırlanmaz; gecikmiş yazmalar409. |
+| `platform` | string | evet | pattern="^android$" | Native mobil hedef platformu; Aşama 1 yalnız android kabul eder. |
+| `packageName` | string | evet | pattern="^tr\\.com\\.navortal$" | Native hedef paket adı; Aşama 1 yalnız tr.com.navortal kabul eder. |
+| `appVersion` | string | evet | minLength=1; maxLength=32 | Android uygulama sürümü; 1–32 karakterlik sürüm metni. |
+| `buildNumber` | integer\|string (int64) | hayır | minimum=1; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Android uygulama derleme numarası; pozitif Int64. |
+| `osVersion` | string | hayır | minLength=0; maxLength=64 | Android işletim sistemi sürüm metni; en çok 64 karakter, varsayılan boş. |
+| `permission` | string | evet | pattern="^(granted\|denied\|notDetermined)$" | Android bildirim izni: granted/denied/notDetermined. Gönderim için granted gerekir. |
+| `remindersChannelEnabled` | boolean | hayır | — | Android reminders-v1 kanalının açık olması; uygulama izniyle birlikte gönderim uygunluğunda kullanılır. |
+
 ## RegisterRequest
 
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
@@ -2029,6 +2129,14 @@ Değerler: `Pending`, `Ready`, `Obsolete`, `Expired`.
 | `state` | [ReminderState](DTO-Sozlugu.md#reminderstate) | evet | — | İlgili nesnenin enum durumu; Task/Work/Focus/Occurrence/Notification birbirinin yerine kullanılamaz. |
 | `handledAt` | null\|string (date-time) | evet | — | İlgili kalıcı iş/hatırlatma işlendi instantı; browser teslim kanıtı değil. |
 
+## RemoveMobilePushDevice
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404. |
+| `bindingVersion` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sunucunun mobil hesap/oturum/token bağı sürümü. İlk PUT 0; devamında son yanıttaki değer. Hesap/oturum/token değişiminde artar. |
+| `clientSequence` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Kurulum başına kalıcı, monoton artan pozitif Int64 sıra. Hesap değişiminde sıfırlanmaz; gecikmiş yazmalar409. |
+
 ## RemoveScheduleRequest
 
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
@@ -2057,11 +2165,13 @@ Değerler: `Pending`, `Ready`, `Obsolete`, `Expired`.
 | Alan | Tip / null | Required | Şema sınırı / default | Anlam |
 | --- | --- | --- | --- | --- |
 | `roots` | [TaskView](DTO-Sozlugu.md#taskview)[] | evet | — | Sayfadaki ana veya bağımsız görevler. |
-| `nodes` | [TaskView](DTO-Sozlugu.md#taskview)[] | evet | — | Bu köklerin bütün görünür alt ağaçları; sınıflandırma bağlarını değiştirmez. |
-| `parents` | [TaskAncestorRow](DTO-Sozlugu.md#taskancestorrow)[] | evet | — | Tekil alt görevin üst bağlamı. |
+| `nodes` | [TaskView](DTO-Sozlugu.md#taskview)[] | evet | — | Üyelik, miras ve açık kaldırma işaretlerine göre görünen görevler ile üst bağlam satırları. Başka bölüme bağlı kardeşler eklenmez. |
+| `parents` | [TaskAncestorRow](DTO-Sozlugu.md#taskancestorrow)[] | evet | — | Eski istemciler için küçük üst bağlam alanı; yeni ağaç üst görevleri nodes içinde taşır. |
 | `offset` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sorgu listesindeki0tabanlı satır başlangıcı; listeye özgü üst sınırı izleyin. |
 | `limit` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Sayfada en çok dönecek kayıt; genellikle1..100, kesin sınır modüldedir. |
 | `total` | integer\|string (int32) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Görev sayısı değil bütün kök gruplarının sayısı. |
+| `contextTaskIds` | null\|array | hayır | — | Yalnız hiyerarşiyi göstermek için eklenen üst görev kimlikleri. Bölüm üyesi değildir; sayılmaz ve bölümden kaldırılmaz. |
+| `taskCount` | null\|integer\|string (int32) | hayır | pattern="^-?(?:0\|[1-9]\\d*)$" | Bütün sayfalardaki kapsama ait görev sayısı. Proje/havuz/kategoride aktif alt görevi olan ana görev sayılmaz. |
 
 ## ResourceVersionRequest
 
@@ -2331,6 +2441,14 @@ Değerler: `Planned`, `Removed`.
 | `endedAt` | null\|string (date-time) | evet | — | Gerçek aralık bitişi; açık segmentte null olabilir. |
 | `state` | [WorkState](DTO-Sozlugu.md#workstate) | evet | — | İlgili nesnenin enum durumu; Task/Work/Focus/Occurrence/Notification birbirinin yerine kullanılamaz. |
 | `version` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
+
+## SetPasswordRequest
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanmış hesap kimliği; oturum sahibiyle eşleşmezse409 account_changed. Yazı hedefini seçmez. |
+| `idToken` | string | evet | minLength=0; maxLength=20000 | Aynı hesaba bağlı Google sub için taze doğrulama kanıtı; tarayıcıda Google challenge cookie/nonce ile eşleşir. URL, log veya storage alanına yazılmaz. |
+| `newPassword` | string | evet | minLength=6 | Hesabın ilk parolası; en az6 karakter, trim veya ek karmaşıklık yoktur. Mevcut parola varsa409; eski oturumlar/reset bağlantıları iptal edilip yeni HttpOnly cookie verilir. |
 
 ## SnoozeNotification
 
@@ -2838,6 +2956,14 @@ Değerler: `NoEstimate`, `NeedsEstimateExtension`, `TaskInactive`, `DependencyBl
 | `version` | integer\|string (int64) | hayır | minimum=1; maximum=9223372036854776000; pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
 | `name` | string | evet | minLength=0; maxLength=100 | Koleksiyon adı200, focus preset adı100karakter; trim edilir. |
 | `settings` | null / [FocusSettings](DTO-Sozlugu.md#focussettings) | evet | — | Tam FocusSettings zorunlu; null400. Nullable wire unionuna rağmen Required validation uygulanır. |
+
+## UpdateMobilePushPreferences
+
+| Alan | Tip / null | Required | Şema sınırı / default | Anlam |
+| --- | --- | --- | --- | --- |
+| `expectedUserId` | string (uuid) | evet | — | me ile doğrulanan beklenen hesap UUID kimliği; JWT sahibiyle eşleşmesi zorunlu. Başka kullanıcıyı hedeflemek için kullanılamaz; eşleşmezse404. |
+| `version` | integer\|string (int64) | evet | pattern="^-?(?:0\|[1-9]\\d*)$" | Eşzamanlılık sürümü; yazmada aynen gönderilir, farklıysa 409. |
+| `enabled` | boolean | evet | — | İlgili tercih/özelliğin açık olması; Google/Push sunucu config’i ayrıca belirleyicidir. |
 
 ## UpdateNotificationPreferences
 

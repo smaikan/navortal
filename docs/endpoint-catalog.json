@@ -677,6 +677,45 @@
     ]
   },
   {
+    "method": "POST",
+    "path": "/api/auth/set-password",
+    "controller": "Auth",
+    "action": "SetPassword",
+    "authRequired": true,
+    "bodyType": "SetPasswordRequest",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "idToken",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:0..20000"
+        ]
+      },
+      {
+        "name": "newPassword",
+        "type": "String",
+        "rules": [
+          "required",
+          "minLength:6"
+        ]
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "UserSummary"
+      }
+    ]
+  },
+  {
     "method": "GET",
     "path": "/api/calendar",
     "controller": "Calendar",
@@ -2002,6 +2041,250 @@
   },
   {
     "method": "GET",
+    "path": "/api/mobile/push/deliveries/{deliveryId}",
+    "controller": "MobilePush",
+    "action": "Delivery",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "MobilePushDisplayView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/mobile/push/deliveries/{deliveryId}/receipts",
+    "controller": "MobilePush",
+    "action": "Receipt",
+    "authRequired": true,
+    "bodyType": "MobilePushReceipt",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": []
+      },
+      {
+        "name": "installationId",
+        "type": "Guid",
+        "rules": []
+      },
+      {
+        "name": "bindingVersion",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "snoozeCount",
+        "type": "Int32",
+        "rules": []
+      },
+      {
+        "name": "stage",
+        "type": "String",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/mobile/push/devices/{installationId}",
+    "controller": "MobilePush",
+    "action": "Remove",
+    "authRequired": true,
+    "bodyType": "RemoveMobilePushDevice",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": []
+      },
+      {
+        "name": "bindingVersion",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "clientSequence",
+        "type": "Int64",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/mobile/push/devices/{installationId}",
+    "controller": "MobilePush",
+    "action": "Device",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "MobilePushDeviceView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/mobile/push/devices/{installationId}",
+    "controller": "MobilePush",
+    "action": "Register",
+    "authRequired": true,
+    "bodyType": "RegisterMobilePushDevice",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": [
+          "required"
+        ]
+      },
+      {
+        "name": "fcmToken",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..4096"
+        ]
+      },
+      {
+        "name": "bindingVersion",
+        "type": "Int64",
+        "rules": [
+          "range:0..9.223372036854776E+18"
+        ]
+      },
+      {
+        "name": "clientSequence",
+        "type": "Int64",
+        "rules": [
+          "range:1..9.223372036854776E+18"
+        ]
+      },
+      {
+        "name": "platform",
+        "type": "String",
+        "rules": [
+          "required",
+          "RegularExpression"
+        ]
+      },
+      {
+        "name": "packageName",
+        "type": "String",
+        "rules": [
+          "required",
+          "RegularExpression"
+        ]
+      },
+      {
+        "name": "appVersion",
+        "type": "String",
+        "rules": [
+          "required",
+          "length:1..32"
+        ]
+      },
+      {
+        "name": "buildNumber",
+        "type": "Int64",
+        "rules": [
+          "range:1..9.223372036854776E+18"
+        ]
+      },
+      {
+        "name": "osVersion",
+        "type": "String",
+        "rules": [
+          "length:0..64"
+        ]
+      },
+      {
+        "name": "permission",
+        "type": "String",
+        "rules": [
+          "required",
+          "RegularExpression"
+        ]
+      },
+      {
+        "name": "remindersChannelEnabled",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "MobilePushDeviceView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/mobile/push/preferences",
+    "controller": "MobilePush",
+    "action": "Preferences",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "MobilePushPreferencesView"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/mobile/push/preferences",
+    "controller": "MobilePush",
+    "action": "UpdatePreferences",
+    "authRequired": true,
+    "bodyType": "UpdateMobilePushPreferences",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": []
+      },
+      {
+        "name": "version",
+        "type": "Int64",
+        "rules": []
+      },
+      {
+        "name": "enabled",
+        "type": "Boolean",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 200,
+        "type": "MobilePushPreferencesView"
+      }
+    ]
+  },
+  {
+    "method": "GET",
     "path": "/api/note-categories",
     "controller": "Support",
     "action": "NoteCategories",
@@ -2733,6 +3016,21 @@
   },
   {
     "method": "GET",
+    "path": "/api/notifications/summary",
+    "controller": "Notifications",
+    "action": "Summary",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationInboxSummary"
+      }
+    ]
+  },
+  {
+    "method": "GET",
     "path": "/api/notifications/{id}",
     "controller": "Notifications",
     "action": "Get",
@@ -2743,6 +3041,52 @@
       {
         "status": 200,
         "type": "NotificationView"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/notifications/{id}/delivery-receipts",
+    "controller": "Notifications",
+    "action": "Receipt",
+    "authRequired": true,
+    "bodyType": "RecordNotificationReceipt",
+    "fields": [
+      {
+        "name": "expectedUserId",
+        "type": "Guid",
+        "rules": []
+      },
+      {
+        "name": "snoozeCount",
+        "type": "Int32",
+        "rules": []
+      },
+      {
+        "name": "stage",
+        "type": "NotificationReceiptStage",
+        "rules": []
+      }
+    ],
+    "success": [
+      {
+        "status": 204,
+        "type": "Void"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/notifications/{id}/delivery-status",
+    "controller": "Notifications",
+    "action": "DeliveryStatus",
+    "authRequired": true,
+    "bodyType": null,
+    "fields": null,
+    "success": [
+      {
+        "status": 200,
+        "type": "NotificationDeliveryStatus"
       }
     ]
   },
@@ -5047,6 +5391,16 @@
       {
         "name": "applyToSubtree",
         "type": "Boolean",
+        "rules": []
+      },
+      {
+        "name": "detachKind",
+        "type": "String",
+        "rules": []
+      },
+      {
+        "name": "detachResourceId",
+        "type": "Guid?",
         "rules": []
       },
       {
