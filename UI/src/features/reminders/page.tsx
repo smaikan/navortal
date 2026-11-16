@@ -90,7 +90,15 @@ export function RemindersPage() {
                     const when = reminderWhen(r.dueAt, now, zone, today);
                     const offset = Math.floor(index / pageSize) * pageSize;
                     return (
-                      <li key={r.id} data-reminder-id={r.id}>
+                      <li
+                        key={r.id}
+                        data-reminder-id={r.id}
+                        onClick={event => {
+                          // Satırın boş yerine basınca da ayrıntı açılır; düğme ve menü kendi işini yapar.
+                          if ((event.target as HTMLElement).closest("button, a, [role='menu'], .menu")) return;
+                          event.currentTarget.querySelector<HTMLButtonElement>(".row-open")?.click();
+                        }}
+                      >
                         <div className="reminder-when">
                           <time dateTime={r.dueAt}>{when.time}</time>
                           <span className={when.soon ? "soon" : undefined}>{when.text}</span>

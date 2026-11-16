@@ -352,6 +352,9 @@
     min-height: 44px;
   }
 }
+.reminders-list > li:has(.row-open:not(:disabled)) {
+  cursor: pointer;
+}
 .reminder-preset-grip {
   cursor: grab;
   touch-action: none;

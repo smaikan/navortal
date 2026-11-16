@@ -277,7 +277,15 @@ function Month({
         {items.map(day => {
           const Icon = kindIcon[day.kind];
           return (
-            <li key={day.id} className={`special-item special-row ${kindClass(day.kind)}`}>
+            <li
+              key={day.id}
+              className={`special-item special-row ${kindClass(day.kind)}`}
+              onClick={event => {
+                // Satırın boş yerine basınca da ayrıntı açılır; düğme ve menü kendi işini yapar.
+                if ((event.target as HTMLElement).closest("button, a, [role='menu'], .menu")) return;
+                event.currentTarget.querySelector<HTMLButtonElement>(".row-open")?.click();
+              }}
+            >
               <span className="special-date" aria-hidden="true">
                 <b>{day.day}</b>
                 <small>{monthName(Number(day.month)).slice(0, 3)}</small>

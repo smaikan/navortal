@@ -447,3 +447,6 @@
     min-height: 44px;
   }
 }
+.special-item:has(.row-open) {
+  cursor: pointer;
+}
