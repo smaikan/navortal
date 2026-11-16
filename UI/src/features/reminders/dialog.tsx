@@ -14,11 +14,14 @@ import {
   reminderFailure,
   reminderFields,
   reminderToday,
-  reminderAfter,
   reminderDays,
   type Reminder,
 } from "./model";
 import { useReminderCache } from "./queries";
+import { Pencil } from "lucide-react";
+import { presetDue, presetLabel } from "./presets";
+import { PresetEditor } from "./preset-editor";
+import { useReminderPresets } from "./use-presets";
 type Action = "create" | "edit" | "cancel";
 const headings = { create: "Hatırlatma ekle", edit: "Hatırlatmayı düzenle", cancel: "Hatırlatmayı iptal et" };
 export function ReminderDialog({
@@ -40,6 +43,8 @@ export function ReminderDialog({
 }) {
   const zone = reminder?.repeat?.timeZoneId ?? displayZone;
   const { session } = useSession();
+  const { presets, save: savePresets } = useReminderPresets();
+  const [editingPresets, setEditingPresets] = useState(false);
   const cache = useReminderCache();
   const id = useId();
   const [initialDue] = useState(() => (reminder ? dueInput(reminder.dueAt, zone) : `${reminderToday(zone)}T00:00`));
@@ -275,19 +280,31 @@ export function ReminderDialog({
                     }}
                   />
                   <div className="reminder-time-shortcuts">
-                    {[15, 30, 60].map(n => (
+                    {presets.map(preset => (
                       <button
-                        key={n}
+                        key={presetLabel(preset)}
                         type="button"
                         onClick={() => {
-                          setDue(reminderAfter(n, zone));
+                          setDue(presetDue(preset, zone));
                           setChoice("");
                         }}
                       >
-                        {n === 60 ? "1 saat sonra" : `${n} dk sonra`}
+                        {presetLabel(preset)}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      className="reminder-preset-edit"
+                      aria-label="Kısayolları düzenle"
+                      aria-expanded={editingPresets}
+                      onClick={() => setEditingPresets(!editingPresets)}
+                    >
+                      <Pencil size={14} aria-hidden="true" />
+                    </button>
                   </div>
+                  {editingPresets && (
+                    <PresetEditor presets={presets} onSave={savePresets} onClose={() => setEditingPresets(false)} />
+                  )}
                 </section>
                 <section className="reminder-repeat-field">
                   <label className="reminder-repeat-toggle">

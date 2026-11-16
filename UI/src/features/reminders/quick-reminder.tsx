@@ -1,8 +1,11 @@
 "use client";
 import { useId, useRef, useState } from "react";
-import { Temporal } from "temporal-polyfill";
+import { Pencil } from "lucide-react";
 import { useSession } from "../auth/provider";
-import { reminderAfter, reminderFailure, reminderFields, reminderToday, readReminder } from "./model";
+import { reminderAfter, reminderFailure, reminderFields, readReminder } from "./model";
+import { presetDue, presetLabel } from "./presets";
+import { PresetEditor } from "./preset-editor";
+import { useReminderPresets } from "./use-presets";
 import { useReminderCache } from "./queries";
 
 /** Modal açmadan hızlı ekleme: başlığı yaz, bir zaman kısayoluna bas. */
@@ -23,14 +26,8 @@ export function QuickReminder({
   const [title, setTitle] = useState("");
   const [pending, setPending] = useState(false);
   const [issue, setIssue] = useState("");
-  const presets: { label: string; due: () => string }[] = [
-    { label: "10 dk sonra", due: () => reminderAfter(10, zone) },
-    { label: "1 saat sonra", due: () => reminderAfter(60, zone) },
-    {
-      label: "Yarın sabah",
-      due: () => `${Temporal.PlainDate.from(reminderToday(zone)).add({ days: 1 }).toString()}T09:00`,
-    },
-  ];
+  const { presets, save } = useReminderPresets();
+  const [editing, setEditing] = useState(false);
   async function add(due: string) {
     if (busy.current) return;
     if (!title.trim()) {
@@ -81,16 +78,26 @@ export function QuickReminder({
         <div className="reminder-quick-presets" role="group" aria-label="Zaman seç">
           {presets.map(preset => (
             <button
-              key={preset.label}
+              key={presetLabel(preset)}
               type="button"
               disabled={disabled || pending}
-              onClick={() => void add(preset.due())}
+              onClick={() => void add(presetDue(preset, zone))}
             >
-              {preset.label}
+              {presetLabel(preset)}
             </button>
           ))}
+          <button
+            type="button"
+            className="reminder-preset-edit"
+            aria-label="Kısayolları düzenle"
+            aria-expanded={editing}
+            onClick={() => setEditing(!editing)}
+          >
+            <Pencil size={14} aria-hidden="true" />
+          </button>
         </div>
       </div>
+      {editing && <PresetEditor presets={presets} onSave={save} onClose={() => setEditing(false)} />}
       {issue && (
         <p role="alert" className="field-error">
           {issue}
