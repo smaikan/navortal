@@ -36,6 +36,8 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      # Uretimde her SQL komutunu loglamayalim: disk dolmasin, parametre degerleri loga yazilmasin.
+      Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command: Warning
       # API'ye dogrudan UI baglanir; X-Forwarded-For yalniz ondan kabul edilir.
       ReverseProxy__KnownProxies__0: ${REVERSE_PROXY_IP:-${UI_IP:-172.30.81.10}}
     depends_on:
