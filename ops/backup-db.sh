@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Navortal veritabani yedegi: sikistirilmis pg_dump, dogrulama, 14 gun saklama.
+# Navortal veritabani yedegi: sikistirilmis pg_dump, dogrulama, en fazla 5 yedek saklama.
 set -euo pipefail
 umask 077
 DIR=/var/backups/navortal
-KEEP_DAYS=14
+KEEP=5
 NAME="adhd-$(date +%Y%m%d-%H%M).dump"
 mkdir -p "$DIR"
 log() { echo "$(date -Is) $*"; }
@@ -22,7 +22,5 @@ fi
 mv "$DIR/.$NAME.tmp" "$DIR/$NAME"
 log "TAMAM: $NAME ($((size / 1024)) KB)"
 
-# Eski yedekleri sil, ama en az son 3 yedek her zaman kalsin.
-ls -1t "$DIR"/adhd-*.dump | tail -n +4 | while read -r f; do
-  if [ -n "$(find "$f" -mtime +$KEEP_DAYS -print)" ]; then rm -f "$f"; log "silindi: $(basename "$f")"; fi
-done
+# Yalniz en yeni $KEEP yedek kalir, digerleri silinir.
+ls -1t "$DIR"/adhd-*.dump | tail -n +$((KEEP + 1)) | while read -r f; do rm -f "$f"; log "silindi: $(basename "$f")"; done
