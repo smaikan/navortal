@@ -84,14 +84,15 @@ export function MatrixPage() {
     version = matrix.q.data?.version,
     remove = false,
   ) {
-    const ok = await matrix.write(remove ? "remove" : "move", id, area, before, version);
-    if (ok)
-      requestAnimationFrame(() => {
-        const element =
-          document.querySelector<HTMLElement>(`[data-matrix-task="${id}"] [data-matrix-grip]`) ??
-          document.querySelector<HTMLElement>(`[data-matrix-heading="${area}"]`);
-        element?.focus({ preventScroll: true });
-      });
+    const written = matrix.write(remove ? "remove" : "move", id, area, before, version);
+    // Kart ekranda hemen yerine geçtiği için odak da hemen ona gider; sunucu yanıtı beklenmez.
+    requestAnimationFrame(() => {
+      const element =
+        document.querySelector<HTMLElement>(`[data-matrix-task="${id}"] [data-matrix-grip]`) ??
+        document.querySelector<HTMLElement>(`[data-matrix-heading="${area}"]`);
+      element?.focus({ preventScroll: true });
+    });
+    await written;
   }
   function dropped(event: DragEndEvent) {
     const to = pointedTarget(),

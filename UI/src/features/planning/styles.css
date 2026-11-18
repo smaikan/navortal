@@ -367,7 +367,15 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  /* Başlık ve plan listesiyle aynı genişlikte biter; geniş ekranda tek başına sağ kenara uzamaz. */
+  max-width: 880px;
   margin: 4px 0 12px;
+}
+/* Gün sayfasındaki kart ve şeritler de liste genişliğinde kalır. */
+.resume-card,
+.nudge,
+.special-today {
+  max-width: 880px;
 }
 .day-bar-line {
   display: flex;

@@ -116,9 +116,9 @@ export function PlanRow({
   const [step, setStep] = useState<"first" | "important" | null>(null);
   const busy = actions.pending === key;
   const failure = actions.failure?.id === key ? actions.failure.text : "";
-  // Kutu tıklamayı hemen izler. Yazı ve okuma bitince, hata olsa da sunucu değeri gösterilir.
-  const [shown, setShown] = useState<boolean | null>(null);
-  const done = shown ?? facts.done;
+  // Tıklanan durum anında gösterilir; sorgu verisi (facts.done) değişince kendiliğinden ona geçilir.
+  const [shown, setShown] = useState<{ from: boolean; value: boolean } | null>(null);
+  const done = shown && shown.from === facts.done ? shown.value : facts.done;
   const pop = useDonePop(done);
   const block = entry.kind === "block" ? entry.block : null;
   const work = !block || block.kind === "Work";
@@ -151,8 +151,11 @@ export function PlanRow({
             disabled={busy}
             aria-label={`${facts.title} plan öğesi bitti`}
             onChange={() => {
-              setShown(!done);
-              void actions.toggle(entry).finally(() => setShown(null));
+              // Kutu ve çizgi anında değişir; sunucu yanıtı beklenmez. Hata olursa eski haline döner.
+              setShown({ from: facts.done, value: !done });
+              void actions.toggle(entry, !done).then(ok => {
+                if (!ok) setShown(null);
+              });
             }}
           />
         </label>

@@ -4,7 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "../auth/provider";
 import { queryKeys } from "../../lib/api/query-client";
 import { ApiError } from "../../lib/api/errors";
-import { readBoard, readCandidates, integer, type Quadrant } from "./model";
+import { readBoard, readCandidates, integer, type Board, type Quadrant } from "./model";
+import { dropCard, moveCard, withVersion } from "./optimistic";
 export type Offsets = Record<Quadrant, number>;
 export function useMatrix(offsets: Offsets) {
   const { session, state } = useSession();
@@ -30,7 +31,9 @@ export function useMatrix(offsets: Offsets) {
         }),
       ),
   });
-  const flight = useRef(false);
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
+  const waiting = useRef(0);
+  const ownVersion = useRef<number | string | undefined>(undefined);
   const [pending, setPending] = useState(false),
     [blocked, setBlocked] = useState(false),
     [failure, setFailure] = useState("");
@@ -44,63 +47,101 @@ export function useMatrix(offsets: Offsets) {
       setFailure("");
     }
   }
-  async function write(
+  const boards = queryKeys.resource(owner, "matrix").slice(0, 3);
+  /** Önbellekteki bütün matris görünümlerine uygular. Devam eden okuma eski halini geri yazmasın diye önce durdurulur. */
+  function patchBoards(change: (board: Board) => Board | null) {
+    void client.cancelQueries({ queryKey: boards, predicate: query => query.state.data !== undefined });
+    const undo: (() => void)[] = [];
+    for (const [key, data] of client.getQueriesData<Board>({ queryKey: boards })) {
+      const next = data ? change(data) : null;
+      if (!next || next === data) continue;
+      client.setQueryData(key, next);
+      undo.push(() => client.setQueryData<Board>(key, now => (now === next ? data : now)));
+    }
+    return () => undo.forEach(run => run());
+  }
+  function settle() {
+    waiting.current--;
+    if (waiting.current === 0) {
+      ownVersion.current = undefined;
+      if (current()) {
+        setPending(false);
+        void refresh().catch(() => {});
+      }
+    }
+  }
+  /**
+   * Taşıma ve çıkarma ekranda hemen görünür, sunucuya arka planda sırayla gider; tahta kilitlenmez.
+   * Ekleme hemen gösterilmez (kart verisi sunucudan gelir), sıra boşalınca tahta yenilenir.
+   */
+  function write(
     kind: "add" | "move" | "remove",
     taskId: string,
     quadrant: Quadrant,
     beforeTaskId: string | null = null,
     version = q.data?.version,
-  ) {
-    if (flight.current || blocked || version === undefined || !current()) return false;
-    flight.current = true;
-    setPending(true);
+  ): Promise<number | string | false> {
+    if (blocked || version === undefined || !current()) return Promise.resolve(false);
     setFailure("");
-    try {
-      const body = { version, quadrant, beforeTaskId };
-      const result =
-        kind === "add"
-          ? await session.api.mutation("/api/matrix/items/{taskId}", "post", { path: { taskId }, body }).execute()
-          : kind === "move"
-            ? await session.api.mutation("/api/matrix/items/{taskId}", "put", { path: { taskId }, body }).execute()
-            : await session.api
-                .mutation("/api/matrix/items/{taskId}", "delete", { path: { taskId }, query: { version } })
-                .execute();
-      if (!current()) return false;
-      if (!result || result.taskId !== taskId || !integer(result.version) || BigInt(result.version) <= BigInt(version))
-        throw new ApiError(
-          "protocol",
-          "İşlemin sonucu doğrulanamadı. Listeyi kontrol et.",
-          0,
-          undefined,
-          {},
-          undefined,
-          undefined,
-          true,
+    const undo =
+      kind === "move"
+        ? patchBoards(board => moveCard(board, taskId, quadrant, beforeTaskId))
+        : kind === "remove"
+          ? patchBoards(board => dropCard(board, taskId))
+          : () => {};
+    if (kind === "add") setPending(true);
+    waiting.current++;
+    const job = queue.current.then(async (): Promise<number | string | false> => {
+      // Art arda yazılarda önceki yanıtın sürümü kullanılır; başka sekmedeki değişiklik yine çakışma olarak döner.
+      const sent = ownVersion.current ?? version;
+      try {
+        const body = { version: sent, quadrant, beforeTaskId };
+        const result =
+          kind === "add"
+            ? await session.api.mutation("/api/matrix/items/{taskId}", "post", { path: { taskId }, body }).execute()
+            : kind === "move"
+              ? await session.api.mutation("/api/matrix/items/{taskId}", "put", { path: { taskId }, body }).execute()
+              : await session.api
+                  .mutation("/api/matrix/items/{taskId}", "delete", { path: { taskId }, query: { version: sent } })
+                  .execute();
+        if (!current()) return false;
+        if (!result || result.taskId !== taskId || !integer(result.version) || BigInt(result.version) <= BigInt(sent))
+          throw new ApiError(
+            "protocol",
+            "İşlemin sonucu doğrulanamadı. Listeyi kontrol et.",
+            0,
+            undefined,
+            {},
+            undefined,
+            undefined,
+            true,
+          );
+        ownVersion.current = result.version;
+        for (const [key, data] of client.getQueriesData<Board>({ queryKey: boards }))
+          if (data) client.setQueryData(key, withVersion(data, result.version));
+        return result.version;
+      } catch (e) {
+        if (!current()) return false;
+        undo();
+        const error = e instanceof ApiError ? e : null;
+        setFailure(
+          error?.outcomeUnknown
+            ? "İşlemin sonucu alınamadı. Yeniden taşımadan önce listeyi kontrol et."
+            : error?.code === "matrix_version_conflict"
+              ? "Matris başka bir işlemde değişti. Güncel listeyi alıp yeniden seç."
+              : error?.code === "matrix_task_exists"
+                ? "Bu görev matriste zaten var. Listeyi yenile."
+                : error?.message || "Değişiklik kaydedilemedi.",
         );
-      await Promise.all([
-        client.invalidateQueries({ queryKey: queryKeys.resource(owner, "matrix").slice(0, 3) }),
-        client.invalidateQueries({ queryKey: queryKeys.resource(owner, "matrix-candidates").slice(0, 3) }),
-      ]);
-      return current() ? result.version : false;
-    } catch (e) {
-      if (!current()) return false;
-      const error = e instanceof ApiError ? e : null;
-      setFailure(
-        error?.outcomeUnknown
-          ? "İşlemin sonucu alınamadı. Yeniden taşımadan önce listeyi kontrol et."
-          : error?.code === "matrix_version_conflict"
-            ? "Matris başka bir işlemde değişti. Güncel listeyi alıp yeniden seç."
-            : error?.code === "matrix_task_exists"
-              ? "Bu görev matriste zaten var. Listeyi yenile."
-              : error?.message || "Değişiklik kaydedilemedi.",
-      );
-      if (error?.outcomeUnknown) setBlocked(true);
-      if (error?.status === 409 || error?.status === 404) await q.refetch();
-      return false;
-    } finally {
-      flight.current = false;
-      if (current()) setPending(false);
-    }
+        if (error?.outcomeUnknown) setBlocked(true);
+        ownVersion.current = undefined;
+        return false;
+      } finally {
+        settle();
+      }
+    });
+    queue.current = job;
+    return job;
   }
   return { q, pending, blocked, failure, write, refresh };
 }

@@ -6391,11 +6391,12 @@ label:has(> .temporal-control) {
 /* Geniş ekran ölçeği. Başlık bloğu (main > header) bütün sayfalarda Görevler'deki ölçekle çizilir; içerik ise sayfaya göre ölçeklenir:
    wide-scale (Görevler, Gün Planlama) başlıkla aynı ölçek, soft-scale (Analiz, Hatırlatmalar) 1920px ve üstünde 1,1.
    Ölçek main'in kendisine değil çocuklarına uygulanır; böylece kenar boşluğu ve başlık hizası sayfalar arasında aynı kalır.
-   Görevler içeriği 960px sınırlı olduğundan ölçek yan menüden kalan genişliğe göre sürekli hesaplanır (yaklaşık 1040px = ölçek 1).
+   Ölçek ölçülü tutulur: 1648px'e kadar 1 (ör. 1920x1200 ekran %125 Windows ölçeğinde 1536px; işletim sistemi zaten büyütüyor),
+   %100 ölçekli 1920px'te en çok 1,15 (14px yazı ≈16px). Daha geniş ekranlarda içerik büyümez, yalnız boşluk artar.
    Menü konumu menu.tsx içinde ölçeğe göre düzeltilir. */
 @media (min-width: 1300px) {
   html {
-    --title-zoom: clamp(1, calc((100vw - 248px) / 1040px), 1.9);
+    --title-zoom: clamp(1, calc((100vw - 248px) / 1400px), 1.15);
   }
   .workspace-main > header,
   .workspace-main > .boot-heading {
